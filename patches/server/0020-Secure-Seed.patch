@@ -353,47 +353,41 @@ index 681cd79ce24fe5d952e987d46e2fd8df07a0f8a1..cf8fba3e4c99044d9c3674072a4b0757
 diff --git a/src/main/java/net/minecraft/server/commands/SeedCommand.java b/src/main/java/net/minecraft/server/commands/SeedCommand.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..0179e4c19df840d392707a00d74170ded23b129e
---- /dev/null
+--- a/src/main/java/net/minecraft/server/commands/SeedCommand.java
 +++ b/src/main/java/net/minecraft/server/commands/SeedCommand.java
-@@ -0,0 +1,38 @@
-+package net.minecraft.server.commands;
-+
-+import com.mojang.brigadier.CommandDispatcher;
-+import net.minecraft.commands.CommandSourceStack;
-+import net.minecraft.commands.Commands;
-+import net.minecraft.network.chat.Component;
-+import net.minecraft.network.chat.ComponentUtils;
-+
+@@ -6,14 +6,34 @@ import net.minecraft.commands.Commands;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.chat.ComponentUtils;
+ 
 +import net.minecraft.ChatFormatting;
 +import net.minecraft.network.chat.ClickEvent;
 +import net.minecraft.network.chat.HoverEvent;
 +import net.edenor.foldenor.Globals;
 +
-+import java.util.function.Supplier;
-+
-+public class SeedCommand {
-+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
-+        dispatcher.register(Commands.literal("seed").requires((source) -> {
-+            return !dedicated || source.hasPermission(2);
-+        }).executes((context) -> {
-+            long l = context.getSource().getLevel().getSeed();
+ public class SeedCommand {
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+         dispatcher.register(Commands.literal("seed").requires((source) -> {
+             return !dedicated || source.hasPermission(2);
+         }).executes((context) -> {
+             long l = context.getSource().getLevel().getSeed();
+-            Component component = ComponentUtils.copyOnClickText(String.valueOf(l));
+-            context.getSource().sendSuccess(Component.translatable("commands.seed.success", component), false);
 +            Globals.setupGlobals(context.getSource().getLevel());
 +            String seedStr = Globals.seedToString(Globals.worldSeed);
 +
-+                            Component seedComponent = ComponentUtils.wrapInSquareBrackets(Component.literal(String.valueOf(l)).withStyle((style) -> {
-+                                return style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, String.valueOf(l))).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(String.valueOf(l));
-+                            }));
++            Component seedComponent = ComponentUtils.wrapInSquareBrackets(Component.literal(String.valueOf(l)).withStyle((style) -> {
++                return style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, String.valueOf(l))).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(String.valueOf(l));
++            }));
 +
-+                            Component featureSeedComponent = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.copy.click").withStyle((style) -> {
-+                                return style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, seedStr)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(seedStr);
-+                            }));
++            Component featureSeedComponent = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.copy.click").withStyle((style) -> {
++                return style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, seedStr)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(seedStr);
++            }));
 +
-+                            context.getSource().sendSuccess((Supplier<Component>) Component.translatable("commands.seed.success", seedComponent), false);
-+                        context.getSource().sendSuccess((Supplier<Component>) Component.translatable("Feature seed: %s", featureSeedComponent), false);
-+            return (int)l;
-+        }));
-+    }
-+}
++            context.getSource().sendSuccess(Component.translatable("commands.seed.success", seedComponent), false);
++            context.getSource().sendSuccess(Component.translatable("Feature seed: %s", featureSeedComponent), false);
+             return (int)l;
+         }));
+     }
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
 index 818289e831e3dad29345c43265e2efd7689bc500..c7ec1b8cbbfabcd0add00ebe88e6b036469b1859 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
@@ -601,105 +595,87 @@ index ec55711e912fe6cb8f797c0b21bcef273966a47a..eb117727572a28e23ccef5dd2c71ac8f
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java b/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..204363c9826ee4e7e69f4f3b80e2ce7a52c6bbfa
---- /dev/null
+--- a/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java
-@@ -0,0 +1,99 @@
-+package net.minecraft.world.level.levelgen;
-+
-+import com.mojang.serialization.Codec;
-+import com.mojang.serialization.MapCodec;
-+import com.mojang.serialization.codecs.RecordCodecBuilder;
-+import java.util.Optional;
-+import java.util.OptionalLong;
-+import net.minecraft.util.RandomSource;
-+import org.apache.commons.lang3.StringUtils;
+@@ -8,27 +8,47 @@ import java.util.OptionalLong;
+ import net.minecraft.util.RandomSource;
+ import org.apache.commons.lang3.StringUtils;
+ 
 +import java.util.stream.LongStream;
 +import net.edenor.foldenor.Globals;
 +
-+public class WorldOptions {
-+    public static final MapCodec<WorldOptions> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
+ public class WorldOptions {
++    // Matter start - Feature Secure Seed
+     public static final MapCodec<WorldOptions> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
+-        return instance.group(Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed), Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldOptions::generateStructures), Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest), Codec.STRING.optionalFieldOf("legacy_custom_options").stable().forGetter((generatorOptions) -> {
 +        return instance.group(Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed),
-+                            Codec.LONG_STREAM.fieldOf("feature_seed").stable().forGetter(WorldOptions::featureSeedStream),
-+                            Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldOptions::generateStructures),
-+                            Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
-+                            Codec.STRING.optionalFieldOf("legacy_custom_options").stable().forGetter((generatorOptions) -> {
-+            return generatorOptions.legacyCustomOptions;
-+        })).apply(instance, instance.stable(WorldOptions::new));
-+    });
++                Codec.LONG_STREAM.fieldOf("feature_seed").stable().forGetter(WorldOptions::featureSeedStream),
++                Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldOptions::generateStructures),
++                Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
++                Codec.STRING.optionalFieldOf("legacy_custom_options").stable().forGetter((generatorOptions) -> {
+             return generatorOptions.legacyCustomOptions;
+         })).apply(instance, instance.stable(WorldOptions::new));
+     });
+-    public static final WorldOptions DEMO_OPTIONS = new WorldOptions((long)"North Carolina".hashCode(), true, true);
 +    public static final WorldOptions DEMO_OPTIONS = new WorldOptions((long)"North Carolina".hashCode(), Globals.createRandomWorldSeed(), true, true);
-+    private final long seed;
-+    private final boolean generateStructures;
-+    private final boolean generateBonusChest;
-+
+     private final long seed;
 +    private final long[] featureSeed;
-+    private final Optional<String> legacyCustomOptions;
-+
+     private final boolean generateStructures;
+     private final boolean generateBonusChest;
+     private final Optional<String> legacyCustomOptions;
+ 
+-    public WorldOptions(long seed, boolean generateStructures, boolean bonusChest) {
+-        this(seed, generateStructures, bonusChest, Optional.empty());
 +    public WorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean bonusChest) {
 +        this(seed, featureSeed, generateStructures, bonusChest, Optional.empty());
-+    }
-+
-+    public static WorldOptions defaultWithRandomSeed() {
+     }
+ 
+     public static WorldOptions defaultWithRandomSeed() {
+-        return new WorldOptions(randomSeed(), true, false);
 +        return new WorldOptions(randomSeed(), Globals.createRandomWorldSeed(), true, false);
 +    }
 +
++    private WorldOptions(long seed, LongStream featureSeed, boolean generateStructures, boolean bonusChest, Optional<String> legacyCustomOptions) {
++        this(seed, featureSeed.toArray(), generateStructures, bonusChest, legacyCustomOptions);
+     }
+ 
+-    private WorldOptions(long seed, boolean generateStructures, boolean bonusChest, Optional<String> legacyCustomOptions) {
 +    private WorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean bonusChest, Optional<String> legacyCustomOptions) {
 +        this.featureSeed = featureSeed;
-+        this.seed = seed;
-+        this.generateStructures = generateStructures;
-+        this.generateBonusChest = bonusChest;
-+        this.legacyCustomOptions = legacyCustomOptions;
-+    }
-+
+         this.seed = seed;
+         this.generateStructures = generateStructures;
+         this.generateBonusChest = bonusChest;
+@@ -39,6 +59,16 @@ public class WorldOptions {
+         return this.seed;
+     }
+ 
 +    public long[] featureSeed() {
-+            return this.featureSeed;
++        return this.featureSeed;
 +    }
 +
 +    public LongStream featureSeedStream() {
-+         return LongStream.of(this.featureSeed);
++        return LongStream.of(this.featureSeed);
 +    }
 +
-+    public long seed() {
-+        return this.seed;
-+    }
-+
-+    public boolean generateStructures() {
-+        return this.generateStructures;
-+    }
-+
-+    public boolean generateBonusChest() {
-+        return this.generateBonusChest;
-+    }
-+
-+    public boolean isOldCustomizedWorld() {
-+        return this.legacyCustomOptions.isPresent();
-+    }
-+
-+    public WorldOptions withBonusChest(boolean bonusChest) {
+     public boolean generateStructures() {
+         return this.generateStructures;
+     }
+@@ -52,15 +82,18 @@ public class WorldOptions {
+     }
+ 
+     public WorldOptions withBonusChest(boolean bonusChest) {
+-        return new WorldOptions(this.seed, this.generateStructures, bonusChest, this.legacyCustomOptions);
 +        return new WorldOptions(this.seed, this.featureSeed, this.generateStructures, bonusChest, this.legacyCustomOptions);
-+    }
-+
-+    public WorldOptions withStructures(boolean structures) {
+     }
+ 
+     public WorldOptions withStructures(boolean structures) {
+-        return new WorldOptions(this.seed, structures, this.generateBonusChest, this.legacyCustomOptions);
 +        return new WorldOptions(this.seed, this.featureSeed, structures, this.generateBonusChest, this.legacyCustomOptions);
-+    }
-+
-+    public WorldOptions withSeed(OptionalLong seed) {
+     }
+ 
+     public WorldOptions withSeed(OptionalLong seed) {
+-        return new WorldOptions(seed.orElse(randomSeed()), this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
 +        return new WorldOptions(seed.orElse(randomSeed()), Globals.createRandomWorldSeed(), this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
-+    }
-+
-+    public static OptionalLong parseSeed(String seed) {
-+        seed = seed.trim();
-+        if (StringUtils.isEmpty(seed)) {
-+            return OptionalLong.empty();
-+        } else {
-+            try {
-+                return OptionalLong.of(Long.parseLong(seed));
-+            } catch (NumberFormatException var2) {
-+                return OptionalLong.of((long)seed.hashCode());
-+            }
-+        }
-+    }
-+
-+    public static long randomSeed() {
-+        return RandomSource.create().nextLong();
-+    }
-+}
+     }
+ 
+     public static OptionalLong parseSeed(String seed) {
