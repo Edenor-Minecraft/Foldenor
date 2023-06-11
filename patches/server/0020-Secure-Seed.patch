@@ -351,8 +351,7 @@ index 681cd79ce24fe5d952e987d46e2fd8df07a0f8a1..cf8fba3e4c99044d9c3674072a4b0757
          GameRuleCommand.register(this.dispatcher);
          GiveCommand.register(this.dispatcher, commandRegistryAccess);
 diff --git a/src/main/java/net/minecraft/server/commands/SeedCommand.java b/src/main/java/net/minecraft/server/commands/SeedCommand.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..0179e4c19df840d392707a00d74170ded23b129e
+index 9ca33c07a261316febdb0bd67cd716848064878e..5752b6fb33d0c27fc57d6e6f2fb3660fce4f1dee 100644
 --- a/src/main/java/net/minecraft/server/commands/SeedCommand.java
 +++ b/src/main/java/net/minecraft/server/commands/SeedCommand.java
 @@ -6,14 +6,34 @@ import net.minecraft.commands.Commands;
@@ -593,8 +592,7 @@ index ec55711e912fe6cb8f797c0b21bcef273966a47a..eb117727572a28e23ccef5dd2c71ac8f
          ProfiledDuration profiledduration = JvmProfiler.INSTANCE.onChunkGenerate(ichunkaccess.getPos(), world.dimension(), this.toString());
  
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java b/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..204363c9826ee4e7e69f4f3b80e2ce7a52c6bbfa
+index d38cabc9eeb45dd863e5f87b7df3b6327ea6a4a2..1d7e6f3a0ddc0eb8774379fc6fa31cc7c8d6170c 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/WorldOptions.java
 @@ -8,27 +8,47 @@ import java.util.OptionalLong;
