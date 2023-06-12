@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 17:46:15 +0400
+Subject: [PATCH] Attemp-to-fix-server-crashes
+
+
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index 90b1d224ea184916b74eb875dabcd218c20fee57..6a2873e7a184223cbede0e7d21ad54e8308bc69a 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -174,11 +174,24 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int fromChunkX, final int fromChunkZ, final int toChunkX, final int toChunkZ) {
+-        final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
++        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+         if (region == null) {
+-            MinecraftServer.LOGGER.warn("Region at position [" + fromChunkX + ", " + fromChunkZ + "], [" + toChunkX + ", " + toChunkZ + "] is null!");
+-            return isShutdownThread();
++            try{
++                if (!Bukkit.isOwnedByCurrentRegion(world.getWorld(), fromChunkX, fromChunkZ)){
++                    region = world.regioniser.getRegionAtSynchronised(fromChunkX, fromChunkZ);
++                    if (region == null){
++                        MinecraftServer.LOGGER.warn("Region at position [" + fromChunkX + ", " + fromChunkZ + "], [" + toChunkX + ", " + toChunkZ + "] is null!");
++                        return isShutdownThread();
++                    }
++                }
++                else{
++                    return false;
++                }
++            } catch (Exception e) {
++                MinecraftServer.LOGGER.warn("Region at position [" + fromChunkX + ", " + fromChunkZ + "], [" + toChunkX + ", " + toChunkZ + "] is null!");
++                return isShutdownThread();
++            }
+         }
+ 
+         final int shift = world.regioniser.sectionChunkShift;

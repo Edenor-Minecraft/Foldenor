@@ -1,0 +1,107 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 19:31:03 +0400
+Subject: [PATCH] Fixing-Chunk-Unload
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+index 03d902afc0702770e05614f6a7a629dab72605cc..9d03f41c3421a2679b50fb5139a381d5490ccc17 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+@@ -827,23 +827,6 @@ public final class NewChunkHolder {
+ 
+         final boolean shouldLevelChunkNotSave = (chunk instanceof LevelChunk levelChunk && levelChunk.mustNotSave);
+ 
+-        // unload chunk data
+-        if (chunk != null) {
+-            if (chunk instanceof LevelChunk levelChunk) {
+-                levelChunk.setLoaded(false);
+-            }
+-
+-            if (!shouldLevelChunkNotSave) {
+-                this.saveChunk(chunk, true);
+-            } else {
+-                this.completeAsyncChunkDataSave(null);
+-            }
+-
+-            if (chunk instanceof LevelChunk levelChunk) {
+-                this.world.unload(levelChunk);
+-            }
+-        }
+-
+         // unload entity data
+         if (entityChunk != null) {
+             this.saveEntities(entityChunk, true);
+@@ -860,7 +843,7 @@ public final class NewChunkHolder {
+                     this.scheduler.schedulingLockArea.unlock(schedulingLock);
+                 }
+             } else {
+-                this.world.getEntityLookup().entitySectionUnload(this.chunkX, this.chunkZ);
++                this.world.getEntityLookup().entitySectionUnload(entityChunk.chunkX, entityChunk.chunkZ);
+             }
+             // we need to delay the callback until after determining transience, otherwise a potential loader could
+             // set entityChunk before we do
+@@ -876,7 +859,24 @@ public final class NewChunkHolder {
+             }
+ 
+             if (poiChunk.isLoaded()) {
+-                this.world.getPoiManager().onUnload(CoordinateUtils.getChunkKey(this.chunkX, this.chunkZ));
++                this.world.getPoiManager().onUnload(CoordinateUtils.getChunkKey(poiChunk.chunkX, poiChunk.chunkZ));
++            }
++        }
++
++        // unload chunk data
++        if (chunk != null) {
++            if (chunk instanceof LevelChunk levelChunk) {
++                levelChunk.setLoaded(false);
++            }
++
++            if (!shouldLevelChunkNotSave) {
++                this.saveChunk(chunk, true);
++            } else {
++                this.completeAsyncChunkDataSave(null);
++            }
++
++            if (chunk instanceof LevelChunk levelChunk) {
++                this.world.unload(levelChunk);
+             }
+         }
+     }
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index 03853191c03d2873742798614f0dff045b30b004..59079feae0502c6fe41fd7f3f71779ebf36ecc64 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -137,25 +137,18 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ) {
+-        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region;
+-        try{
+-            MinecraftServer.LOGGER.info("Trying to tick region at position [" + chunkX + ", " + chunkZ + "]");
+-            region = TickRegionScheduler.getCurrentRegion();
+-            if (region == null){
+-                try{
+-                    region = world.regioniser.getRegionAtSynchronised(chunkX, chunkZ);
+-                    if (region == null){
+-                        MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
+-                        return isShutdownThread();
+-                    }
+-                } catch (Exception e) {
++        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region = TickRegionScheduler.getCurrentRegion();
++        if (region == null){
++            try{
++                region = world.regioniser.getRegionAtSynchronised(chunkX, chunkZ);
++                if (region == null){
+                     MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
+                     return isShutdownThread();
+                 }
++            } catch (Exception e) {
++                MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
++                return isShutdownThread();
+             }
+-        } catch (Exception e) {
+-            MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
+-            return isShutdownThread();
+         }
+ 
+         return world.regioniser.getRegionAtUnsynchronised(chunkX, chunkZ) == region;
