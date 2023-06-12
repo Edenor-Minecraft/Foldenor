@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 15:37:52 +0400
+Subject: [PATCH] Log-warnings-if-region-is-null
+
+
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index cb453dd110fc37fae75257a4576512126207763e..90b1d224ea184916b74eb875dabcd218c20fee57 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -177,6 +177,7 @@ public class TickThread extends Thread {
+         final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+         if (region == null) {
++            MinecraftServer.LOGGER.warn("Region at position [" + fromChunkX + ", " + fromChunkZ + "], [" + toChunkX + ", " + toChunkZ + "] is null!");
+             return isShutdownThread();
+         }
+ 
