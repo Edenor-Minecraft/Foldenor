@@ -1,5 +1,5 @@
 <div align=center>
-    <img src="./folia.png">
+    <img src="./foldenor.png">
     <br /><br />
     <p>Fork of <a href="https://github.com/PaperMC/Paper">Paper</a> which adds regionised multithreading to the dedicated server.</p>
 </div>
