@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 13:56:57 +0400
+Subject: [PATCH] Disable-check-folia-plugin-support-and-fixed-seed-command
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java b/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java
+index 33fafdf3a27b9856ea27a673848a4d2e76153fbd..76d8ecb472466ade8702bf656c579af62352a80a 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java
+@@ -26,9 +26,9 @@ class PaperPluginProviderFactory implements PluginTypeFactory<PaperPluginParent,
+     @Override
+     public PaperPluginParent build(JarFile file, PaperPluginMeta configuration, Path source) throws Exception {
+         // Folia start - block plugins not marked as supported
+-        if (!configuration.isFoliaSupported() || !Bukkit.getServer().getEnableNonFoliaPlugins()) {
++        /*if (!configuration.isFoliaSupported() || !Bukkit.getServer().getEnableNonFoliaPlugins()) {
+             throw new RuntimeException("Could not load plugin '" + configuration.getDisplayName() + "' as it is not marked as supporting Folia!");
+-        }
++        }*/
+         // Folia end - block plugins not marked as supported
+         Logger jul = PaperPluginLogger.getLogger(configuration);
+         ComponentLogger logger = ComponentLogger.logger(jul.getName());
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java b/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java
+index ac3aa8da9ac51f88451b3f2b9b9b0c81aa5734c9..e787f79f3c73d17497faf8f2bbfde57a463d77ec 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java
+@@ -19,9 +19,9 @@ class SpigotPluginProviderFactory implements PluginTypeFactory<SpigotPluginProvi
+     @Override
+     public SpigotPluginProvider build(JarFile file, PluginDescriptionFile configuration, Path source) throws Exception {
+         // Folia start - block plugins not marked as supported
+-        if (!configuration.isFoliaSupported() || !Bukkit.getServer().getEnableNonFoliaPlugins()) {
++        /*if (!configuration.isFoliaSupported() || !Bukkit.getServer().getEnableNonFoliaPlugins()) {
+             throw new RuntimeException("Could not load plugin '" + configuration.getDisplayName() + "' as it is not marked as supporting Folia!");
+-        }
++        }*/
+         // Folia end - block plugins not marked as supported
+         // Copied from SimplePluginManager#loadPlugins
+         // Spigot doesn't validate the name when the config is created, and instead when the plugin is loaded.
+diff --git a/src/main/java/net/minecraft/server/commands/NewSeedCommand.java b/src/main/java/net/minecraft/server/commands/NewSeedCommand.java
+index dc5e2fcdba09be7dae8fec7dd7e0222592bf81b7..86df4e47371e952ae2c31a74dcbad4177a60beed 100644
+--- a/src/main/java/net/minecraft/server/commands/NewSeedCommand.java
++++ b/src/main/java/net/minecraft/server/commands/NewSeedCommand.java
+@@ -30,8 +30,8 @@ public class NewSeedCommand {
+                  return style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, seedStr)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(seedStr);
+            }));
+ 
+-            context.getSource().sendSuccess((Supplier<Component>) Component.translatable("commands.seed.success", seedComponent), false);
+-            context.getSource().sendSuccess((Supplier<Component>) Component.translatable("Feature seed: %s", featureSeedComponent), false);
++            context.getSource().sendSuccess(() -> {return Component.translatable("commands.seed.success", seedComponent);}, false);
++            context.getSource().sendSuccess(() -> {return Component.translatable("Feature seed: %s", featureSeedComponent);}, false);
+             return (int)l;
+         }));
+     }
