@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 14:20:39 +0400
+Subject: [PATCH] Force-load-after-datapack-error
+
+
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index ccd9f1fa4114686bf623d21a751448502cba3802..fe7220a53fafd6d4a5674678c1d1b42472bdba9c 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -75,7 +75,7 @@ public class Commands {
+         //CloneCommands.register(this.dispatcher, commandRegistryAccess); // Folia - region threading - TODO
+         DamageCommand.register(this.dispatcher, commandRegistryAccess);
+         //DataCommands.register(this.dispatcher); // Folia - region threading - TODO
+-        //DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
++        DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
+         //DebugCommand.register(this.dispatcher); // Folia - region threading - TODO
+         DefaultGameModeCommands.register(this.dispatcher);
+         DifficultyCommand.register(this.dispatcher);
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 8fb6abe1be994fe50cb1fb02999f93466e9dcf1a..a2ea52266d72bbe445bb843eeb3b3edee548062c 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -275,7 +275,7 @@ public class Main {
+                 }).get();
+             } catch (Exception exception) {
+                 Main.LOGGER.warn("Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode", exception);
+-                return;
++                //return;
+             }
+ 
+             /*
+diff --git a/src/main/java/net/minecraft/world/level/storage/PrimaryLevelData.java b/src/main/java/net/minecraft/world/level/storage/PrimaryLevelData.java
+index 5746e97fd16a872b8d18ae634e4c95ea5c887e76..bbe0898924bded4c1e3591a4162969c975d8998e 100644
+--- a/src/main/java/net/minecraft/world/level/storage/PrimaryLevelData.java
++++ b/src/main/java/net/minecraft/world/level/storage/PrimaryLevelData.java
+@@ -38,7 +38,6 @@ import net.minecraft.world.level.border.WorldBorder;
+ import net.minecraft.world.level.dimension.LevelStem;
+ import net.minecraft.world.level.dimension.end.EndDragonFight;
+ import net.minecraft.world.level.levelgen.NewWorldOptions;
+-import net.minecraft.world.level.levelgen.WorldOptions;
+ import net.minecraft.world.level.timers.TimerCallbacks;
+ import net.minecraft.world.level.timers.TimerQueue;
+ import org.slf4j.Logger;

@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 11 Jun 2023 23:23:36 +0400
+Subject: [PATCH] Temp-fix-for-null-chunk
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ChunkHolder.java b/src/main/java/net/minecraft/server/level/ChunkHolder.java
+index 18f438eec03cabc1614ab807081cff6b18fb09a8..55f0fbc0d311f76b9345b21361f5d087a5288d6c 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkHolder.java
++++ b/src/main/java/net/minecraft/server/level/ChunkHolder.java
+@@ -13,6 +13,7 @@ import java.util.concurrent.Executor;
+ import java.util.concurrent.atomic.AtomicReferenceArray;
+ import java.util.function.IntConsumer;
+ import java.util.function.IntSupplier;
++import java.util.logging.Logger;
+ import javax.annotation.Nullable;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+@@ -304,6 +305,10 @@ public class ChunkHolder {
+ 
+     public void broadcastChanges(LevelChunk chunk) {
+         if (this.needsBroadcastChanges()) { // Paper - moved into above, other logic needs to call
++            if (chunk == null){
++                MinecraftServer.LOGGER.error("Failed to tick chunk, beacause chunk is null");
++                return;
++            }
+             Level world = chunk.getLevel();
+             List list;
+ 

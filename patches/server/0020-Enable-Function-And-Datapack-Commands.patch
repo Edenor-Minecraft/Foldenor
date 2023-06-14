@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 11 Jun 2023 23:10:51 +0400
+Subject: [PATCH] Enable-Function-And-Datapack-Commands
+
+
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index 681cd79ce24fe5d952e987d46e2fd8df07a0f8a1..144b0b57e21bb735ceef3302dab3e36912d616db 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -149,7 +149,7 @@ public class Commands {
+         //CloneCommands.register(this.dispatcher, commandRegistryAccess); // Folia - region threading - TODO
+         DamageCommand.register(this.dispatcher, commandRegistryAccess);
+         //DataCommands.register(this.dispatcher); // Folia - region threading - TODO
+-        //DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
++        DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
+         //DebugCommand.register(this.dispatcher); // Folia - region threading - TODO
+         DefaultGameModeCommands.register(this.dispatcher);
+         DifficultyCommand.register(this.dispatcher);
+@@ -160,7 +160,7 @@ public class Commands {
+         FillCommand.register(this.dispatcher, commandRegistryAccess);
+         FillBiomeCommand.register(this.dispatcher, commandRegistryAccess);
+         ForceLoadCommand.register(this.dispatcher);
+-        //FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
++        FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
+         GameModeCommand.register(this.dispatcher);
+         GameRuleCommand.register(this.dispatcher);
+         GiveCommand.register(this.dispatcher, commandRegistryAccess);

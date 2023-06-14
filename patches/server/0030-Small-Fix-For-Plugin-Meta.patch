@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 13:59:57 +0400
+Subject: [PATCH] Small-Fix-For-Plugin-Meta
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java b/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
+index e300a8c0eac6468214d31725674667bcb153ee0f..2bced59efc9611aa37413ece9b36077a2f5ea78b 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
+@@ -233,7 +233,7 @@ public class PaperPluginMeta implements PluginMeta {
+     // Folia start
+     @Override
+     public boolean isFoliaSupported() {
+-        if (Bukkit.getServer().getEnableNonFoliaPlugins()) return true;
++        //if (Bukkit.getServer().getEnableNonFoliaPlugins()) return true;
+         return this.foliaSupported;
+     }
+     // Folia end
