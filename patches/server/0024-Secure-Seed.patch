@@ -482,7 +482,7 @@ index dae36c6452ccd57a436dd918547b64d59957ab0a..d031e34edd0b5e9af6901f86961601f2
                              } else {
                                  DedicatedServerProperties dedicatedserverproperties = dedicatedserversettings.getProperties();
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 9ed33b048b07b464ae1f95b9e15291e08362f9e0..d0aceda9cadda563a8b0c228da3f0963e887ab08 100644
+index 61d532c90de14e668ec5e3fbd672c0aecbf7a1e7..f00131366a1ca905cbde0543c912fa460dd8cb2d 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -151,15 +151,7 @@ import net.minecraft.world.level.dimension.LevelStem;
@@ -502,7 +502,7 @@ index 9ed33b048b07b464ae1f95b9e15291e08362f9e0..d0aceda9cadda563a8b0c228da3f0963
  import net.minecraft.world.level.storage.loot.LootDataManager;
  import org.slf4j.Logger;
  
-@@ -285,7 +277,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -283,7 +275,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      private String serverId;
      public MinecraftServer.ReloadableResources resources;
      private final StructureTemplateManager structureTemplateManager;
@@ -511,7 +511,7 @@ index 9ed33b048b07b464ae1f95b9e15291e08362f9e0..d0aceda9cadda563a8b0c228da3f0963
      private volatile boolean isSaving;
  
      // CraftBukkit start
-@@ -2702,7 +2694,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2700,7 +2692,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          return this.structureTemplateManager;
      }
  
@@ -811,7 +811,7 @@ index 51a05900d02dc116ea215730713cd2cf2a4f1c23..b692d9270f34231cebf3fbeaf36714a0
              int l = 0;
              int i1 = 0;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkStatus.java b/src/main/java/net/minecraft/world/level/chunk/ChunkStatus.java
-index ec55711e912fe6cb8f797c0b21bcef273966a47a..3890c92ea9e73470432aefde7fd4c159bf489755 100644
+index a907b79fd8291a0e92db138f37239d17424188a1..9a157fd179035cd7032cd96664f9c6ac10d503cb 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkStatus.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkStatus.java
 @@ -28,6 +28,8 @@ import net.minecraft.world.level.levelgen.Heightmap;

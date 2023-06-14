@@ -5,7 +5,7 @@ Subject: [PATCH] Fix-casting-for-secure-seed-feature
 
 
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index d0aceda9cadda563a8b0c228da3f0963e887ab08..4853286f3c2c23dfc1711ab02e63adf54b9e7cec 100644
+index f00131366a1ca905cbde0543c912fa460dd8cb2d..762a2a1bf9d1bbea98a26c8265c302c413d2e717 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -148,7 +148,7 @@ import net.minecraft.world.level.biome.BiomeManager;
@@ -28,7 +28,7 @@ index d0aceda9cadda563a8b0c228da3f0963e887ab08..4853286f3c2c23dfc1711ab02e63adf5
  import net.minecraft.world.level.levelgen.presets.WorldPresets;
  import net.minecraft.world.level.validation.ContentValidationException;
  import net.minecraft.world.phys.Vec2;
-@@ -375,7 +371,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -373,7 +369,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.customBossEvents = new CustomBossEvents();
          this.frameTimer = new FrameTimer();
          this.registries = worldstem.registries();
@@ -37,7 +37,7 @@ index d0aceda9cadda563a8b0c228da3f0963e887ab08..4853286f3c2c23dfc1711ab02e63adf5
          if (false && !this.registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)) { // CraftBukkit - initialised later
              throw new IllegalStateException("Missing Overworld dimension data");
          } else {
-@@ -572,7 +568,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -570,7 +566,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                  WorldDimensions.Complete worlddimensions_b = worlddimensions.bake(iregistry);
                  Lifecycle lifecycle = worlddimensions_b.lifecycle().add(worldloader_a.datapackWorldgen().allRegistriesLifecycle());
  
@@ -46,7 +46,7 @@ index d0aceda9cadda563a8b0c228da3f0963e887ab08..4853286f3c2c23dfc1711ab02e63adf5
              }
              worlddata.checkName(name); // CraftBukkit - Migration did not rewrite the level.dat; This forces 1.8 to take the last loaded world as respawn (in this case the end)
              // Paper - move down
-@@ -600,7 +596,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -598,7 +594,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, dimensionKey.location());
  
              if (dimensionKey == LevelStem.OVERWORLD) {

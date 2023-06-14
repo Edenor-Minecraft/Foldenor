@@ -56,10 +56,10 @@ index d031e34edd0b5e9af6901f86961601f2a4f6c977..8fb6abe1be994fe50cb1fb02999f9346
              } catch (Exception exception) {
                  Main.LOGGER.warn("Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode", exception);
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 4853286f3c2c23dfc1711ab02e63adf54b9e7cec..14275617bad580b5ebbb4b94f0860e26cef11697 100644
+index 762a2a1bf9d1bbea98a26c8265c302c413d2e717..5d96a91d2b6b84d8c43f9bb35bdadd913774ff94 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -351,7 +351,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -349,7 +349,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          return s0;
      }
  
@@ -68,7 +68,7 @@ index 4853286f3c2c23dfc1711ab02e63adf54b9e7cec..14275617bad580b5ebbb4b94f0860e26
          super("Server");
          SERVER = this; // Paper - better singleton
          this.metricsRecorder = InactiveMetricsRecorder.INSTANCE;
-@@ -544,7 +544,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -542,7 +542,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              WorldLoader.DataLoadContext worldloader_a = this.worldLoader;
              Registry<LevelStem> iregistry = worldloader_a.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
              DynamicOps<Tag> dynamicops = RegistryOps.create(NbtOps.INSTANCE, (HolderLookup.Provider) worldloader_a.datapackWorldgen());
@@ -145,7 +145,7 @@ index 113989246083617277ac38648c4ba1438964cd2a..5746e97fd16a872b8d18ae634e4c95ea
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 35c30cf25f5ec8607b46722e0a4611db940e2127..9fc0e63d8285615bf3bce012dc747f01c3ac8947 100644
+index 598c6c49acae20c52cfa92e8dd87227ce9fffd1b..4bf0d8024047d92d33c2f36e9f670a34db1e201d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -103,10 +103,7 @@ import net.minecraft.world.level.levelgen.*;

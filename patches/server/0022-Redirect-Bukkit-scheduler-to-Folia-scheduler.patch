@@ -58,7 +58,7 @@ index f1c68d9850ece7532a8607db955eaa4fc3a4bf05..c2ba0ae1fe5ec3ff53343a1b38b8fe5d
  
      static final class AsyncChunkSerializeTask implements Runnable {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index b23e399f65a75e10b6b3aabe8d3ea3660104125b..83e9a1d010f1622de12b723e385c9ead885ae8ab 100644
+index 76bcfda336e9cfa039d80ea3ccbebbc3d2b13f7f..faa2439acda5ba06add039ee8a0fb2f0b83fa22e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
@@ -111,10 +111,10 @@ index b23e399f65a75e10b6b3aabe8d3ea3660104125b..83e9a1d010f1622de12b723e385c9ead
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-index 9136fb30db749737e9f189d0901024fcad02e402..11a8bd5b2eb0c4c40c2e1143a91f2ab6e1f7cff7 100644
+index eb84a8dd97f92de4a7dd3826d9e124a442cba565..a5b9b1b8391db7992a310eece9d7608786923f57 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-@@ -7,11 +7,7 @@ import java.util.Comparator;
+@@ -8,11 +8,7 @@ import java.util.Comparator;
  import java.util.Iterator;
  import java.util.List;
  import java.util.PriorityQueue;
@@ -127,7 +127,7 @@ index 9136fb30db749737e9f189d0901024fcad02e402..11a8bd5b2eb0c4c40c2e1143a91f2ab6
  import java.util.concurrent.atomic.AtomicInteger;
  import java.util.concurrent.atomic.AtomicReference;
  import java.util.function.Consumer;
-@@ -27,6 +23,8 @@ import org.bukkit.scheduler.BukkitRunnable;
+@@ -24,6 +20,8 @@ import org.bukkit.scheduler.BukkitRunnable;
  import org.bukkit.scheduler.BukkitScheduler;
  import org.bukkit.scheduler.BukkitTask;
  import org.bukkit.scheduler.BukkitWorker;
@@ -136,7 +136,7 @@ index 9136fb30db749737e9f189d0901024fcad02e402..11a8bd5b2eb0c4c40c2e1143a91f2ab6
  
  /**
   * The fundamental concepts for this implementation:
-@@ -533,15 +531,35 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -530,15 +528,35 @@ public class CraftScheduler implements BukkitScheduler {
      }
  
      protected CraftTask handle(final CraftTask task, final long delay) { // Paper
