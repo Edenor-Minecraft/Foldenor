@@ -13,18 +13,30 @@ jobs:
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3
+      
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
+      
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+      
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      
       - name: Configure Git User Details
         run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+
       - name: Apply Patches
         run: ./gradlew applyPatches
+        
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew createReobfBundlerJar
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Builded jars
+          path: build/libs

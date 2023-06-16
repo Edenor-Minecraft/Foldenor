@@ -1,0 +1,129 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Jun 2023 12:09:44 +0400
+Subject: [PATCH] Shit-code-for-secure-seed
+
+
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/NewWorldOptions.java b/src/main/java/net/minecraft/world/level/levelgen/NewWorldOptions.java
+index c8c8223629ca5e5e33afd7b320e1b76d4fa0705d..118dc6fdd422d9c797d4ab5451eb7fa719a165f8 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/NewWorldOptions.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/NewWorldOptions.java
+@@ -19,16 +19,24 @@ public class NewWorldOptions extends WorldOptions {
+            Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(NewWorldOptions::generateStructures),
+            Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(NewWorldOptions::generateBonusChest),
+            Codec.STRING.optionalFieldOf("legacy_custom_options").stable().forGetter((generatorOptions) -> {
+-                return generatorOptions.legacyCustomOptions;
++                return generatorOptions.legacyCustomOptions1;
+         })).apply(instance, instance.stable(NewWorldOptions::new));
+     });
+     public static final NewWorldOptions DEMO_OPTIONS = new NewWorldOptions((long)"North Carolina".hashCode(), Globals.createRandomWorldSeed(), true, true);
+     private final long[] featureSeed;
+ 
++    private final long seed1;
++    private final boolean generateStructures1;
++    private final boolean generateBonusChest1;
++    private final Optional<String> legacyCustomOptions1;
++
+     public NewWorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean bonusChest) {
+         this(seed, featureSeed, generateStructures, bonusChest, Optional.empty());
+     }
+ 
++    private NewWorldOptions(long seed, LongStream featureSeed, boolean generateStructures, boolean bonusChest, Optional<String> legacyCustomOptions) {
++         this(seed, featureSeed.toArray(), generateStructures, bonusChest, legacyCustomOptions);
++    }
+     public static NewWorldOptions defaultWithRandomSeed() {
+         return new NewWorldOptions(randomSeed(), Globals.createRandomWorldSeed(), true, false);
+     }
+@@ -36,6 +44,10 @@ public class NewWorldOptions extends WorldOptions {
+     private NewWorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean bonusChest, Optional<String> legacyCustomOptions) {
+         super(seed, generateStructures, bonusChest);
+         this.featureSeed = featureSeed;
++        this.seed1 = seed;
++        this.generateBonusChest1 = bonusChest;
++        this.legacyCustomOptions1 = legacyCustomOptions;
++        this.generateStructures1 = generateStructures;
+     }
+ 
+     public long[] featureSeed() {
+@@ -46,32 +58,16 @@ public class NewWorldOptions extends WorldOptions {
+         return LongStream.of(this.featureSeed);
+     }
+ 
+-    public long seed() {
+-        return this.seed;
+-    }
+-
+-    public boolean generateStructures() {
+-        return this.generateStructures;
+-    }
+-
+-    public boolean generateBonusChest() {
+-        return this.generateBonusChest;
+-    }
+-
+-    public boolean isOldCustomizedWorld() {
+-        return this.legacyCustomOptions.isPresent();
+-    }
+-
+     public NewWorldOptions withBonusChest(boolean bonusChest) {
+-        return new NewWorldOptions(this.seed, this.featureSeed, this.generateStructures, bonusChest, this.legacyCustomOptions);
++        return new NewWorldOptions(this.seed1, this.featureSeed, this.generateStructures1, bonusChest, this.legacyCustomOptions1);
+     }
+ 
+     public NewWorldOptions withStructures(boolean structures) {
+-        return new NewWorldOptions(this.seed, this.featureSeed, structures, this.generateBonusChest, this.legacyCustomOptions);
++        return new NewWorldOptions(this.seed1, this.featureSeed, structures, this.generateBonusChest1, this.legacyCustomOptions1);
+     }
+ 
+     public NewWorldOptions withSeed(OptionalLong seed) {
+-        return new NewWorldOptions(seed.orElse(randomSeed()), Globals.createRandomWorldSeed(), this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
++        return new NewWorldOptions(seed.orElse(randomSeed()), Globals.createRandomWorldSeed(), this.generateStructures1, this.generateBonusChest1, this.legacyCustomOptions1);
+     }
+ 
+     public static OptionalLong parseSeed(String seed) {
+diff --git a/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java b/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java
+index ef8b794d1a017f02f90368a48cec2ea7bb57f218..830b24c7d02171aab08d76184579195b94bda251 100644
+--- a/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java
++++ b/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java
+@@ -65,6 +65,7 @@ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.LevelSettings;
+ import net.minecraft.world.level.WorldDataConfiguration;
+ import net.minecraft.world.level.dimension.LevelStem;
++import net.minecraft.world.level.levelgen.NewWorldOptions;
+ import net.minecraft.world.level.levelgen.WorldDimensions;
+ import net.minecraft.world.level.levelgen.WorldGenSettings;
+ import net.minecraft.world.level.validation.ContentValidationException;
+@@ -318,7 +319,7 @@ public class LevelStorageSource {
+             LevelSettings worldsettings = LevelSettings.parse(dynamic, dataConfiguration);
+             WorldDimensions.Complete worlddimensions_b = generatorsettings.dimensions().bake(dimensionOptionsRegistry);
+             Lifecycle lifecycle1 = worlddimensions_b.lifecycle().add(lifecycle);
+-            PrimaryLevelData worlddataserver = PrimaryLevelData.parse(dynamic, datafixer, i, nbttagcompound2, worldsettings, levelversion, worlddimensions_b.specialWorldProperty(), generatorsettings.options(), lifecycle1);
++            PrimaryLevelData worlddataserver = PrimaryLevelData.parse(dynamic, datafixer, i, nbttagcompound2, worldsettings, levelversion, worlddimensions_b.specialWorldProperty(), (NewWorldOptions) generatorsettings.options(), lifecycle1);
+             worlddataserver.pdc = nbttagcompound1.get("BukkitValues"); // CraftBukkit - Add PDC to world
+ 
+             return Pair.of(worlddataserver, worlddimensions_b);
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index b59ea459032e2ad4d01f2aee8d9823c879faf736..598c6c49acae20c52cfa92e8dd87227ce9fffd1b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -99,10 +99,7 @@ import net.minecraft.world.level.LevelSettings;
+ import net.minecraft.world.level.biome.BiomeManager;
+ import net.minecraft.world.level.block.Block;
+ import net.minecraft.world.level.dimension.LevelStem;
+-import net.minecraft.world.level.levelgen.PatrolSpawner;
+-import net.minecraft.world.level.levelgen.PhantomSpawner;
+-import net.minecraft.world.level.levelgen.WorldDimensions;
+-import net.minecraft.world.level.levelgen.WorldOptions;
++import net.minecraft.world.level.levelgen.*;
+ import net.minecraft.world.level.material.Fluid;
+ import net.minecraft.world.level.saveddata.maps.MapDecoration;
+ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+@@ -1343,7 +1340,7 @@ public final class CraftServer implements Server {
+             WorldDimensions.Complete worlddimensions_b = worlddimensions.bake(iregistry);
+             Lifecycle lifecycle = worlddimensions_b.lifecycle().add(worldloader_a.datapackWorldgen().allRegistriesLifecycle());
+ 
+-            worlddata = new PrimaryLevelData(worldsettings, worldoptions, worlddimensions_b.specialWorldProperty(), lifecycle);
++            worlddata = new PrimaryLevelData(worldsettings, (NewWorldOptions) worldoptions, worlddimensions_b.specialWorldProperty(), lifecycle);
+             iregistry = worlddimensions_b.dimensions();
+         }
+         worlddata.customDimensions = iregistry;

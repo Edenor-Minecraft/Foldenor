@@ -1,5 +1,5 @@
 <div align=center>
-    <img src="./folia.png">
+    <img src="./foldenor.png">
     <br /><br />
     <p>Fork of <a href="https://github.com/PaperMC/Paper">Paper</a> which adds regionised multithreading to the dedicated server.</p>
 </div>
@@ -229,3 +229,4 @@ found in `./patches` and its subdirectories except when noted otherwise.
 The fork is based off of PaperMC's fork example found [here](https://github.com/PaperMC/paperweight-examples).
 As such, it contains modifications to it in this project, please see the repository for license information
 of modified files.
+

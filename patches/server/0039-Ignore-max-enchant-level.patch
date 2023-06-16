@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Wed, 14 Jun 2023 12:32:19 +0400
+Subject: [PATCH] Ignore-max-enchant-level
+
+
+diff --git a/src/main/java/net/minecraft/server/commands/EnchantCommand.java b/src/main/java/net/minecraft/server/commands/EnchantCommand.java
+index 3f68902a2842f1dddc73e86ba6278e6b4b39d1dc..51926ddfcdc848474ae52ec2121fbe3d98d44c77 100644
+--- a/src/main/java/net/minecraft/server/commands/EnchantCommand.java
++++ b/src/main/java/net/minecraft/server/commands/EnchantCommand.java
+@@ -54,9 +54,9 @@ public class EnchantCommand {
+ 
+     private static int enchant(CommandSourceStack source, Collection<? extends Entity> targets, Holder<Enchantment> enchantment, int level) throws CommandSyntaxException {
+         Enchantment enchantment2 = enchantment.value();
+-        if (level > enchantment2.getMaxLevel()) {
+-            throw ERROR_LEVEL_TOO_HIGH.create(level, enchantment2.getMaxLevel());
+-        } else {
++        //if (level > enchantment2.getMaxLevel()) {
++            //throw ERROR_LEVEL_TOO_HIGH.create(level, enchantment2.getMaxLevel());
++        //} else {
+             final java.util.concurrent.atomic.AtomicInteger changed = new java.util.concurrent.atomic.AtomicInteger(0); // Folia - region threading
+             final java.util.concurrent.atomic.AtomicInteger count = new java.util.concurrent.atomic.AtomicInteger(targets.size()); // Folia - region threading
+             final java.util.concurrent.atomic.AtomicReference<Component> possibleSingleDisplayName = new java.util.concurrent.atomic.AtomicReference<>(); // Folia - region threading
+@@ -93,7 +93,7 @@ public class EnchantCommand {
+                 }
+             }
+             return targets.size(); // Folia - region threading
+-        }
++        //}
+     }
+     // Folia start - region threading
+     private static void sendFeedback(final CommandSourceStack source, final Enchantment enchantment2, final int level, final java.util.concurrent.atomic.AtomicReference<Component> possibleSingleDisplayName, final java.util.concurrent.atomic.AtomicInteger count, final java.util.concurrent.atomic.AtomicInteger changed) {
