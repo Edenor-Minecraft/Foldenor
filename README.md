@@ -1,7 +1,7 @@
 <div align=center>
     <img src="./foldenor.png">
     <br /><br />
-    <p>Fork of <a href="https://github.com/PaperMC/Paper">Paper</a> which adds regionised multithreading to the dedicated server.</p>
+    <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> which adds secure seed, comparability for paper plugins and some useful patches. This project is originally aimed for Edenor Minecraft server.</p>
 </div>
 
 ## Overview
