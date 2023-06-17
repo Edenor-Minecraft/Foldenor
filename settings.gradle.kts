@@ -28,9 +28,9 @@ if (!file(".git").exists()) {
     error(errorText)
 }
 
-rootProject.name = "foldenor"
+rootProject.name = "folia"
 
-for (name in listOf("Foldenor-API", "Foldenor-Server")) {
+for (name in listOf("Folia-API", "Folia-Server")) {
     val projName = name.lowercase(Locale.ENGLISH)
     include(projName)
     findProject(":$projName")!!.projectDir = file(name)

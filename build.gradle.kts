@@ -52,7 +52,7 @@ subprojects {
 }
 
 paperweight {
-    serverProject.set(project(":foldenor-server"))
+    serverProject.set(project(":folia-server"))
 
     remapRepo.set(paperMavenPublicUrl)
     decompileRepo.set(paperMavenPublicUrl)
@@ -60,10 +60,10 @@ paperweight {
     usePaperUpstream(providers.gradleProperty("paperRef")) {
         withPaperPatcher {
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
-            apiOutputDir.set(layout.projectDirectory.dir("Foldenor-API"))
+            apiOutputDir.set(layout.projectDirectory.dir("Folia-API"))
 
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
-            serverOutputDir.set(layout.projectDirectory.dir("Foldenor-Server"))
+            serverOutputDir.set(layout.projectDirectory.dir("Folia-Server"))
         }
     }
 }
