@@ -46,9 +46,7 @@ out/
 # other stuff
 run/
 
-Folia-Server
-Folia-API
-
-!gradle/wrapper/gradle-wrapper.jar
 Foldenor-Server/
 Foldenor-API/
+
+!gradle/wrapper/gradle-wrapper.jar
