@@ -673,7 +673,7 @@ index af35fd63b090aa3d89bc60cb9cb7694b5f502681..865b8c9631605a6270e014459bf9e8c2
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index b126435b07572e7b8f41647a0179164b680e9e64..194b670f9ed68602a7b2764f18810834450d4d75 100644
+index f95f1d1bc08b3c8f331a4f760e3218238f74ff67..2ef798de071c3b1709aa4432ce4d17df2268228b 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -177,6 +177,7 @@ import org.bukkit.event.world.GenericGameEvent;
