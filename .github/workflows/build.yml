@@ -42,7 +42,7 @@ jobs:
         
       - name: Make release zip
         run: |
-          7z a -tzip "core.zip" ".build/libs/*"
+          7z a -tzip "core.zip" "build/libs/*"
           
       - name: Make release
         uses: softprops/action-gh-release@v1
