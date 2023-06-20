@@ -10,6 +10,11 @@ jobs:
     # Only run on PRs if the source branch is on someone else's repo
     if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
+    
+    permissions:
+       contents: write
+       actions: write
+       
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3
@@ -34,9 +39,12 @@ jobs:
         
       - name: Build
         run: ./gradlew createReobfBundlerJar
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+          
+      - name: Make release
+        uses: softprops/action-gh-release@v1
         with:
-          name: Builded jars
-          path: build/libs
+          name: Latest build from action with id ${{github.run_number}}
+          tag_name: Actions_Build_${{github.run_number}}
+          files: build/libs/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
