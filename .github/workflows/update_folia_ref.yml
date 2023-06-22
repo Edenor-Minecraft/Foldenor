@@ -34,7 +34,7 @@ jobs:
         run: ./gradlew foliaRefLatest
         
       - name: Upload to GitHub
-        uses: LasyIsLazy/github-upload-action@v0.1.0
+        uses: LasyIsLazy/github-upload-action@v0.2.0
         with:
           access-token: ${{ secrets.ACCESS_TOKEN }}
           file-path: gradle.properties
