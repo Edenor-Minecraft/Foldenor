@@ -1,0 +1,44 @@
+name: Update Folia ref
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    permissions:
+       contents: write
+       actions: write
+       
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
+      
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Configure Git User Details
+        run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+
+      - name: Apply Patches
+        run: ./gradlew foliaRefLatest
+        
+      - name: Upload to GitHub
+        uses: LasyIsLazy/github-upload-action@v0.1.0
+        with:
+          access-token: ${{ secrets.ACCESS_TOKEN }}
+          file-path: gradle.properties
+          owner: Edenor-Minecraft
+          repo: Foldenor
+          remote-dir: gradle.properties
+          commit-message: Update Folia reference
