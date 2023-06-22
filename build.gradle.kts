@@ -1,4 +1,6 @@
 import io.papermc.paperweight.tasks.RebuildGitPatches
+import io.papermc.paperweight.util.*
+import io.papermc.paperweight.util.constants.*
 
 plugins {
     java
@@ -52,29 +54,25 @@ subprojects {
 }
 
 paperweight {
-    serverProject.set(project(":folia-server"))
+    serverProject.set(project(":foldenor-server"))
 
     remapRepo.set(paperMavenPublicUrl)
     decompileRepo.set(paperMavenPublicUrl)
 
-    usePaperUpstream(providers.gradleProperty("paperRef")) {
-        withPaperPatcher {
+    useStandardUpstream("Folia") {
+        url.set(github("PaperMC", "Folia"))
+        ref.set(providers.gradleProperty("foliaRef"))
+
+        withStandardPatcher {
+            baseName("Folia")
+
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
-            apiOutputDir.set(layout.projectDirectory.dir("Folia-API"))
+            apiOutputDir.set(layout.projectDirectory.dir("Foldenor-api"))
 
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
-            serverOutputDir.set(layout.projectDirectory.dir("Folia-Server"))
+            serverOutputDir.set(layout.projectDirectory.dir("Foldenor-server"))
         }
     }
-}
-
-tasks.generateDevelopmentBundle {
-    apiCoordinates.set("dev.folia:folia-api")
-    mojangApiCoordinates.set("io.papermc.paper:paper-mojangapi")
-    libraryRepositories.addAll(
-        "https://repo.maven.apache.org/maven2/",
-        paperMavenPublicUrl,
-    )
 }
 
 allprojects {
@@ -94,6 +92,37 @@ publishing {
             artifact(tasks.generateDevelopmentBundle) {
                 artifactId = "dev-bundle"
             }
+        }
+    }
+}
+
+tasks.register("foliaRefLatest") {
+    // Update the foliaRef in gradle.properties to be the latest commit.
+    val tempDir = layout.cacheDir("foliaRefLatest");
+    val file = "gradle.properties";
+
+    doFirst {
+        data class GithubCommit(
+            val sha: String
+        )
+
+        val foliaLatestCommitJson = layout.cache.resolve("foliaLatestCommit.json");
+        download.get().download("https://api.github.com/repos/PaperMC/Folia/commits/master", foliaLatestCommitJson);
+        val foliaLatestCommit = gson.fromJson<paper.libs.com.google.gson.JsonObject>(foliaLatestCommitJson)["sha"].asString;
+
+        copy {
+            from(file)
+            into(tempDir)
+            filter { line: String ->
+                line.replace("foliaRef = .*".toRegex(), "foliaRef = $foliaLatestCommit")
+            }
+        }
+    }
+
+    doLast {
+        copy {
+            from(tempDir.file("gradle.properties"))
+            into(project.file(file).parent)
         }
     }
 }

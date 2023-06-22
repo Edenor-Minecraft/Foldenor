@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 22 Jun 2023 13:31:13 +0400
+Subject: [PATCH] Rebranding
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 215366d7cc3720805d2dfde0662372ecede8383c..b036d0d1090b3f2ea6ea6f050a67c2f675664650 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -8,7 +8,7 @@ plugins {
+ 
+ dependencies {
+     // Folia start
+-    implementation(project(":folia-api"))
++    implementation(project(":foldenor-api"))
+     implementation("io.papermc.paper:paper-mojangapi:1.19.3-R0.1-SNAPSHOT") {
+         exclude("io.papermc.paper", "paper-api")
+     }
+@@ -68,7 +68,7 @@ tasks.jar {
+         attributes(
+             "Main-Class" to "org.bukkit.craftbukkit.Main",
+             "Implementation-Title" to "CraftBukkit",
+-            "Implementation-Version" to "git-Folia-$implementationVersion", // Folia
++            "Implementation-Version" to "git-Foldenor-$implementationVersion", // Folia
+             "Implementation-Vendor" to date, // Paper
+             "Specification-Title" to "Bukkit",
+             "Specification-Version" to project.version,
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 58dc84b7b3b04c2d0b00fc5fac5303d3378b3467..d7261da5f872bedcf7db5425e6ff126eea1670e7 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -593,7 +593,7 @@ public class Metrics {
+             boolean logFailedRequests = config.getBoolean("logFailedRequests", false);
+             // Only start Metrics, if it's enabled in the config
+             if (config.getBoolean("enabled", true)) {
+-                Metrics metrics = new Metrics("Folia", serverUUID, logFailedRequests, Bukkit.getLogger()); // Folia - we have our own bstats page
++                Metrics metrics = new Metrics("Foldenor", serverUUID, logFailedRequests, Bukkit.getLogger()); // Folia - we have our own bstats page
+ 
+                 metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
+                     String minecraftVersion = Bukkit.getVersion();
+@@ -612,6 +612,7 @@ public class Metrics {
+                     paperVersion = "unknown";
+                 }
+                 metrics.addCustomChart(new Metrics.SimplePie("folia_version", () -> paperVersion)); // Folia - we have our own bstats page
++                metrics.addCustomChart(new Metrics.SimplePie("foldenor_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown"));
+ 
+                 metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
+                     Map<String, Map<String, Integer>> map = new HashMap<>();
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index e2f704c115fd6e00960bb56bb0779f1100c89c17..d77980fe69758834ffded0d24c2436e6cb3263d7 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -20,7 +20,7 @@ import java.util.stream.StreamSupport;
+ public class PaperVersionFetcher implements VersionFetcher {
+     private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
+     private static final String GITHUB_BRANCH_NAME = "master";
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads/paper";
++    private static final String DOWNLOAD_PAGE = "https://github.com/Edenor-Minecraft/Foldenor";
+     private static @Nullable String mcVer;
+ 
+     @Override
+@@ -31,8 +31,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-Folia-".length()).split("[-\\s]"); // Folia
+-        final Component updateMessage = getUpdateStatusMessage("PaperMC/Folia", GITHUB_BRANCH_NAME, parts[0]); // Folia
++        String[] parts = serverVersion.substring("git-Foldenor-".length()).split("[-\\s]"); // Folia
++        final Component updateMessage = getUpdateStatusMessage("Edenor-Minecraft/Foldenor", GITHUB_BRANCH_NAME, parts[0]); // Folia
+         final Component history = getHistory();
+ 
+         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
+@@ -45,7 +45,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+                 String result = matcher.group();
+                 mcVer = result.substring(0, result.length() - 2); // strip 'R' anchor and trailing '-'
+             } else {
+-                org.bukkit.Bukkit.getLogger().warning("Unable to match version to pattern! Report to PaperMC!");
++                org.bukkit.Bukkit.getLogger().warning("Unable to match version to pattern! Report to Foldenor!");
+                 org.bukkit.Bukkit.getLogger().warning("Pattern: " + VER_PATTERN.toString());
+                 org.bukkit.Bukkit.getLogger().warning("Version: " + org.bukkit.Bukkit.getBukkitVersion());
+             }
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+index e9b6ca3aa25e140467ae866d572483050ea3fa0e..85c419af128d3b08e7f81c07a33b647496010460 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+@@ -11,7 +11,7 @@ public final class Versioning {
+     public static String getBukkitVersion() {
+         String result = "Unknown-Version";
+ 
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/dev.folia/folia-api/pom.properties"); // Folia
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/dev.edenor.foldenor/foldenor-api/pom.properties"); // Folia
+         Properties properties = new Properties();
+ 
+         if (stream != null) {
