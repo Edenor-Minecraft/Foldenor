@@ -42,3 +42,4 @@ jobs:
           repo: Foldenor
           remote-dir: gradle.properties
           commit-message: Update Folia reference
+          branch-name: master
