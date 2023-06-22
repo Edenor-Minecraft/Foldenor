@@ -114,7 +114,7 @@ tasks.register("foliaRefLatest") {
             from(file)
             into(tempDir)
             filter { line: String ->
-                line.replace("foliaRef = .*".toRegex(), "foliaRef = $foliaLatestCommit")
+                line.replace("foliaRef=.*".toRegex(), "foliaRef=$foliaLatestCommit")
             }
         }
     }
