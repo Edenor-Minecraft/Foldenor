@@ -1,0 +1,370 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 22 Jun 2023 15:59:28 +0400
+Subject: [PATCH] Add-config-and-alternative-keepalive
+
+
+diff --git a/src/main/java/net/edenor/foldenor/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..346030f41b45d11610636787be13a7c4f822052a
+--- /dev/null
++++ b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+@@ -0,0 +1,178 @@
++package net.edenor.foldenor;
++
++import com.google.common.base.Throwables;
++import com.google.common.collect.ImmutableMap;
++import org.bukkit.Bukkit;
++import org.bukkit.configuration.ConfigurationSection;
++import org.bukkit.configuration.InvalidConfigurationException;
++import org.bukkit.configuration.file.YamlConfiguration;
++
++import java.io.File;
++import java.io.IOException;
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++import java.lang.reflect.Modifier;
++import java.util.List;
++import java.util.Map;
++import java.util.logging.Level;
++public class FoldenorConfig {
++    protected static final String HEADER = "This is the main configuration file for Foldenor.";
++    protected static File CONFIG_FILE;
++    public static YamlConfiguration config;
++
++    public static int version;
++    static boolean verbose;
++
++    public static boolean alternateKeepAlive = false;
++
++    public static void init(File configFile) {
++        init(configFile, true);
++    }
++
++    public static void reload(File configFile) {
++        init(configFile, false);
++    }
++
++    private static void init(File configFile, boolean setup) {
++        CONFIG_FILE = configFile;
++        config = new YamlConfiguration();
++        if (configFile.exists()) {
++            try {
++                config.load(CONFIG_FILE);
++            } catch (InvalidConfigurationException ex){
++                Bukkit.getLogger().log(Level.SEVERE, "Could not load foldenor.yml, please correct your syntax errors", ex);
++                throw Throwables.propagate(ex);
++            } catch (IOException ignore) {}
++        }
++        config.options().header(HEADER);
++        config.options().copyDefaults(true);
++        verbose = getBoolean("verbose", false);
++
++        version = getInt("config-version", 1);
++        set("config-version", 1);
++
++        readConfig(FoldenorConfig.class, null, setup);
++    }
++
++    protected static void log(String s) {
++        if (verbose) {
++            log(Level.INFO, s);
++        }
++    }
++
++    protected static void log(Level level, String s) {
++        Bukkit.getLogger().log(level, s);
++    }
++
++    static void readConfig(Class<?> clazz, Object instance, boolean setup) {
++        for (Method method : clazz.getDeclaredMethods()) {
++            if (Modifier.isPrivate(method.getModifiers())) {
++                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
++                    if (method.getName().endsWith("Setup") && !setup) continue;
++                    try {
++                        method.setAccessible(true);
++                        method.invoke(instance);
++                    } catch (InvocationTargetException ex) {
++                        throw Throwables.propagate(ex.getCause());
++                    } catch (Exception ex) {
++                        Bukkit.getLogger().log(Level.SEVERE, "Error invoking " + method, ex);
++                    }
++                }
++            }
++        }
++
++        try {
++            config.save(CONFIG_FILE);
++        } catch (IOException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
++        }
++    }
++
++    private static void networkSettings() {
++        alternateKeepAlive = getBoolean("network.alternate-keepalive", alternateKeepAlive);
++    }
++
++    protected static void set(String path, Object val) {
++        config.addDefault(path, val);
++        config.set(path, val);
++    }
++
++    protected static String getString(String path, String def, String... comment) {
++        config.addDefault(path, def);
++        return config.getString(path, config.getString(path));
++    }
++
++    protected static boolean getBoolean(String path, boolean def, String... comment) {
++        config.addDefault(path, def);
++        return config.getBoolean(path, config.getBoolean(path));
++    }
++
++    protected static double getDouble(String path, double def, String... comment) {
++        config.addDefault(path, def);
++        return config.getDouble(path, config.getDouble(path));
++    }
++
++    protected static int getInt(String path, int def, String... comment) {
++        config.addDefault(path, def);
++        return config.getInt(path, config.getInt(path));
++    }
++
++    protected static <T> List getList(String path, T def, String... comment) {
++        config.addDefault(path, def);
++        return config.getList(path, config.getList(path));
++    }
++
++    static Map<String, Object> getMap(String path, Map<String, Object> def, String... comment) {
++        if (def != null && config.getConfigurationSection(path) == null) {
++            config.addDefault(path, def);
++            return def;
++        }
++        return toMap(config.getConfigurationSection(path));
++    }
++
++    protected static String getString(String path, String def) {
++        config.addDefault(path, def);
++        return config.getString(path, config.getString(path));
++    }
++
++    protected static boolean getBoolean(String path, boolean def) {
++        config.addDefault(path, def);
++        return config.getBoolean(path, config.getBoolean(path));
++    }
++
++    protected static double getDouble(String path, double def) {
++        config.addDefault(path, def);
++        return config.getDouble(path, config.getDouble(path));
++    }
++
++    protected static int getInt(String path, int def) {
++        config.addDefault(path, def);
++        return config.getInt(path, config.getInt(path));
++    }
++
++    protected static <T> List getList(String path, T def) {
++        config.addDefault(path, def);
++        return config.getList(path, config.getList(path));
++    }
++
++    static Map<String, Object> getMap(String path, Map<String, Object> def) {
++        if (def != null && config.getConfigurationSection(path) == null) {
++            config.addDefault(path, def);
++            return def;
++        }
++        return toMap(config.getConfigurationSection(path));
++    }
++
++    protected static Map<String, Object> toMap(ConfigurationSection section) {
++        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
++        if (section != null) {
++            for (String key : section.getKeys(false)) {
++                Object obj = section.get(key);
++                if (obj != null) {
++                    builder.put(key, obj instanceof ConfigurationSection val ? toMap(val) : obj);
++                }
++            }
++        }
++        return builder.build();
++    }
++}
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index 9754acf12d10aecebce9659799588cda7f3f848a..dcf604ecc50b5805a7fd62b5493dfe0d67ccd829 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -54,6 +54,7 @@ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.io.IoBuilder;
+ import org.bukkit.command.CommandSender;
+ import co.aikar.timings.MinecraftTimings; // Paper
++import net.edenor.foldenor.FoldenorConfig;
+ import org.bukkit.event.server.ServerCommandEvent;
+ import org.bukkit.craftbukkit.util.Waitable;
+ import org.bukkit.event.server.RemoteServerCommandEvent;
+@@ -213,6 +214,12 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         thread.start(); // Paper - start console thread after MinecraftServer.console & PaperConfig are initialized
+         io.papermc.paper.command.PaperCommands.registerCommands(this);
+         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics();
++        try {
++            FoldenorConfig.init((java.io.File) options.valueOf("foldenor-settings"));
++        } catch (Exception e) {
++            DedicatedServer.LOGGER.error("Unable to load server configuration", e);
++            return false;
++        }
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
+         // Paper end
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 82ffef34b596a98faa245ba401e67add9d9ac7d0..878a81ebd41a5c21c4fb3b56b7e974915467092a 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -29,6 +29,8 @@ import java.util.function.UnaryOperator;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.FoldenorConfig;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+@@ -263,6 +265,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+     private long keepAliveTime = Util.getMillis();
+     private boolean keepAlivePending;
+     private long keepAliveChallenge;
++    private it.unimi.dsi.fastutil.longs.LongList keepAlives = new it.unimi.dsi.fastutil.longs.LongArrayList();
+     // CraftBukkit start - multithreaded fields
+     private final AtomicInteger chatSpamTickCount = new AtomicInteger();
+     private final java.util.concurrent.atomic.AtomicInteger tabSpamLimiter = new java.util.concurrent.atomic.AtomicInteger(); // Paper - configurable tab spam limits
+@@ -355,19 +358,31 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+         long currentTime = Util.getMillis();
+         long elapsedTime = currentTime - this.keepAliveTime;
+ 
+-        if (this.keepAlivePending) {
+-            if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected
+-                ServerGamePacketListenerImpl.LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName()); // more info
+-                this.disconnect(Component.translatable("disconnect.timeout", new Object[0]), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++        if (FoldenorConfig.alternateKeepAlive) {
++            if (elapsedTime >= 1000L) { // 1 second
++                if (!processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
++                    LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName());
++                    disconnect(Component.translatable("disconnect.timeout"), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT);
++                } else {
++                    keepAliveTime = currentTime; // hijack this field for 1 second intervals
++                    keepAlives.add(currentTime); // currentTime is ID
++                    send(new ClientboundKeepAlivePacket(currentTime));
++                }
+             }
+-        } else {
+-            if (elapsedTime >= 15000L) { // 15 seconds
+-                this.keepAlivePending = true;
+-                this.keepAliveTime = currentTime;
+-                this.keepAliveChallenge = currentTime;
+-                this.send(new ClientboundKeepAlivePacket(this.keepAliveChallenge));
++        } else
++            if (this.keepAlivePending) {
++                if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected
++                    ServerGamePacketListenerImpl.LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName()); // more info
++                    this.disconnect(Component.translatable("disconnect.timeout", new Object[0]), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++                }
++            } else {
++                if (elapsedTime >= 15000L) { // 15 seconds
++                    this.keepAlivePending = true;
++                    this.keepAliveTime = currentTime;
++                    this.keepAliveChallenge = currentTime;
++                    this.send(new ClientboundKeepAlivePacket(this.keepAliveChallenge));
++                }
+             }
+-        }
+     }
+     // Folia end - region threading
+ 
+@@ -3514,20 +3529,27 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+ 
+     @Override
+     public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
+-        //PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel()); // CraftBukkit // Paper - This shouldn't be on the main thread
+-        if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
+-            int i = (int) (Util.getMillis() - this.keepAliveTime);
+-
+-            this.player.latency = (this.player.latency * 3 + i) / 4;
+-            this.keepAlivePending = false;
+-        } else if (!this.isSingleplayerOwner()) {
+-            // Paper start - This needs to be handled on the main thread for plugins
+-            // Folia - region threading - do not schedule to main anymore, there is no main
+-            this.disconnect(Component.translatable("disconnect.timeout"), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
+-            // Folia - region threading - do not schedule to main anymore, there is no main
+-            // Paper end
+-        }
+-
++        if (FoldenorConfig.alternateKeepAlive) {
++            long id = packet.getId();
++            if (keepAlives.size() > 0 && keepAlives.contains(id)) {
++                int ping = (int) (Util.getMillis() - id);
++                player.latency = (player.latency * 3 + ping) / 4;
++                keepAlives.clear(); // we got a valid response, lets roll with it and forget the rest
++            }
++        } else
++            //PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel()); // CraftBukkit // Paper - This shouldn't be on the main thread
++            if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
++                int i = (int) (Util.getMillis() - this.keepAliveTime);
++
++                this.player.latency = (this.player.latency * 3 + i) / 4;
++                this.keepAlivePending = false;
++            } else if (!this.isSingleplayerOwner()) {
++                // Paper start - This needs to be handled on the main thread for plugins
++                // Folia - region threading - do not schedule to main anymore, there is no main
++                this.disconnect(Component.translatable("disconnect.timeout"), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++                // Folia - region threading - do not schedule to main anymore, there is no main
++                // Paper end
++            }
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 74727c25298e765f9ff932c6d1ac82c66f6a514b..71a5a567e6c1a9ccdacca8d9c40081b39f637d60 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -42,6 +42,8 @@ import java.util.logging.Level;
+ import java.util.logging.Logger;
+ import java.util.stream.Collectors;
+ import javax.imageio.ImageIO;
++
++import net.edenor.foldenor.FoldenorConfig;
+ import net.minecraft.advancements.Advancement;
+ import net.minecraft.commands.CommandSourceStack;
+ import net.minecraft.commands.Commands;
+@@ -932,6 +934,10 @@ public final class CraftServer implements Server {
+         return this.scheduler;
+     }
+ 
++    public YamlConfiguration getFoldenorConfig() {
++        return FoldenorConfig.config;
++    }
++
+     @Override
+     public ServicesManager getServicesManager() {
+         return this.servicesManager;
+@@ -1088,6 +1094,7 @@ public final class CraftServer implements Server {
+ 
+         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+         this.console.paperConfigurations.reloadConfigs(this.console);
++        net.edenor.foldenor.FoldenorConfig.init((File) console.options.valueOf("foldenor-settings"));
+         for (ServerLevel world : this.console.getAllLevels()) {
+             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
+             world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 717e292040ed7779eb4b6c5fa26665d3df9024e7..0cab8676db7647c959b3c96d046774941375e1bc 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -173,6 +173,12 @@ public class Main {
+                         .describedAs("Jar file");
+                 // Paper end
+ 
++                acceptsAll(asList("foldenor", "foldenor-settings"), "File for foldenor settings")
++                    .withRequiredArg()
++                    .ofType(File.class)
++                    .defaultsTo(new File("foldenor.yml"))
++                    .describedAs("Yml file");
++
+                 // Paper start
+                 acceptsAll(asList("server-name"), "Name of the server")
+                         .withRequiredArg()
