@@ -30,7 +30,7 @@ jobs:
       - name: Configure Git User Details
         run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
 
-      - name: Apply Patches
+      - name: Get latest Folia commit
         run: ./gradlew foliaRefLatest
         
       - name: Upload to GitHub
