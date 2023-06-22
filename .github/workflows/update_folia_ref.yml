@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  upload_folia_ref:
     runs-on: ubuntu-latest
     
     permissions:
@@ -34,11 +34,10 @@ jobs:
         run: ./gradlew foliaRefLatest
         
       - name: Upload to GitHub
-        uses: LasyIsLazy/github-upload-action@v0.2.0
+        uses: LasyIsLazy/github-upload-action@v0.1.0
         with:
           access-token: ${{ secrets.ACCESS_TOKEN }}
           file-path: gradle.properties
-          remote-file: gradle.properties
           owner: Edenor-Minecraft
           repo: Foldenor
           commit-message: Update Folia reference
