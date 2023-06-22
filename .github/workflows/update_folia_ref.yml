@@ -38,6 +38,7 @@ jobs:
         with:
           access-token: ${{ secrets.ACCESS_TOKEN }}
           file-path: gradle.properties
+          remote-file: gradle.properties
           owner: Edenor-Minecraft
           repo: Foldenor
           commit-message: Update Folia reference
