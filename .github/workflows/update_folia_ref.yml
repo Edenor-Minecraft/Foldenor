@@ -26,9 +26,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      
-      - name: Configure Git User Details
-        run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+          
+      - name: Setup node
+        uses: actions/setup-node@v1
 
       - name: Get latest Folia commit
         run: ./gradlew foliaRefLatest
