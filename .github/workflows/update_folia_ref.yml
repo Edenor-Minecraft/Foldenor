@@ -40,6 +40,5 @@ jobs:
           file-path: gradle.properties
           owner: Edenor-Minecraft
           repo: Foldenor
-          remote-dir: gradle.properties
           commit-message: Update Folia reference
           branch-name: master
