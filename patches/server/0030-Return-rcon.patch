@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 25 Jun 2023 18:31:16 +0400
+Subject: [PATCH] Return-rcon
+
+
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..faf3fcf725f7f2f935bacd27ce14d6daf5034044 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -756,9 +756,10 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+     public String runCommand(String command) {
+         // Folia start - region threading
+         // RIP RCON
+-        if (true) {
+-            throw new UnsupportedOperationException();
+-        }
++        // Ha-ha, no
++        //if (true) {
++            //throw new UnsupportedOperationException();
++        //}
+         // Folia end - region threading
+         Waitable[] waitableArray = new Waitable[1];
+         this.rconConsoleSource.prepareForCommand();
