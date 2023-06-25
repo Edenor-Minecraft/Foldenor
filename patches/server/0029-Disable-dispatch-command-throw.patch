@@ -4,19 +4,6 @@ Date: Sun, 25 Jun 2023 12:51:05 +0400
 Subject: [PATCH] Disable-dispatch-command-throw
 
 
-diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 8e3d36452082ca4a0a8df7d4bf76f73b3e77cb1a..3c60ad621019c1daad5a0a379f7f925ce44d2d38 100644
---- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
-+++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -639,7 +639,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
-         }
- 
-     }
--    
-+
-     public boolean shouldDropExperience() {
-         return !this.isBaby();
-     }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 index 71a5a567e6c1a9ccdacca8d9c40081b39f637d60..a794448e1bdf5daa6c5361547c14aa1267410a09 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
