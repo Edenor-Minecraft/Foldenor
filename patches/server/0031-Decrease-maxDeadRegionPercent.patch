@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 25 Jun 2023 13:19:32 +0400
+Subject: [PATCH] Decrease-maxDeadRegionPercent
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 2ef798de071c3b1709aa4432ce4d17df2268228b..9c84765ad2c2adb26659dfff7fc097af0aa956f2 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -578,7 +578,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+     {
+         this.regioniser = new io.papermc.paper.threadedregions.ThreadedRegionizer<>(
+             6,
+-            (1.0 / 6.0),
++            (1.0 / 12.0),
+             1,
+             1,
+             io.papermc.paper.threadedregions.TickRegions.getRegionChunkShift(),
