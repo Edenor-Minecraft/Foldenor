@@ -5,10 +5,18 @@ Subject: [PATCH] Return-rcon
 
 
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..faf3fcf725f7f2f935bacd27ce14d6daf5034044 100644
+index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..947ae8341c11f258c7f17e81b533cfa8fb09017f 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -756,9 +756,10 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -46,6 +46,7 @@ import net.minecraft.world.level.GameRules;
+ import net.minecraft.world.level.GameType;
+ import net.minecraft.world.level.block.entity.SkullBlockEntity;
+ import net.minecraft.world.level.storage.LevelStorageSource;
++import org.bukkit.craftbukkit.command.CraftRemoteConsoleCommandSender;
+ import org.slf4j.Logger;
+ 
+ // CraftBukkit start
+@@ -756,18 +757,19 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
      public String runCommand(String command) {
          // Folia start - region threading
          // RIP RCON
@@ -22,3 +30,70 @@ index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..faf3fcf725f7f2f935bacd27ce14d6da
          // Folia end - region threading
          Waitable[] waitableArray = new Waitable[1];
          this.rconConsoleSource.prepareForCommand();
+-        this.executeBlocking(() -> {
++        //this.executeBlocking(() -> {
+             // CraftBukkit start - fire RemoteServerCommandEvent
+             RemoteServerCommandEvent event = new RemoteServerCommandEvent(remoteConsole, command);
+             server.getPluginManager().callEvent(event);
+             if (event.isCancelled()) {
+-                return;
++                return "";
+             }
+             // Paper start
+             if (command.toLowerCase().startsWith("timings") && command.toLowerCase().matches("timings (report|paste|get|merged|seperate)")) {
+@@ -783,10 +785,10 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+             } else {
+             // Paper end
+             ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack());
+-            server.dispatchServerCommand(remoteConsole, serverCommand);
++            server.dispatchCommand(remoteConsole, serverCommand.msg);
+             } // Paper
+             // CraftBukkit end
+-        });
++        //});
+         // Paper start
+         if (waitableArray[0] != null) {
+             //noinspection unchecked
+@@ -801,6 +803,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+             }
+ 
+         }
++
+         // Paper end
+         return this.rconConsoleSource.getCommandResponse();
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 71a5a567e6c1a9ccdacca8d9c40081b39f637d60..00d2e19a20e36e7b1984eb456de18cdf285c50d1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -997,7 +997,7 @@ public final class CraftServer implements Server {
+             });
+         } else {
+             // huh?
+-            throw new UnsupportedOperationException("Dispatching command for " + sender);
++           // throw new UnsupportedOperationException("Dispatching command for " + sender);
+         }
+     }
+     // Folia end - region threading
+@@ -1015,7 +1015,7 @@ public final class CraftServer implements Server {
+             io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
+         } else {
+             // huh?
+-            throw new UnsupportedOperationException("Dispatching command for " + sender);
++            //throw new UnsupportedOperationException("Dispatching command for " + sender);
+         }
+         // Folia end - region threading
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/command/CraftRemoteConsoleCommandSender.java b/src/main/java/org/bukkit/craftbukkit/command/CraftRemoteConsoleCommandSender.java
+index dfc15cfd897316f64a063b8ae93a0882ab5b3993..31400a23ccd2d0684fed4a42123935d04bae4169 100644
+--- a/src/main/java/org/bukkit/craftbukkit/command/CraftRemoteConsoleCommandSender.java
++++ b/src/main/java/org/bukkit/craftbukkit/command/CraftRemoteConsoleCommandSender.java
+@@ -6,7 +6,7 @@ import org.bukkit.command.RemoteConsoleCommandSender;
+ 
+ public class CraftRemoteConsoleCommandSender extends ServerCommandSender implements RemoteConsoleCommandSender {
+ 
+-    private final RconConsoleSource listener;
++    public final RconConsoleSource listener;
+ 
+     public CraftRemoteConsoleCommandSender(RconConsoleSource listener) {
+         this.listener = listener;
