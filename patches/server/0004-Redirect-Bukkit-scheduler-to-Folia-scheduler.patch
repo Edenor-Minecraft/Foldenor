@@ -5,7 +5,7 @@ Subject: [PATCH] Redirect-Bukkit-scheduler-to-Folia-scheduler
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index f1c68d9850ece7532a8607db955eaa4fc3a4bf05..c2ba0ae1fe5ec3ff53343a1b38b8fe5dc2b547c9 100644
+index 08075b8895f816420c2a940bf551dfada3c0cd9e..792e7ad4eb86f78e87795b26521953fa620ca863 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 @@ -42,8 +42,12 @@ import java.util.Iterator;

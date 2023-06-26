@@ -5,7 +5,7 @@ Subject: [PATCH] Revert-changes-in-NewChunkHolder
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
-index c2ba0ae1fe5ec3ff53343a1b38b8fe5dc2b547c9..03d902afc0702770e05614f6a7a629dab72605cc 100644
+index 792e7ad4eb86f78e87795b26521953fa620ca863..23018da22eac29931a65129d928fc00f9c24fd67 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
 @@ -1753,8 +1753,7 @@ public final class NewChunkHolder {

@@ -5,7 +5,7 @@ Subject: [PATCH] Return-rcon
 
 
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..947ae8341c11f258c7f17e81b533cfa8fb09017f 100644
+index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..9e8ac8b8f97599968fb35dba817e926277fd770a 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -46,6 +46,7 @@ import net.minecraft.world.level.GameRules;
@@ -16,7 +16,7 @@ index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..947ae8341c11f258c7f17e81b533cfa8
  import org.slf4j.Logger;
  
  // CraftBukkit start
-@@ -756,18 +757,19 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -756,13 +757,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
      public String runCommand(String command) {
          // Folia start - region threading
          // RIP RCON
@@ -32,29 +32,29 @@ index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..947ae8341c11f258c7f17e81b533cfa8
          this.rconConsoleSource.prepareForCommand();
 -        this.executeBlocking(() -> {
 +        //this.executeBlocking(() -> {
++        io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTaskWithoutNotify(() ->{
              // CraftBukkit start - fire RemoteServerCommandEvent
              RemoteServerCommandEvent event = new RemoteServerCommandEvent(remoteConsole, command);
              server.getPluginManager().callEvent(event);
-             if (event.isCancelled()) {
--                return;
-+                return "";
-             }
-             // Paper start
-             if (command.toLowerCase().startsWith("timings") && command.toLowerCase().matches("timings (report|paste|get|merged|seperate)")) {
-@@ -783,10 +785,10 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -781,12 +784,14 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+                 waitableArray[0] = waitable;
+                 co.aikar.timings.Timings.generateReport(new co.aikar.timings.TimingsReportListener(sender, waitable));
              } else {
-             // Paper end
-             ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack());
+-            // Paper end
+-            ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack());
 -            server.dispatchServerCommand(remoteConsole, serverCommand);
-+            server.dispatchCommand(remoteConsole, serverCommand.msg);
++                // Paper end
++                ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack());
++                server.dispatchCommand(remoteConsole, serverCommand.msg);
              } // Paper
              // CraftBukkit end
--        });
+         });
++
 +        //});
          // Paper start
          if (waitableArray[0] != null) {
              //noinspection unchecked
-@@ -801,6 +803,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -801,6 +806,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
              }
  
          }
