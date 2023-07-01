@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 1 Jul 2023 14:16:42 +0400
+Subject: [PATCH] Increase-max-view-distance
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
+index c5df121d6194a97b20dc390698991b9c72dba538..389134c178598a1f9bafb0c078ec59e7ef9c71ab 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
++++ b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
+@@ -42,7 +42,7 @@ public class RegionizedPlayerChunkLoader {
+     public static final TicketType<Long> REGION_PLAYER_TICKET = TicketType.create("region_player_ticket", Long::compareTo);
+ 
+     public static final int MIN_VIEW_DISTANCE = 2;
+-    public static final int MAX_VIEW_DISTANCE = 32;
++    public static final int MAX_VIEW_DISTANCE = 256;
+ 
+     public static final int TICK_TICKET_LEVEL = 31;
+     public static final int GENERATED_TICKET_LEVEL = 33 + ChunkStatus.getDistance(ChunkStatus.FULL);
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index 25fe439c8d1e88a86e85ac9a4761425d98ee6c4f..7c8a64a070c5c754c97cc4991fa7b2c4bd36a38e 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -127,7 +127,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+     private static final int CHUNK_SAVED_EAGERLY_PER_TICK = 20;
+     private static final int EAGER_CHUNK_SAVE_COOLDOWN_IN_MILLIS = 10000;
+     private static final int MIN_VIEW_DISTANCE = 2;
+-    public static final int MAX_VIEW_DISTANCE = 32;
++    public static final int MAX_VIEW_DISTANCE = 256;
+     public static final int FORCED_TICKET_LEVEL = ChunkLevel.byStatus(FullChunkStatus.ENTITY_TICKING);
+     // Paper - rewrite chunk system
+     public final ServerLevel level;
