@@ -66,7 +66,7 @@ index ad13d60eeb94a75c97b3d0696c39d834d6082bfa..ac3aa8da9ac51f88451b3f2b9b9b0c81
          }
          // Folia end - block plugins not marked as supported
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 11ff1bc559316da426070867f045720ebd8c1962..61d532c90de14e668ec5e3fbd672c0aecbf7a1e7 100644
+index d307826380c4bd47ee4602813737a11339cb8357..aa1824d0adb2504cd32ed0cdc33d0cb4deb0a2a9 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1745,6 +1745,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa

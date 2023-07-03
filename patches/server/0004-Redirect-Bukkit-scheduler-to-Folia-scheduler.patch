@@ -58,7 +58,7 @@ index 08075b8895f816420c2a940bf551dfada3c0cd9e..792e7ad4eb86f78e87795b26521953fa
  
      static final class AsyncChunkSerializeTask implements Runnable {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 76bcfda336e9cfa039d80ea3ccbebbc3d2b13f7f..faa2439acda5ba06add039ee8a0fb2f0b83fa22e 100644
+index bcb85a4253b5e44b78cbadfb16c3bf0d47d7369e..17a2967e06c2b8a9795f63799d5ccc2160181975 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -7,6 +7,8 @@ import com.google.common.collect.Lists;

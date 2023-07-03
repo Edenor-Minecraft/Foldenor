@@ -482,7 +482,7 @@ index dae36c6452ccd57a436dd918547b64d59957ab0a..d031e34edd0b5e9af6901f86961601f2
                              } else {
                                  DedicatedServerProperties dedicatedserverproperties = dedicatedserversettings.getProperties();
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 61d532c90de14e668ec5e3fbd672c0aecbf7a1e7..f00131366a1ca905cbde0543c912fa460dd8cb2d 100644
+index aa1824d0adb2504cd32ed0cdc33d0cb4deb0a2a9..ebf76e8a1c4e63f972505a3000d55609ce63bf21 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -151,15 +151,7 @@ import net.minecraft.world.level.dimension.LevelStem;

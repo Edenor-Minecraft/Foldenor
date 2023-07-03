@@ -214,7 +214,7 @@ index 9754acf12d10aecebce9659799588cda7f3f848a..dcf604ecc50b5805a7fd62b5493dfe0d
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 82ffef34b596a98faa245ba401e67add9d9ac7d0..878a81ebd41a5c21c4fb3b56b7e974915467092a 100644
+index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..4cfc458f829af2d40af939b3e62fa607adfabf8b 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -29,6 +29,8 @@ import java.util.function.UnaryOperator;

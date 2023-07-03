@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 3 Jul 2023 15:45:08 +0400
+Subject: [PATCH] Pufferfish-Reduce-projectile-chunk-loading
+
+
+diff --git a/src/main/java/net/edenor/foldenor/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+index 346030f41b45d11610636787be13a7c4f822052a..1de71ae40f07543d850ef18ec35d6827792ecfd2 100644
+--- a/src/main/java/net/edenor/foldenor/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+@@ -25,6 +25,10 @@ public class FoldenorConfig {
+ 
+     public static boolean alternateKeepAlive = false;
+ 
++    public static int maxProjectileLoadsPerProjectile = 10;
++
++    public static int maxProjectileLoadsPerTick = 10;
++
+     public static void init(File configFile) {
+         init(configFile, true);
+     }
+@@ -88,6 +92,11 @@ public class FoldenorConfig {
+         }
+     }
+ 
++    private static void optimizationSettings() {
++        maxProjectileLoadsPerProjectile = getInt("optimizations.max_projectile_loads_per_projectile",maxProjectileLoadsPerProjectile);
++        maxProjectileLoadsPerTick = getInt("optimizations.max_projectile_loads_per_tick",maxProjectileLoadsPerTick);
++    }
++
+     private static void networkSettings() {
+         alternateKeepAlive = getBoolean("network.alternate-keepalive", alternateKeepAlive);
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
+index 5835a1ba3e2927c6b5d143506b440ac5a43aaaa4..3c605901b459a74d9523fdec3d493d5f057100e4 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
+@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
+ import java.util.Iterator;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.protocol.Packet;
+@@ -44,6 +46,35 @@ public abstract class Projectile extends Entity implements TraceableEntity {
+         super(type, world);
+     }
+ 
++    // Pufferfish start
++    private static int loadedThisTick = 0;
++    private static int loadedTick;
++
++        private int loadedLifetime = 0;
++    @Override
++    public void setPos(double x, double y, double z) {
++        int currentTick = (int) io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick();
++        if (loadedTick != currentTick) {
++            loadedTick = currentTick;
++            loadedThisTick = 0;
++        }
++        int previousX = Mth.floor(this.getX()) >> 4, previousZ = Mth.floor(this.getZ()) >> 4;
++        int newX = Mth.floor(x) >> 4, newZ = Mth.floor(z) >> 4;
++        if (previousX != newX || previousZ != newZ) {
++            boolean isLoaded = ((net.minecraft.server.level.ServerChunkCache) this.level().getChunkSource()).getChunkAtIfLoadedMainThread(newX, newZ) != null;
++            if (!isLoaded) {
++                if (Projectile.loadedThisTick > FoldenorConfig.maxProjectileLoadsPerTick) {
++                    if (++this.loadedLifetime > FoldenorConfig.maxProjectileLoadsPerProjectile) {
++                        this.discard();
++                    }
++                    return;
++                }
++                Projectile.loadedThisTick++;
++            }
++        }
++        super.setPos(x, y, z);
++    }
++    // Pufferfish end
+     public void setOwner(@Nullable Entity entity) {
+         if (entity != null) {
+             this.ownerUUID = entity.getUUID();
+diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+index 596a03096aef574efebe593cb164bcbd3c3b2133..40ffa5cf0bba6bc1f3ed25ef27410020a4c5fd35 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -136,7 +136,7 @@ public class LevelChunk extends ChunkAccess {
+     }
+ 
+     // CraftBukkit start
+-    public boolean mustNotSave; 
++    public boolean mustNotSave;
+     public boolean needsDecoration;
+     // CraftBukkit end
+ 

@@ -1,0 +1,104 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 3 Jul 2023 15:40:00 +0400
+Subject: [PATCH] Pufferfish-Optimize-random-calls-in-chunk-ticking
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index cd536d5335224f95d3dbf1063fc14a83cac97d49..299c33e92a532fc8baed841e221cf9e19e22864e 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -508,6 +508,7 @@ public class ServerChunkCache extends ChunkSource {
+             ProfilerFiller gameprofilerfiller = this.level.getProfiler();
+ 
+             gameprofilerfiller.push("pollingChunks");
++            this.level.resetIceAndSnowTick(); // Pufferfish - reset ice & snow tick random
+             int k = this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
+             boolean flag1 = level.ticksPerSpawnCategory.getLong(org.bukkit.entity.SpawnCategory.ANIMAL) != 0L && this.level.getRedstoneGameTime() % level.ticksPerSpawnCategory.getLong(org.bukkit.entity.SpawnCategory.ANIMAL) == 0L; // CraftBukkit // Folia - region threading
+ 
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 0f4a3b1061e630d7b5aa575c869773e6d8315259..e686920274a2442fb6879326e4e5aa7b44a40ad6 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -948,6 +948,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
+     private final ThreadLocal<io.papermc.paper.util.math.ThreadUnsafeRandom> randomTickRandom = ThreadLocal.withInitial(() -> new io.papermc.paper.util.math.ThreadUnsafeRandom(this.random.nextLong())); // Folia - region threading
+     // Paper end
+ 
++    private int currentIceAndSnowTick = 0;
++    protected void resetIceAndSnowTick() {
++        this.currentIceAndSnowTick = this.randomTickRandom.get().nextInt(16);
++    } // Pufferfish
++
+     public void tickChunk(LevelChunk chunk, int randomTickSpeed) {
+         io.papermc.paper.util.math.ThreadUnsafeRandom randomTickRandom = this.randomTickRandom.get(); // Folia - region threading
+         ChunkPos chunkcoordintpair = chunk.getPos();
+@@ -959,7 +964,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         gameprofilerfiller.push("thunder");
+         final BlockPos.MutableBlockPos blockposition = this.chunkTickMutablePosition.get(); // Paper - use mutable to reduce allocation rate, final to force compile fail on change // Folia - region threading
+ 
+-        if (!this.paperConfig().environment.disableThunder && flag && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0) { // Spigot // Paper - disable thunder
++        if (!this.paperConfig().environment.disableThunder && flag && this.isThundering() && this.spigotConfig.thunderChance > 0 && /*this.random.nextInt(this.spigotConfig.thunderChance) == 0 &&*/ chunk.shouldDoLightning(this.random)) { // Spigot // Paper - disable thunder // Pufferfish - replace random with shouldDoLightning
+             blockposition.set(this.findLightningTargetAround(this.getBlockRandomPos(j, 0, k, 15))); // Paper
+             if (this.isRainingAt(blockposition)) {
+                 DifficultyInstance difficultydamagescaler = this.getCurrentDifficultyAt(blockposition);
+@@ -990,7 +995,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         int l;
+         int i1;
+ 
+-        if (!this.paperConfig().environment.disableIceAndSnow && this.random.nextInt(16) == 0) { // Paper - Disable ice and snow
++        if (!this.paperConfig().environment.disableIceAndSnow && (this.currentIceAndSnowTick++ & 15) == 0) { // Paper - Disable ice and snow // Paper - optimise random ticking  // Pufferfish - optimize further random ticking
+             // Paper start - optimise chunk ticking
+             this.getRandomBlockPosition(j, 0, k, 15, blockposition);
+             int normalY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockposition.getX() & 15, blockposition.getZ() & 15) + 1;
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index a3c4029fccc853b17b3a43fda33a034b8195bac5..b5a4288081dd5cf9346d21e5eeb46285cfaf5440 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -187,6 +187,10 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         return this.world;
+     }
+ 
++    public RandomSource getThreadSafeRandomSource(){
++        return this.threadSafeRandom;
++    }
++
+     public CraftServer getCraftServer() {
+         return (CraftServer) Bukkit.getServer();
+     }
+diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+index 4d4e503cfdefb8c8e7f03f5792f354ec0a41c125..596a03096aef574efebe593cb164bcbd3c3b2133 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -92,6 +92,18 @@ public class LevelChunk extends ChunkAccess {
+     private final LevelChunkTicks<Block> blockTicks;
+     private final LevelChunkTicks<Fluid> fluidTicks;
+ 
++    // Pufferfish start - instead of using a random every time the chunk is ticked, define when lightning strikes preemptively
++    private int lightningTick;
++    // shouldDoLightning compiles down to 29 bytes, which with the default of 35 byte inlining should guarantee an inline
++    public final boolean shouldDoLightning(net.minecraft.util.RandomSource random) {
++        if (this.lightningTick-- <= 0) {
++            this.lightningTick = random.nextInt(this.level.spigotConfig.thunderChance) << 1;
++            return true;
++        }
++        return false;
++    }
++    // Pufferfish end
++
+     public LevelChunk(Level world, ChunkPos pos) {
+         this(world, pos, UpgradeData.EMPTY, new LevelChunkTicks<>(), new LevelChunkTicks<>(), 0L, (LevelChunkSection[]) null, (LevelChunk.PostLoadProcessor) null, (BlendingData) null);
+     }
+@@ -119,10 +131,12 @@ public class LevelChunk extends ChunkAccess {
+         this.postLoad = entityLoader;
+         this.blockTicks = blockTickScheduler;
+         this.fluidTicks = fluidTickScheduler;
++
++        this.lightningTick = this.level.getThreadSafeRandomSource().nextInt(100000) << 1; // Pufferfish - initialize lightning tick
+     }
+ 
+     // CraftBukkit start
+-    public boolean mustNotSave;
++    public boolean mustNotSave; 
+     public boolean needsDecoration;
+     // CraftBukkit end
+ 

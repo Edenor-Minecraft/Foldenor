@@ -56,7 +56,7 @@ index d031e34edd0b5e9af6901f86961601f2a4f6c977..8fb6abe1be994fe50cb1fb02999f9346
              } catch (Exception exception) {
                  Main.LOGGER.warn("Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode", exception);
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 762a2a1bf9d1bbea98a26c8265c302c413d2e717..5d96a91d2b6b84d8c43f9bb35bdadd913774ff94 100644
+index 6b3e7813f01a6e464d652899dd33da5ae2d74cde..eb18ab06ae161dfdc0d1cc22a11de6379424873f 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -349,7 +349,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
