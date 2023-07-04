@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish-Optimize-random-calls-in-chunk-ticking
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index cd536d5335224f95d3dbf1063fc14a83cac97d49..299c33e92a532fc8baed841e221cf9e19e22864e 100644
+index 865b8c9631605a6270e014459bf9e8c2bcdf6aa7..c83537ec370b0713b1de55f95c1afc7590a294a3 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 @@ -508,6 +508,7 @@ public class ServerChunkCache extends ChunkSource {
