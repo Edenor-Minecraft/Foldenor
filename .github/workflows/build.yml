@@ -38,7 +38,7 @@ jobs:
         run: ./gradlew applyPatches
         
       - name: Build
-        run: ./gradlew createReobfBundlerJar
+        run: ./gradlew createMojmapPaperclipJar
         
       - name: Make release zip
         run: |
