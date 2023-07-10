@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 13:19:07 +0400
+Subject: [PATCH] Disable-check-for-folia-support-in-plugins
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java b/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java
+index dc81e1a9faa54ba677bede6d7ca2414b1d7b6003..cfbc4dc3ead8c90a21bb6348a26a3434757e2c45 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/type/paper/PaperPluginProviderFactory.java
+@@ -25,9 +25,9 @@ class PaperPluginProviderFactory implements PluginTypeFactory<PaperPluginParent,
+     @Override
+     public PaperPluginParent build(JarFile file, PaperPluginMeta configuration, Path source) throws Exception {
+         // Folia start - block plugins not marked as supported
+-        if (!configuration.isFoliaSupported()) {
++        /*if (!configuration.isFoliaSupported()) {
+             throw new RuntimeException("Could not load plugin '" + configuration.getDisplayName() + "' as it is not marked as supporting Folia!");
+-        }
++        }*/
+         // Folia end - block plugins not marked as supported
+         Logger jul = PaperPluginLogger.getLogger(configuration);
+         ComponentLogger logger = ComponentLogger.logger(jul.getName());
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java b/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java
+index ad13d60eeb94a75c97b3d0696c39d834d6082bfa..2dbd21c0e74debdc031300c25b02844b27c664bc 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/type/spigot/SpigotPluginProviderFactory.java
+@@ -18,9 +18,9 @@ class SpigotPluginProviderFactory implements PluginTypeFactory<SpigotPluginProvi
+     @Override
+     public SpigotPluginProvider build(JarFile file, PluginDescriptionFile configuration, Path source) throws Exception {
+         // Folia start - block plugins not marked as supported
+-        if (!configuration.isFoliaSupported()) {
++        /*if (!configuration.isFoliaSupported()) {
+             throw new RuntimeException("Could not load plugin '" + configuration.getDisplayName() + "' as it is not marked as supporting Folia!");
+-        }
++        }*/
+         // Folia end - block plugins not marked as supported
+         // Copied from SimplePluginManager#loadPlugins
+         // Spigot doesn't validate the name when the config is created, and instead when the plugin is loaded.

@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 11:58:16 +0400
+Subject: [PATCH] Enable-a-lot-of-commands
+
+
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index e970a9807f1497b8b9f4155f558f4fcb719cb368..e747a3cfa9e4c333bea9e2dc0cef4c589fd114f7 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -148,7 +148,7 @@ public class Commands {
+         //CloneCommands.register(this.dispatcher, commandRegistryAccess); // Folia - region threading - TODO
+         DamageCommand.register(this.dispatcher, commandRegistryAccess);
+         //DataCommands.register(this.dispatcher); // Folia - region threading - TODO
+-        //DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
++        DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
+         //DebugCommand.register(this.dispatcher); // Folia - region threading - TODO
+         DefaultGameModeCommands.register(this.dispatcher);
+         DifficultyCommand.register(this.dispatcher);
+@@ -159,7 +159,7 @@ public class Commands {
+         FillCommand.register(this.dispatcher, commandRegistryAccess);
+         FillBiomeCommand.register(this.dispatcher, commandRegistryAccess);
+         ForceLoadCommand.register(this.dispatcher);
+-        //FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
++        FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
+         GameModeCommand.register(this.dispatcher);
+         GameRuleCommand.register(this.dispatcher);
+         GiveCommand.register(this.dispatcher, commandRegistryAccess);
+@@ -176,15 +176,15 @@ public class Commands {
+         PlaySoundCommand.register(this.dispatcher);
+         //ReloadCommand.register(this.dispatcher); // Folia - region threading
+         RecipeCommand.register(this.dispatcher);
+-        //RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         SayCommand.register(this.dispatcher);
+         //ScheduleCommand.register(this.dispatcher); // Folia - region threading
+-        //ScoreboardCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        ScoreboardCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         SeedCommand.register(this.dispatcher, environment != Commands.CommandSelection.INTEGRATED);
+         SetBlockCommand.register(this.dispatcher, commandRegistryAccess);
+         SetSpawnCommand.register(this.dispatcher);
+         SetWorldSpawnCommand.register(this.dispatcher);
+-        //SpectateCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        SpectateCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //SpreadPlayersCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         StopSoundCommand.register(this.dispatcher);
+         SummonCommand.register(this.dispatcher, commandRegistryAccess);
+@@ -197,7 +197,7 @@ public class Commands {
+         TitleCommand.register(this.dispatcher);
+         //TriggerCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         WeatherCommand.register(this.dispatcher);
+-        //WorldBorderCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        WorldBorderCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         if (JvmProfiler.INSTANCE.isAvailable()) {
+             JfrCommand.register(this.dispatcher);
+         }

@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Thu, 22 Jun 2023 13:31:13 +0400
+Date: Mon, 10 Jul 2023 11:55:51 +0400
 Subject: [PATCH] Rebranding
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 215366d7cc3720805d2dfde0662372ecede8383c..b036d0d1090b3f2ea6ea6f050a67c2f675664650 100644
+index dd53b1ffaff8dbaea0cf21c489a90162a496a026..536fa025d3d73bb484cff00c5a0b94bc8865877d 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -8,7 +8,7 @@ plugins {
@@ -17,7 +17,7 @@ index 215366d7cc3720805d2dfde0662372ecede8383c..b036d0d1090b3f2ea6ea6f050a67c2f6
      implementation("io.papermc.paper:paper-mojangapi:1.19.3-R0.1-SNAPSHOT") {
          exclude("io.papermc.paper", "paper-api")
      }
-@@ -68,7 +68,7 @@ tasks.jar {
+@@ -66,7 +66,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
@@ -27,7 +27,7 @@ index 215366d7cc3720805d2dfde0662372ecede8383c..b036d0d1090b3f2ea6ea6f050a67c2f6
              "Specification-Title" to "Bukkit",
              "Specification-Version" to project.version,
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index 58dc84b7b3b04c2d0b00fc5fac5303d3378b3467..d7261da5f872bedcf7db5425e6ff126eea1670e7 100644
+index 58dc84b7b3b04c2d0b00fc5fac5303d3378b3467..66bafa2930411101c871e27c8daffeba6fb09a64 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
 @@ -593,7 +593,7 @@ public class Metrics {
@@ -39,23 +39,24 @@ index 58dc84b7b3b04c2d0b00fc5fac5303d3378b3467..d7261da5f872bedcf7db5425e6ff126e
  
                  metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
                      String minecraftVersion = Bukkit.getVersion();
-@@ -612,6 +612,7 @@ public class Metrics {
+@@ -611,7 +611,7 @@ public class Metrics {
+                 } else {
                      paperVersion = "unknown";
                  }
-                 metrics.addCustomChart(new Metrics.SimplePie("folia_version", () -> paperVersion)); // Folia - we have our own bstats page
+-                metrics.addCustomChart(new Metrics.SimplePie("folia_version", () -> paperVersion)); // Folia - we have our own bstats page
 +                metrics.addCustomChart(new Metrics.SimplePie("foldenor_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown"));
  
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index e2f704c115fd6e00960bb56bb0779f1100c89c17..d77980fe69758834ffded0d24c2436e6cb3263d7 100644
+index 2ce29b6ccb9a3b520b8c1edf53aae2e9769ba252..d77980fe69758834ffded0d24c2436e6cb3263d7 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -20,7 +20,7 @@ import java.util.stream.StreamSupport;
  public class PaperVersionFetcher implements VersionFetcher {
      private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
      private static final String GITHUB_BRANCH_NAME = "master";
--    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads/paper";
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads";
 +    private static final String DOWNLOAD_PAGE = "https://github.com/Edenor-Minecraft/Foldenor";
      private static @Nullable String mcVer;
  
@@ -80,6 +81,32 @@ index e2f704c115fd6e00960bb56bb0779f1100c89c17..d77980fe69758834ffded0d24c2436e6
                  org.bukkit.Bukkit.getLogger().warning("Pattern: " + VER_PATTERN.toString());
                  org.bukkit.Bukkit.getLogger().warning("Version: " + org.bukkit.Bukkit.getBukkitVersion());
              }
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 61bac6fda2d2f4b3db8a3f7e3003f47c84d5c4cd..b13dbcada1ddd3cad7dc59a0d9cdd2ec8891b4f0 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1815,7 +1815,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @DontObfuscate
+     public String getServerModName() {
+-        return "Folia"; // Folia - Folia > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        return "Foldenor"; // Folia - Folia > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+     }
+ 
+     public SystemReport fillSystemReport(SystemReport details) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 32c9b38036052649b7b5fb25d7c4a49fdd1ca972..aff5f01a60ea0286b9351d3bfc9c7d28fe23afda 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -256,7 +256,7 @@ import javax.annotation.Nullable; // Paper
+ import javax.annotation.Nonnull; // Paper
+ 
+ public final class CraftServer implements Server {
+-    private final String serverName = "Folia"; // Folia // Paper
++    private final String serverName = "Foldenor"; // Folia // Paper
+     private final String serverVersion;
+     private final String bukkitVersion = Versioning.getBukkitVersion();
+     private final Logger logger = Logger.getLogger("Minecraft");
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 index e9b6ca3aa25e140467ae866d572483050ea3fa0e..85c419af128d3b08e7f81c07a33b647496010460 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java

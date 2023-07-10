@@ -1,0 +1,78 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 13:16:49 +0400
+Subject: [PATCH] Feature-secure-seed-part-two
+
+
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
+index f945fae50983424091b58f83ed14f2e8f2621619..3856e90e857cdeade8208a9789b5c829079fbc94 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
+@@ -5,6 +5,9 @@ import com.mojang.datafixers.util.Pair;
+ import com.mojang.serialization.Codec;
+ import java.util.List;
+ import java.util.function.Predicate;
++
++import net.edenor.foldenor.Globals;
++import net.edenor.foldenor.WorldgenCryptoRandom;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+@@ -42,7 +45,7 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
+         int j = geodeConfiguration.maxGenOffset;
+         List<Pair<BlockPos, Integer>> list = Lists.newLinkedList();
+         int k = geodeConfiguration.distributionPoints.sample(randomSource);
+-        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(worldGenLevel.getSeed()));
++        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(0, 0, Globals.Salt.GEODE_FEATURE, 0);
+         NormalNoise normalNoise = NormalNoise.create(worldgenRandom, -4, 1.0D);
+         List<BlockPos> list2 = Lists.newLinkedList();
+         double d = (double)k / (double)geodeConfiguration.outerWallDistance.getMaxValue();
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/structure/Structure.java b/src/main/java/net/minecraft/world/level/levelgen/structure/Structure.java
+index 8eaa1a57e904fe7e540b311c6c5c36b755f021fc..c11cd1e8310ce6a8f8d808fcd195326961353c88 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/structure/Structure.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/structure/Structure.java
+@@ -37,6 +37,7 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
+ import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
+ import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
++import net.edenor.foldenor.*;
+ 
+ public abstract class Structure {
+     public static final Codec<Structure> DIRECT_CODEC = BuiltInRegistries.STRUCTURE_TYPE.byNameCodec().dispatch(Structure::type, StructureType::codec);
+@@ -164,9 +165,9 @@ public abstract class Structure {
+         }
+ 
+         private static WorldgenRandom makeRandom(long seed, ChunkPos chunkPos) {
+-            WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
+-            worldgenRandom.setLargeFeatureSeed(seed, chunkPos.x, chunkPos.z);
+-            return worldgenRandom;
++            return new WorldgenCryptoRandom(
++                chunkPos.x, chunkPos.z, Globals.Salt.GENERATE_FEATURE, seed
++            );
+         }
+     }
+ 
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement.java b/src/main/java/net/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement.java
+index a34de79a7f314179a41718289958446b5575c113..cc9eba574568fb546e98944becddc811123117f5 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement.java
+@@ -9,6 +9,7 @@ import net.minecraft.world.level.ChunkPos;
+ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+ import net.minecraft.world.level.levelgen.LegacyRandomSource;
+ import net.minecraft.world.level.levelgen.WorldgenRandom;
++import net.edenor.foldenor.*;
+ 
+ public class RandomSpreadStructurePlacement extends StructurePlacement {
+     public static final Codec<RandomSpreadStructurePlacement> CODEC = RecordCodecBuilder.<RandomSpreadStructurePlacement>mapCodec((instance) -> {
+@@ -48,8 +49,9 @@ public class RandomSpreadStructurePlacement extends StructurePlacement {
+     public ChunkPos getPotentialStructureChunk(long seed, int chunkX, int chunkZ) {
+         int i = Math.floorDiv(chunkX, this.spacing);
+         int j = Math.floorDiv(chunkZ, this.spacing);
+-        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
+-        worldgenRandom.setLargeFeatureWithSalt(seed, i, j, this.salt());
++        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(
++            i, j, Globals.Salt.POTENTIONAL_FEATURE, this.salt
++        );
+         int k = this.spacing - this.separation;
+         int l = this.spreadType.evaluate(worldgenRandom, k);
+         int m = this.spreadType.evaluate(worldgenRandom, k);

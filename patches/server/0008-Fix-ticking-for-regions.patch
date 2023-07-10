@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 13:21:34 +0400
+Subject: [PATCH] Fix-ticking-for-regions
+
+
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index 294ea54d59e1e0b00f67d1623a5c807f9d368df6..065c8d13e61bb30c11954c14cfa42efe37e5b695 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -174,10 +174,19 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int fromChunkX, final int fromChunkZ, final int toChunkX, final int toChunkZ) {
+-        final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
++        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+         if (region == null) {
+-            return isShutdownThread();
++            try{
++                region = world.regioniser.getRegionAtSynchronised(fromChunkX, fromChunkZ);
++                if (region == null){
++                    MinecraftServer.LOGGER.warn("Region at position [" + fromChunkX + ", " + fromChunkZ + "], [" + toChunkX + ", " + toChunkZ + "] is null!");
++                    return isShutdownThread();
++                }
++            } catch (Exception e) {
++                MinecraftServer.LOGGER.warn("Region at position [" + fromChunkX + ", " + fromChunkZ + "], [" + toChunkX + ", " + toChunkZ + "] is null!");
++                return isShutdownThread();
++            }
+         }
+ 
+         final int shift = world.regioniser.sectionChunkShift;

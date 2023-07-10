@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 12:07:45 +0400
+Subject: [PATCH] Enable-tag-command
+
+
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index e747a3cfa9e4c333bea9e2dc0cef4c589fd114f7..d9e6f144bee10decbddf4acb916cb7b5d7740692 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -188,7 +188,7 @@ public class Commands {
+         //SpreadPlayersCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         StopSoundCommand.register(this.dispatcher);
+         SummonCommand.register(this.dispatcher, commandRegistryAccess);
+-        //TagCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        TagCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //TeamCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //TeamMsgCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         TeleportCommand.register(this.dispatcher);
