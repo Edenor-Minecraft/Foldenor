@@ -434,11 +434,10 @@ index d9e6f144bee10decbddf4acb916cb7b5d7740692..5860f128947dfce0db7655c13e9a5e65
          SetWorldSpawnCommand.register(this.dispatcher);
 diff --git a/src/main/java/net/minecraft/server/commands/NewSeedCommand.java b/src/main/java/net/minecraft/server/commands/NewSeedCommand.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..3ca1f2317d61bf399ea3029da29c773de676843d
+index 0000000000000000000000000000000000000000..708e5fbf9a2f911787c31d474ccd1bd35a814087
 --- /dev/null
 +++ b/src/main/java/net/minecraft/server/commands/NewSeedCommand.java
-@@ -0,0 +1,37 @@
-+package net.minecraft.server.commands;
+@@ -0,0 +1,36 @@
 +package net.minecraft.server.commands;
 +
 +import com.mojang.brigadier.CommandDispatcher;
