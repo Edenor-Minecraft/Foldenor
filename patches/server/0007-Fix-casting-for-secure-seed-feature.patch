@@ -5,7 +5,7 @@ Subject: [PATCH] Fix-casting-for-secure-seed-feature
 
 
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index ebf76e8a1c4e63f972505a3000d55609ce63bf21..6b3e7813f01a6e464d652899dd33da5ae2d74cde 100644
+index 3ddbae380899043f51bd5595f0303db3ccbc0a3d..819d2f12c506c4dbd3671707deaf319bc5ca8869 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -148,7 +148,7 @@ import net.minecraft.world.level.biome.BiomeManager;

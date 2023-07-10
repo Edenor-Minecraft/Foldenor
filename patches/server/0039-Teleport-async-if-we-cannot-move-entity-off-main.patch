@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 16:41:37 +0400
+Subject: [PATCH] Teleport-async-if-we-cannot-move-entity-off-main
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 532a3a8b1f261fb603ac8e71a0d003a8a7945418..882b5c87c164d91218383207dbc12ecba59d427e 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1121,7 +1121,16 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+                     }
+                 }
+ 
+-                this.setPos(this.getX() + vec3d1.x, this.getY() + vec3d1.y, this.getZ() + vec3d1.z);
++                try {
++                    this.setPos(this.getX() + vec3d1.x, this.getY() + vec3d1.y, this.getZ() + vec3d1.z);
++                } catch (IllegalStateException e) {
++                    this.teleportAsync((ServerLevel) this.level(), this.position().add(vec3d1),
++                        this.getYRot(), this.getXRot(),
++                        Vec3.ZERO, PlayerTeleportEvent.TeleportCause.UNKNOWN,
++                        Entity.TELEPORT_FLAG_LOAD_CHUNK | Entity.TELEPORT_FLAG_TELEPORT_PASSENGERS,
++                        null
++                    );
++                }
+             }
+ 
+             this.level().getProfiler().pop();
+@@ -3863,13 +3872,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+         // check for same region
+         if (destination == this.level()) {
+             Vec3 currPos = this.position();
+-            if (
+-                destination.regioniser.getRegionAtUnsynchronised(
+-                    io.papermc.paper.util.CoordinateUtils.getChunkX(currPos), io.papermc.paper.util.CoordinateUtils.getChunkZ(currPos)
+-                ) == destination.regioniser.getRegionAtUnsynchronised(
+-                    io.papermc.paper.util.CoordinateUtils.getChunkX(pos), io.papermc.paper.util.CoordinateUtils.getChunkZ(pos)
+-                )
+-            ) {
++            io.papermc.paper.threadedregions.ThreadedRegionizer.ThreadedRegion<io.papermc.paper.threadedregions.TickRegions.TickRegionData,
++                io.papermc.paper.threadedregions.TickRegions.TickRegionSectionData>
++                currRegion = destination.regioniser.getRegionAtUnsynchronised(io.papermc.paper.util.CoordinateUtils.getChunkX(currPos), io.papermc.paper.util.CoordinateUtils.getChunkZ(currPos));
++            io.papermc.paper.threadedregions.ThreadedRegionizer.ThreadedRegion<io.papermc.paper.threadedregions.TickRegions.TickRegionData,
++                io.papermc.paper.threadedregions.TickRegions.TickRegionSectionData>
++                destRegion = destination.regioniser.getRegionAtUnsynchronised(io.papermc.paper.util.CoordinateUtils.getChunkX(pos), io.papermc.paper.util.CoordinateUtils.getChunkZ(pos));
++            if (currRegion == destRegion && currRegion != null) {
+                 EntityTreeNode passengerTree = this.detachPassengers();
+                 // Note: The client does not accept position updates for controlled entities. So, we must
+                 // perform a lot of tracker updates here to make it all work out.

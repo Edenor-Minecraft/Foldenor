@@ -482,7 +482,7 @@ index dae36c6452ccd57a436dd918547b64d59957ab0a..d031e34edd0b5e9af6901f86961601f2
                              } else {
                                  DedicatedServerProperties dedicatedserverproperties = dedicatedserversettings.getProperties();
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index aa1824d0adb2504cd32ed0cdc33d0cb4deb0a2a9..ebf76e8a1c4e63f972505a3000d55609ce63bf21 100644
+index b6b83ee995bd359f7a25091a7d8f21b1dccfaa8a..3ddbae380899043f51bd5595f0303db3ccbc0a3d 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -151,15 +151,7 @@ import net.minecraft.world.level.dimension.LevelStem;
@@ -781,7 +781,7 @@ index dfae4b5bb0b7e0439c916bc470b32622e96187ea..f6a5c922722e9bee4739d95c64966f75
  
                      StructureSet.StructureSelectionEntry structureset_a1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
-index 51a05900d02dc116ea215730713cd2cf2a4f1c23..b692d9270f34231cebf3fbeaf36714a0091cae02 100644
+index f8cd23fb6ea7909b8f30bd21d3f2c7bcc483ef21..ebc6b0295e952fc186b2e7e5a05c685f3f08dba6 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 @@ -39,6 +39,8 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStruct
@@ -793,7 +793,7 @@ index 51a05900d02dc116ea215730713cd2cf2a4f1c23..b692d9270f34231cebf3fbeaf36714a0
  public class ChunkGeneratorStructureState {
  
      private static final Logger LOGGER = LogUtils.getLogger();
-@@ -218,15 +220,8 @@ public class ChunkGeneratorStructureState {
+@@ -221,15 +223,8 @@ public class ChunkGeneratorStructureState {
              List<CompletableFuture<ChunkPos>> list = new ArrayList(j);
              int k = placement.spread();
              HolderSet<Biome> holderset = placement.preferredBiomes();

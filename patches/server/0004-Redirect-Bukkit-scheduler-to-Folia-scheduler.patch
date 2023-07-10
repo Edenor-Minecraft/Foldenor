@@ -58,7 +58,7 @@ index 08075b8895f816420c2a940bf551dfada3c0cd9e..792e7ad4eb86f78e87795b26521953fa
  
      static final class AsyncChunkSerializeTask implements Runnable {
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index bcb85a4253b5e44b78cbadfb16c3bf0d47d7369e..17a2967e06c2b8a9795f63799d5ccc2160181975 100644
+index 19b47478d318edce1242c2a5ddd73da963a24595..07220c6e52d57f409fd2ba668428eb055f2de520 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
@@ -70,7 +70,7 @@ index bcb85a4253b5e44b78cbadfb16c3bf0d47d7369e..17a2967e06c2b8a9795f63799d5ccc21
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.nbt.Tag;
  import net.minecraft.network.chat.Component;
-@@ -578,9 +580,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -577,9 +579,9 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
      @Override
      public boolean teleport(Location location, TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading
@@ -83,7 +83,7 @@ index bcb85a4253b5e44b78cbadfb16c3bf0d47d7369e..17a2967e06c2b8a9795f63799d5ccc21
          // Folia end - region threading
          // Paper end
          Preconditions.checkArgument(location != null, "location cannot be null");
-@@ -608,19 +610,18 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -607,19 +609,18 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
          if (dismount) this.entity.stopRiding(); // Paper - Teleport passenger API
  
          // Let the server handle cross world teleports

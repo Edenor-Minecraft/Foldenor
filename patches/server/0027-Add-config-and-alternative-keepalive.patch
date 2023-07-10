@@ -214,7 +214,7 @@ index 9754acf12d10aecebce9659799588cda7f3f848a..dcf604ecc50b5805a7fd62b5493dfe0d
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..4cfc458f829af2d40af939b3e62fa607adfabf8b 100644
+index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..d07410e47be2e16f580f2c767bd04a361723b62e 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -29,6 +29,8 @@ import java.util.function.UnaryOperator;
@@ -277,7 +277,7 @@ index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..4cfc458f829af2d40af939b3e62fa607
      }
      // Folia end - region threading
  
-@@ -3514,20 +3529,27 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -3523,20 +3538,27 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
  
      @Override
      public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
@@ -320,10 +320,10 @@ index ace5e9900eb4e08ace4fb24ffa66c6d6d03ab82a..4cfc458f829af2d40af939b3e62fa607
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 74727c25298e765f9ff932c6d1ac82c66f6a514b..71a5a567e6c1a9ccdacca8d9c40081b39f637d60 100644
+index 2924081f867520592aefed6758f1323a207f850b..da6d7d22aeec8a288fac8b13db5da45483d24c7a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -42,6 +42,8 @@ import java.util.logging.Level;
+@@ -43,6 +43,8 @@ import java.util.logging.Level;
  import java.util.logging.Logger;
  import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
@@ -332,7 +332,7 @@ index 74727c25298e765f9ff932c6d1ac82c66f6a514b..71a5a567e6c1a9ccdacca8d9c40081b3
  import net.minecraft.advancements.Advancement;
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
-@@ -932,6 +934,10 @@ public final class CraftServer implements Server {
+@@ -935,6 +937,10 @@ public final class CraftServer implements Server {
          return this.scheduler;
      }
  
@@ -343,7 +343,7 @@ index 74727c25298e765f9ff932c6d1ac82c66f6a514b..71a5a567e6c1a9ccdacca8d9c40081b3
      @Override
      public ServicesManager getServicesManager() {
          return this.servicesManager;
-@@ -1088,6 +1094,7 @@ public final class CraftServer implements Server {
+@@ -1091,6 +1097,7 @@ public final class CraftServer implements Server {
  
          org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
          this.console.paperConfigurations.reloadConfigs(this.console);
@@ -352,7 +352,7 @@ index 74727c25298e765f9ff932c6d1ac82c66f6a514b..71a5a567e6c1a9ccdacca8d9c40081b3
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index 717e292040ed7779eb4b6c5fa26665d3df9024e7..0cab8676db7647c959b3c96d046774941375e1bc 100644
+index daed278d1bcf84ee42749f24e311b22b70015d79..d1f88ca0442fa4496bc4e67e840ca3df559fe36d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -173,6 +173,12 @@ public class Main {

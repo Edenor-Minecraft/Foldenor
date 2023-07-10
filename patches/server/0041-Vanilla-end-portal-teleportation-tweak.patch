@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 16:47:17 +0400
+Subject: [PATCH] Vanilla-end-portal-teleportation-tweak
+
+
+diff --git a/src/main/java/net/edenor/foldenor/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+index 35c9a85aa8ce60627a5e4afe6d2f5fcea79fe9fc..e86d4acafb24db3567030c9f0e8694557b1491a8 100644
+--- a/src/main/java/net/edenor/foldenor/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+@@ -27,6 +27,8 @@ public class FoldenorConfig {
+ 
+     public static boolean sendNullEntityPackets = true;
+ 
++    public static boolean vanilaEndPortalTeleportation = false;
++
+     public static int maxProjectileLoadsPerProjectile = 10;
+ 
+     public static int maxProjectileLoadsPerTick = 10;
+@@ -94,6 +96,10 @@ public class FoldenorConfig {
+         }
+     }
+ 
++    private static void otherSettings() {
++        vanilaEndPortalTeleportation = getBoolean("other.vanila-end-portal-teleportation", vanilaEndPortalTeleportation);
++    }
++
+     private static void optimizationSettings() {
+         maxProjectileLoadsPerProjectile = getInt("optimizations.max_projectile_loads_per_projectile",maxProjectileLoadsPerProjectile);
+         maxProjectileLoadsPerTick = getInt("optimizations.max_projectile_loads_per_tick",maxProjectileLoadsPerTick);
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 882b5c87c164d91218383207dbc12ecba59d427e..14a5f280cc17b6dac84893ebf9eccd2112b426ad 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -24,6 +24,8 @@ import java.util.function.BiConsumer;
+ import java.util.function.Predicate;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.FoldenorConfig;
+ import net.minecraft.BlockUtil;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+@@ -4034,11 +4036,22 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+                         (chunks) -> {
+                             ServerLevel.makeObsidianPlatform(destination, null, targetPos);
+ 
+-                            // the portal obsidian is placed at targetPos.y - 2, so if we want to place the entity
+-                            // on the obsidian, we need to spawn at targetPos.y - 1
+-                            portalInfoCompletable.complete(
+-                                new PortalInfo(Vec3.atBottomCenterOf(targetPos.below()), Vec3.ZERO, 90.0f, 0.0f, destination, null)
+-                            );
++                            if (FoldenorConfig.vanilaEndPortalTeleportation){
++                                Vec3 finalPos;
++                                if (this instanceof Player) finalPos = Vec3.atBottomCenterOf(targetPos.below());
++                                else finalPos = Vec3.atBottomCenterOf(targetPos);
++
++                                portalInfoCompletable.complete(
++                                    new PortalInfo(finalPos, this.getDeltaMovement(), 90.0f, 0.0f, destination, null) // Kaiiju - Vanilla end teleportation
++                                );
++                            }
++                            else{
++                                // the portal obsidian is placed at targetPos.y - 2, so if we want to place the entity
++                                // on the obsidian, we need to spawn at targetPos.y - 1
++                                portalInfoCompletable.complete(
++                                    new PortalInfo(Vec3.atBottomCenterOf(targetPos.below()), Vec3.ZERO, 90.0f, 0.0f, destination, null)
++                                );
++                            }
+                         }
+                     );
+                 } else {

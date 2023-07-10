@@ -63,10 +63,10 @@ index dcf604ecc50b5805a7fd62b5493dfe0d67ccd829..9e8ac8b8f97599968fb35dba817e9262
          return this.rconConsoleSource.getCommandResponse();
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 71a5a567e6c1a9ccdacca8d9c40081b39f637d60..00d2e19a20e36e7b1984eb456de18cdf285c50d1 100644
+index da6d7d22aeec8a288fac8b13db5da45483d24c7a..fafcce4abc2c03f734baa796328328d66856380b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -997,7 +997,7 @@ public final class CraftServer implements Server {
+@@ -1000,7 +1000,7 @@ public final class CraftServer implements Server {
              });
          } else {
              // huh?
@@ -75,7 +75,7 @@ index 71a5a567e6c1a9ccdacca8d9c40081b39f637d60..00d2e19a20e36e7b1984eb456de18cdf
          }
      }
      // Folia end - region threading
-@@ -1015,7 +1015,7 @@ public final class CraftServer implements Server {
+@@ -1018,7 +1018,7 @@ public final class CraftServer implements Server {
              io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
          } else {
              // huh?

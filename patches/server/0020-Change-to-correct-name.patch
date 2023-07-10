@@ -5,7 +5,7 @@ Subject: [PATCH] Change-to-correct-name
 
 
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index eb18ab06ae161dfdc0d1cc22a11de6379424873f..4baf29ea3f80b926159439a109c3498b6b3c07fd 100644
+index cf4f667d8d9411e11286fbdf417700ff5dc3e4f3..b3f515c7c0e238f5c79f49d6f260f4592bf5208b 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1802,7 +1802,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -18,10 +18,10 @@ index eb18ab06ae161dfdc0d1cc22a11de6379424873f..4baf29ea3f80b926159439a109c3498b
  
      public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 811d7b1bf41b27dbab4b3be43738a07c680595b4..74727c25298e765f9ff932c6d1ac82c66f6a514b 100644
+index f44a4fe521ca7876e7364fc1313061c4c887b583..2924081f867520592aefed6758f1323a207f850b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -255,7 +255,7 @@ import javax.annotation.Nullable; // Paper
+@@ -258,7 +258,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {

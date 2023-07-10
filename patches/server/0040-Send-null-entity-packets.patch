@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 10 Jul 2023 16:43:42 +0400
+Subject: [PATCH] Send-null-entity-packets
+
+
+diff --git a/src/main/java/net/edenor/foldenor/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+index 1de71ae40f07543d850ef18ec35d6827792ecfd2..35c9a85aa8ce60627a5e4afe6d2f5fcea79fe9fc 100644
+--- a/src/main/java/net/edenor/foldenor/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/FoldenorConfig.java
+@@ -25,6 +25,8 @@ public class FoldenorConfig {
+ 
+     public static boolean alternateKeepAlive = false;
+ 
++    public static boolean sendNullEntityPackets = true;
++
+     public static int maxProjectileLoadsPerProjectile = 10;
+ 
+     public static int maxProjectileLoadsPerTick = 10;
+@@ -99,6 +101,7 @@ public class FoldenorConfig {
+ 
+     private static void networkSettings() {
+         alternateKeepAlive = getBoolean("network.alternate-keepalive", alternateKeepAlive);
++        sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);
+     }
+ 
+     protected static void set(String path, Object val) {
+diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
+index 81d0b2933040a451441f660f9e46199ae3b111e3..c8f675986f5ec2024b64be12de898534c5c7bb39 100644
+--- a/src/main/java/net/minecraft/server/level/ServerEntity.java
++++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
+@@ -13,6 +13,8 @@ import java.util.Set;
+ import java.util.function.Consumer;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.FoldenorConfig;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientGamePacketListener;
+ import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+@@ -201,6 +203,9 @@ public class ServerEntity {
+                         flag4 = true;
+                         flag5 = true;
+                     }
++                    if (!FoldenorConfig.sendNullEntityPackets && isNullMovePacket(packet1)) {
++                        packet1 = null;
++                    }
+                 }
+ 
+                 if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) && this.tickCount > 0) {
+@@ -267,6 +272,18 @@ public class ServerEntity {
+ 
+     }
+ 
++    private boolean isNullMovePacket(Packet<?> packet) {
++        if (packet instanceof ClientboundMoveEntityPacket move) {
++            if (packet instanceof ClientboundMoveEntityPacket.Pos)
++                return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0;
++            if (packet instanceof ClientboundMoveEntityPacket.PosRot)
++                return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0 && move.getyRot() == 0 && move.getxRot() == 0;
++            if (packet instanceof ClientboundMoveEntityPacket.Rot)
++                return move.getyRot() == 0 && move.getxRot() == 0;
++        }
++        return false;
++    }
++
+     private static Stream<Entity> removedPassengers(List<Entity> passengers, List<Entity> lastPassengers) {
+         return lastPassengers.stream().filter((entity) -> {
+             return !passengers.contains(entity);

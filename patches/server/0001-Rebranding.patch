@@ -5,10 +5,10 @@ Subject: [PATCH] Rebranding
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 215366d7cc3720805d2dfde0662372ecede8383c..b036d0d1090b3f2ea6ea6f050a67c2f675664650 100644
+index 93f9abd2169a48a4fd32f712c68be7b49b034e83..4d01623cd1b10679a09efdc444220dd4b5adb5e4 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -8,7 +8,7 @@ plugins {
+@@ -14,7 +14,7 @@ val alsoShade: Configuration by configurations.creating
  
  dependencies {
      // Folia start
@@ -17,7 +17,7 @@ index 215366d7cc3720805d2dfde0662372ecede8383c..b036d0d1090b3f2ea6ea6f050a67c2f6
      implementation("io.papermc.paper:paper-mojangapi:1.19.3-R0.1-SNAPSHOT") {
          exclude("io.papermc.paper", "paper-api")
      }
-@@ -68,7 +68,7 @@ tasks.jar {
+@@ -76,7 +76,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",

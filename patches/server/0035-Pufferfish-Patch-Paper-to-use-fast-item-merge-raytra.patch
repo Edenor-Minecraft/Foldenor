@@ -5,10 +5,10 @@ Subject: [PATCH] Pufferfish-Patch-Paper-to-use-fast-item-merge-raytra
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/item/ItemEntity.java b/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
-index 6b1da5467b486b8c38fe95fd2313cac868fda343..934ced2d6a1769ab291f63102c777a425b9b95d6 100644
+index 76e010769786132d8af3889051b3f52e9f683509..2ea5d0d3c04accc3b9560e936e6a14c2ab4e463c 100644
 --- a/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/item/ItemEntity.java
-@@ -268,10 +268,16 @@ public class ItemEntity extends Entity implements TraceableEntity {
+@@ -269,10 +269,16 @@ public class ItemEntity extends Entity implements TraceableEntity {
                  if (entityitem.isMergable()) {
                      // Paper Start - Fix items merging through walls
                          if (this.level().paperConfig().fixes.fixItemsMergingThroughWalls) {
