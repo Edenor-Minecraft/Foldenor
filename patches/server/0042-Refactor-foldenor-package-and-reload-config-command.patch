@@ -40,17 +40,24 @@ index 0000000000000000000000000000000000000000..8f2a4df8958c4b41fc5b6780c0700a6a
 +}
 diff --git a/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java b/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6a3e90b0f2c7874a48a3a53b460032a0873c2026
+index 0000000000000000000000000000000000000000..ad854d09999ce2bee9e48976eb79ef02426947a4
 --- /dev/null
 +++ b/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,46 @@
 +package net.edenor.foldenor.commands;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
 +import net.minecraft.server.dedicated.DedicatedServer;
++import org.bukkit.Bukkit;
 +import org.bukkit.command.Command;
 +import org.bukkit.command.CommandSender;
++import org.bukkit.permissions.Permission;
++import org.bukkit.permissions.PermissionDefault;
++import org.bukkit.plugin.PluginManager;
 +import org.jetbrains.annotations.NotNull;
++
++import java.util.ArrayList;
++import java.util.List;
 +
 +import static net.kyori.adventure.text.Component.text;
 +import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
@@ -60,10 +67,19 @@ index 0000000000000000000000000000000000000000..6a3e90b0f2c7874a48a3a53b460032a0
 +
 +    public FoldenorReloadConfigCommand(@NotNull String name) {
 +        super(name);
++        final List<String> permissions = new ArrayList<>();
++        permissions.add("bukkit.command.foldenor.reload_config");
++        this.setPermission(String.join(";", permissions));
++        final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
++        pluginManager.addPermission(new Permission("bukkit.command.foldenor.reload_config", PermissionDefault.OP));
 +    }
 +
 +    @Override
 +    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
++        if (!sender.hasPermission("bukkit.command.foldenor.reload_config")) {
++            sender.sendMessage(Bukkit.permissionMessage());
++            return false;
++        }
 +        try {
 +            FoldenorConfig.reload((java.io.File) DedicatedServer.getServer().options.valueOf("foldenor-settings"));
 +            Command.broadcastCommandMessage(sender, text("Foldenor config reload complete.", GREEN));
