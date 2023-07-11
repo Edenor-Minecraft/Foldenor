@@ -29,7 +29,7 @@ jobs:
       - name: Configure Git User Details
         run: |
           git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
-          echo "Compile_Date=$(date +%H:%M %d.%m.%Y)" >> $GITHUB_ENV
+          echo "Compile_Date=$(date +%H:%M %d %m %Y)" >> $GITHUB_ENV
 
       - name: Apply Patches
         run: ./gradlew applyPatches --stacktrace
