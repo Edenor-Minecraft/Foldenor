@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Tue, 11 Jul 2023 00:25:42 +0400
+Subject: [PATCH] Fix-for-getCurrentWorldData-returning-null
+
+
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index 4a599a5391730250b5579975aa680e5b9a891080..03b36f4cd155002896d0df299a22f2095f671a9a 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -15,6 +15,8 @@ import java.util.function.Consumer;
+ import java.util.function.Predicate;
+ import java.util.function.Supplier;
+ import javax.annotation.Nullable;
++
++import io.papermc.paper.threadedregions.RegionizedData;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+ import net.minecraft.ReportedException;
+@@ -279,7 +281,14 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     public io.papermc.paper.threadedregions.RegionizedWorldData getCurrentWorldData() {
+         io.papermc.paper.threadedregions.RegionizedWorldData ret = io.papermc.paper.threadedregions.TickRegionScheduler.getCurrentRegionizedWorldData();
+         if (ret == null) {
+-            return ret;
++            try{
++                ret = worldRegionData.get();
++                if (ret == null)
++                    return ret;
++            } catch (Exception e) {
++                MinecraftServer.LOGGER.error("Failed to get current world data!", e);
++                return null;
++            }
+         }
+         Level world = ret.world;
+         if (world != this) {
