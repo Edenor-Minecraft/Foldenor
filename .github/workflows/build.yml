@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
