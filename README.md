@@ -1,5 +1,5 @@
 <div align=center>
-    <img src="./foldenor.png">
+    <img url="https://github.com/Edenor-Minecraft/Foldenor/blob/4835a562a6fb94a7d6ce2c145a27e34b5f8a9572/foldenor.png">
     <br /><br />
     <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> which adds secure seed, comparability for paper plugins and some useful patches. This project is originally aimed for Edenor Minecraft server.</p>
 </div>
