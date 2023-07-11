@@ -7,8 +7,6 @@ on:
 
 jobs:
   build:
-    # Only run on PRs if the source branch is on someone else's repo
-    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
     
     permissions:
@@ -16,27 +14,9 @@ jobs:
        actions: write
        
     steps:
-      - name: Checking Environment
-        run: |
-          echo "Compile_Date=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-          
       - name: Checkout Git Repository
         uses: actions/checkout@v3
-      
-      #- name: Validate Gradle wrapper
-        #uses: gradle/wrapper-validation-action@v1
-      
-      #- name: Setup Gradle
-        #uses: gradle/gradle-build-action@v2
-        #with:
-          #gradle-version: current
-      
-      #- name: Set up JDK
-        #uses: actions/setup-java@v3
-        #with:
-          #distribution: 'temurin'
-          #java-version: '17'
-          
+        
       - name: Set up JDK
         uses: graalvm/setup-graalvm@v1
         with:
@@ -45,26 +25,23 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version: 'latest'
-      
+        
       - name: Configure Git User Details
-        run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+        run: |
+          git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+          echo "Compile_Date=$(date +%H:%M %d.%m.%Y)" >> $GITHUB_ENV
 
       - name: Apply Patches
         run: ./gradlew applyPatches --stacktrace
-
-       
+   
       - name: Build
         run: ./gradlew createReobfPaperclipJar --stacktrace
-          
+           
       - name: Make release
-        uses: softprops/action-gh-release@v1
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          name: Latest build from action with id ${{github.run_number}}
-          body: |
-            Foldenor build
-            Version: 1.20.1
-            Build Time: ${{ env.Compile_Date }}
-          tag_name: 1.20.1_Actions_Build_${{github.run_number}}
+          prerelease: false
+          title: "1.20.1 build ${{ env.Compile_Date }}"
+          automatic_release_tag: "latest-1.20.1"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: build/libs/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
