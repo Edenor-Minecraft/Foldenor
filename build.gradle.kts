@@ -74,27 +74,6 @@ paperweight {
     }
 }
 
-allprojects {
-    publishing {
-        repositories {
-            maven("https://repo.papermc.io/repository/maven-snapshots/") {
-                name = "paperSnapshots"
-                credentials(PasswordCredentials::class)
-            }
-        }
-    }
-}
-
-publishing {
-    if (project.hasProperty("publishDevBundle")) {
-        publications.create<MavenPublication>("devBundle") {
-            artifact(tasks.generateDevelopmentBundle) {
-                artifactId = "dev-bundle"
-            }
-        }
-    }
-}
-
 tasks.register("foliaRefLatest") {
     // Update the foliaRef in gradle.properties to be the latest commit.
     val tempDir = layout.cacheDir("foliaRefLatest");
@@ -123,21 +102,5 @@ tasks.register("foliaRefLatest") {
             from(tempDir.file("gradle.properties"))
             into(project.file(file).parent)
         }
-    }
-}
-
-tasks.withType<RebuildGitPatches> {
-    filterPatches.set(false)
-}
-
-tasks.register("printMinecraftVersion") {
-    doLast {
-        println(providers.gradleProperty("mcVersion").get().trim())
-    }
-}
-
-tasks.register("printPaperVersion") {
-    doLast {
-        println(project.version)
     }
 }
