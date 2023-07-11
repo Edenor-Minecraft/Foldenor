@@ -38,10 +38,14 @@ jobs:
         run: ./gradlew createReobfPaperclipJar --stacktrace
            
       - name: Make release
-        uses: marvinpinto/action-automatic-releases@latest
+        uses: softprops/action-gh-release@v1
         with:
-          prerelease: false
-          title: "1.20.1 build ${{ env.Compile_Date }}"
-          automatic_release_tag: "latest-1.20.1"
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          name: "1.20.1 build ${{ env.Compile_Date }}"
+          body: |
+            Foldenor build
+            Version: 1.20.1
+            Build Time: ${{ env.Compile_Date }}
+          tag_name: "latest-1.20.1"
           files: build/libs/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
