@@ -52,8 +52,14 @@ jobs:
       - name: Apply Patches
         run: ./gradlew applyPatches --stacktrace
         
+      - name: Rebuild Patches
+        run: ./gradlew rebuildPatches --stacktrace
+        
+      - name: Apply Patches P2
+        run: ./gradlew applyPatches --stacktrace 
+        
       - name: Build
-        run: ./gradlew jar createReobfPaperclipJar --stacktrace
+        run: ./gradlew createReobfPaperclipJar --stacktrace
           
       - name: Make release
         uses: softprops/action-gh-release@v1
