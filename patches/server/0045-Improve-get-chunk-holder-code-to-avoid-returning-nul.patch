@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Tue, 11 Jul 2023 23:53:16 +0400
+Subject: [PATCH] Improve-get-chunk-holder-code-to-avoid-returning-null
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
+index 883eed6e92792e225ebfa8667ce3f4eeb6287d6a..88d372dc95fe1a17d7bb00914f11582e28590d2e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
+@@ -9,6 +9,8 @@ import java.util.Objects;
+ import java.util.concurrent.locks.LockSupport;
+ import java.util.function.BooleanSupplier;
+ import java.util.function.Predicate;
++
++import io.papermc.paper.chunk.system.scheduling.NewChunkHolder;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.Registry;
+@@ -79,6 +81,16 @@ public class CraftChunk implements Chunk {
+     public ChunkAccess getHandle(ChunkStatus chunkStatus) {
+         ChunkAccess chunkAccess = this.worldServer.getChunk(x, z, chunkStatus);
+ 
++        if (chunkAccess == null){
++            NewChunkHolder chunkHolder = this.worldServer.getChunkIfLoaded(x, z).getChunkHolder();
++
++            NewChunkHolder.ChunkCompletion lastChunkCompletion;
++
++            if (chunkHolder != null && (lastChunkCompletion = chunkHolder.getLastChunkCompletion()) != null && lastChunkCompletion.genStatus().isOrAfter(chunkStatus)) {
++                chunkAccess = lastChunkCompletion.chunk();
++            }
++        }
++
+         // SPIGOT-7332: Get unwrapped extension
+         if (chunkAccess instanceof ImposterProtoChunk extension) {
+             return extension.getWrapped();
