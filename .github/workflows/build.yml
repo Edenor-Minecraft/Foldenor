@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "1.19.4" ]
   workflow_dispatch:
 
 jobs:
@@ -35,20 +35,20 @@ jobs:
         run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
 
       - name: Apply Patches
-        run: ./gradlew applyPatches
+        run: ./gradlew applyPatches --stacktrace
         
       - name: Build
-        run: ./gradlew createReobfBundlerJar
-        
-      - name: Make release zip
-        run: |
-          7z a -tzip "core.zip" "build/libs/*"
-          
+        run: ./gradlew createReobfBundlerJar createReobfPaperclipJar --stacktrace
+            
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
           name: Latest build from action with id ${{github.run_number}}
-          tag_name: Actions_Build_${{github.run_number}}
-          files: core.zip
+          body: |
+            Foldenor build
+            Version: 1.19.4
+            Build Time: ${{ env.Compile_Date }}
+          tag_name: 1.19.4_Actions_Build_${{github.run_number}}
+          files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
