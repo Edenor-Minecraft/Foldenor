@@ -16,6 +16,10 @@ jobs:
        actions: write
        
     steps:
+      - name: Checking Environment
+        run: |
+          echo "Compile_Date=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          
       - name: Checkout Git Repository
         uses: actions/checkout@v3
       
@@ -24,6 +28,8 @@ jobs:
       
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: current
       
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -38,7 +44,7 @@ jobs:
         run: ./gradlew applyPatches --stacktrace
         
       - name: Build
-        run: ./gradlew createReobfBundlerJar createReobfPaperclipJar --stacktrace
+        run: ./gradlew createReobfBundlerJar --stacktrace
           
       - name: Make release
         uses: softprops/action-gh-release@v1
