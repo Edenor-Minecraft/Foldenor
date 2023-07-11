@@ -44,7 +44,7 @@ jobs:
         run: ./gradlew applyPatches
         
       - name: Build
-        run: ./gradlew createReobfBundlerJar
+        run: ./gradlew createReobfPaperclipJar
           
       - name: Make release
         uses: softprops/action-gh-release@v1
