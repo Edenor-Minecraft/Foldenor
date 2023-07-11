@@ -39,16 +39,16 @@ jobs:
         
       - name: Build
         run: ./gradlew createReobfBundlerJar createReobfPaperclipJar --stacktrace
-        
-      #- name: Make release zip
-        #run: |
-          #7z a -tzip "core.zip" "build/libs/*"
           
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
           name: Latest build from action with id ${{github.run_number}}
-          tag_name: Actions_Build_${{github.run_number}}
+          body: |
+            Foldenor build
+            Version: 1.20.1
+            Build Time: ${{ env.Compile_Date }}
+          tag_name: 1.20.1_Actions_Build_${{github.run_number}}
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
