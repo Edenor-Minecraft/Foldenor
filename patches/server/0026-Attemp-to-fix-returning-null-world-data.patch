@@ -17,6 +17,75 @@ index ee9f5e1f3387998cddbeb1dc6dc6e2b1ea7cd670..30908ec1190b82d9b31a3e7e6e1289b0
          return tickThreadRunner.currentTickingWorldRegionizedData;
      }
  
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index 965f544e2714c17348610587751a711484dad5e0..493f7155e9ccc902af64e72a1ca7409859aa8d1d 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -136,10 +136,19 @@ public class TickThread extends Thread {
+     }
+ 
+     public static boolean isTickThreadFor(final ServerLevel world, final int chunkX, final int chunkZ) {
+-        final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
++        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+         if (region == null) {
+-            return isShutdownThread();
++            try{
++                region = world.regioniser.getRegionAtSynchronised(chunkX, chunkZ);
++                if (region == null){
++                    MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
++                    return isShutdownThread();
++                }
++            } catch (Exception e) {
++                MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
++                return isShutdownThread();
++            }
+         }
+         return world.regioniser.getRegionAtUnsynchronised(chunkX, chunkZ) == region;
+     }
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 0f4a3b1061e630d7b5aa575c869773e6d8315259..00ddbdb7dbe3b4de83c2dfb4eec8614cc7adec5f 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Pair;
+ import com.mojang.logging.LogUtils;
++import io.papermc.paper.threadedregions.RegionizedWorldData;
++import io.papermc.paper.threadedregions.TickRegionScheduler;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.longs.LongSet;
+@@ -1702,9 +1704,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         } else {
+             if (entity instanceof net.minecraft.world.entity.item.ItemEntity itemEntity && itemEntity.getItem().isEmpty()) return false; // Paper - Prevent empty items from being added
+             // Paper start - capture all item additions to the world
+-            if (this.getCurrentWorldData().captureDrops != null && entity instanceof net.minecraft.world.entity.item.ItemEntity) { // Folia - region threading
+-                this.getCurrentWorldData().captureDrops.add((net.minecraft.world.entity.item.ItemEntity) entity); // Folia - region threading
+-                return true;
++            if (this.getCurrentWorldData() != null){
++                if (this.getCurrentWorldData().captureDrops != null && entity instanceof net.minecraft.world.entity.item.ItemEntity) { // Folia - region threading
++                    this.getCurrentWorldData().captureDrops.add((net.minecraft.world.entity.item.ItemEntity) entity); // Folia - region threading
++                    return true;
++                }
+             }
+             // Paper end
+             // SPIGOT-6415: Don't call spawn event when reason is null. For example when an entity teleports to a new world.
+@@ -1717,6 +1721,14 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         }
+     }
+ 
++    @Override
++    public RegionizedWorldData getCurrentWorldData() {
++        if (this.worldRegionData.get() != null)
++            return this.worldRegionData.get();
++        else
++            return super.getCurrentWorldData();
++    }
++
+     public boolean tryAddFreshEntityWithPassengers(Entity entity) {
+         // CraftBukkit start
+         return this.tryAddFreshEntityWithPassengers(entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
 index 8cf4428d8140fd03f0ad8fa1d148a04d8caefda8..a3c4029fccc853b17b3a43fda33a034b8195bac5 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java

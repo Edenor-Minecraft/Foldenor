@@ -265,10 +265,10 @@ index c8f675986f5ec2024b64be12de898534c5c7bb39..ba48b1776cdb97a6c46e01b79eeae7b0
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
  import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index f3cfda53fd9f0c5110863594b9423951b64b5a73..15b1ccd5bbc2fb6fa2fa25d9daf89d38c7578d22 100644
+index 34aa0703858eb7186ffbf9c602c1bf781497def8..f2a5837ed8f99ff888b75a09ac1bfed4ba406d4c 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
+@@ -16,7 +16,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
  import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -276,7 +276,7 @@ index f3cfda53fd9f0c5110863594b9423951b64b5a73..15b1ccd5bbc2fb6fa2fa25d9daf89d38
  import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
  import java.io.BufferedWriter;
  import java.io.IOException;
-@@ -132,12 +131,9 @@ import net.minecraft.world.level.chunk.storage.EntityStorage;
+@@ -134,12 +133,9 @@ import net.minecraft.world.level.chunk.storage.EntityStorage;
  import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
  import net.minecraft.world.level.dimension.LevelStem;
  import net.minecraft.world.level.dimension.end.EndDragonFight;
@@ -289,7 +289,7 @@ index f3cfda53fd9f0c5110863594b9423951b64b5a73..15b1ccd5bbc2fb6fa2fa25d9daf89d38
  import net.minecraft.world.level.gameevent.DynamicGameEventListener;
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.level.gameevent.GameEventDispatcher;
-@@ -168,16 +164,13 @@ import org.bukkit.Location;
+@@ -170,16 +166,13 @@ import org.bukkit.Location;
  import org.bukkit.WeatherType;
  import org.bukkit.craftbukkit.event.CraftEventFactory;
  import org.bukkit.craftbukkit.generator.CustomWorldChunkManager;
