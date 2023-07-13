@@ -163,3 +163,69 @@ index 0825069c79e25b56982f85cd880fd208e75f7b26..faf56a85f2acb55e344c1bceb66e2926
      }
  
      public static final class TickRegionData implements ThreadedRegionizer.ThreadedRegionData<TickRegionData, TickRegionSectionData> {
+diff --git a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java
+index aa10f3273e3bb35cf59d324644c269893cc12e99..a6c03082843851e1a62c5448d30a9f012ddff8ce 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java
++++ b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java
+@@ -43,7 +43,13 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+     private static final RegionizedData<Scheduler> SCHEDULER_DATA = new RegionizedData<>(null, Scheduler::new, Scheduler.REGIONISER_CALLBACK);
+ 
+     private static void scheduleInternalOnRegion(final LocationScheduledTask task, final long delay) {
+-        SCHEDULER_DATA.get().queueTask(task, delay);
++        Scheduler schedulerData = SCHEDULER_DATA.get();
++        if (schedulerData != null)
++            schedulerData.queueTask(task, delay);
++        else{
++            schedulerData = new Scheduler();
++            schedulerData.queueTask(task, delay);
++        }
+     }
+ 
+     private static void scheduleInternalOffRegion(final LocationScheduledTask task, final long delay) {
+@@ -187,19 +193,31 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+                 }
+             }
+         };
++        private ServerLevel world;
+ 
+         private long tickCount = 0L;
+         // map of region section -> map of deadline -> list of tasks
+         private final Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<List<LocationScheduledTask>>> tasksByDeadlineBySection = new Long2ObjectOpenHashMap<>();
+ 
+         private void addTicket(final int sectionX, final int sectionZ) {
+-            final ServerLevel world = TickRegionScheduler.getCurrentRegionizedWorldData().world;
+-            final int chunkX = sectionX << TickRegions.getRegionChunkShift();
+-            final int chunkZ = sectionZ << TickRegions.getRegionChunkShift();
++            if (this.world == null)
++            {
++                final ServerLevel world = TickRegionScheduler.getCurrentRegionizedWorldData().world;
++                final int chunkX = sectionX << TickRegions.getRegionChunkShift();
++                final int chunkZ = sectionZ << TickRegions.getRegionChunkShift();
++
++                world.chunkTaskScheduler.chunkHolderManager.addTicketAtLevel(
++                    TicketType.REGION_SCHEDULER_API_HOLD, chunkX, chunkZ, ChunkHolderManager.MAX_TICKET_LEVEL, Unit.INSTANCE
++                );
++            }
++            else{
++                final int chunkX = sectionX << TickRegions.getRegionChunkShift();
++                final int chunkZ = sectionZ << TickRegions.getRegionChunkShift();
+ 
+-            world.chunkTaskScheduler.chunkHolderManager.addTicketAtLevel(
+-                TicketType.REGION_SCHEDULER_API_HOLD, chunkX, chunkZ, ChunkHolderManager.MAX_TICKET_LEVEL, Unit.INSTANCE
+-            );
++                this.world.chunkTaskScheduler.chunkHolderManager.addTicketAtLevel(
++                    TicketType.REGION_SCHEDULER_API_HOLD, chunkX, chunkZ, ChunkHolderManager.MAX_TICKET_LEVEL, Unit.INSTANCE
++                );
++            }
+         }
+ 
+         private void removeTicket(final long sectionKey) {
+@@ -222,6 +240,8 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+                 return;
+             }
+ 
++            this.world = ((CraftWorld)task.world).getHandle();
++
+             final int sectionX = task.chunkX >> TickRegions.getRegionChunkShift();
+             final int sectionZ = task.chunkZ >> TickRegions.getRegionChunkShift();
+ 
