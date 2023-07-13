@@ -32,7 +32,6 @@ jobs:
       - name: Configure Git User Details
         run: |
           git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
-          echo "Compile_Date=$(date +%H%M%d%m%Y)" >> $GITHUB_ENV
 
       - name: Apply Patches
         run: ./gradlew applyPatches --stacktrace
@@ -43,12 +42,11 @@ jobs:
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
-          name: "1.20.1 build ${{ env.Compile_Date }}"
+          name: "1.20.1 build ${{github.run_number}}"
           body: |
             Foldenor build
             Version: 1.20.1
-            Build Time: ${{ env.Compile_Date }}
-          tag_name: "latest_1.20.1_${{ env.Compile_Date }}"
+          tag_name: "latest_1.20.1_${{github.run_number}}"
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
