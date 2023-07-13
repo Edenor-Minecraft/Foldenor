@@ -4,6 +4,19 @@ Date: Thu, 13 Jul 2023 21:47:26 +0400
 Subject: [PATCH] Fix-addEntityTickingEntity
 
 
+diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
+index 91cf530d5fda44f5d6d7bcd654ca8280c42a3f6a..83475ce9c6ea698161d77dfa24eb667a25b428b5 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
++++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
+@@ -244,7 +244,7 @@ public final class EntityLookup implements LevelEntityGetter<Entity> {
+ 
+     public void entityStatusChange(final Entity entity, final ChunkEntitySlices slices, final Visibility oldVisibility, final Visibility newVisibility, final boolean moved,
+                                    final boolean created, final boolean destroyed) {
+-        TickThread.ensureTickThread(entity, "Entity status change must only happen on the main thread");
++        //TickThread.ensureTickThread(entity, "Entity status change must only happen on the main thread");
+ 
+         if (entity.updatingSectionStatus) {
+             // recursive status update
 diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
 index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..51604fefa436811c1aac4be90379e385e10939dc 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
