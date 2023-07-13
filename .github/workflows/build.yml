@@ -7,7 +7,7 @@ on:
 
 jobs:
   compile_1_20_1_core_jar:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     permissions:
        contents: write
@@ -28,9 +28,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
         
       - name: Configure Git User Details
         run: |
