@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  compile_1_20_1_core_jar:
     runs-on: ubuntu-latest
     
     permissions:
