@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 13 Jul 2023 21:40:00 +0400
+Subject: [PATCH] Allow_dispatching_command_async
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 82bf474e6140c693482601afbf3afd49c13bec64..88858040faf26027cfa0b9752908a48540d35d69 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1013,7 +1013,7 @@ public final class CraftServer implements Server {
+         if ((sender instanceof Entity entity)) {
+             io.papermc.paper.util.TickThread.ensureTickThread(((org.bukkit.craftbukkit.entity.CraftEntity)entity).getHandle(), "Dispatching command async");
+         } else if (sender instanceof ConsoleCommandSender console) {
+-            io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
++            //io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
+         } else {
+             // huh?
+             //throw new UnsupportedOperationException("Dispatching command for " + sender);

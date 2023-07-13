@@ -111,7 +111,7 @@ index 19b47478d318edce1242c2a5ddd73da963a24595..07220c6e52d57f409fd2ba668428eb05
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-index eb84a8dd97f92de4a7dd3826d9e124a442cba565..a5b9b1b8391db7992a310eece9d7608786923f57 100644
+index eb84a8dd97f92de4a7dd3826d9e124a442cba565..0a7cda6eb392d31e9b72d62f8483a52f05c0e973 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 @@ -8,11 +8,7 @@ import java.util.Comparator;
@@ -136,25 +136,39 @@ index eb84a8dd97f92de4a7dd3826d9e124a442cba565..a5b9b1b8391db7992a310eece9d76087
  
  /**
   * The fundamental concepts for this implementation:
-@@ -530,15 +528,35 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -530,15 +528,61 @@ public class CraftScheduler implements BukkitScheduler {
      }
  
      protected CraftTask handle(final CraftTask task, final long delay) { // Paper
 -        if (true) throw new UnsupportedOperationException(); // Folia - region threading
 +        //if (true) throw new UnsupportedOperationException(); // Folia - region threading
          // Paper start
++        Plugin owner = task.getOwner();
++        boolean repeat = task.getPeriod() != CraftTask.NO_REPEATING;
          if (!this.isAsyncScheduler && !task.isSync()) {
 -            this.asyncScheduler.handle(task, delay);
-+            long mdelay = (long) (delay / 20.0 * 1000.0);
++            long millis_delay = (long) (delay / 20.0 * 1000.0);
 +            ScheduledTask scheduledTask;
-+            if (mdelay <= 0) {
-+                scheduledTask = Bukkit.getAsyncScheduler().runNow(task.getOwner(), stask -> {
-+                    task.run();
-+                });
++            if (millis_delay <= 0) {
++                if (repeat) {
++                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
++                        task.run();
++                        }, 1, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                } else {
++                    scheduledTask = Bukkit.getAsyncScheduler().runNow(owner, stask -> {
++                        task.run();
++                    });
++                }
 +            } else {
-+                 scheduledTask = Bukkit.getAsyncScheduler().runDelayed(task.getOwner(), stask -> {
-+                     task.run();
-+                 }, mdelay, TimeUnit.MILLISECONDS);
++                if (repeat) {
++                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
++                        task.run();
++                        }, millis_delay, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                } else {
++                    scheduledTask = Bukkit.getAsyncScheduler().runDelayed(owner, stask -> {
++                        task.run();
++                        }, millis_delay, TimeUnit.MILLISECONDS);
++                }
 +            }
 +            task.setScheduledTask(scheduledTask);
              return task;
@@ -164,13 +178,25 @@ index eb84a8dd97f92de4a7dd3826d9e124a442cba565..a5b9b1b8391db7992a310eece9d76087
 -        this.addTask(task);
 +        ScheduledTask scheduledTask;
 +        if (delay <= 0) {
-+            scheduledTask = Bukkit.getGlobalRegionScheduler().run(task.getOwner(), stask -> {
-+                task.run();
-+            });
++            if (repeat) {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
++                    task.run();
++                    }, 1L, task.getPeriod());
++            } else {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().run(owner, stask -> {
++                    task.run();
++                });
++            }
 +        } else {
-+            scheduledTask = Bukkit.getGlobalRegionScheduler().runDelayed(task.getOwner(), stask -> {
-+                task.run();
-+            }, delay);
++            if (repeat) {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
++                    task.run();
++                    }, delay, task.getPeriod());
++            } else {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runDelayed(owner, stask -> {
++                    task.run();
++                    }, delay);
++            }
 +        }
 +        task.setScheduledTask(scheduledTask);
          return task;

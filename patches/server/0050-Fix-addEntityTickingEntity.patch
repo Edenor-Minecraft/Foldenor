@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 13 Jul 2023 21:47:26 +0400
+Subject: [PATCH] Fix-addEntityTickingEntity
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
+index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..3af0035463a7dd0d4abf10430bb8e3005b4b724d 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
++++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
+@@ -4,6 +4,7 @@ import com.destroystokyo.paper.util.maplist.ReferenceList;
+ import com.destroystokyo.paper.util.misc.PlayerAreaMap;
+ import com.destroystokyo.paper.util.misc.PooledLinkedHashSets;
+ import com.mojang.logging.LogUtils;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.chunk.system.scheduling.ChunkHolderManager;
+ import io.papermc.paper.util.CoordinateUtils;
+ import io.papermc.paper.util.TickThread;
+@@ -42,6 +43,7 @@ import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
+ import net.minecraft.world.level.redstone.NeighborUpdater;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.ticks.LevelTicks;
++import org.bukkit.Bukkit;
+ import org.bukkit.craftbukkit.block.CraftBlockState;
+ import org.bukkit.craftbukkit.util.UnsafeList;
+ import org.slf4j.Logger;
+@@ -518,7 +520,13 @@ public final class RegionizedWorldData {
+ 
+     public void addEntityTickingEntity(final Entity entity) {
+         if (!TickThread.isTickThreadFor(entity)) {
+-            throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            Bukkit.getRegionScheduler().run(new FakePlugin(), entity.level().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, scheduledTask -> {
++                RegionizedWorldData worldData = entity.level().getCurrentWorldData();
++                worldData.entityTickList.add(entity);
++                TickRegions.RegionStats.updateCurrentRegion();
++            });
++            //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            return;
+         }
+         this.entityTickList.add(entity);
+         TickRegions.RegionStats.updateCurrentRegion();
+@@ -549,7 +557,17 @@ public final class RegionizedWorldData {
+ 
+     public void addEntity(final Entity entity) {
+         if (!TickThread.isTickThreadFor(this.world, entity.chunkPosition())) {
+-            throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            Bukkit.getRegionScheduler().run(new FakePlugin(), entity.level().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, scheduledTask -> {
++                RegionizedWorldData worldData = entity.level().getCurrentWorldData();
++                if (worldData.allEntities.add(entity)) {
++                    if (entity instanceof ServerPlayer player) {
++                        worldData.localPlayers.add(player);
++                    }
++                    TickRegions.RegionStats.updateCurrentRegion();
++                }
++            });
++            //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
++            return;
+         }
+         if (this.allEntities.add(entity)) {
+             if (entity instanceof ServerPlayer player) {
