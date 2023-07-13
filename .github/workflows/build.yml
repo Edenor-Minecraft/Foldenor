@@ -7,7 +7,7 @@ on:
 
 jobs:
   compile_1_19_4_core_jar:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     permissions:
        contents: write
@@ -16,37 +16,37 @@ jobs:
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3
-      
+        
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
-      
+        
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      
+        
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
-      
+          distribution: temurin
+          java-version: 17
+        
       - name: Configure Git User Details
-        run: git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+        run: |
+          git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
 
       - name: Apply Patches
         run: ./gradlew applyPatches --stacktrace
-        
+   
       - name: Build
-        run: ./gradlew createReobfBundlerJar createReobfPaperclipJar --stacktrace
+        run: ./gradlew createReobfPaperclipJar --stacktrace
             
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
-          name: Latest build from action with id ${{github.run_number}}
+          name: "1.19.4 build ${{github.run_number}}"
           body: |
             Foldenor build
             Version: 1.19.4
-            Build Time: ${{ env.Compile_Date }}
-          tag_name: 1.19.4_Actions_Build_${{github.run_number}}
+          tag_name: "latest_1.19.4_${{github.run_number}}"
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
