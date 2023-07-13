@@ -51,7 +51,7 @@ jobs:
             Foldenor build
             Version: 1.20.1
             Build Time: ${{ env.Compile_Date }}
-          tag_name: "latest-1.20.1"
+          tag_name: "latest-1.20.1 ${{ env.Compile_Date }}"
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
