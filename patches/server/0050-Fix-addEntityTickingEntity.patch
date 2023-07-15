@@ -5,7 +5,7 @@ Subject: [PATCH] Fix-addEntityTickingEntity
 
 
 diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
-index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..51604fefa436811c1aac4be90379e385e10939dc 100644
+index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..3af0035463a7dd0d4abf10430bb8e3005b4b724d 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
 @@ -4,6 +4,7 @@ import com.destroystokyo.paper.util.maplist.ReferenceList;
@@ -24,7 +24,7 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..51604fefa436811c1aac4be90379e385
  import org.bukkit.craftbukkit.block.CraftBlockState;
  import org.bukkit.craftbukkit.util.UnsafeList;
  import org.slf4j.Logger;
-@@ -518,10 +520,30 @@ public final class RegionizedWorldData {
+@@ -518,7 +520,13 @@ public final class RegionizedWorldData {
  
      public void addEntityTickingEntity(final Entity entity) {
          if (!TickThread.isTickThreadFor(entity)) {
@@ -32,48 +32,14 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..51604fefa436811c1aac4be90379e385
 +            Bukkit.getRegionScheduler().run(new FakePlugin(), entity.level().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, scheduledTask -> {
 +                RegionizedWorldData worldData = entity.level().getCurrentWorldData();
 +                worldData.entityTickList.add(entity);
-+                try{
-+                    TickRegions.RegionStats.updateCurrentRegion();
-+                } catch (Exception e) {
-+                    TickRegions.RegionStats.updateCurrentRegion(entity.level().getWorld().getHandle(),
-+                        entity.chunkPosition().x,
-+                        entity.chunkPosition().z
-+                    );
-+                }
++                TickRegions.RegionStats.updateCurrentRegion();
 +            });
 +            //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
 +            return;
          }
          this.entityTickList.add(entity);
--        TickRegions.RegionStats.updateCurrentRegion();
-+        try{
-+            TickRegions.RegionStats.updateCurrentRegion();
-+        } catch (Exception e) {
-+            TickRegions.RegionStats.updateCurrentRegion(entity.level().getWorld().getHandle(),
-+                entity.chunkPosition().x,
-+                entity.chunkPosition().z
-+            );
-+        }
-     }
- 
-     public boolean hasEntityTickingEntity(final Entity entity) {
-@@ -533,7 +555,14 @@ public final class RegionizedWorldData {
-             throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
-         }
-         this.entityTickList.remove(entity);
--        TickRegions.RegionStats.updateCurrentRegion();
-+        try{
-+            TickRegions.RegionStats.updateCurrentRegion();
-+        } catch (Exception e) {
-+            TickRegions.RegionStats.updateCurrentRegion(entity.level().getWorld().getHandle(),
-+                entity.chunkPosition().x,
-+                entity.chunkPosition().z
-+            );
-+        }
-     }
- 
-     public void forEachTickingEntity(final Consumer<Entity> action) {
-@@ -549,13 +578,37 @@ public final class RegionizedWorldData {
+         TickRegions.RegionStats.updateCurrentRegion();
+@@ -549,7 +557,17 @@ public final class RegionizedWorldData {
  
      public void addEntity(final Entity entity) {
          if (!TickThread.isTickThreadFor(this.world, entity.chunkPosition())) {
@@ -84,14 +50,7 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..51604fefa436811c1aac4be90379e385
 +                    if (entity instanceof ServerPlayer player) {
 +                        worldData.localPlayers.add(player);
 +                    }
-+                    try{
-+                        TickRegions.RegionStats.updateCurrentRegion();
-+                    } catch (Exception e) {
-+                        TickRegions.RegionStats.updateCurrentRegion(entity.level().getWorld().getHandle(),
-+                            entity.chunkPosition().x,
-+                            entity.chunkPosition().z
-+                        );
-+                    }
++                    TickRegions.RegionStats.updateCurrentRegion();
 +                }
 +            });
 +            //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
@@ -99,54 +58,3 @@ index 65c4e158d81ac5c5788cf4dcb379061aebd23dcd..51604fefa436811c1aac4be90379e385
          }
          if (this.allEntities.add(entity)) {
              if (entity instanceof ServerPlayer player) {
-                 this.localPlayers.add(player);
-             }
--            TickRegions.RegionStats.updateCurrentRegion();
-+            try{
-+                TickRegions.RegionStats.updateCurrentRegion();
-+            } catch (Exception e) {
-+                TickRegions.RegionStats.updateCurrentRegion(entity.level().getWorld().getHandle(),
-+                    entity.chunkPosition().x,
-+                    entity.chunkPosition().z
-+                );
-+            }
-         }
-     }
- 
-@@ -571,7 +624,14 @@ public final class RegionizedWorldData {
-             if (entity instanceof ServerPlayer player) {
-                 this.localPlayers.remove(player);
-             }
--            TickRegions.RegionStats.updateCurrentRegion();
-+            try{
-+                TickRegions.RegionStats.updateCurrentRegion();
-+            } catch (Exception e) {
-+                TickRegions.RegionStats.updateCurrentRegion(entity.level().getWorld().getHandle(),
-+                    entity.chunkPosition().x,
-+                    entity.chunkPosition().z
-+                );
-+            }
-         }
-     }
- 
-diff --git a/src/main/java/io/papermc/paper/threadedregions/TickRegions.java b/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
-index 0825069c79e25b56982f85cd880fd208e75f7b26..faf56a85f2acb55e344c1bceb66e292677f33acd 100644
---- a/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
-+++ b/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
-@@ -124,6 +124,16 @@ public final class TickRegions implements ThreadedRegionizer.RegionCallbacks<Tic
-         static void updateCurrentRegion() {
-             TickRegionScheduler.getCurrentRegion().getData().getRegionStats().updateFrom(TickRegionScheduler.getCurrentRegionizedWorldData());
-         }
-+
-+        static void updateCurrentRegion(ServerLevel world, int chunkX, int chunkZ) {
-+            try{
-+                world.regioniser.getRegionAtSynchronised(chunkX, chunkZ).getData().getRegionStats().updateFrom(TickRegionScheduler.getCurrentRegionizedWorldData());
-+            } catch (Exception e) {
-+                try{
-+                    TickRegionScheduler.getCurrentRegion().getData().getRegionStats().updateFrom(TickRegionScheduler.getCurrentRegionizedWorldData());
-+                } catch (Exception ignored) {}
-+            }
-+        }
-     }
- 
-     public static final class TickRegionData implements ThreadedRegionizer.ThreadedRegionData<TickRegionData, TickRegionSectionData> {
