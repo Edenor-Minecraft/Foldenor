@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 16 Jul 2023 00:34:43 +0400
+Subject: [PATCH] Specify-world-and-region-coords-to-update
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
+index 2976729d552940fdea63b342b3ee5130e27b8e5e..a76f9bb07be1c1f87cd1802f937e2c67c28f97ad 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
++++ b/src/main/java/io/papermc/paper/threadedregions/RegionizedWorldData.java
+@@ -523,13 +523,21 @@ public final class RegionizedWorldData {
+             Bukkit.getRegionScheduler().run(new FakePlugin(), entity.level().getWorld(), entity.chunkPosition().x, entity.chunkPosition().z, scheduledTask -> {
+                 RegionizedWorldData worldData = entity.level().getCurrentWorldData();
+                 worldData.entityTickList.add(entity);
+-                TickRegions.RegionStats.updateCurrentRegion();
++                try{
++                    TickRegions.RegionStats.updateCurrentRegion(this.world, entity.chunkPosition().x, entity.chunkPosition().z);
++                } catch (Exception e) {
++                    TickRegions.RegionStats.updateCurrentRegion();
++                }
+             });
+             //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
+             return;
+         }
+         this.entityTickList.add(entity);
+-        TickRegions.RegionStats.updateCurrentRegion();
++        try{
++            TickRegions.RegionStats.updateCurrentRegion(this.world, entity.chunkPosition().x, entity.chunkPosition().z);
++        } catch (Exception e) {
++            TickRegions.RegionStats.updateCurrentRegion();
++        }
+     }
+ 
+     public boolean hasEntityTickingEntity(final Entity entity) {
+@@ -541,7 +549,11 @@ public final class RegionizedWorldData {
+             throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
+         }
+         this.entityTickList.remove(entity);
+-        TickRegions.RegionStats.updateCurrentRegion();
++        try{
++            TickRegions.RegionStats.updateCurrentRegion(this.world, entity.chunkPosition().x, entity.chunkPosition().z);
++        } catch (Exception e) {
++            TickRegions.RegionStats.updateCurrentRegion();
++        }
+     }
+ 
+     public void forEachTickingEntity(final Consumer<Entity> action) {
+@@ -563,7 +575,11 @@ public final class RegionizedWorldData {
+                     if (entity instanceof ServerPlayer player) {
+                         worldData.localPlayers.add(player);
+                     }
+-                    TickRegions.RegionStats.updateCurrentRegion();
++                    try{
++                        TickRegions.RegionStats.updateCurrentRegion(this.world, entity.chunkPosition().x, entity.chunkPosition().z);
++                    } catch (Exception e) {
++                        TickRegions.RegionStats.updateCurrentRegion();
++                    }
+                 }
+             });
+             //throw new IllegalArgumentException("Entity " + entity + " is not under this region's control");
+@@ -573,7 +589,11 @@ public final class RegionizedWorldData {
+             if (entity instanceof ServerPlayer player) {
+                 this.localPlayers.add(player);
+             }
+-            TickRegions.RegionStats.updateCurrentRegion();
++            try{
++                TickRegions.RegionStats.updateCurrentRegion(this.world, entity.chunkPosition().x, entity.chunkPosition().z);
++            } catch (Exception e) {
++                TickRegions.RegionStats.updateCurrentRegion();
++            }
+         }
+     }
+ 
+@@ -589,7 +609,11 @@ public final class RegionizedWorldData {
+             if (entity instanceof ServerPlayer player) {
+                 this.localPlayers.remove(player);
+             }
+-            TickRegions.RegionStats.updateCurrentRegion();
++            try{
++                TickRegions.RegionStats.updateCurrentRegion(this.world, entity.chunkPosition().x, entity.chunkPosition().z);
++            } catch (Exception e) {
++                TickRegions.RegionStats.updateCurrentRegion();
++            }
+         }
+     }
+ 
+diff --git a/src/main/java/io/papermc/paper/threadedregions/TickRegions.java b/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
+index 0825069c79e25b56982f85cd880fd208e75f7b26..2e23685c5dc57dc1a2c2915cb96711164a1196e0 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
++++ b/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
+@@ -124,6 +124,14 @@ public final class TickRegions implements ThreadedRegionizer.RegionCallbacks<Tic
+         static void updateCurrentRegion() {
+             TickRegionScheduler.getCurrentRegion().getData().getRegionStats().updateFrom(TickRegionScheduler.getCurrentRegionizedWorldData());
+         }
++
++        static void updateCurrentRegion(ServerLevel world, int chunkX, int chunkZ){
++            try{
++                world.regioniser.getRegionAtSynchronised(chunkX, chunkZ).getData().getRegionStats().updateFrom(world.getCurrentWorldData(chunkX, chunkZ));
++            } catch (Exception e) {
++                throw new RuntimeException(e);
++            }
++        }
+     }
+ 
+     public static final class TickRegionData implements ThreadedRegionizer.ThreadedRegionData<TickRegionData, TickRegionSectionData> {
