@@ -1,0 +1,293 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 31 Jul 2023 14:26:52 +0400
+Subject: [PATCH] Fix-for-dropItem-throws-errors
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+index 25cd45dd9072027321deca3e96211dda4dce38ca..aa2e6d06c0dcc8e5b94544a00e5f2ee02f271846 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+@@ -48,6 +48,7 @@ import java.util.List;
+ import java.util.concurrent.ConcurrentHashMap;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicBoolean;
++import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.concurrent.atomic.AtomicLong;
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.concurrent.locks.LockSupport;
+@@ -357,16 +358,16 @@ public final class ChunkHolderManager {
+ 
+         final DecimalFormat format = new DecimalFormat("#0.00");
+ 
+-        int saved = 0;
++        AtomicInteger saved = new AtomicInteger(0);
+ 
+         final long start = System.nanoTime();
+         long lastLog = start;
+-        boolean needsFlush = false;
++        AtomicBoolean needsFlush = new AtomicBoolean(false);
+         final int flushInterval = 50;
+ 
+-        int savedChunk = 0;
+-        int savedEntity = 0;
+-        int savedPoi = 0;
++        AtomicInteger savedChunk = new AtomicInteger(0);
++        AtomicInteger savedEntity = new AtomicInteger(0);
++        AtomicInteger savedPoi = new AtomicInteger(0);
+ 
+         for (int i = 0, len = holders.size(); i < len; ++i) {
+             final NewChunkHolder holder = holders.get(i);
+@@ -377,34 +378,35 @@ public final class ChunkHolderManager {
+             }
+             // Folia end - region threading
+             try {
+-                final NewChunkHolder.SaveStat saveStat = holder.save(shutdown, false);
+-                if (saveStat != null) {
+-                    ++saved;
+-                    needsFlush = flush;
+-                    if (saveStat.savedChunk()) {
+-                        ++savedChunk;
+-                    }
+-                    if (saveStat.savedEntityChunk()) {
+-                        ++savedEntity;
+-                    }
+-                    if (saveStat.savedPoiChunk()) {
+-                        ++savedPoi;
++                holder.save(shutdown, false).addAsynchronousWaiter((saveStat, throwable) -> {
++                    if (saveStat != null) {
++                        saved.incrementAndGet();
++                        needsFlush.set(flush);
++                        if (saveStat.savedChunk()) {
++                            savedChunk.incrementAndGet();
++                        }
++                        if (saveStat.savedEntityChunk()) {
++                            savedEntity.incrementAndGet();
++                        }
++                        if (saveStat.savedPoiChunk()) {
++                            savedPoi.incrementAndGet();
++                        }
+                     }
+-                }
++                });
+             } catch (final ThreadDeath thr) {
+                 throw thr;
+             } catch (final Throwable thr) {
+                 LOGGER.error("Failed to save chunk (" + holder.chunkX + "," + holder.chunkZ + ") in world '" + this.world.getWorld().getName() + "'", thr);
+             }
+-            if (needsFlush && (saved % flushInterval) == 0) {
+-                needsFlush = false;
++            if (needsFlush.get() && (saved.get() % flushInterval) == 0) {
++                needsFlush.set(false);
+                 RegionFileIOThread.partialFlush(flushInterval / 2);
+             }
+             if (logProgress) {
+                 final long currTime = System.nanoTime();
+                 if ((currTime - lastLog) > TimeUnit.SECONDS.toNanos(10L)) {
+                     lastLog = currTime;
+-                    LOGGER.info("Saved " + saved + " chunks (" + format.format((double)(i+1)/(double)len * 100.0) + "%) in world '" + this.world.getWorld().getName() + "'");
++                    LOGGER.info("Saved " + saved.get() + " chunks (" + format.format((double)(i+1)/(double)len * 100.0) + "%) in world '" + this.world.getWorld().getName() + "'");
+                 }
+             }
+         }
+@@ -419,7 +421,7 @@ public final class ChunkHolderManager {
+             }
+         }
+         if (logProgress) {
+-            LOGGER.info("Saved " + savedChunk + " block chunks, " + savedEntity + " entity chunks, " + savedPoi + " poi chunks in world '" + this.world.getWorld().getName() + "' in " + format.format(1.0E-9 * (System.nanoTime() - start)) + "s");
++            LOGGER.info("Saved " + savedChunk.get() + " block chunks, " + savedEntity + " entity chunks, " + savedPoi + " poi chunks in world '" + this.world.getWorld().getName() + "' in " + format.format(1.0E-9 * (System.nanoTime() - start)) + "s");
+         }
+     }
+ 
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+index 0d513f5f98fda785790ff58d2bbffd596940886c..6c52774ddc4a998d937f32c6e68f42a918c4bc81 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/NewChunkHolder.java
+@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
+ import com.google.gson.JsonObject;
+ import com.google.gson.JsonPrimitive;
+ import com.mojang.logging.LogUtils;
++import dev.rgbmc.folia.FakePlugin;
+ import io.papermc.paper.chunk.system.io.RegionFileIOThread;
+ import io.papermc.paper.chunk.system.poi.PoiChunk;
+ import io.papermc.paper.util.CoordinateUtils;
+@@ -35,6 +36,7 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
+ import net.minecraft.world.level.chunk.LevelChunk;
+ import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+ import net.minecraft.world.level.chunk.storage.EntityStorage;
++import org.bukkit.Bukkit;
+ import org.slf4j.Logger;
+ import java.lang.invoke.VarHandle;
+ import java.util.ArrayList;
+@@ -1752,53 +1754,65 @@ public final class NewChunkHolder {
+ 
+     public static final record SaveStat(boolean savedChunk, boolean savedEntityChunk, boolean savedPoiChunk) {}
+ 
+-    public SaveStat save(final boolean shutdown, final boolean unloading) {
+-        //TickThread.ensureTickThread(this.world, this.chunkX, this.chunkZ, "Cannot save data off-main");
+-        ChunkAccess chunk = this.getCurrentChunk();
+-        PoiChunk poi = this.getPoiChunk();
+-        ChunkEntitySlices entities = this.getEntityChunk();
+-        boolean executedUnloadTask = false;
+-
+-        if (shutdown) {
+-            // make sure that the async unloads complete
+-            if (this.unloadState != null) {
+-                // must have errored during unload
+-                chunk = this.unloadState.chunk();
+-                poi = this.unloadState.poiChunk();
+-                entities = this.unloadState.entityChunk();
+-            }
+-            final UnloadTask chunkUnloadTask = this.chunkDataUnload;
+-            final DelayedPrioritisedTask chunkDataUnloadTask = chunkUnloadTask == null ? null : chunkUnloadTask.task();
+-            if (chunkDataUnloadTask != null) {
+-                final PrioritisedExecutor.PrioritisedTask unloadTask = chunkDataUnloadTask.getTask();
+-                if (unloadTask != null) {
+-                    executedUnloadTask = unloadTask.execute();
++    public Completable<SaveStat> save(final boolean shutdown, final boolean unloading) {
++        //TickThread.ensureTickThread(this.world, this.chunkX, this.chunkZ, "Cannot save data off-main"); // DirtyFolia - Removed check
++
++        Completable<SaveStat> future = new Completable<>();
++        Runnable runnable = () -> {
++            ChunkAccess chunk = this.getCurrentChunk();
++            PoiChunk poi = this.getPoiChunk();
++            ChunkEntitySlices entities = this.getEntityChunk();
++            boolean executedUnloadTask = false;
++
++            if (shutdown) {
++                // make sure that the async unloads complete
++                if (this.unloadState != null) {
++                    // must have errored during unload
++                    chunk = this.unloadState.chunk();
++                    poi = this.unloadState.poiChunk();
++                    entities = this.unloadState.entityChunk();
++                }
++                final UnloadTask chunkUnloadTask = this.chunkDataUnload;
++                final DelayedPrioritisedTask chunkDataUnloadTask = chunkUnloadTask == null ? null : chunkUnloadTask.task();
++                if (chunkDataUnloadTask != null) {
++                    final PrioritisedExecutor.PrioritisedTask unloadTask = chunkDataUnloadTask.getTask();
++                    if (unloadTask != null) {
++                        executedUnloadTask = unloadTask.execute();
++                    }
+                 }
+             }
+-        }
+ 
+-        boolean canSaveChunk = !(chunk instanceof LevelChunk levelChunk && levelChunk.mustNotSave) &&
+-                                            (chunk != null && ((shutdown || chunk instanceof LevelChunk) && chunk.isUnsaved()));
+-        boolean canSavePOI = !(chunk instanceof LevelChunk levelChunk && levelChunk.mustNotSave) && (poi != null && poi.isDirty());
+-        boolean canSaveEntities = entities != null;
++            boolean canSaveChunk = !(chunk instanceof LevelChunk levelChunk && levelChunk.mustNotSave) &&
++                (chunk != null && ((shutdown || chunk instanceof LevelChunk) && chunk.isUnsaved()));
++            boolean canSavePOI = !(chunk instanceof LevelChunk levelChunk && levelChunk.mustNotSave) && (poi != null && poi.isDirty());
++            boolean canSaveEntities = entities != null;
+ 
+-        try (co.aikar.timings.Timing ignored = this.world.timings.chunkSave.startTiming()) { // Paper
+-            if (canSaveChunk) {
+-                canSaveChunk = this.saveChunk(chunk, unloading);
+-            }
+-            if (canSavePOI) {
+-                canSavePOI = this.savePOI(poi, unloading);
+-            }
+-            if (canSaveEntities) {
+-                // on shutdown, we need to force transient entity chunks to save
+-                canSaveEntities = this.saveEntities(entities, unloading || shutdown);
+-                if (unloading || shutdown) {
+-                    this.lastEntityUnload = null;
++            try (co.aikar.timings.Timing ignored = this.world.timings.chunkSave.startTiming()) { // Paper
++                if (canSaveChunk) {
++                    canSaveChunk = this.saveChunk(chunk, unloading);
++                }
++                if (canSavePOI) {
++                    canSavePOI = this.savePOI(poi, unloading);
++                }
++                if (canSaveEntities) {
++                    // on shutdown, we need to force transient entity chunks to save
++                    canSaveEntities = this.saveEntities(entities, unloading || shutdown);
++                    if (unloading || shutdown) {
++                        this.lastEntityUnload = null;
++                    }
+                 }
+             }
+-        }
+ 
+-        return executedUnloadTask | canSaveChunk | canSaveEntities | canSavePOI ? new SaveStat(executedUnloadTask || canSaveChunk, canSaveEntities, canSavePOI): null;
++            SaveStat saveStat = executedUnloadTask | canSaveChunk | canSaveEntities | canSavePOI ? new SaveStat(executedUnloadTask || canSaveChunk, canSaveEntities, canSavePOI): null;
++            future.complete(saveStat);
++        };
++
++        if (TickThread.isTickThreadFor(this.world, this.chunkX, this.chunkZ)) {
++            runnable.run();
++        } else {
++            Bukkit.getRegionScheduler().run(new FakePlugin(), this.world.getWorld(), this.chunkX, this.chunkZ, scheduledTask -> runnable.run());
++        }
++        return future;
+     }
+ 
+     static final class AsyncChunkSerializeTask implements Runnable {
+diff --git a/src/main/java/io/papermc/paper/threadedregions/TickRegions.java b/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
+index 0825069c79e25b56982f85cd880fd208e75f7b26..c0fdb8383ac29de05c6cd10e46a075c3cba90fa5 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
++++ b/src/main/java/io/papermc/paper/threadedregions/TickRegions.java
+@@ -3,6 +3,8 @@ package io.papermc.paper.threadedregions;
+ import ca.spottedleaf.concurrentutil.scheduler.SchedulerThreadPool;
+ import ca.spottedleaf.concurrentutil.util.TimeUtil;
+ import com.mojang.logging.LogUtils;
++import dev.rgbmc.folia.CachedRegionData;
++import dev.rgbmc.folia.CachedWorldData;
+ import io.papermc.paper.chunk.system.scheduling.ChunkHolderManager;
+ import io.papermc.paper.configuration.GlobalConfiguration;
+ import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
+@@ -11,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
+ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+ import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.level.ServerChunkCache;
+ import net.minecraft.server.level.ServerLevel;
+ import org.slf4j.Logger;
+ import java.util.Iterator;
+diff --git a/src/main/java/io/papermc/paper/util/TickThread.java b/src/main/java/io/papermc/paper/util/TickThread.java
+index b6e39f38bfe3d4dcfdc4f02d4b29d1034680c22c..269d815bb0815fb7304a9142f03a92930e7c7032 100644
+--- a/src/main/java/io/papermc/paper/util/TickThread.java
++++ b/src/main/java/io/papermc/paper/util/TickThread.java
+@@ -139,19 +139,10 @@ public class TickThread extends Thread {
+         if (world.chunkTaskScheduler.isHalted()) { //As soon as we halt the activity, it's the global tick thread's propriety
+             return RegionizedServer.isGlobalTickThread() || isShutdownThread();
+         }
+-        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
++        final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+         if (region == null) {
+-            try{
+-                region = world.regioniser.getRegionAtSynchronised(chunkX, chunkZ);
+-                if (region == null){
+-                    MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
+-                    return isShutdownThread();
+-                }
+-            } catch (Exception e) {
+-                MinecraftServer.LOGGER.warn("Region at position [" + chunkX + ", " + chunkZ + "] is null!");
+-                return isShutdownThread();
+-            }
++            return isShutdownThread();
+         }
+         return world.regioniser.getRegionAtUnsynchronised(chunkX, chunkZ) == region;
+     }
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 34d5841dc84cf7f2f3ab74cfba963dc50e8b36e3..383d1bd36c1c594ff169a34ca89cc35ed30a714c 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -1704,11 +1704,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         } else {
+             if (entity instanceof net.minecraft.world.entity.item.ItemEntity itemEntity && itemEntity.getItem().isEmpty()) return false; // Paper - Prevent empty items from being added
+             // Paper start - capture all item additions to the world
+-            if (this.getCurrentWorldData() != null){
+-                if (this.getCurrentWorldData().captureDrops != null && entity instanceof net.minecraft.world.entity.item.ItemEntity) { // Folia - region threading
+-                    this.getCurrentWorldData().captureDrops.add((net.minecraft.world.entity.item.ItemEntity) entity); // Folia - region threading
+-                    return true;
+-                }
++            if (this.getCurrentWorldData().captureDrops != null && entity instanceof net.minecraft.world.entity.item.ItemEntity) { // Folia - region threading
++                this.getCurrentWorldData().captureDrops.add((net.minecraft.world.entity.item.ItemEntity) entity); // Folia - region threading
++                return true;
+             }
+             // Paper end
+             // SPIGOT-6415: Don't call spawn event when reason is null. For example when an entity teleports to a new world.
