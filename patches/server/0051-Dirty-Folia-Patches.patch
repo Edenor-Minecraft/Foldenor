@@ -684,7 +684,7 @@ index 49c9088c365fdc4342b82de7f1ce2cc0b93e7ea4..1463dfaff72b927f5307794d6bf08e13
              super.doRunTask(task);
          }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 1050aafea9882ff281cc40ae6bf0b7e5e93ce4ed..34d5841dc84cf7f2f3ab74cfba963dc50e8b36e3 100644
+index ced3dfa5e760c6f9c13058791eefc78928a57288..ab251b5580951d10f4ade4cf6c80e5f8c27640c5 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -218,6 +218,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
@@ -696,7 +696,7 @@ index 1050aafea9882ff281cc40ae6bf0b7e5e93ce4ed..34d5841dc84cf7f2f3ab74cfba963dc5
      public static Throwable getAddToWorldStackTrace(Entity entity) {
          final Throwable thr = new Throwable(entity + " Added to world at " + new java.util.Date());
          io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(thr);
-@@ -1338,7 +1340,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1365,7 +1367,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
  
      public void tickNonPassenger(Entity entity) {
          // Paper start - log detailed entity tick information
@@ -705,7 +705,7 @@ index 1050aafea9882ff281cc40ae6bf0b7e5e93ce4ed..34d5841dc84cf7f2f3ab74cfba963dc5
          try {
              if (currentlyTickingEntity.get() == null) {
                  currentlyTickingEntity.lazySet(entity);
-@@ -1719,6 +1721,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1746,6 +1748,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
          }
      }
  
@@ -716,7 +716,7 @@ index 1050aafea9882ff281cc40ae6bf0b7e5e93ce4ed..34d5841dc84cf7f2f3ab74cfba963dc5
      public io.papermc.paper.threadedregions.RegionizedWorldData getCurrentWorldData(int chunkX, int chunkZ) {
          return chunkTaskScheduler.isHalted()
              ? Objects.requireNonNull(regioniser.getRegionAtUnsynchronised(chunkX, chunkZ), "Chunk was not present on world activity halt")
-@@ -2253,7 +2259,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2280,7 +2286,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
      }
  
      public boolean setChunkForced(int x, int z, boolean forced) {
@@ -725,7 +725,7 @@ index 1050aafea9882ff281cc40ae6bf0b7e5e93ce4ed..34d5841dc84cf7f2f3ab74cfba963dc5
          ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) this.getDataStorage().computeIfAbsent(ForcedChunksSavedData::load, ForcedChunksSavedData::new, "chunks");
          ChunkPos chunkcoordintpair = new ChunkPos(x, z);
          long k = chunkcoordintpair.toLong();
-@@ -2743,7 +2749,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -2770,7 +2776,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
          public void onCreated(Entity entity) {}
  
          public void onDestroyed(Entity entity) {
@@ -735,10 +735,10 @@ index 1050aafea9882ff281cc40ae6bf0b7e5e93ce4ed..34d5841dc84cf7f2f3ab74cfba963dc5
  
          public void onTickingStart(Entity entity) {
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 817f79bfca1aec161cb4635b9c7a8e21b14db7eb..44a2bd0edcf736eeadeca0d006167f0ff09feedb 100644
+index febd0ba72922462364eb65243640dcb693129e21..7c41fdd23a460edaa7e4b8055cf317b824f53b7d 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-@@ -1237,7 +1237,7 @@ public class ServerPlayer extends Player {
+@@ -1295,7 +1295,7 @@ public class ServerPlayer extends Player {
      }
  
      private void respawn(java.util.function.Consumer<ServerPlayer> respawnComplete, boolean alive) {
@@ -747,7 +747,7 @@ index 817f79bfca1aec161cb4635b9c7a8e21b14db7eb..44a2bd0edcf736eeadeca0d006167f0f
  
          this.getBukkitEntity(); // force bukkit entity to be created before TPing
  
-@@ -1513,7 +1513,7 @@ public class ServerPlayer extends Player {
+@@ -1571,7 +1571,7 @@ public class ServerPlayer extends Player {
  
      @Override
      public boolean endPortalLogicAsync() {
@@ -756,7 +756,7 @@ index 817f79bfca1aec161cb4635b9c7a8e21b14db7eb..44a2bd0edcf736eeadeca0d006167f0f
  
          if (this.level().getTypeKey() == LevelStem.END) {
              if (!this.canPortalAsync(false)) {
-@@ -1549,9 +1549,9 @@ public class ServerPlayer extends Player {
+@@ -1607,9 +1607,9 @@ public class ServerPlayer extends Player {
      @Nullable
      public Entity changeDimension(ServerLevel worldserver, PlayerTeleportEvent.TeleportCause cause) {
          // Folia start - region threading

@@ -44,7 +44,7 @@ index 965f544e2714c17348610587751a711484dad5e0..493f7155e9ccc902af64e72a1ca74098
          return world.regioniser.getRegionAtUnsynchronised(chunkX, chunkZ) == region;
      }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 0f4a3b1061e630d7b5aa575c869773e6d8315259..00ddbdb7dbe3b4de83c2dfb4eec8614cc7adec5f 100644
+index 12d1e4644ddfedb1af63603c80b93fb97fb0cede..1d54c1de4d0b059d5b752ed6d9e9d99a593e398d 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
@@ -56,7 +56,7 @@ index 0f4a3b1061e630d7b5aa575c869773e6d8315259..00ddbdb7dbe3b4de83c2dfb4eec8614c
  import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
  import it.unimi.dsi.fastutil.longs.LongSet;
-@@ -1702,9 +1704,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1729,9 +1731,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
          } else {
              if (entity instanceof net.minecraft.world.entity.item.ItemEntity itemEntity && itemEntity.getItem().isEmpty()) return false; // Paper - Prevent empty items from being added
              // Paper start - capture all item additions to the world
@@ -71,7 +71,7 @@ index 0f4a3b1061e630d7b5aa575c869773e6d8315259..00ddbdb7dbe3b4de83c2dfb4eec8614c
              }
              // Paper end
              // SPIGOT-6415: Don't call spawn event when reason is null. For example when an entity teleports to a new world.
-@@ -1717,6 +1721,14 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1744,6 +1748,14 @@ public class ServerLevel extends Level implements WorldGenLevel {
          }
      }
  

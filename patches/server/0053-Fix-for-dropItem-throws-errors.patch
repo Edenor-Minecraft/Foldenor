@@ -273,10 +273,10 @@ index b6e39f38bfe3d4dcfdc4f02d4b29d1034680c22c..269d815bb0815fb7304a9142f03a9293
          return world.regioniser.getRegionAtUnsynchronised(chunkX, chunkZ) == region;
      }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 34d5841dc84cf7f2f3ab74cfba963dc50e8b36e3..383d1bd36c1c594ff169a34ca89cc35ed30a714c 100644
+index ab251b5580951d10f4ade4cf6c80e5f8c27640c5..2fbed91fbf93219a236fd7a4556e9eb3b9116854 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1704,11 +1704,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1731,11 +1731,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
          } else {
              if (entity instanceof net.minecraft.world.entity.item.ItemEntity itemEntity && itemEntity.getItem().isEmpty()) return false; // Paper - Prevent empty items from being added
              // Paper start - capture all item additions to the world

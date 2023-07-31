@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 31 Jul 2023 17:24:18 +0400
+Subject: [PATCH] 
+ Fix-server-crash-when-teleport-player-while-spectate-in-entity
+
+
+diff --git a/src/main/java/net/minecraft/server/commands/TeleportCommand.java b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
+index 15c4fa89e1f1dbc80055f6f92904d1cc05a24dba..6ec967e464ae463bc07b58aba11b4067dd8c91e0 100644
+--- a/src/main/java/net/minecraft/server/commands/TeleportCommand.java
++++ b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
+@@ -29,6 +29,7 @@ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.LivingEntity;
+ import net.minecraft.world.entity.PathfinderMob;
+ import net.minecraft.world.entity.RelativeMovement;
++import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.Vec2;
+ import net.minecraft.world.phys.Vec3;
+@@ -72,11 +73,25 @@ public class TeleportCommand {
+     }
+ 
+     private static int teleportToEntity(CommandSourceStack source, Collection<? extends Entity> targets, Entity destination) throws CommandSyntaxException {
++        if (source.getPlayer() != null){
++            ServerPlayer sender = source.getPlayer();
++            if (sender.isSpectator() && sender.getCamera() != sender){
++                sender.setCamera(sender);
++            }
++        }
++
+         Iterator iterator = targets.iterator();
+ 
+         while (iterator.hasNext()) {
+             Entity entity1 = (Entity) iterator.next();
+ 
++            if (entity1.isSpectator()){
++                ServerPlayer sender = (ServerPlayer) entity1;
++                if (sender.getCamera() != sender){
++                    sender.setCamera(sender);
++                }
++            }
++
+             io.papermc.paper.threadedregions.TeleportUtils.teleport(entity1, false, destination, Float.valueOf(destination.getYRot()), Float.valueOf(destination.getXRot()), Entity.TELEPORT_FLAG_LOAD_CHUNK, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND, null); // Folia - region threading
+         }
+ 
+@@ -94,6 +109,13 @@ public class TeleportCommand {
+     }
+ 
+     private static int teleportToPos(CommandSourceStack source, Collection<? extends Entity> targets, ServerLevel world, Coordinates location, @Nullable Coordinates rotation, @Nullable TeleportCommand.LookAt facingLocation) throws CommandSyntaxException {
++        if (source.getPlayer() != null){
++            ServerPlayer sender = source.getPlayer();
++            if (sender.isSpectator() && sender.getCamera() != sender){
++                sender.setCamera(sender);
++            }
++        }
++
+         Vec3 vec3d = location.getPosition(source);
+         Vec2 vec2f = rotation == null ? null : rotation.getRotation(source);
+         Set<RelativeMovement> set = EnumSet.noneOf(RelativeMovement.class);
+@@ -128,6 +150,13 @@ public class TeleportCommand {
+         while (iterator.hasNext()) {
+             Entity entity = (Entity) iterator.next();
+ 
++            if (entity.isSpectator()){
++                ServerPlayer sender = (ServerPlayer) entity;
++                if (sender.isSpectator() && sender.getCamera() != sender){
++                    sender.setCamera(sender);
++                }
++            }
++
+             if (rotation == null) {
+                 TeleportCommand.performTeleport(source, entity, world, vec3d.x, vec3d.y, vec3d.z, set, entity.getYRot(), entity.getXRot(), facingLocation);
+             } else {

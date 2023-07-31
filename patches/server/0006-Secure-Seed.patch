@@ -673,7 +673,7 @@ index af35fd63b090aa3d89bc60cb9cb7694b5f502681..865b8c9631605a6270e014459bf9e8c2
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 042ca6b3faae5249210567f2c26dff404974e1ff..0f4a3b1061e630d7b5aa575c869773e6d8315259 100644
+index cf8f93734121e5c1959959f0ba13ee4e6db31959..12d1e4644ddfedb1af63603c80b93fb97fb0cede 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -177,6 +177,7 @@ import org.bukkit.event.world.GenericGameEvent;
@@ -684,7 +684,7 @@ index 042ca6b3faae5249210567f2c26dff404974e1ff..0f4a3b1061e630d7b5aa575c869773e6
  
  public class ServerLevel extends Level implements WorldGenLevel {
  
-@@ -664,6 +665,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -691,6 +692,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
              chunkgenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkgenerator, gen);
          }
          // CraftBukkit end
