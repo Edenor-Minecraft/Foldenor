@@ -62,10 +62,10 @@ index c6f1db10b124ef2814574c25a0bc0a35174fe72d..4278025f38271b3733883ba1279bf3d6
              } catch (Exception exception) {
                  Main.LOGGER.warn("Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode", exception);
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c72d4456f 100644
+index 5f7bae9a8f926c6299586ed38abcd52cda275ef0..fe114b5d99d5ad80bf1afa50730e86e2d71c4b65 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -274,7 +274,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -273,7 +273,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      private String serverId;
      public MinecraftServer.ReloadableResources resources;
      private final StructureTemplateManager structureTemplateManager;
@@ -74,7 +74,7 @@ index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c
      private volatile boolean isSaving;
  
      // CraftBukkit start
-@@ -352,7 +352,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -351,7 +351,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          return s0;
      }
  
@@ -83,7 +83,7 @@ index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c
          super("Server");
          SERVER = this; // Paper - better singleton
          this.metricsRecorder = InactiveMetricsRecorder.INSTANCE;
-@@ -372,7 +372,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -371,7 +371,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.customBossEvents = new CustomBossEvents();
          this.frameTimer = new FrameTimer();
          this.registries = worldstem.registries();
@@ -92,7 +92,7 @@ index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c
          if (false && !this.registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)) { // CraftBukkit - initialised later
              throw new IllegalStateException("Missing Overworld dimension data");
          } else {
-@@ -545,7 +545,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -544,7 +544,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              WorldLoader.DataLoadContext worldloader_a = this.worldLoader;
              Registry<LevelStem> iregistry = worldloader_a.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
              DynamicOps<Tag> dynamicops = RegistryOps.create(NbtOps.INSTANCE, (HolderLookup.Provider) worldloader_a.datapackWorldgen());
@@ -101,7 +101,7 @@ index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c
  
              if (pair != null) {
                  worlddata = (PrimaryLevelData) pair.getFirst();
-@@ -569,7 +569,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -568,7 +568,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                  WorldDimensions.Complete worlddimensions_b = worlddimensions.bake(iregistry);
                  Lifecycle lifecycle = worlddimensions_b.lifecycle().add(worldloader_a.datapackWorldgen().allRegistriesLifecycle());
  
@@ -110,7 +110,7 @@ index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c
              }
              worlddata.checkName(name); // CraftBukkit - Migration did not rewrite the level.dat; This forces 1.8 to take the last loaded world as respawn (in this case the end)
              // Paper - move down
-@@ -597,7 +597,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -596,7 +596,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              ResourceKey<Level> worldKey = ResourceKey.create(Registries.DIMENSION, dimensionKey.location());
  
              if (dimensionKey == LevelStem.OVERWORLD) {
@@ -119,7 +119,7 @@ index b8843d127554bca971eea97a426fb0cdcf12c76f..1605fda10fbef1e21615538603b8313c
                  this.worldData.setGameType(((DedicatedServer) this).getProperties().gamemode); // From DedicatedServer.init
  
                  ChunkProgressListener worldloadlistener = this.progressListenerFactory.create(11);
-@@ -2697,7 +2697,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -2695,7 +2695,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          return this.structureTemplateManager;
      }
  
@@ -648,7 +648,7 @@ index f4bc076b209fb5e85a0ac670e0d0463a5740c632..bab42913e64ba2ded44b639f6b71e418
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 1ca1ba2cf973852aec713717cc6010598c8acb52..876a17bb80699aec6be57531070da10c1e291b75 100644
+index 145428f15f1489f170849b27cfed4a8d03b7441a..55489e8bcc88e09d6210fe392f851a840c656dce 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -44,6 +44,7 @@ import java.util.stream.Collectors;
@@ -659,7 +659,7 @@ index 1ca1ba2cf973852aec713717cc6010598c8acb52..876a17bb80699aec6be57531070da10c
  import net.minecraft.advancements.Advancement;
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
-@@ -1333,14 +1334,14 @@ public final class CraftServer implements Server {
+@@ -1332,14 +1333,14 @@ public final class CraftServer implements Server {
          WorldLoader.DataLoadContext worldloader_a = console.worldLoader;
          net.minecraft.core.Registry<LevelStem> iregistry = worldloader_a.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
          DynamicOps<Tag> dynamicops = RegistryOps.create(NbtOps.INSTANCE, (HolderLookup.Provider) worldloader_a.datapackWorldgen());
@@ -676,7 +676,7 @@ index 1ca1ba2cf973852aec713717cc6010598c8acb52..876a17bb80699aec6be57531070da10c
              WorldDimensions worlddimensions;
  
              DedicatedServerProperties.WorldDimensionData properties = new DedicatedServerProperties.WorldDimensionData(GsonHelper.parse((creator.generatorSettings().isEmpty()) ? "{}" : creator.generatorSettings()), creator.type().name().toLowerCase(Locale.ROOT));
-@@ -1351,7 +1352,7 @@ public final class CraftServer implements Server {
+@@ -1350,7 +1351,7 @@ public final class CraftServer implements Server {
              WorldDimensions.Complete worlddimensions_b = worlddimensions.bake(iregistry);
              Lifecycle lifecycle = worlddimensions_b.lifecycle().add(worldloader_a.datapackWorldgen().allRegistriesLifecycle());
  
