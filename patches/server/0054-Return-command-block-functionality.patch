@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Wed, 2 Aug 2023 23:36:13 +0400
+Subject: [PATCH] Return-command-block-functionality
+
+
+diff --git a/src/main/java/net/minecraft/world/level/BaseCommandBlock.java b/src/main/java/net/minecraft/world/level/BaseCommandBlock.java
+index 19cb22df8eb29d1708e3da2124de3b43378b575a..1d2da5ee3c27799e3ef153c538126ae5da9c3e63 100644
+--- a/src/main/java/net/minecraft/world/level/BaseCommandBlock.java
++++ b/src/main/java/net/minecraft/world/level/BaseCommandBlock.java
+@@ -111,7 +111,7 @@ public abstract class BaseCommandBlock implements CommandSource {
+     }
+ 
+     public boolean performCommand(Level world) {
+-        if (true) return false; // Folia - region threading
++        //if (true) return false; // Folia - region threading
+         if (!world.isClientSide && world.getGameTime() != this.lastExecution) {
+             if ("Searge".equalsIgnoreCase(this.command)) {
+                 this.lastOutput = Component.literal("#itzlipofutzli");
