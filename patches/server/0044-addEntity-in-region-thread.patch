@@ -263,7 +263,7 @@ index 0000000000000000000000000000000000000000..f245258c456f44543752d8fbb01b3715
 +    }
 +}
 diff --git a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
-index 3208d68c0e8220307028acd4bcd859465611f992..91cf530d5fda44f5d6d7bcd654ca8280c42a3f6a 100644
+index 0cdf092d5c3f65a23e26f201768c0e2fea1ffe09..27161fc8ec25be3541a431c06a8fd630460f0901 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/entity/EntityLookup.java
 @@ -2,6 +2,7 @@ package io.papermc.paper.chunk.system.entity;

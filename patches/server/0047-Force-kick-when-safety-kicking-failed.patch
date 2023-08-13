@@ -5,7 +5,7 @@ Subject: [PATCH] Force-kick-when-safety-kicking-failed
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 66f4e0578e7682d732ba4b36f5c3344d1d0e3d68..39c6087cd3252e67d411f256d568e36a8af7a252 100644
+index 36fc7444514a82532731026a0c4402d2ec04e9d2..f25a9870bf1b0033b01d52e5bf762450d32d6c64 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -7,6 +7,7 @@ import com.google.common.io.BaseEncoding;
@@ -16,7 +16,7 @@ index 66f4e0578e7682d732ba4b36f5c3344d1d0e3d68..39c6087cd3252e67d411f256d568e36a
  import it.unimi.dsi.fastutil.shorts.ShortArraySet;
  import it.unimi.dsi.fastutil.shorts.ShortSet;
  import java.io.ByteArrayOutputStream;
-@@ -71,6 +72,7 @@ import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
+@@ -73,6 +74,7 @@ import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
  import net.minecraft.network.protocol.game.ClientboundTabListPacket;
  import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
  import net.minecraft.resources.ResourceLocation;
@@ -24,7 +24,7 @@ index 66f4e0578e7682d732ba4b36f5c3344d1d0e3d68..39c6087cd3252e67d411f256d568e36a
  import net.minecraft.server.PlayerAdvancements;
  import net.minecraft.server.level.ChunkMap;
  import net.minecraft.server.level.ServerLevel;
-@@ -603,7 +605,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -605,7 +607,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          //org.spigotmc.AsyncCatcher.catchOp("player kick"); // Folia - region threading - no longer needed
          final ServerGamePacketListenerImpl connection = this.getHandle().connection;
          if (connection != null) {

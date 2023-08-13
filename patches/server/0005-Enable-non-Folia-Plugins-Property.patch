@@ -105,10 +105,10 @@ index 818289e831e3dad29345c43265e2efd7689bc500..f3a6ed604960438aa81fb959956a8026
  
      // CraftBukkit start
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 23556931a812ed9b2dac5b4b4712961c2d9aa025..142e8772ca7aa621f0af3c0d171f952635ea9ac3 100644
+index 9485d754ec6ce4031d88734e327abda240d9db90..52a0a7feaede6cde3946f5d23747f7b0ab6e9e5a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1762,6 +1762,8 @@ public final class CraftServer implements Server {
+@@ -1800,6 +1800,8 @@ public final class CraftServer implements Server {
          return this.console.usesAuthentication();
      }
  

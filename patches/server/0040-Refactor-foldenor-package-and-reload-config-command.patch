@@ -244,7 +244,7 @@ index c83537ec370b0713b1de55f95c1afc7590a294a3..91a0e61611579c551955b53524872270
  public class ServerChunkCache extends ChunkSource {
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
-index c8f675986f5ec2024b64be12de898534c5c7bb39..ba48b1776cdb97a6c46e01b79eeae7b0a8c14006 100644
+index ad76256268d860c35c7653dac883ab3d4718232a..c83802fbbb6825b5935e9ed20aea25b740a96d89 100644
 --- a/src/main/java/net/minecraft/server/level/ServerEntity.java
 +++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
 @@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
@@ -265,7 +265,7 @@ index c8f675986f5ec2024b64be12de898534c5c7bb39..ba48b1776cdb97a6c46e01b79eeae7b0
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
  import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 34aa0703858eb7186ffbf9c602c1bf781497def8..f2a5837ed8f99ff888b75a09ac1bfed4ba406d4c 100644
+index 53f0305baa54dc61058f37f48e7a543836f875a3..2585589c6c7580f4b32034f8e232a9e3837e2722 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -16,7 +16,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
@@ -308,7 +308,7 @@ index 34aa0703858eb7186ffbf9c602c1bf781497def8..f2a5837ed8f99ff888b75a09ac1bfed4
  public class ServerLevel extends Level implements WorldGenLevel {
  
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index d07410e47be2e16f580f2c767bd04a361723b62e..30b847413c7b855ac355a84c72cf5accae0625c8 100644
+index c135ce10bc239ddc063a1ace0701b0316cb7259c..47a816a028daca2fa38f9c7a71416c782773494d 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -30,7 +30,7 @@ import java.util.stream.Collectors;
@@ -336,7 +336,7 @@ index d07410e47be2e16f580f2c767bd04a361723b62e..30b847413c7b855ac355a84c72cf5acc
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
-@@ -217,7 +215,6 @@ import org.bukkit.craftbukkit.util.Waitable;
+@@ -219,7 +217,6 @@ import org.bukkit.craftbukkit.util.Waitable;
  import org.bukkit.entity.Player;
  import org.bukkit.event.Event;
  import org.bukkit.event.block.Action;
@@ -344,7 +344,7 @@ index d07410e47be2e16f580f2c767bd04a361723b62e..30b847413c7b855ac355a84c72cf5acc
  import org.bukkit.event.inventory.ClickType;
  import org.bukkit.event.inventory.CraftItemEvent;
  import org.bukkit.event.inventory.InventoryAction;
-@@ -227,8 +224,6 @@ import org.bukkit.event.inventory.InventoryCreativeEvent;
+@@ -229,8 +226,6 @@ import org.bukkit.event.inventory.InventoryCreativeEvent;
  import org.bukkit.event.inventory.InventoryType.SlotType;
  import org.bukkit.event.inventory.SmithItemEvent;
  import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -354,7 +354,7 @@ index d07410e47be2e16f580f2c767bd04a361723b62e..30b847413c7b855ac355a84c72cf5acc
  import org.bukkit.event.player.PlayerCommandPreprocessEvent;
  import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 14a5f280cc17b6dac84893ebf9eccd2112b426ad..7519453ae2fc0396f4cdab95f19d2b87e7cd925d 100644
+index 44ad2d55df8755138a7fd31bb5b6d2628567b756..ca2604b4c53c435667b5cdd6ce9fecad2eade2c8 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -25,7 +25,7 @@ import java.util.function.Predicate;
@@ -585,7 +585,7 @@ index 497fdad2c2754b8dd9eb6b95d6575042c35eb6cb..4bd9607e27d98bb397466c51cbfb7206
  public abstract class StructurePlacement {
      public static final Codec<StructurePlacement> CODEC = BuiltInRegistries.STRUCTURE_PLACEMENT.byNameCodec().dispatch(StructurePlacement::type, StructurePlacementType::codec);
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index fafcce4abc2c03f734baa796328328d66856380b..82bf474e6140c693482601afbf3afd49c13bec64 100644
+index 8e3fb34782eb67b7658c011d9cea2d9ce99c0534..e38cd6faa29522ca5827c0b9be4ae732e8b80db1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
@@ -595,8 +595,8 @@ index fafcce4abc2c03f734baa796328328d66856380b..82bf474e6140c693482601afbf3afd49
 -import java.net.InetSocketAddress;
  import java.util.ArrayList;
  import java.util.Collections;
- import java.util.HashMap;
-@@ -44,7 +43,7 @@ import java.util.logging.Logger;
+ import java.util.Date;
+@@ -45,7 +44,7 @@ import java.util.logging.Logger;
  import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
  
@@ -605,7 +605,7 @@ index fafcce4abc2c03f734baa796328328d66856380b..82bf474e6140c693482601afbf3afd49
  import net.minecraft.advancements.Advancement;
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
-@@ -238,7 +237,6 @@ import org.bukkit.plugin.PluginManager;
+@@ -239,7 +238,6 @@ import org.bukkit.plugin.PluginManager;
  import org.bukkit.plugin.ServicesManager;
  import org.bukkit.plugin.SimplePluginManager;
  import org.bukkit.plugin.SimpleServicesManager;
@@ -613,7 +613,7 @@ index fafcce4abc2c03f734baa796328328d66856380b..82bf474e6140c693482601afbf3afd49
  import org.bukkit.plugin.messaging.Messenger;
  import org.bukkit.plugin.messaging.StandardMessenger;
  import org.bukkit.potion.Potion;
-@@ -1097,7 +1095,7 @@ public final class CraftServer implements Server {
+@@ -1098,7 +1096,7 @@ public final class CraftServer implements Server {
  
          org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
          this.console.paperConfigurations.reloadConfigs(this.console);
@@ -622,7 +622,7 @@ index fafcce4abc2c03f734baa796328328d66856380b..82bf474e6140c693482601afbf3afd49
          for (ServerLevel world : this.console.getAllLevels()) {
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
-@@ -1128,6 +1126,7 @@ public final class CraftServer implements Server {
+@@ -1129,6 +1127,7 @@ public final class CraftServer implements Server {
          this.reloadData();
          org.spigotmc.SpigotConfig.registerCommands(); // Spigot
          io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper

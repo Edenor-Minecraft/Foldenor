@@ -214,7 +214,7 @@ index 9754acf12d10aecebce9659799588cda7f3f848a..dcf604ecc50b5805a7fd62b5493dfe0d
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..d07410e47be2e16f580f2c767bd04a361723b62e 100644
+index 88c57c1ef147045315e923a5ba3b6f9394900f92..c135ce10bc239ddc063a1ace0701b0316cb7259c 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -29,6 +29,8 @@ import java.util.function.UnaryOperator;
@@ -226,7 +226,7 @@ index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..d07410e47be2e16f580f2c767bd04a36
  import net.minecraft.ChatFormatting;
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
-@@ -263,6 +265,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -265,6 +267,7 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
      private long keepAliveTime = Util.getMillis();
      private boolean keepAlivePending;
      private long keepAliveChallenge;
@@ -234,7 +234,7 @@ index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..d07410e47be2e16f580f2c767bd04a36
      // CraftBukkit start - multithreaded fields
      private final AtomicInteger chatSpamTickCount = new AtomicInteger();
      private final java.util.concurrent.atomic.AtomicInteger tabSpamLimiter = new java.util.concurrent.atomic.AtomicInteger(); // Paper - configurable tab spam limits
-@@ -355,19 +358,31 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -357,19 +360,31 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
          long currentTime = Util.getMillis();
          long elapsedTime = currentTime - this.keepAliveTime;
  
@@ -277,7 +277,7 @@ index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..d07410e47be2e16f580f2c767bd04a36
      }
      // Folia end - region threading
  
-@@ -3523,20 +3538,27 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
+@@ -3597,20 +3612,27 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Tic
  
      @Override
      public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
@@ -320,10 +320,10 @@ index b2feaea169fa9d3977c3dfdfdf3dea9283f5d854..d07410e47be2e16f580f2c767bd04a36
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 2924081f867520592aefed6758f1323a207f850b..da6d7d22aeec8a288fac8b13db5da45483d24c7a 100644
+index 06be0c16a4e29120bff61e762874267b0e75d4ff..fad31cb8625d39c69615330b8b14d8dace378be4 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -43,6 +43,8 @@ import java.util.logging.Level;
+@@ -44,6 +44,8 @@ import java.util.logging.Level;
  import java.util.logging.Logger;
  import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
@@ -332,7 +332,7 @@ index 2924081f867520592aefed6758f1323a207f850b..da6d7d22aeec8a288fac8b13db5da454
  import net.minecraft.advancements.Advancement;
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
-@@ -935,6 +937,10 @@ public final class CraftServer implements Server {
+@@ -936,6 +938,10 @@ public final class CraftServer implements Server {
          return this.scheduler;
      }
  
@@ -343,7 +343,7 @@ index 2924081f867520592aefed6758f1323a207f850b..da6d7d22aeec8a288fac8b13db5da454
      @Override
      public ServicesManager getServicesManager() {
          return this.servicesManager;
-@@ -1091,6 +1097,7 @@ public final class CraftServer implements Server {
+@@ -1092,6 +1098,7 @@ public final class CraftServer implements Server {
  
          org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
          this.console.paperConfigurations.reloadConfigs(this.console);
@@ -352,7 +352,7 @@ index 2924081f867520592aefed6758f1323a207f850b..da6d7d22aeec8a288fac8b13db5da454
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index daed278d1bcf84ee42749f24e311b22b70015d79..d1f88ca0442fa4496bc4e67e840ca3df559fe36d 100644
+index 776b7fc26fe96b69be260bbd36efae147d988640..d3fb1f8dd047ae44cd17794d2be945a2b484d3fe 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -173,6 +173,12 @@ public class Main {

@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 13 Aug 2023 20:29:47 +0400
+Subject: [PATCH] Return-region-tps-or-permanently-20
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index d473dcd606184fa5649020920371beeda8e9c264..8a6d80b47105d35eadf6c485fe59510b06c9e34f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -2916,9 +2916,9 @@ public final class CraftServer implements Server {
+         }
+         else{
+             return new double[] {
+-                net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
+-                net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
+-                net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
++                20.0,
++                20.0,
++                20.0
+             };
+         }
+     }

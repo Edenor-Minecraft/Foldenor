@@ -33,10 +33,10 @@ index 0c7339f8f0a1ec3867be3b2f39182332053229f3..9a54ac425b46c756c05ca64c571b5bca
          //});
          // Paper start
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 82bf474e6140c693482601afbf3afd49c13bec64..145428f15f1489f170849b27cfed4a8d03b7441a 100644
+index e38cd6faa29522ca5827c0b9be4ae732e8b80db1..3820328c8c9b279ef8839f753a9bac2205ba521c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1007,13 +1007,13 @@ public final class CraftServer implements Server {
+@@ -1008,13 +1008,13 @@ public final class CraftServer implements Server {
      public boolean dispatchCommand(CommandSender sender, String commandLine) {
          Preconditions.checkArgument(sender != null, "sender cannot be null");
          Preconditions.checkArgument(commandLine != null, "commandLine cannot be null");
@@ -52,7 +52,7 @@ index 82bf474e6140c693482601afbf3afd49c13bec64..145428f15f1489f170849b27cfed4a8d
          } else {
              // huh?
              //throw new UnsupportedOperationException("Dispatching command for " + sender);
-@@ -1021,7 +1021,7 @@ public final class CraftServer implements Server {
+@@ -1022,7 +1022,7 @@ public final class CraftServer implements Server {
          // Folia end - region threading
  
          // Paper Start
@@ -61,7 +61,7 @@ index 82bf474e6140c693482601afbf3afd49c13bec64..145428f15f1489f170849b27cfed4a8d
              final CommandSender fSender = sender;
              final String fCommandLine = commandLine;
              Bukkit.getLogger().log(Level.SEVERE, "Command Dispatched Async: " + commandLine);
-@@ -1040,7 +1040,7 @@ public final class CraftServer implements Server {
+@@ -1041,7 +1041,7 @@ public final class CraftServer implements Server {
              } catch (Exception e) {
                  throw new RuntimeException("Exception processing dispatch command", e.getCause());
              }

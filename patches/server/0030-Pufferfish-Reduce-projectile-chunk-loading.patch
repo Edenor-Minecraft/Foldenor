@@ -81,7 +81,7 @@ index 5835a1ba3e2927c6b5d143506b440ac5a43aaaa4..3c605901b459a74d9523fdec3d493d5f
          if (entity != null) {
              this.ownerUUID = entity.getUUID();
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 596a03096aef574efebe593cb164bcbd3c3b2133..40ffa5cf0bba6bc1f3ed25ef27410020a4c5fd35 100644
+index 8b3d224eddb0621279aabe5b0001fb9d0db4b69d..6c8ee0ec5ffe7be24abf584dc5794713e192c4e7 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -136,7 +136,7 @@ public class LevelChunk extends ChunkAccess {

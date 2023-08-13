@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish-Reduce-chunk-loading-lookups
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/monster/EnderMan.java b/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
-index 39eb9301626b191958ce42daa34b1ff3241cea80..ea8101053477abf6641477c21c3da3ff04106983 100644
+index b62457313a1e30aad0c5313d608667b5d3811455..afb7bb440cda7aa9f25ce13bf52703aa02ffea73 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
 @@ -326,7 +326,13 @@ public class EnderMan extends Monster implements NeutralMob {

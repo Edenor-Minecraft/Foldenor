@@ -87,7 +87,7 @@ index 12d1e4644ddfedb1af63603c80b93fb97fb0cede..1d54c1de4d0b059d5b752ed6d9e9d99a
          // CraftBukkit start
          return this.tryAddFreshEntityWithPassengers(entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 8cf4428d8140fd03f0ad8fa1d148a04d8caefda8..a3c4029fccc853b17b3a43fda33a034b8195bac5 100644
+index 4338b948a53d32cac5c780cbd43c6ca1cc5d11e5..f5c48e8fc6bf202b5e05edd1d6d128b10f9a9628 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -273,7 +273,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {

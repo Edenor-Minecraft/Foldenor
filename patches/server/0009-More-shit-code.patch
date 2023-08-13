@@ -145,10 +145,10 @@ index 113989246083617277ac38648c4ba1438964cd2a..5746e97fd16a872b8d18ae634e4c95ea
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 655c994ee4063d7f050575e9d0e003a325ede19a..f44a4fe521ca7876e7364fc1313061c4c887b583 100644
+index f9dad589652d55621902d0d1aea5e4f2c2b1f626..3209a9d8c994fdf191b3eac62eab6b67b93be298 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -104,10 +104,7 @@ import net.minecraft.world.level.levelgen.*;
+@@ -105,10 +105,7 @@ import net.minecraft.world.level.levelgen.*;
  import net.minecraft.world.level.material.Fluid;
  import net.minecraft.world.level.saveddata.maps.MapDecoration;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -160,7 +160,7 @@ index 655c994ee4063d7f050575e9d0e003a325ede19a..f44a4fe521ca7876e7364fc1313061c4
  import net.minecraft.world.level.storage.loot.LootDataManager;
  import net.minecraft.world.level.validation.ContentValidationException;
  import net.minecraft.world.phys.Vec3;
-@@ -1329,7 +1326,7 @@ public final class CraftServer implements Server {
+@@ -1342,7 +1339,7 @@ public final class CraftServer implements Server {
          WorldLoader.DataLoadContext worldloader_a = console.worldLoader;
          net.minecraft.core.Registry<LevelStem> iregistry = worldloader_a.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
          DynamicOps<Tag> dynamicops = RegistryOps.create(NbtOps.INSTANCE, (HolderLookup.Provider) worldloader_a.datapackWorldgen());

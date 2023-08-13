@@ -214,7 +214,7 @@ index 2585589c6c7580f4b32034f8e232a9e3837e2722..ced3dfa5e760c6f9c13058791eefc789
  
      public boolean tryAddFreshEntityWithPassengers(Entity entity) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 03b36f4cd155002896d0df299a22f2095f671a9a..5f598ba1f5384c4dc5e54606ebc8f9ce90ff4924 100644
+index 66d7a93732b96b6aedfae3e151e25dd6fa3ab074..b38741eb397067b84264f1f4e9962798ce32c87f 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -16,6 +16,7 @@ import java.util.function.Predicate;

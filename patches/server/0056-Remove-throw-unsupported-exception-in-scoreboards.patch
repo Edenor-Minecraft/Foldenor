@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Mon, 19 Jun 2023 19:31:10 +0400
-Subject: [PATCH] Disable-throw-unsupported-exception
+Date: Sun, 13 Aug 2023 20:57:07 +0400
+Subject: [PATCH] Remove-throw-unsupported-exception-in-scoreboards
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
-index 351667dea3882a71dbd14cc57692ffc3e7c4d43f..2ca9147ef5c420e40c67179098e87e25cf297ed8 100644
+index f59e9e6dd21a7d034b5e3b6e7787458d3c3c7bbc..99a7dc9cb244918402c81afcef94f3127a19921b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
 @@ -43,7 +43,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
@@ -20,7 +20,7 @@ index 351667dea3882a71dbd14cc57692ffc3e7c4d43f..2ca9147ef5c420e40c67179098e87e25
 @@ -199,7 +199,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
  
      @Override
-     public Team registerNewTeam(String name) throws IllegalArgumentException {
+     public Team registerNewTeam(String name) {
 -        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
          Preconditions.checkArgument(name != null, "Team name cannot be null");
@@ -29,20 +29,29 @@ index 351667dea3882a71dbd14cc57692ffc3e7c4d43f..2ca9147ef5c420e40c67179098e87e25
 @@ -227,7 +227,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
  
      @Override
-     public void clearSlot(DisplaySlot slot) throws IllegalArgumentException {
+     public void clearSlot(DisplaySlot slot) {
 -        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
          Preconditions.checkArgument(slot != null, "Slot cannot be null");
          this.board.setDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot), null);
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
-index da9edaa0849305ff114939f67d3be7a817d2ec94..3e8ef11cb375301dd412f341fec30a70b70bd7c2 100644
+index 7ab760a57d1305bc4dccec97526328972c2ddfc3..c193523dca41af5745e788065aef71f96d76eb02 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
+@@ -42,7 +42,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {
+ 
+     @Override
+     public CraftScoreboard getNewScoreboard() {
+-        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
+         org.spigotmc.AsyncCatcher.catchOp("scoreboard creation"); // Spigot
+         CraftScoreboard scoreboard = new CraftScoreboard(new ServerScoreboard(this.server));
+         // Paper start
 @@ -69,7 +69,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {
  
      // CraftBukkit method
-     public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) throws IllegalArgumentException {
+     public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) {
 -        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
 +        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
          Preconditions.checkArgument(bukkitScoreboard instanceof CraftScoreboard, "Cannot set player scoreboard to an unregistered Scoreboard");

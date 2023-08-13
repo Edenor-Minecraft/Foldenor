@@ -103,10 +103,10 @@ index ef8b794d1a017f02f90368a48cec2ea7bb57f218..830b24c7d02171aab08d76184579195b
  
              return Pair.of(worlddataserver, worlddimensions_b);
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 142e8772ca7aa621f0af3c0d171f952635ea9ac3..655c994ee4063d7f050575e9d0e003a325ede19a 100644
+index 52a0a7feaede6cde3946f5d23747f7b0ab6e9e5a..f9dad589652d55621902d0d1aea5e4f2c2b1f626 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -100,10 +100,7 @@ import net.minecraft.world.level.LevelSettings;
+@@ -101,10 +101,7 @@ import net.minecraft.world.level.LevelSettings;
  import net.minecraft.world.level.biome.BiomeManager;
  import net.minecraft.world.level.block.Block;
  import net.minecraft.world.level.dimension.LevelStem;
@@ -118,7 +118,7 @@ index 142e8772ca7aa621f0af3c0d171f952635ea9ac3..655c994ee4063d7f050575e9d0e003a3
  import net.minecraft.world.level.material.Fluid;
  import net.minecraft.world.level.saveddata.maps.MapDecoration;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-@@ -1350,7 +1347,7 @@ public final class CraftServer implements Server {
+@@ -1363,7 +1360,7 @@ public final class CraftServer implements Server {
              WorldDimensions.Complete worlddimensions_b = worlddimensions.bake(iregistry);
              Lifecycle lifecycle = worlddimensions_b.lifecycle().add(worldloader_a.datapackWorldgen().allRegistriesLifecycle());
  

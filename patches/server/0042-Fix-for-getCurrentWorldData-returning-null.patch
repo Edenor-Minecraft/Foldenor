@@ -5,7 +5,7 @@ Subject: [PATCH] Fix-for-getCurrentWorldData-returning-null
 
 
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 4a599a5391730250b5579975aa680e5b9a891080..03b36f4cd155002896d0df299a22f2095f671a9a 100644
+index fe19ed6bc1763c905e5c4486f718934ba2caf80e..66d7a93732b96b6aedfae3e151e25dd6fa3ab074 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -15,6 +15,8 @@ import java.util.function.Consumer;

@@ -18,7 +18,7 @@ index c5df121d6194a97b20dc390698991b9c72dba538..389134c178598a1f9bafb0c078ec59e7
      public static final int TICK_TICKET_LEVEL = 31;
      public static final int GENERATED_TICKET_LEVEL = 33 + ChunkStatus.getDistance(ChunkStatus.FULL);
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 25fe439c8d1e88a86e85ac9a4761425d98ee6c4f..7c8a64a070c5c754c97cc4991fa7b2c4bd36a38e 100644
+index f1f52f9d9f8eafd65b50e3c06c92bcd8fda64286..3db8e572bae5a8d6dbcc52e23237722c317780de 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -127,7 +127,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider

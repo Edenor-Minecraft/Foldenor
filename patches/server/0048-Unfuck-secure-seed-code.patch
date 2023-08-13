@@ -648,10 +648,10 @@ index f4bc076b209fb5e85a0ac670e0d0463a5740c632..bab42913e64ba2ded44b639f6b71e418
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 145428f15f1489f170849b27cfed4a8d03b7441a..55489e8bcc88e09d6210fe392f851a840c656dce 100644
+index 3820328c8c9b279ef8839f753a9bac2205ba521c..304c23de46d01a1fbad17273acd0543f74d90775 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
+@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
  
  import net.edenor.foldenor.config.FoldenorConfig;
@@ -659,7 +659,7 @@ index 145428f15f1489f170849b27cfed4a8d03b7441a..55489e8bcc88e09d6210fe392f851a84
  import net.minecraft.advancements.Advancement;
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
-@@ -1332,14 +1333,14 @@ public final class CraftServer implements Server {
+@@ -1345,14 +1346,14 @@ public final class CraftServer implements Server {
          WorldLoader.DataLoadContext worldloader_a = console.worldLoader;
          net.minecraft.core.Registry<LevelStem> iregistry = worldloader_a.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
          DynamicOps<Tag> dynamicops = RegistryOps.create(NbtOps.INSTANCE, (HolderLookup.Provider) worldloader_a.datapackWorldgen());
@@ -676,7 +676,7 @@ index 145428f15f1489f170849b27cfed4a8d03b7441a..55489e8bcc88e09d6210fe392f851a84
              WorldDimensions worlddimensions;
  
              DedicatedServerProperties.WorldDimensionData properties = new DedicatedServerProperties.WorldDimensionData(GsonHelper.parse((creator.generatorSettings().isEmpty()) ? "{}" : creator.generatorSettings()), creator.type().name().toLowerCase(Locale.ROOT));
-@@ -1350,7 +1351,7 @@ public final class CraftServer implements Server {
+@@ -1363,7 +1364,7 @@ public final class CraftServer implements Server {
              WorldDimensions.Complete worlddimensions_b = worlddimensions.bake(iregistry);
              Lifecycle lifecycle = worlddimensions_b.lifecycle().add(worldloader_a.datapackWorldgen().allRegistriesLifecycle());
  
