@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Mon, 10 Jul 2023 16:39:34 +0400
+Date: Sat, 16 Sep 2023 21:34:57 +0400
 Subject: [PATCH] Do-not-send-chunk-if-it-was-already-sent
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
-index 389134c178598a1f9bafb0c078ec59e7ef9c71ab..fad9b1abe3a48b60c464a096b406f0714dac0101 100644
+index c5df121d6194a97b20dc390698991b9c72dba538..76c6bf3e416cc2a6bc0d85716c7f3ce12aa8c96f 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
-@@ -480,12 +480,16 @@ public class RegionizedPlayerChunkLoader {
+@@ -480,6 +480,10 @@ public class RegionizedPlayerChunkLoader {
          }
  
          private void sendChunk(final int chunkX, final int chunkZ) {
@@ -19,10 +19,3 @@ index 389134c178598a1f9bafb0c078ec59e7ef9c71ab..fad9b1abe3a48b60c464a096b406f071
              if (this.sentChunks.add(CoordinateUtils.getChunkKey(chunkX, chunkZ))) {
                  this.world.getChunkSource().chunkMap.updateChunkTracking(this.player,
                      new ChunkPos(chunkX, chunkZ), new MutableObject<>(), false, true); // unloaded, loaded
-                 return;
-             }
--            throw new IllegalStateException();
-+            //throw new IllegalStateException();
-         }
- 
-         private void sendUnloadChunk(final int chunkX, final int chunkZ) {

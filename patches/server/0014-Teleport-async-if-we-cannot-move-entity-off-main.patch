@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Mon, 10 Jul 2023 16:41:37 +0400
+Date: Sat, 16 Sep 2023 21:36:25 +0400
 Subject: [PATCH] Teleport-async-if-we-cannot-move-entity-off-main
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 9121695c72cd345a8b8a97683c46489c14ced835..0259bb682dd9944ad857af9ce023ec5ba5e33748 100644
+index 91d96f89f33668a38c158c1bc1f76577d71514db..6331a7b75bcfd935d42692143c9e6ab6098bc23d 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1120,7 +1120,16 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -1122,7 +1122,16 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
                      }
                  }
  
@@ -26,7 +26,7 @@ index 9121695c72cd345a8b8a97683c46489c14ced835..0259bb682dd9944ad857af9ce023ec5b
              }
  
              this.level().getProfiler().pop();
-@@ -3862,13 +3871,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3911,13 +3920,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          // check for same region
          if (destination == this.level()) {
              Vec3 currPos = this.position();
