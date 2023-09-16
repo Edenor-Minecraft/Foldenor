@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Thu, 13 Jul 2023 21:45:39 +0400
+Date: Sat, 16 Sep 2023 21:40:52 +0400
 Subject: [PATCH] Force-kick-when-safety-kicking-failed
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 36fc7444514a82532731026a0c4402d2ec04e9d2..f25a9870bf1b0033b01d52e5bf762450d32d6c64 100644
+index 8d63d9c4b2665fffcf019e69e837ba461ab017f6..8eb315ef536eec0296cd1b8609aae1fba1e83858 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -7,6 +7,7 @@ import com.google.common.io.BaseEncoding;
@@ -24,7 +24,7 @@ index 36fc7444514a82532731026a0c4402d2ec04e9d2..f25a9870bf1b0033b01d52e5bf762450
  import net.minecraft.server.PlayerAdvancements;
  import net.minecraft.server.level.ChunkMap;
  import net.minecraft.server.level.ServerLevel;
-@@ -605,7 +607,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -612,7 +614,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          //org.spigotmc.AsyncCatcher.catchOp("player kick"); // Folia - region threading - no longer needed
          final ServerGamePacketListenerImpl connection = this.getHandle().connection;
          if (connection != null) {

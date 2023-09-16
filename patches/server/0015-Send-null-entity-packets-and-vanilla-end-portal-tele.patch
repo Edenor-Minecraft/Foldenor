@@ -1,0 +1,86 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 16 Sep 2023 21:39:40 +0400
+Subject: [PATCH] Send-null-entity-packets-and-vanilla-end-portal-teleportation
+
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
+index 196280f54e397c69d32bd4d1f6ae666efdd93773..b9a08e69dc1ad5a8f15128ac7deba47c71aff871 100644
+--- a/src/main/java/net/minecraft/server/level/ServerEntity.java
++++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
+@@ -46,6 +46,7 @@ import net.minecraft.server.network.ServerPlayerConnection;
+ import net.minecraft.util.Mth;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.player.PlayerVelocityEvent;
++import net.edenor.foldenor.config.FoldenorConfig;
+ // CraftBukkit end
+ 
+ public class ServerEntity {
+@@ -201,6 +202,9 @@ public class ServerEntity {
+                         flag4 = true;
+                         flag5 = true;
+                     }
++                    if (!FoldenorConfig.sendNullEntityPackets && isNullMovePacket(packet1)) {
++                        packet1 = null;
++                    }
+                 }
+ 
+                 if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) && this.tickCount > 0) {
+@@ -267,6 +271,18 @@ public class ServerEntity {
+ 
+     }
+ 
++    private boolean isNullMovePacket(Packet<?> packet) {
++        if (packet instanceof ClientboundMoveEntityPacket move) {
++            if (packet instanceof ClientboundMoveEntityPacket.Pos)
++                return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0;
++            if (packet instanceof ClientboundMoveEntityPacket.PosRot)
++                return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0 && move.getyRot() == 0 && move.getxRot() == 0;
++            if (packet instanceof ClientboundMoveEntityPacket.Rot)
++                return move.getyRot() == 0 && move.getxRot() == 0;
++        }
++        return false;
++    }
++
+     private static Stream<Entity> removedPassengers(List<Entity> passengers, List<Entity> lastPassengers) {
+         return lastPassengers.stream().filter((entity) -> {
+             return !passengers.contains(entity);
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 6331a7b75bcfd935d42692143c9e6ab6098bc23d..ab63ad0e31cf2d74f6df09293da9ad658912fbe1 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -24,6 +24,8 @@ import java.util.function.BiConsumer;
+ import java.util.function.Predicate;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.BlockUtil;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+@@ -4084,9 +4086,22 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+ 
+                             // the portal obsidian is placed at targetPos.y - 2, so if we want to place the entity
+                             // on the obsidian, we need to spawn at targetPos.y - 1
+-                            portalInfoCompletable.complete(
+-                                new PortalInfo(Vec3.atBottomCenterOf(targetPos.below()), Vec3.ZERO, 90.0f, 0.0f, destination, null)
+-                            );
++                            if (FoldenorConfig.vanilaEndPortalTeleportation){
++                                Vec3 finalPos;
++                                if (this instanceof Player) finalPos = Vec3.atBottomCenterOf(targetPos.below());
++                                else finalPos = Vec3.atBottomCenterOf(targetPos);
++
++                                portalInfoCompletable.complete(
++                                    new PortalInfo(finalPos, this.getDeltaMovement(), 90.0f, 0.0f, destination, null) // Kaiiju - Vanilla end teleportation
++                                );
++                            }
++                            else{
++                                // the portal obsidian is placed at targetPos.y - 2, so if we want to place the entity
++                                // on the obsidian, we need to spawn at targetPos.y - 1
++                                portalInfoCompletable.complete(
++                                    new PortalInfo(Vec3.atBottomCenterOf(targetPos.below()), Vec3.ZERO, 90.0f, 0.0f, destination, null)
++                                );
++                            }
+                         }
+                     );
+                 } else {

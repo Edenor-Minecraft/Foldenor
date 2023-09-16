@@ -1,19 +1,20 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Mon, 12 Jun 2023 13:59:57 +0400
-Subject: [PATCH] Small-Fix-For-Plugin-Meta
+Date: Sat, 16 Sep 2023 21:05:49 +0400
+Subject: [PATCH] Mark-all-plugins-as-folia-supported
 
 
 diff --git a/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java b/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
-index e300a8c0eac6468214d31725674667bcb153ee0f..2bced59efc9611aa37413ece9b36077a2f5ea78b 100644
+index b930bd722caf6ecc6e2d584535cdd7a8924d9e08..54c38af816e9f69ab8954b566c93bf9978317cbf 100644
 --- a/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
 +++ b/src/main/java/io/papermc/paper/plugin/provider/configuration/PaperPluginMeta.java
-@@ -233,7 +233,7 @@ public class PaperPluginMeta implements PluginMeta {
+@@ -232,7 +232,8 @@ public class PaperPluginMeta implements PluginMeta {
      // Folia start
      @Override
      public boolean isFoliaSupported() {
--        if (Bukkit.getServer().getEnableNonFoliaPlugins()) return true;
-+        //if (Bukkit.getServer().getEnableNonFoliaPlugins()) return true;
-         return this.foliaSupported;
+-        return this.foliaSupported;
++        return true;
++        //return this.foliaSupported;
      }
      // Folia end
+ 

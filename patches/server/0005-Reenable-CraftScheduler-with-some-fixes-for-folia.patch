@@ -1,0 +1,500 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 16 Sep 2023 21:15:29 +0400
+Subject: [PATCH] Reenable-CraftScheduler-with-some-fixes-for-folia
+
+
+diff --git a/src/main/java/dev/rgbmc/folia/FakePlugin.java b/src/main/java/dev/rgbmc/folia/FakePlugin.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..f245258c456f44543752d8fbb01b371587f36046
+--- /dev/null
++++ b/src/main/java/dev/rgbmc/folia/FakePlugin.java
+@@ -0,0 +1,182 @@
++package dev.rgbmc.folia;
++
++import io.papermc.paper.plugin.configuration.PluginMeta;
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
++import org.bukkit.Server;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++import org.bukkit.configuration.file.FileConfiguration;
++import org.bukkit.event.Event;
++import org.bukkit.event.Listener;
++import org.bukkit.generator.BiomeProvider;
++import org.bukkit.generator.ChunkGenerator;
++import org.bukkit.permissions.PermissionDefault;
++import org.bukkit.plugin.*;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++import java.io.File;
++import java.io.InputStream;
++import java.util.*;
++import java.util.logging.Logger;
++import java.util.regex.Pattern;
++
++public class FakePlugin implements Plugin {
++    @Override
++    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
++        return false;
++    }
++
++    @Override
++    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
++        return new ArrayList<>();
++    }
++
++    @Override
++    public @NotNull File getDataFolder() {
++        return new File(System.getProperty("user.dir"));
++    }
++
++    @Override
++    public @NotNull PluginDescriptionFile getDescription() {
++        return new PluginDescriptionFile("Folia",
++            "Folia",new ArrayList<>(),
++            "folia.folia.Folia", "",
++            new ArrayList<>(), new ArrayList<>(),
++            new ArrayList<>(), "1.0.0",
++            new HashMap<>(), "Folia Fake Plugin",
++            List.of("PaperMC"), new ArrayList<>(),
++            "https://papermc.io", "Folia",
++            PluginLoadOrder.STARTUP, new ArrayList<>(),
++            PermissionDefault.FALSE, new HashSet<>(),
++            "1.19.4", new ArrayList<>());
++    }
++
++    @NotNull
++    @Override
++    public PluginMeta getPluginMeta() {
++        return getDescription();
++    }
++
++    @Override
++    public @NotNull FileConfiguration getConfig() {
++        return null;
++    }
++
++    @Override
++    public @Nullable InputStream getResource(@NotNull String filename) {
++        return null;
++    }
++
++    @Override
++    public void saveConfig() {
++
++    }
++
++    @Override
++    public void saveDefaultConfig() {
++
++    }
++
++    @Override
++    public void saveResource(@NotNull String resourcePath, boolean replace) {
++
++    }
++
++    @Override
++    public void reloadConfig() {
++
++    }
++
++    @Override
++    public @NotNull PluginLoader getPluginLoader() {
++        Plugin fakePlugin = this;
++        return new PluginLoader() {
++            @Override
++            public @NotNull Plugin loadPlugin(@NotNull File file) throws InvalidPluginException, UnknownDependencyException {
++                return fakePlugin;
++            }
++
++            @Override
++            public @NotNull PluginDescriptionFile getPluginDescription(@NotNull File file) throws InvalidDescriptionException {
++                return getDescription();
++            }
++
++            @Override
++            public @NotNull Pattern[] getPluginFileFilters() {
++                return new Pattern[0];
++            }
++
++            @Override
++            public @NotNull Map<Class<? extends Event>, Set<RegisteredListener>> createRegisteredListeners(@NotNull Listener listener, @NotNull Plugin plugin) {
++                return new HashMap<>();
++            }
++
++            @Override
++            public void enablePlugin(@NotNull Plugin plugin) {
++
++            }
++
++            @Override
++            public void disablePlugin(@NotNull Plugin plugin) {
++
++            }
++        };
++    }
++
++    @Override
++    public @NotNull Server getServer() {
++        return Bukkit.getServer();
++    }
++
++    @Override
++    public boolean isEnabled() {
++        return true;
++    }
++
++    @Override
++    public void onDisable() {
++
++    }
++
++    @Override
++    public void onLoad() {
++
++    }
++
++    @Override
++    public void onEnable() {
++
++    }
++
++    @Override
++    public boolean isNaggable() {
++        return false;
++    }
++
++    @Override
++    public void setNaggable(boolean canNag) {
++
++    }
++
++    @Override
++    public @Nullable ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
++        return MinecraftServer.getServer().server.getGenerator(worldName);
++    }
++
++    @Override
++    public @Nullable BiomeProvider getDefaultBiomeProvider(@NotNull String worldName, @Nullable String id) {
++        return MinecraftServer.getServer().server.getBiomeProvider(worldName);
++    }
++
++    @Override
++    public @NotNull Logger getLogger() {
++        return Bukkit.getLogger();
++    }
++
++    @Override
++    public @NotNull String getName() {
++        return "Folia";
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index eb84a8dd97f92de4a7dd3826d9e124a442cba565..1303244d0501ecc5b1ab045e57cf3844f519feb6 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -3,21 +3,21 @@ package org.bukkit.craftbukkit.scheduler;
+ import co.aikar.timings.MinecraftTimings; // Paper
+ import com.google.common.base.Preconditions;
+ import com.google.common.util.concurrent.ThreadFactoryBuilder;
+-import java.util.ArrayList;
+-import java.util.Comparator;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.PriorityQueue;
+-import java.util.concurrent.Callable;
+-import java.util.concurrent.ConcurrentHashMap;
+-import java.util.concurrent.Executor;
+-import java.util.concurrent.Executors;
+-import java.util.concurrent.Future;
++
++import java.util.*;
++import java.util.concurrent.*;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.Consumer;
+ import java.util.function.IntUnaryOperator;
+ import java.util.logging.Level;
++import com.destroystokyo.paper.ServerSchedulerReportingWrapper;
++import com.destroystokyo.paper.event.server.ServerExceptionEvent;
++import com.destroystokyo.paper.exception.ServerSchedulerException;
++import dev.rgbmc.folia.FakePlugin;
++import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
++import org.apache.commons.lang.Validate;
++import org.bukkit.Bukkit;
+ import org.bukkit.plugin.IllegalPluginAccessException;
+ import org.bukkit.plugin.Plugin;
+ import org.bukkit.scheduler.BukkitRunnable;
+@@ -76,15 +76,15 @@ public class CraftScheduler implements BukkitScheduler {
+      * Main thread logic only
+      */
+     final PriorityQueue<CraftTask> pending = new PriorityQueue<CraftTask>(10, // Paper
+-            new Comparator<CraftTask>() {
+-                @Override
+-                public int compare(final CraftTask o1, final CraftTask o2) {
+-                    int value = Long.compare(o1.getNextRun(), o2.getNextRun());
++        new Comparator<CraftTask>() {
++            @Override
++            public int compare(final CraftTask o1, final CraftTask o2) {
++                int value = Long.compare(o1.getNextRun(), o2.getNextRun());
+ 
+-                    // If the tasks should run on the same tick they should be run FIFO
+-                    return value != 0 ? value : Long.compare(o1.getCreatedAt(), o2.getCreatedAt());
+-                }
+-            });
++                // If the tasks should run on the same tick they should be run FIFO
++                return value != 0 ? value : Long.compare(o1.getCreatedAt(), o2.getCreatedAt());
++            }
++        });
+     /**
+      * Main thread logic only
+      */
+@@ -111,6 +111,8 @@ public class CraftScheduler implements BukkitScheduler {
+     */ // Paper end
+     private static final int RECENT_TICKS;
+ 
++    private static final Map<Integer, ScheduledTask> taskMap = new HashMap<>();
++
+     static {
+         RECENT_TICKS = 30;
+     }
+@@ -272,7 +274,10 @@ public class CraftScheduler implements BukkitScheduler {
+         }
+         // Paper start
+         if (!this.isAsyncScheduler) {
+-            this.asyncScheduler.cancelTask(taskId);
++            //this.asyncScheduler.cancelTask(taskId); // DirtyFolia - Fix bug
++            if (taskMap.containsKey(taskId)) {
++                taskMap.get(taskId).cancel();
++            }
+         }
+         // Paper end
+         CraftTask task = this.runners.get(taskId);
+@@ -280,29 +285,29 @@ public class CraftScheduler implements BukkitScheduler {
+             task.cancel0();
+         }
+         task = new CraftTask(
+-                new Runnable() {
+-                    @Override
+-                    public void run() {
+-                        if (!check(CraftScheduler.this.temp)) {
+-                            check(CraftScheduler.this.pending);
+-                        }
++            new Runnable() {
++                @Override
++                public void run() {
++                    if (!check(CraftScheduler.this.temp)) {
++                        check(CraftScheduler.this.pending);
+                     }
+-                    private boolean check(final Iterable<CraftTask> collection) {
+-                        final Iterator<CraftTask> tasks = collection.iterator();
+-                        while (tasks.hasNext()) {
+-                            final CraftTask task = tasks.next();
+-                            if (task.getTaskId() == taskId) {
+-                                task.cancel0();
+-                                tasks.remove();
+-                                if (task.isSync()) {
+-                                    CraftScheduler.this.runners.remove(taskId);
+-                                }
+-                                return true;
++                }
++                private boolean check(final Iterable<CraftTask> collection) {
++                    final Iterator<CraftTask> tasks = collection.iterator();
++                    while (tasks.hasNext()) {
++                        final CraftTask task = tasks.next();
++                        if (task.getTaskId() == taskId) {
++                            task.cancel0();
++                            tasks.remove();
++                            if (task.isSync()) {
++                                CraftScheduler.this.runners.remove(taskId);
+                             }
++                            return true;
+                         }
+-                        return false;
+                     }
+-                }){{this.timings=co.aikar.timings.MinecraftTimings.getCancelTasksTimer();}}; // Paper
++                    return false;
++                }
++            }){{this.timings=co.aikar.timings.MinecraftTimings.getCancelTasksTimer();}}; // Paper
+         this.handle(task, 0L);
+         for (CraftTask taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
+             if (taskPending == task) {
+@@ -310,6 +315,7 @@ public class CraftScheduler implements BukkitScheduler {
+             }
+             if (taskPending.getTaskId() == taskId) {
+                 taskPending.cancel0();
++                taskMap.remove(taskPending.getTaskId());
+             }
+         }
+     }
+@@ -319,30 +325,30 @@ public class CraftScheduler implements BukkitScheduler {
+         Preconditions.checkArgument(plugin != null, "Cannot cancel tasks of null plugin");
+         // Paper start
+         if (!this.isAsyncScheduler) {
+-            this.asyncScheduler.cancelTasks(plugin);
++            Bukkit.getAsyncScheduler().cancelTasks(plugin);
+         }
+         // Paper end
+         final CraftTask task = new CraftTask(
+-                new Runnable() {
+-                    @Override
+-                    public void run() {
+-                        check(CraftScheduler.this.pending);
+-                        check(CraftScheduler.this.temp);
+-                    }
+-                    void check(final Iterable<CraftTask> collection) {
+-                        final Iterator<CraftTask> tasks = collection.iterator();
+-                        while (tasks.hasNext()) {
+-                            final CraftTask task = tasks.next();
+-                            if (task.getOwner().equals(plugin)) {
+-                                task.cancel0();
+-                                tasks.remove();
+-                                if (task.isSync()) {
+-                                    CraftScheduler.this.runners.remove(task.getTaskId());
+-                                }
++            new Runnable() {
++                @Override
++                public void run() {
++                    check(CraftScheduler.this.pending);
++                    check(CraftScheduler.this.temp);
++                }
++                void check(final Iterable<CraftTask> collection) {
++                    final Iterator<CraftTask> tasks = collection.iterator();
++                    while (tasks.hasNext()) {
++                        final CraftTask task = tasks.next();
++                        if (task.getOwner().equals(plugin)) {
++                            task.cancel0();
++                            tasks.remove();
++                            if (task.isSync()) {
++                                CraftScheduler.this.runners.remove(task.getTaskId());
+                             }
+                         }
+                     }
+-                }){{this.timings=co.aikar.timings.MinecraftTimings.getCancelTasksTimer(plugin);}}; // Paper
++                }
++            }){{this.timings=co.aikar.timings.MinecraftTimings.getCancelTasksTimer(plugin);}}; // Paper
+         this.handle(task, 0L);
+         for (CraftTask taskPending = this.head.getNext(); taskPending != null; taskPending = taskPending.getNext()) {
+             if (taskPending == task) {
+@@ -355,6 +361,7 @@ public class CraftScheduler implements BukkitScheduler {
+         for (CraftTask runner : this.runners.values()) {
+             if (runner.getOwner().equals(plugin)) {
+                 runner.cancel0();
++                taskMap.remove(runner.getTaskId());
+             }
+         }
+     }
+@@ -530,15 +537,66 @@ public class CraftScheduler implements BukkitScheduler {
+     }
+ 
+     protected CraftTask handle(final CraftTask task, final long delay) { // Paper
+-        if (true) throw new UnsupportedOperationException(); // Folia - region threading
++        //if (true) throw new UnsupportedOperationException(); // Folia - region threading // DirtyFolia - Removed check
+         // Paper start
++        Plugin owner = task.getOwner();
++        if (owner == null) {
++            owner = new FakePlugin();
++        }
++        boolean repeat = task.getPeriod() != CraftTask.NO_REPEATING;
+         if (!this.isAsyncScheduler && !task.isSync()) {
+-            this.asyncScheduler.handle(task, delay);
++            long millis_delay = (long) (delay / 20.0 * 1000.0);
++            ScheduledTask scheduledTask;
++            if (millis_delay <= 0) {
++                if (repeat) {
++                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
++                        task.run();
++                    }, 1, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                } else {
++                    scheduledTask = Bukkit.getAsyncScheduler().runNow(owner, stask -> {
++                        task.run();
++                    });
++                }
++            } else {
++                if (repeat) {
++                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
++                        task.run();
++                    }, millis_delay, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                } else {
++                    scheduledTask = Bukkit.getAsyncScheduler().runDelayed(owner, stask -> {
++                        task.run();
++                    }, millis_delay, TimeUnit.MILLISECONDS);
++                }
++            }
++            task.setScheduledTask(scheduledTask);
++            taskMap.put(task.getTaskId(), scheduledTask);
+             return task;
+         }
+         // Paper end
+-        task.setNextRun(this.currentTick + delay);
+-        this.addTask(task);
++        ScheduledTask scheduledTask;
++        if (delay <= 0) {
++            if (repeat) {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
++                    task.run();
++                }, 1L, task.getPeriod());
++            } else {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().run(owner, stask -> {
++                    task.run();
++                });
++            }
++        } else {
++            if (repeat) {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
++                    task.run();
++                }, delay, task.getPeriod());
++            } else {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runDelayed(owner, stask -> {
++                    task.run();
++                }, delay);
++            }
++        }
++        task.setScheduledTask(scheduledTask);
++        taskMap.put(task.getTaskId(), scheduledTask);
+         return task;
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
+index 3f45bab0e9f7b3697e6d9d1092a1e6e579f7066f..e3fab42c01ac75ffbd79f0c93f2e31c8c2b342a6 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
+@@ -3,6 +3,7 @@ package org.bukkit.craftbukkit.scheduler;
+ import java.util.function.Consumer;
+ 
+ import co.aikar.timings.NullTimingHandler;
++import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+ import org.bukkit.Bukkit;
+ import org.bukkit.plugin.Plugin;
+ import org.bukkit.scheduler.BukkitTask;
+@@ -36,6 +37,8 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+     private final int id;
+     private final long createdAt = System.nanoTime();
+ 
++    private ScheduledTask scheduledTask;
++
+     CraftTask() {
+         this(null, null, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
+     }
+@@ -139,12 +142,16 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+ 
+     @Override
+     public boolean isCancelled() {
+-        return (this.period == CraftTask.CANCEL);
++        return scheduledTask.isCancelled();
+     }
+ 
+     @Override
+     public void cancel() {
+-        Bukkit.getScheduler().cancelTask(id);
++        scheduledTask.cancel();
++    }
++
++    protected void setScheduledTask(ScheduledTask scheduledTask) {
++        this.scheduledTask = scheduledTask;
+     }
+ 
+     /**

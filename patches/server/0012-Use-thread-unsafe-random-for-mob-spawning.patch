@@ -1,27 +1,28 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Mon, 10 Jul 2023 16:37:44 +0400
+Date: Sat, 16 Sep 2023 21:33:58 +0400
 Subject: [PATCH] Use-thread-unsafe-random-for-mob-spawning
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index fcfb11595111bcaadbf91d09d66eaeca8b3af0ef..53f0305baa54dc61058f37f48e7a543836f875a3 100644
+index 1042458a5391a4988de7ef64162a560075017d45..987c87ef258a00336d12a6984abde2efb108a86c 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -974,7 +974,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -972,7 +972,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
      }
      // Paper start - optimise random block ticking
      private final ThreadLocal<BlockPos.MutableBlockPos> chunkTickMutablePosition = ThreadLocal.withInitial(() -> new BlockPos.MutableBlockPos()); // Folia - region threading
 -    private final ThreadLocal<io.papermc.paper.util.math.ThreadUnsafeRandom> randomTickRandom = ThreadLocal.withInitial(() -> new io.papermc.paper.util.math.ThreadUnsafeRandom(this.random.nextLong())); // Folia - region threading
-+    private final ThreadLocal<io.papermc.paper.util.math.ThreadUnsafeRandom> randomTickRandom = ThreadLocal.withInitial(() -> new io.papermc.paper.util.math.ThreadUnsafeRandom(this.random.nextLong())); public io.papermc.paper.util.math.ThreadUnsafeRandom getThreadUnsafeRandom() { return this.randomTickRandom.get(); } // Folia - region threading
++    private final ThreadLocal<io.papermc.paper.util.math.ThreadUnsafeRandom> randomTickRandom = ThreadLocal.withInitial(() -> new io.papermc.paper.util.math.ThreadUnsafeRandom(this.random.nextLong()));
++    public io.papermc.paper.util.math.ThreadUnsafeRandom getThreadUnsafeRandom() { return this.randomTickRandom.get(); } // Folia - region threading
      // Paper end
  
-     private int currentIceAndSnowTick = 0;
+     public void tickChunk(LevelChunk chunk, int randomTickSpeed) {
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index ebf4b6c3a1db6407aec0c2801823167663f752fb..2b02998b56efa1ead64be16b455660882f3b09d8 100644
+index 4fc4c2a462f4654ecb7b989419563b2eff3e4336..94c62e50d31b3c85b149ef90e01c0d27fd7d1f11 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-@@ -393,12 +393,12 @@ public final class NaturalSpawner {
+@@ -400,12 +400,12 @@ public final class NaturalSpawner {
          }
      }
  

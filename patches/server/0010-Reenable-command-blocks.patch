@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Wed, 2 Aug 2023 23:36:13 +0400
-Subject: [PATCH] Return-command-block-functionality
+Date: Sat, 16 Sep 2023 21:31:13 +0400
+Subject: [PATCH] Reenable-command-blocks
 
 
 diff --git a/src/main/java/net/minecraft/world/level/BaseCommandBlock.java b/src/main/java/net/minecraft/world/level/BaseCommandBlock.java

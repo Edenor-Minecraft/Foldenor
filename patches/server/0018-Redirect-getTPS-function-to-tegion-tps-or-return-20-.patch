@@ -1,30 +1,32 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AltronMaxX <max06112004@gmail.com>
-Date: Wed, 9 Aug 2023 12:28:10 +0400
-Subject: [PATCH] Redirect-getTPS-function-to-region-tps
+Date: Sat, 16 Sep 2023 21:45:54 +0400
+Subject: [PATCH] Redirect-getTPS-function-to-tegion-tps-or-return-20-tps
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 304c23de46d01a1fbad17273acd0543f74d90775..d473dcd606184fa5649020920371beeda8e9c264 100644
+index d434a3978feea21c339609fc63e24de4cb2d1407..16a219f73acd6e784aaac176ae3bc6f960ee131f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -15,6 +15,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
+@@ -15,6 +15,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
  import com.mojang.datafixers.util.Pair;
  import com.mojang.serialization.DynamicOps;
  import com.mojang.serialization.Lifecycle;
-+import io.papermc.paper.threadedregions.RegionizedServer;
 +import io.papermc.paper.threadedregions.ThreadedRegionizer;
 +import io.papermc.paper.threadedregions.TickRegionScheduler;
 +import io.papermc.paper.threadedregions.TickRegions;
-+import io.papermc.paper.util.TickThread;
  import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  import java.awt.image.BufferedImage;
  import java.io.ByteArrayOutputStream;
-@@ -2901,11 +2906,21 @@ public final class CraftServer implements Server {
+@@ -2937,11 +2940,21 @@ public final class CraftServer implements Server {
      // Paper - Add getTPS API - Further improve tick loop
      @Override
      public double[] getTPS() {
 -        return new double[] {
+-                net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
+-                net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
+-                net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
+-        };
 +        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> curRegion =  TickRegionScheduler.getCurrentRegion();
 +        if (curRegion != null){
 +            return new double[] {
@@ -35,10 +37,9 @@ index 304c23de46d01a1fbad17273acd0543f74d90775..d473dcd606184fa5649020920371beed
 +        }
 +        else{
 +            return new double[] {
-                 net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
-                 net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
-                 net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
--        };
++                20,
++                20,
++                20
 +            };
 +        }
      }

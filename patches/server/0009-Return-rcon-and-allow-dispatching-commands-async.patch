@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 16 Sep 2023 21:29:08 +0400
+Subject: [PATCH] Return-rcon-and-allow-dispatching-commands-async
+
+
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index 2935496c2dbf704f40befe54cb9cd020fb173fe4..47b7a1ef46570efb5ed835e9b015a47db70ad0de 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -764,14 +764,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+     public String runCommand(RconConsoleSource rconConsoleSource, String s) {
+         // Folia start - region threading
+         // RIP RCON
+-        if (true) {
++        // Ha-ha, no
++        /*if (true) {
+             throw new UnsupportedOperationException();
+-        }
++        }*/
+         // Folia end - region threading
+         Waitable[] waitableArray = new Waitable[1]; // Paper
+         rconConsoleSource.prepareForCommand();
+         final java.util.concurrent.atomic.AtomicReference<String> command = new java.util.concurrent.atomic.AtomicReference<>(s); // Paper
+-        this.executeBlocking(() -> {
++        io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTaskWithoutNotify(() ->{
+             CommandSourceStack wrapper = rconConsoleSource.createCommandSourceStack();
+             RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource.getBukkitSender(wrapper), s);
+             server.getPluginManager().callEvent(event);
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 503b3787d39717a9e3022da8e4edf597c9bc594c..098b6e4a56fcb88cf33cb52cd754d6e21f129a75 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1008,7 +1008,7 @@ public final class CraftServer implements Server {
+             });
+         } else {
+             // huh?
+-            throw new UnsupportedOperationException("Dispatching command for " + sender);
++            //throw new UnsupportedOperationException("Dispatching command for " + sender);
+         }
+     }
+     // Folia end - region threading
+@@ -1017,21 +1017,21 @@ public final class CraftServer implements Server {
+     public boolean dispatchCommand(CommandSender sender, String commandLine) {
+         Preconditions.checkArgument(sender != null, "sender cannot be null");
+         Preconditions.checkArgument(commandLine != null, "commandLine cannot be null");
+-        org.spigotmc.AsyncCatcher.catchOp("command dispatch"); // Spigot
++        //org.spigotmc.AsyncCatcher.catchOp("command dispatch"); // Spigot
+ 
+         // Folia start - region threading
+         if ((sender instanceof Entity entity)) {
+             io.papermc.paper.util.TickThread.ensureTickThread(((org.bukkit.craftbukkit.entity.CraftEntity)entity).getHandle(), "Dispatching command async");
+         } else if (sender instanceof ConsoleCommandSender console) {
+-            io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
++            //io.papermc.paper.threadedregions.RegionizedServer.ensureGlobalTickThread("Dispatching command async");
+         } else {
+             // huh?
+-            throw new UnsupportedOperationException("Dispatching command for " + sender);
++           // throw new UnsupportedOperationException("Dispatching command for " + sender);
+         }
+         // Folia end - region threading
+ 
+         // Paper Start
+-        if (!org.spigotmc.AsyncCatcher.shuttingDown && !Bukkit.isPrimaryThread()) {
++        if (/*!org.spigotmc.AsyncCatcher.shuttingDown && */!Bukkit.isPrimaryThread()) {
+             final CommandSender fSender = sender;
+             final String fCommandLine = commandLine;
+             Bukkit.getLogger().log(Level.SEVERE, "Command Dispatched Async: " + commandLine);

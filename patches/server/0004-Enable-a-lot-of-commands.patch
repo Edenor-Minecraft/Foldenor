@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 16 Sep 2023 21:08:18 +0400
+Subject: [PATCH] Enable-a-lot-of-commands
+
+
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index 681cd79ce24fe5d952e987d46e2fd8df07a0f8a1..996d9188ae6d0bf978927afd03577e62343039df 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -148,8 +148,8 @@ public class Commands {
+         ClearInventoryCommands.register(this.dispatcher, commandRegistryAccess);
+         //CloneCommands.register(this.dispatcher, commandRegistryAccess); // Folia - region threading - TODO
+         DamageCommand.register(this.dispatcher, commandRegistryAccess);
+-        //DataCommands.register(this.dispatcher); // Folia - region threading - TODO
+-        //DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
++        DataCommands.register(this.dispatcher); // Folia - region threading - TODO
++        DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
+         //DebugCommand.register(this.dispatcher); // Folia - region threading - TODO
+         DefaultGameModeCommands.register(this.dispatcher);
+         DifficultyCommand.register(this.dispatcher);
+@@ -160,7 +160,7 @@ public class Commands {
+         FillCommand.register(this.dispatcher, commandRegistryAccess);
+         FillBiomeCommand.register(this.dispatcher, commandRegistryAccess);
+         ForceLoadCommand.register(this.dispatcher);
+-        //FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
++        FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
+         GameModeCommand.register(this.dispatcher);
+         GameRuleCommand.register(this.dispatcher);
+         GiveCommand.register(this.dispatcher, commandRegistryAccess);
+@@ -178,19 +178,19 @@ public class Commands {
+         //ReloadCommand.register(this.dispatcher); // Folia - region threading
+         RecipeCommand.register(this.dispatcher);
+         //ReturnCommand.register(this.dispatcher); // Folia - region threading - TODO later
+-        //RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         SayCommand.register(this.dispatcher);
+         //ScheduleCommand.register(this.dispatcher); // Folia - region threading
+-        //ScoreboardCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        ScoreboardCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         SeedCommand.register(this.dispatcher, environment != Commands.CommandSelection.INTEGRATED);
+         SetBlockCommand.register(this.dispatcher, commandRegistryAccess);
+         SetSpawnCommand.register(this.dispatcher);
+         SetWorldSpawnCommand.register(this.dispatcher);
+-        //SpectateCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        SpectateCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //SpreadPlayersCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         StopSoundCommand.register(this.dispatcher);
+         SummonCommand.register(this.dispatcher, commandRegistryAccess);
+-        //TagCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        TagCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //TeamCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //TeamMsgCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         TeleportCommand.register(this.dispatcher);
+@@ -199,7 +199,7 @@ public class Commands {
+         TitleCommand.register(this.dispatcher);
+         //TriggerCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         WeatherCommand.register(this.dispatcher);
+-        //WorldBorderCommand.register(this.dispatcher); // Folia - region threading - TODO later
++        WorldBorderCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         if (JvmProfiler.INSTANCE.isAvailable()) {
+             JfrCommand.register(this.dispatcher);
+         }
