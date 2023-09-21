@@ -27,7 +27,7 @@ index 9ee90bc753e65f9dd532f28ec75cc16bf16486c8..95c176522ffa263b27ce3ce6a613ea9c
              "Specification-Title" to "Bukkit",
              "Specification-Version" to project.version,
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index cb60d58d4a7556dd896f31d0cd249f860bb3ef84..3d1ed00e576f6e6663dc172d2dbab9a837974c48 100644
+index cb60d58d4a7556dd896f31d0cd249f860bb3ef84..04403a5dadc5a4d2d5503a57c49011cba90b1105 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
 @@ -593,7 +593,7 @@ public class Metrics {
@@ -39,10 +39,11 @@ index cb60d58d4a7556dd896f31d0cd249f860bb3ef84..3d1ed00e576f6e6663dc172d2dbab9a8
  
                  metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
                      String minecraftVersion = Bukkit.getVersion();
-@@ -612,6 +612,7 @@ public class Metrics {
+@@ -611,7 +611,7 @@ public class Metrics {
+                 } else {
                      paperVersion = "unknown";
                  }
-                 metrics.addCustomChart(new Metrics.SimplePie("folia_version", () -> paperVersion)); // Folia - we have our own bstats page
+-                metrics.addCustomChart(new Metrics.SimplePie("folia_version", () -> paperVersion)); // Folia - we have our own bstats page
 +                metrics.addCustomChart(new Metrics.SimplePie("foldenor_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown"));
  
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
@@ -80,6 +81,18 @@ index e2f704c115fd6e00960bb56bb0779f1100c89c17..d77980fe69758834ffded0d24c2436e6
                  org.bukkit.Bukkit.getLogger().warning("Pattern: " + VER_PATTERN.toString());
                  org.bukkit.Bukkit.getLogger().warning("Version: " + org.bukkit.Bukkit.getBukkitVersion());
              }
+diff --git a/src/main/java/net/minecraft/CrashReport.java b/src/main/java/net/minecraft/CrashReport.java
+index abe37c7c3c6f5ab73afd738ec78f06d7e4d2ed96..58807975d3b15b9170019cbb0c8f065b907bce23 100644
+--- a/src/main/java/net/minecraft/CrashReport.java
++++ b/src/main/java/net/minecraft/CrashReport.java
+@@ -123,6 +123,7 @@ public class CrashReport {
+         StringBuilder stringbuilder = new StringBuilder();
+ 
+         stringbuilder.append("---- Minecraft Crash Report ----\n");
++        stringbuilder.append("// DO NOT REPORT THIS TO FOLIA! REPORT TO FOLDENOR INSTEAD!");
+         stringbuilder.append("// ");
+         stringbuilder.append(CrashReport.getErrorComment());
+         stringbuilder.append("\n\n");
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
 index 75eb95c330d6ab7ac1e4a69da13695bbd40f894e..f997a8c44c5930f84c938f6792b8df2b04e9b2f9 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
