@@ -1,0 +1,128 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 21 Sep 2023 19:35:05 +0400
+Subject: [PATCH] Fix-server-crash-when-teleport-player-while-spectate
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 04403a5dadc5a4d2d5503a57c49011cba90b1105..83a98ed3a8331e5e042dbd4c9500472a7ed4e271 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -607,7 +607,7 @@ public class Metrics {
+                 final String implVersion = org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion();
+                 if (implVersion != null) {
+                     final String buildOrHash = implVersion.substring(implVersion.lastIndexOf('-') + 1);
+-                    paperVersion = "git-Folia-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash); // Folia - we have our own bstats page
++                    paperVersion = "git-Foldenor-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash); // Folia - we have our own bstats page
+                 } else {
+                     paperVersion = "unknown";
+                 }
+diff --git a/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java b/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java
+index 7b31c4ea6d01f936271bdadc3626201dcf32a683..b4dfd7a72c26bfde586c3cf854e7dfe69cb11ebe 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java
++++ b/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java
+@@ -1,6 +1,7 @@
+ package io.papermc.paper.threadedregions;
+ 
+ import ca.spottedleaf.concurrentutil.completable.Completable;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.phys.Vec3;
+ import org.bukkit.Location;
+@@ -25,6 +26,15 @@ public final class TeleportUtils {
+                 }
+                 final boolean scheduled = from.getBukkitEntity().taskScheduler.schedule(
+                     (final Entity realFrom) -> {
++
++                        if (realFrom instanceof ServerPlayer player){
++                            if (player.isSpectator()){
++                                if (player.isSpectator() && player.getCamera() != player){
++                                    player.setCamera(player);
++                                }
++                            }
++                        }
++
+                         final Vec3 pos = new Vec3(
+                             loc.getX(), loc.getY(), loc.getZ()
+                         );
+diff --git a/src/main/java/net/minecraft/server/commands/TeleportCommand.java b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
+index 15c4fa89e1f1dbc80055f6f92904d1cc05a24dba..d81472a5f9aaa9dc7a6bd2eb5a968b153eba5a66 100644
+--- a/src/main/java/net/minecraft/server/commands/TeleportCommand.java
++++ b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
+@@ -32,6 +32,7 @@ import net.minecraft.world.entity.RelativeMovement;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.Vec2;
+ import net.minecraft.world.phys.Vec3;
++import net.minecraft.world.entity.player.Player;
+ // CraftBukkit start
+ import org.bukkit.Location;
+ import org.bukkit.craftbukkit.CraftWorld;
+@@ -72,11 +73,26 @@ public class TeleportCommand {
+     }
+ 
+     private static int teleportToEntity(CommandSourceStack source, Collection<? extends Entity> targets, Entity destination) throws CommandSyntaxException {
++
++        if (source.getPlayer() != null){
++            ServerPlayer sender = source.getPlayer();
++            if (sender.isSpectator() && sender.getCamera() != sender){
++                sender.setCamera(sender);
++            }
++        }
++
+         Iterator iterator = targets.iterator();
+ 
+         while (iterator.hasNext()) {
+             Entity entity1 = (Entity) iterator.next();
+ 
++            if (entity1.isSpectator()){
++                ServerPlayer sender = (ServerPlayer) entity1;
++                if (sender.getCamera() != sender){
++                    sender.setCamera(sender);
++                }
++            }
++
+             io.papermc.paper.threadedregions.TeleportUtils.teleport(entity1, false, destination, Float.valueOf(destination.getYRot()), Float.valueOf(destination.getXRot()), Entity.TELEPORT_FLAG_LOAD_CHUNK, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND, null); // Folia - region threading
+         }
+ 
+@@ -94,6 +110,13 @@ public class TeleportCommand {
+     }
+ 
+     private static int teleportToPos(CommandSourceStack source, Collection<? extends Entity> targets, ServerLevel world, Coordinates location, @Nullable Coordinates rotation, @Nullable TeleportCommand.LookAt facingLocation) throws CommandSyntaxException {
++        if (source.getPlayer() != null){
++            ServerPlayer sender = source.getPlayer();
++            if (sender.isSpectator() && sender.getCamera() != sender){
++                sender.setCamera(sender);
++            }
++        }
++
+         Vec3 vec3d = location.getPosition(source);
+         Vec2 vec2f = rotation == null ? null : rotation.getRotation(source);
+         Set<RelativeMovement> set = EnumSet.noneOf(RelativeMovement.class);
+@@ -128,6 +151,13 @@ public class TeleportCommand {
+         while (iterator.hasNext()) {
+             Entity entity = (Entity) iterator.next();
+ 
++            if (entity.isSpectator()){
++                ServerPlayer sender = (ServerPlayer) entity;
++                if (sender.isSpectator() && sender.getCamera() != sender){
++                    sender.setCamera(sender);
++                }
++            }
++
+             if (rotation == null) {
+                 TeleportCommand.performTeleport(source, entity, world, vec3d.x, vec3d.y, vec3d.z, set, entity.getYRot(), entity.getXRot(), facingLocation);
+             } else {
+@@ -168,6 +198,13 @@ public class TeleportCommand {
+                 Float yawFinal = Float.valueOf(f2);
+                 Float pitchFinal = Float.valueOf(f3);
+                 target.getBukkitEntity().taskScheduler.schedule((nmsEntity) -> {
++                    if (nmsEntity instanceof ServerPlayer player){
++                        if (player.isSpectator()){
++                            if (player.isSpectator() && player.getCamera() != player){
++                                player.setCamera(player);
++                            }
++                        }
++                    }
+                     nmsEntity.unRide();
+                     nmsEntity.teleportAsync(
+                         worldFinal, posFinal, yawFinal, pitchFinal, Vec3.ZERO,
