@@ -27,22 +27,7 @@ index 0db571d23bc730372f6811052779661f7d95a354..9a79e75424fc912689cb2119334e36a0
              CommandSourceStack wrapper = rconConsoleSource.createCommandSourceStack();
              RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource.getBukkitSender(wrapper), s);
              server.getPluginManager().callEvent(event);
-diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index af739286a752b50a2e207d243cd393e492729441..95ab22cfab33a2dcb094cfd80148033f3c4bc52b 100644
---- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
-+++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -3720,7 +3720,11 @@ public abstract class LivingEntity extends Entity implements Attackable {
-             Vec3 vec3d1 = new Vec3(entity.getX(), entity.getEyeY(), entity.getZ());
- 
-             // Paper - diff on change - used in CraftLivingEntity#hasLineOfSight(Location) and CraftWorld#lineOfSightExists
-+<<<<<<< HEAD
-             return vec3d1.distanceToSqr(vec3d) > 128.0D * 128.0D ? false : this.level().clipDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == HitResult.Type.MISS; // Paper
-+=======
-+            return vec3d1.distanceToSqr(vec3d) > 128.0D * 180.0D? false : this.level().clipDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == HitResult.Type.MISS; // Paper
-+>>>>>>> Line-of-sight-changes
-         }
-     }
- 
+
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 index d95cb97098afce6e35d3c55bfb9ac3902acc5bfc..98eb9b3b760e7d865f1e88177011500ee07a1bbb 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
