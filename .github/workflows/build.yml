@@ -2,11 +2,11 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "1.20.2" ]
   workflow_dispatch:
 
 jobs:
-  compile_1_20_1_core_jar:
+  compile_1_20_2_core_jar:
     runs-on: windows-latest
     
     permissions:
@@ -42,11 +42,11 @@ jobs:
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
-          name: "1.20.1 build ${{github.run_number}}"
+          name: "1.20.2 build ${{github.run_number}}"
           body: |
             Foldenor build
-            Version: 1.20.1
-          tag_name: "latest_1.20.1_${{github.run_number}}"
+            Version: 1.20.2
+          tag_name: "latest_1.20.2_${{github.run_number}}"
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
