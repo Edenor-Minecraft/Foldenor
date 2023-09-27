@@ -5,7 +5,7 @@ Subject: [PATCH] Send-null-entity-packets-and-vanilla-end-portal-teleportation
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
-index 196280f54e397c69d32bd4d1f6ae666efdd93773..b9a08e69dc1ad5a8f15128ac7deba47c71aff871 100644
+index 892a334d1b1c0784ed6838d1aa066403998b9a9f..fba9fe849ea7df41023a59dfffeebc79ac74c184 100644
 --- a/src/main/java/net/minecraft/server/level/ServerEntity.java
 +++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
 @@ -46,6 +46,7 @@ import net.minecraft.server.network.ServerPlayerConnection;
@@ -16,7 +16,7 @@ index 196280f54e397c69d32bd4d1f6ae666efdd93773..b9a08e69dc1ad5a8f15128ac7deba47c
  // CraftBukkit end
  
  public class ServerEntity {
-@@ -201,6 +202,9 @@ public class ServerEntity {
+@@ -198,6 +199,9 @@ public class ServerEntity {
                          flag4 = true;
                          flag5 = true;
                      }
@@ -26,7 +26,7 @@ index 196280f54e397c69d32bd4d1f6ae666efdd93773..b9a08e69dc1ad5a8f15128ac7deba47c
                  }
  
                  if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) && this.tickCount > 0) {
-@@ -267,6 +271,18 @@ public class ServerEntity {
+@@ -264,6 +268,18 @@ public class ServerEntity {
  
      }
  
@@ -46,7 +46,7 @@ index 196280f54e397c69d32bd4d1f6ae666efdd93773..b9a08e69dc1ad5a8f15128ac7deba47c
          return lastPassengers.stream().filter((entity) -> {
              return !passengers.contains(entity);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 6331a7b75bcfd935d42692143c9e6ab6098bc23d..ab63ad0e31cf2d74f6df09293da9ad658912fbe1 100644
+index 84bea6c59172db3aeca4040c94de3222d403cf3f..44c504c16c99bf29091493b012afc093d7a47557 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -24,6 +24,8 @@ import java.util.function.BiConsumer;
@@ -58,7 +58,7 @@ index 6331a7b75bcfd935d42692143c9e6ab6098bc23d..ab63ad0e31cf2d74f6df09293da9ad65
  import net.minecraft.BlockUtil;
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
-@@ -4084,9 +4086,22 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4108,9 +4110,22 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
                              // the portal obsidian is placed at targetPos.y - 2, so if we want to place the entity
                              // on the obsidian, we need to spawn at targetPos.y - 1

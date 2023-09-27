@@ -5,7 +5,7 @@ Subject: [PATCH] Multiply-spawn-limit-on-player-count-in-region
 
 
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index a60e63dce1869c41fe4ff97901b7143e54d1a090..4fc4c2a462f4654ecb7b989419563b2eff3e4336 100644
+index 5caca2a34849189ea42d2699f6d8672e0d7251cb..5597312731216debdb7e7accc585e04719f32996 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 @@ -1,6 +1,7 @@
@@ -16,7 +16,7 @@ index a60e63dce1869c41fe4ff97901b7143e54d1a090..4fc4c2a462f4654ecb7b989419563b2e
  import it.unimi.dsi.fastutil.objects.Object2IntMap;
  import it.unimi.dsi.fastutil.objects.Object2IntMaps;
  import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-@@ -143,7 +144,7 @@ public final class NaturalSpawner {
+@@ -147,7 +148,7 @@ public final class NaturalSpawner {
              SpawnCategory spawnCategory = CraftSpawnCategory.toBukkit(enumcreaturetype);
              if (CraftSpawnCategory.isValidForLimits(spawnCategory)) {
                  spawnThisTick = world.ticksPerSpawnCategory.getLong(spawnCategory) != 0 && world.getRedstoneGameTime() % world.ticksPerSpawnCategory.getLong(spawnCategory) == 0; // Folia - region threading

@@ -5,10 +5,10 @@ Subject: [PATCH] Teleport-async-if-we-cannot-move-entity-off-main
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 91d96f89f33668a38c158c1bc1f76577d71514db..6331a7b75bcfd935d42692143c9e6ab6098bc23d 100644
+index e1b6673729e71bdc929bc7b76983108a59e55891..84bea6c59172db3aeca4040c94de3222d403cf3f 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1122,7 +1122,16 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -1110,7 +1110,16 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
                      }
                  }
  
@@ -26,7 +26,7 @@ index 91d96f89f33668a38c158c1bc1f76577d71514db..6331a7b75bcfd935d42692143c9e6ab6
              }
  
              this.level().getProfiler().pop();
-@@ -3911,13 +3920,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -3935,13 +3944,13 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
          // check for same region
          if (destination == this.level()) {
              Vec3 currPos = this.position();

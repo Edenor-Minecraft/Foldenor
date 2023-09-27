@@ -5,7 +5,7 @@ Subject: [PATCH] Do-not-send-chunk-if-it-was-already-sent
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
-index c5df121d6194a97b20dc390698991b9c72dba538..76c6bf3e416cc2a6bc0d85716c7f3ce12aa8c96f 100644
+index 07abf5a326cc7aa8a449b74bd7ac8a43b98528c0..8c2357a79904da05bdb4fbbbc9230664aae809a5 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/RegionizedPlayerChunkLoader.java
 @@ -480,6 +480,10 @@ public class RegionizedPlayerChunkLoader {
@@ -17,5 +17,5 @@ index c5df121d6194a97b20dc390698991b9c72dba538..76c6bf3e416cc2a6bc0d85716c7f3ce1
 +            }
 +
              if (this.sentChunks.add(CoordinateUtils.getChunkKey(chunkX, chunkZ))) {
-                 this.world.getChunkSource().chunkMap.updateChunkTracking(this.player,
-                     new ChunkPos(chunkX, chunkZ), new MutableObject<>(), false, true); // unloaded, loaded
+                 PlayerChunkSender.sendChunk(this.player.connection, this.world, this.world.getChunkIfLoaded(chunkX, chunkZ));
+                 return;

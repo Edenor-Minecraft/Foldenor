@@ -4,12 +4,28 @@ Date: Sat, 16 Sep 2023 21:20:41 +0400
 Subject: [PATCH] Add-config
 
 
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 4d5be77d9e99a6783d653935c3ea359a7647b9a9..394b9288dd01a6102f1ba57b8a1e2530ec8f6909 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -214,9 +214,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
+         elements.filterNot { file -> file.asFile.endsWith("minecraft.jar") }
+     }
+ }
+-tasks.registerRunTask("runDev") {
++/*tasks.registerRunTask("runDev") {
+     description = "Spin up a non-relocated Mojang-mapped test server"
+     classpath(tasks.filterProjectDir.flatMap { it.outputJar })
+     classpath(runtimeClasspathForRunDev)
+     jvmArgs("-DPaper.isRunDev=true")
+-}
++}*/
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..b4c760a05e204a7a355f37c31ef2929d56bc2388
+index 0000000000000000000000000000000000000000..748a78a092067ccb2c9ebb650860765180703b8f
 --- /dev/null
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -0,0 +1,186 @@
+@@ -0,0 +1,183 @@
 +package net.edenor.foldenor.config;
 +
 +import com.google.common.base.Throwables;
@@ -34,8 +50,6 @@ index 0000000000000000000000000000000000000000..b4c760a05e204a7a355f37c31ef2929d
 +
 +    public static int version;
 +    static boolean verbose;
-+
-+    public static boolean alternateKeepAlive = false;
 +
 +    public static boolean sendNullEntityPackets = true;
 +
@@ -108,7 +122,6 @@ index 0000000000000000000000000000000000000000..b4c760a05e204a7a355f37c31ef2929d
 +    }
 +
 +    private static void networkSettings() {
-+        alternateKeepAlive = getBoolean("network.alternate-keepalive", alternateKeepAlive);
 +        sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);
 +    }
 +
@@ -197,7 +210,7 @@ index 0000000000000000000000000000000000000000..b4c760a05e204a7a355f37c31ef2929d
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index c5dfd99a38a79fd19a2bf85fa297a28e40612b51..2935496c2dbf704f40befe54cb9cd020fb173fe4 100644
+index a9fe3d1c0fc217bd32e884c9e75c906d8b4bf967..0db571d23bc730372f6811052779661f7d95a354 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -19,6 +19,8 @@ import java.util.Locale;
@@ -223,7 +236,7 @@ index c5dfd99a38a79fd19a2bf85fa297a28e40612b51..2935496c2dbf704f40befe54cb9cd020
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 2001b26c058bea99df5df9cea568e725908184a5..503b3787d39717a9e3022da8e4edf597c9bc594c 100644
+index 64df07aa5855626bf69fdcc4f505d3661b9c7ebc..d95cb97098afce6e35d3c55bfb9ac3902acc5bfc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -45,6 +45,7 @@ import java.util.logging.Logger;
@@ -233,8 +246,8 @@ index 2001b26c058bea99df5df9cea568e725908184a5..503b3787d39717a9e3022da8e4edf597
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.edenor.foldenor.secureseed.Globals;
  import net.minecraft.advancements.Advancement;
- import net.minecraft.commands.CommandSourceStack;
-@@ -323,6 +324,10 @@ public final class CraftServer implements Server {
+ import net.minecraft.advancements.AdvancementHolder;
+@@ -325,6 +326,10 @@ public final class CraftServer implements Server {
          return this.asyncScheduler;
      }
  
@@ -245,7 +258,7 @@ index 2001b26c058bea99df5df9cea568e725908184a5..503b3787d39717a9e3022da8e4edf597
      @Override
      public final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler getGlobalRegionScheduler() {
          return this.globalRegionScheduler;
-@@ -1100,6 +1105,7 @@ public final class CraftServer implements Server {
+@@ -1082,6 +1087,7 @@ public final class CraftServer implements Server {
  
          org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
          this.console.paperConfigurations.reloadConfigs(this.console);
@@ -254,7 +267,7 @@ index 2001b26c058bea99df5df9cea568e725908184a5..503b3787d39717a9e3022da8e4edf597
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index 776b7fc26fe96b69be260bbd36efae147d988640..d3fb1f8dd047ae44cd17794d2be945a2b484d3fe 100644
+index e7746952417a3ca4ea97103e38568db42039f717..ee56b743e0947d1fa4a11f3cc3b7fff2357122c1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -173,6 +173,12 @@ public class Main {

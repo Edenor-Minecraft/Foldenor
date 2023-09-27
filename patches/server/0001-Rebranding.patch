@@ -5,7 +5,7 @@ Subject: [PATCH] Rebranding
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 9ee90bc753e65f9dd532f28ec75cc16bf16486c8..95c176522ffa263b27ce3ce6a613ea9cd4c45480 100644
+index 521ff85fcf10fc85fe706d6fa3778e0569551829..4d5be77d9e99a6783d653935c3ea359a7647b9a9 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -14,7 +14,7 @@ val alsoShade: Configuration by configurations.creating
@@ -82,7 +82,7 @@ index e2f704c115fd6e00960bb56bb0779f1100c89c17..d77980fe69758834ffded0d24c2436e6
                  org.bukkit.Bukkit.getLogger().warning("Version: " + org.bukkit.Bukkit.getBukkitVersion());
              }
 diff --git a/src/main/java/net/minecraft/CrashReport.java b/src/main/java/net/minecraft/CrashReport.java
-index abe37c7c3c6f5ab73afd738ec78f06d7e4d2ed96..58807975d3b15b9170019cbb0c8f065b907bce23 100644
+index 1d714d3eff11ed14f218656008190017494d4830..f12730abec2e4998f712efcb8b51314c7ea7a814 100644
 --- a/src/main/java/net/minecraft/CrashReport.java
 +++ b/src/main/java/net/minecraft/CrashReport.java
 @@ -123,6 +123,7 @@ public class CrashReport {
@@ -94,10 +94,10 @@ index abe37c7c3c6f5ab73afd738ec78f06d7e4d2ed96..58807975d3b15b9170019cbb0c8f065b
          stringbuilder.append(CrashReport.getErrorComment());
          stringbuilder.append("\n\n");
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 75eb95c330d6ab7ac1e4a69da13695bbd40f894e..f997a8c44c5930f84c938f6792b8df2b04e9b2f9 100644
+index f9cf331202d0768a054e575c8909369920b3d59f..7c3c862e0cda474a46b32aee6b3c59af97878a6d 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1811,7 +1811,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1816,7 +1816,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
@@ -107,10 +107,10 @@ index 75eb95c330d6ab7ac1e4a69da13695bbd40f894e..f997a8c44c5930f84c938f6792b8df2b
  
      public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index a8bf1f542ab20eb7c40c80b5e42b55982677373d..05b840b157cf209125fb768162c294c5833d301b 100644
+index 249ff636a40f6493444a6ea8b8a5e017cb2c30eb..cb80230cb73761a063690be4cf11b2da5b2e958f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -265,7 +265,7 @@ import javax.annotation.Nullable; // Paper
+@@ -267,7 +267,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {

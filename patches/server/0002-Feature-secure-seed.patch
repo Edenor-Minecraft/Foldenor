@@ -383,7 +383,7 @@ index 342362c217df5476a927eb54cef3cafcea3889fd..097f549a0275846199f3ba929f3cb0d9
          }));
      }
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
-index 818289e831e3dad29345c43265e2efd7689bc500..fe0c1455abb7910c1c43ba8fbb911d025a0fbf23 100644
+index c5598adb8cbcbcf7277c2fd4dd72c243d44d9700..4544b6234fc356e7a06c462f5f136a4891965fce 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
 @@ -44,6 +44,7 @@ import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
@@ -394,7 +394,7 @@ index 818289e831e3dad29345c43265e2efd7689bc500..fe0c1455abb7910c1c43ba8fbb911d02
  
  // CraftBukkit start
  import joptsimple.OptionSet;
-@@ -159,7 +160,17 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
+@@ -161,7 +162,17 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
          boolean flag = this.get("generate-structures", true);
          long i = WorldOptions.parseSeed(s).orElse(WorldOptions.randomSeed());
  
@@ -414,18 +414,19 @@ index 818289e831e3dad29345c43265e2efd7689bc500..fe0c1455abb7910c1c43ba8fbb911d02
              return GsonHelper.parse(!s1.isEmpty() ? s1 : "{}");
          }, new JsonObject()), (String) this.get("level-type", (s1) -> {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index af35fd63b090aa3d89bc60cb9cb7694b5f502681..0dcec200f9dea860d3f9d1f10eeff99d8186605a 100644
+index 18735dbd0d2bae1576d2bdb7402d98e9affbd599..8e24fe638a6f43baf86ffc03082667c1e25dc398 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-@@ -49,6 +49,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
+@@ -48,6 +48,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
+ import net.minecraft.world.level.storage.DimensionDataStorage;
  import net.minecraft.world.level.storage.LevelData;
  import net.minecraft.world.level.storage.LevelStorageSource;
- import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet; // Paper
++import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet; // Paper
 +import net.edenor.foldenor.secureseed.Globals;
  
  public class ServerChunkCache extends ChunkSource {
  
-@@ -654,6 +655,7 @@ public class ServerChunkCache extends ChunkSource {
+@@ -673,6 +675,7 @@ public class ServerChunkCache extends ChunkSource {
      }
  
      public ChunkGenerator getGenerator() {
@@ -434,7 +435,7 @@ index af35fd63b090aa3d89bc60cb9cb7694b5f502681..0dcec200f9dea860d3f9d1f10eeff99d
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index cf8f93734121e5c1959959f0ba13ee4e6db31959..1042458a5391a4988de7ef64162a560075017d45 100644
+index 8b41da9d1f43340b6ba3812a93f681419d0d7cd8..7218200b140f658ae3009c1a423124cd4287dcbd 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -177,6 +177,7 @@ import org.bukkit.event.world.GenericGameEvent;
@@ -445,7 +446,7 @@ index cf8f93734121e5c1959959f0ba13ee4e6db31959..1042458a5391a4988de7ef64162a5600
  
  public class ServerLevel extends Level implements WorldGenLevel {
  
-@@ -691,6 +692,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -806,6 +807,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
              chunkgenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkgenerator, gen);
          }
          // CraftBukkit end
@@ -453,11 +454,79 @@ index cf8f93734121e5c1959959f0ba13ee4e6db31959..1042458a5391a4988de7ef64162a5600
          boolean flag2 = minecraftserver.forceSynchronousWrites();
          DataFixer datafixer = minecraftserver.getFixerUpper();
          this.entityStorage = new EntityRegionFileStorage(convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), flag2); // Paper - rewrite chunk system  //EntityPersistentStorage<Entity> entitypersistentstorage = new EntityStorage(this, convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), datafixer, flag2, minecraftserver);
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 10ce902a1ce857db5376c8318ba0e67b53883873..ca2f411392a453ddd031dd755e163a8c2f4da03b 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -29,6 +29,8 @@ import java.util.function.UnaryOperator;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.Util;
+@@ -251,6 +253,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     public final PlayerChunkSender chunkSender;
+     private int tickCount;
+     private int ackBlockChangesUpTo = -1;
++<<<<<<< HEAD
++=======
++    private long keepAliveTime = Util.getMillis();
++    private boolean keepAlivePending;
++    private long keepAliveChallenge;
++    private it.unimi.dsi.fastutil.longs.LongList keepAlives = new it.unimi.dsi.fastutil.longs.LongArrayList();
++>>>>>>> Add-alternative-keepalive
+     // CraftBukkit start - multithreaded fields
+     private final AtomicInteger chatSpamTickCount = new AtomicInteger();
+     private final java.util.concurrent.atomic.AtomicInteger tabSpamLimiter = new java.util.concurrent.atomic.AtomicInteger(); // Paper - configurable tab spam limits
+@@ -328,6 +337,40 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     private static final java.util.concurrent.atomic.AtomicLong DISCONNECT_TICKET_ID_GENERATOR = new java.util.concurrent.atomic.AtomicLong();
+     public static final net.minecraft.server.level.TicketType<Long> DISCONNECT_TICKET = net.minecraft.server.level.TicketType.create("disconnect_ticket", Long::compareTo);
+     public final Long disconnectTicketId = Long.valueOf(DISCONNECT_TICKET_ID_GENERATOR.getAndIncrement());
++<<<<<<< HEAD
++=======
++
++    private void checkKeepAlive() {
++        long currentTime = Util.getMillis();
++        long elapsedTime = currentTime - this.keepAliveTime;
++
++        if (FoldenorConfig.alternateKeepAlive) {
++            if (elapsedTime >= 1000L) { // 1 second
++                if (!processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
++                    LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName());
++                    disconnect(Component.translatable("disconnect.timeout"), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT);
++                } else {
++                    keepAliveTime = currentTime; // hijack this field for 1 second intervals
++                    keepAlives.add(currentTime); // currentTime is ID
++                    send(new ClientboundKeepAlivePacket(currentTime));
++                }
++            }
++        } else
++            if (this.keepAlivePending) {
++                if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected
++                    ServerGamePacketListenerImpl.LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName()); // more info
++                    this.disconnect(Component.translatable("disconnect.timeout", new Object[0]), org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++                }
++            } else {
++                if (elapsedTime >= 15000L) { // 15 seconds
++                    this.keepAlivePending = true;
++                    this.keepAliveTime = currentTime;
++                    this.keepAliveChallenge = currentTime;
++                    this.send(new ClientboundKeepAlivePacket(this.keepAliveChallenge));
++                }
++            }
++    }
++>>>>>>> Add-alternative-keepalive
+     // Folia end - region threading
+ 
+     @Override
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Slime.java b/src/main/java/net/minecraft/world/entity/monster/Slime.java
-index 343433158507451152e5b2fc5e5fd0b0e6b229db..57a62873daa4113be9466d0514f8cb4216099b96 100644
+index b14979ab7bed34a37fceff5589ecb789bab31318..7463140f9d5afcfc02d02535c1d56ab750c45010 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Slime.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/Slime.java
-@@ -340,7 +340,7 @@ public class Slime extends Mob implements Enemy {
+@@ -347,7 +347,7 @@ public class Slime extends Mob implements Enemy {
              }
  
              ChunkPos chunkcoordintpair = new ChunkPos(pos);
@@ -817,10 +886,10 @@ index 594a2dd3b1d4c29c969d1992b8e93795da00e682..1fcde46e50b6840449c5e082de56faed
          return worldgenRandom.nextInt((int)(1.0F / frequency)) == 0;
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
-index 883eed6e92792e225ebfa8667ce3f4eeb6287d6a..52d7397a7f28922fb42ec7b328e0d3c23d8f819f 100644
+index 2b138ee73efb8365aa362e08bfb785e3c1aedabb..c6e9291a9e4016e32dd1074acde37e1dcb9c5129 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
-@@ -198,7 +198,7 @@ public class CraftChunk implements Chunk {
+@@ -199,7 +199,7 @@ public class CraftChunk implements Chunk {
      @Override
      public boolean isSlimeChunk() {
          // 987234911L is deterimined in EntitySlime when seeing if a slime can spawn in a chunk
@@ -830,7 +899,7 @@ index 883eed6e92792e225ebfa8667ce3f4eeb6287d6a..52d7397a7f28922fb42ec7b328e0d3c2
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 05b840b157cf209125fb768162c294c5833d301b..2001b26c058bea99df5df9cea568e725908184a5 100644
+index cb80230cb73761a063690be4cf11b2da5b2e958f..64df07aa5855626bf69fdcc4f505d3661b9c7ebc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -44,6 +44,8 @@ import java.util.logging.Level;
@@ -840,9 +909,9 @@ index 05b840b157cf209125fb768162c294c5833d301b..2001b26c058bea99df5df9cea568e725
 +
 +import net.edenor.foldenor.secureseed.Globals;
  import net.minecraft.advancements.Advancement;
+ import net.minecraft.advancements.AdvancementHolder;
  import net.minecraft.commands.CommandSourceStack;
- import net.minecraft.commands.Commands;
-@@ -1352,7 +1354,7 @@ public final class CraftServer implements Server {
+@@ -1334,7 +1336,7 @@ public final class CraftServer implements Server {
              iregistry = pair.getSecond().dimensions();
          } else {
              LevelSettings worldsettings;

@@ -5,10 +5,10 @@ Subject: [PATCH] Return-rcon-and-allow-dispatching-commands-async
 
 
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 2935496c2dbf704f40befe54cb9cd020fb173fe4..47b7a1ef46570efb5ed835e9b015a47db70ad0de 100644
+index 0db571d23bc730372f6811052779661f7d95a354..9a79e75424fc912689cb2119334e36a0e7f04732 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -764,14 +764,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -769,14 +769,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
      public String runCommand(RconConsoleSource rconConsoleSource, String s) {
          // Folia start - region threading
          // RIP RCON
@@ -27,11 +27,27 @@ index 2935496c2dbf704f40befe54cb9cd020fb173fe4..47b7a1ef46570efb5ed835e9b015a47d
              CommandSourceStack wrapper = rconConsoleSource.createCommandSourceStack();
              RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource.getBukkitSender(wrapper), s);
              server.getPluginManager().callEvent(event);
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index af739286a752b50a2e207d243cd393e492729441..95ab22cfab33a2dcb094cfd80148033f3c4bc52b 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -3720,7 +3720,11 @@ public abstract class LivingEntity extends Entity implements Attackable {
+             Vec3 vec3d1 = new Vec3(entity.getX(), entity.getEyeY(), entity.getZ());
+ 
+             // Paper - diff on change - used in CraftLivingEntity#hasLineOfSight(Location) and CraftWorld#lineOfSightExists
++<<<<<<< HEAD
+             return vec3d1.distanceToSqr(vec3d) > 128.0D * 128.0D ? false : this.level().clipDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == HitResult.Type.MISS; // Paper
++=======
++            return vec3d1.distanceToSqr(vec3d) > 128.0D * 180.0D? false : this.level().clipDirect(vec3d, vec3d1, net.minecraft.world.phys.shapes.CollisionContext.of(this)) == HitResult.Type.MISS; // Paper
++>>>>>>> Line-of-sight-changes
+         }
+     }
+ 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 503b3787d39717a9e3022da8e4edf597c9bc594c..098b6e4a56fcb88cf33cb52cd754d6e21f129a75 100644
+index d95cb97098afce6e35d3c55bfb9ac3902acc5bfc..98eb9b3b760e7d865f1e88177011500ee07a1bbb 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1008,7 +1008,7 @@ public final class CraftServer implements Server {
+@@ -1012,7 +1012,7 @@ public final class CraftServer implements Server {
              });
          } else {
              // huh?
@@ -40,12 +56,12 @@ index 503b3787d39717a9e3022da8e4edf597c9bc594c..098b6e4a56fcb88cf33cb52cd754d6e2
          }
      }
      // Folia end - region threading
-@@ -1017,21 +1017,21 @@ public final class CraftServer implements Server {
+@@ -1021,19 +1021,40 @@ public final class CraftServer implements Server {
      public boolean dispatchCommand(CommandSender sender, String commandLine) {
          Preconditions.checkArgument(sender != null, "sender cannot be null");
          Preconditions.checkArgument(commandLine != null, "commandLine cannot be null");
--        org.spigotmc.AsyncCatcher.catchOp("command dispatch"); // Spigot
-+        //org.spigotmc.AsyncCatcher.catchOp("command dispatch"); // Spigot
+-        org.spigotmc.AsyncCatcher.catchOp("Command Dispatched Async: " + commandLine); // Spigot // Paper - Include command in error message
++        //org.spigotmc.AsyncCatcher.catchOp("Command Dispatched Async: " + commandLine); // Spigot // Paper - Include command in error message
  
          // Folia start - region threading
          if ((sender instanceof Entity entity)) {
@@ -59,10 +75,29 @@ index 503b3787d39717a9e3022da8e4edf597c9bc594c..098b6e4a56fcb88cf33cb52cd754d6e2
 +           // throw new UnsupportedOperationException("Dispatching command for " + sender);
          }
          // Folia end - region threading
- 
-         // Paper Start
--        if (!org.spigotmc.AsyncCatcher.shuttingDown && !Bukkit.isPrimaryThread()) {
+-
++        // Paper Start
 +        if (/*!org.spigotmc.AsyncCatcher.shuttingDown && */!Bukkit.isPrimaryThread()) {
-             final CommandSender fSender = sender;
-             final String fCommandLine = commandLine;
-             Bukkit.getLogger().log(Level.SEVERE, "Command Dispatched Async: " + commandLine);
++            final CommandSender fSender = sender;
++            final String fCommandLine = commandLine;
++            Bukkit.getLogger().log(Level.SEVERE, "Command Dispatched Async: " + commandLine);
++            Bukkit.getLogger().log(Level.SEVERE, "Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
++            org.bukkit.craftbukkit.util.Waitable<Boolean> wait = new org.bukkit.craftbukkit.util.Waitable<Boolean>() {
++                @Override
++                protected Boolean evaluate() {
++                    return dispatchCommand(fSender, fCommandLine);
++                }
++            };
++            net.minecraft.server.MinecraftServer.getServer().processQueue.add(wait);
++            try {
++                return wait.get();
++            } catch (InterruptedException e) {
++                Thread.currentThread().interrupt(); // This is proper habit for java. If we aren't handling it, pass it on!
++            } catch (Exception e) {
++                throw new RuntimeException("Exception processing dispatch command", e.getCause());
++            }
++        }
++        // Paper End
+         if (this.commandMap.dispatch(sender, commandLine)) {
+             return true;
+         }
