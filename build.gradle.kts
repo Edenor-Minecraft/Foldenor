@@ -3,8 +3,9 @@ import io.papermc.paperweight.util.constants.*
 
 plugins {
     java
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.papermc.paperweight.patcher") version "1.5.4"
+    `maven-publish`
+    id("com.github.johnrengelman.shadow") version "8.1.1" apply false
+    id("io.papermc.paperweight.patcher") version "1.5.7-SNAPSHOT"
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
@@ -18,8 +19,8 @@ repositories {
 
 dependencies {
     remapper("net.fabricmc:tiny-remapper:0.8.6:fat")
-    decompiler("net.minecraftforge:forgeflower:2.0.629.0")
-    paperclip("io.papermc:paperclip:3.0.3")
+    decompiler("org.vineflower:vineflower:1.9.3")
+    paperclip("io.papermc:paperclip:3.0.4-SNAPSHOT")
 }
 
 allprojects {
@@ -49,6 +50,17 @@ subprojects {
         mavenCentral()
         maven(paperMavenPublicUrl)
         maven("https://jitpack.io")
+    }
+
+
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                groupId = rootProject.group.toString()
+                artifactId = rootProject.name
+                version = providers.gradleProperty("mcVersion").get()
+            }
+        }
     }
 }
 
@@ -104,3 +116,5 @@ tasks.register("foliaRefLatest") {
         }
     }
 }
+
+
