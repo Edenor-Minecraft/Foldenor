@@ -56,8 +56,8 @@ subprojects {
     publishing {
         publications {
             register<MavenPublication>("release") {
-                groupId = "foldenor"
-                artifactId = "foldenor"
+                groupId = rootProject.group.toString()
+                artifactId = rootProject.name
                 version = providers.gradleProperty("mcVersion").get()
             }
         }
