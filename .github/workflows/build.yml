@@ -42,7 +42,7 @@ jobs:
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
-          name: "1.20.2 build ${{github.run_number}}"
+          name: "1.20.2 build"
           body: |
             Foldenor build
             Version: 1.20.2
