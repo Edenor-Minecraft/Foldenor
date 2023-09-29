@@ -34,10 +34,10 @@ jobs:
           git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
 
       - name: Apply Patches
-        run: ./gradlew applyPatches --stacktrace
+        run: ./gradlew applyPatches
    
       - name: Build
-        run: ./gradlew createReobfPaperclipJar --stacktrace
+        run: ./gradlew createReobfBundlerJar
            
       - name: Make release
         uses: softprops/action-gh-release@v1
@@ -46,7 +46,7 @@ jobs:
           body: |
             Foldenor build
             Version: 1.20.2
-          tag_name: "latest_1.20.2_${{github.run_number}}"
+          tag_name: "1.20.2"
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
