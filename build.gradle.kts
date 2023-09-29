@@ -31,6 +31,10 @@ allprojects {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(17))
         }
+
+        //Just need for test for jitpack
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
