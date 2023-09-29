@@ -9,6 +9,42 @@
 
 [Folia region logic](https://docs.papermc.io/folia/reference/region-logic)
 
+## Foldenor api
+# Maven
+
+Maven Repo (for foldenor-api):
+    
+    <repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+	</repository>
+  
+Artifact Information:
+    
+    <dependency>
+	    <groupId>com.github.Edenor-Minecraft</groupId>
+	    <artifactId>Foldenor</artifactId>
+	    <version>1.20.2_131</version>
+        <scope>provided</scope>
+	</dependency>
+
+# Gradle
+
+Gradle Repo (for foldenor-api):
+    
+        allprojects {
+		    repositories {
+			    ...
+			    maven { url 'https://jitpack.io' }
+		    }
+	    }
+
+Artifact Information:
+    
+        dependencies {
+	        implementation 'com.github.Edenor-Minecraft:Foldenor:1.20.2_131'
+	    }
+
 ## About Edenor
 [VK](https://vk.com/edenorrp)
 
