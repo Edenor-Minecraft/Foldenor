@@ -101,7 +101,7 @@ tasks.register("foliaRefLatest") {
         )
 
         val foliaLatestCommitJson = layout.cache.resolve("foliaLatestCommit.json");
-        download.get().download("https://api.github.com/repos/PaperMC/Folia/commits/master", foliaLatestCommitJson);
+        download.get().download("https://api.github.com/repos/PaperMC/Folia/commits/dev/1.20.2", foliaLatestCommitJson);
         val foliaLatestCommit = gson.fromJson<paper.libs.com.google.gson.JsonObject>(foliaLatestCommitJson)["sha"].asString;
 
         copy {

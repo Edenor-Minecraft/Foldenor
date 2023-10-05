@@ -414,7 +414,7 @@ index c5598adb8cbcbcf7277c2fd4dd72c243d44d9700..4544b6234fc356e7a06c462f5f136a48
              return GsonHelper.parse(!s1.isEmpty() ? s1 : "{}");
          }, new JsonObject()), (String) this.get("level-type", (s1) -> {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index 18735dbd0d2bae1576d2bdb7402d98e9affbd599..8e24fe638a6f43baf86ffc03082667c1e25dc398 100644
+index 72a5973c6e150533ec70496d72b53c80a142eef7..f7a6e5f18b02395706ae825ea247a623b8941d88 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 @@ -48,6 +48,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
@@ -426,7 +426,7 @@ index 18735dbd0d2bae1576d2bdb7402d98e9affbd599..8e24fe638a6f43baf86ffc03082667c1
  
  public class ServerChunkCache extends ChunkSource {
  
-@@ -673,6 +675,7 @@ public class ServerChunkCache extends ChunkSource {
+@@ -695,6 +697,7 @@ public class ServerChunkCache extends ChunkSource {
      }
  
      public ChunkGenerator getGenerator() {
@@ -435,7 +435,7 @@ index 18735dbd0d2bae1576d2bdb7402d98e9affbd599..8e24fe638a6f43baf86ffc03082667c1
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 8b41da9d1f43340b6ba3812a93f681419d0d7cd8..7218200b140f658ae3009c1a423124cd4287dcbd 100644
+index a4af151e6a2d428d7c9b2a81ada7310b73867d5a..0f385f409d4469f5eba4410504a3f4544fc849dc 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -177,6 +177,7 @@ import org.bukkit.event.world.GenericGameEvent;
@@ -454,7 +454,6 @@ index 8b41da9d1f43340b6ba3812a93f681419d0d7cd8..7218200b140f658ae3009c1a423124cd
          boolean flag2 = minecraftserver.forceSynchronousWrites();
          DataFixer datafixer = minecraftserver.getFixerUpper();
          this.entityStorage = new EntityRegionFileStorage(convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), flag2); // Paper - rewrite chunk system  //EntityPersistentStorage<Entity> entitypersistentstorage = new EntityStorage(this, convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), datafixer, flag2, minecraftserver);
-
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Slime.java b/src/main/java/net/minecraft/world/entity/monster/Slime.java
 index b14979ab7bed34a37fceff5589ecb789bab31318..7463140f9d5afcfc02d02535c1d56ab750c45010 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Slime.java

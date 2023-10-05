@@ -5,10 +5,10 @@ Subject: [PATCH] Use-thread-unsafe-random-for-mob-spawning
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 7218200b140f658ae3009c1a423124cd4287dcbd..291d26afaea1a492f59c2e0ab33ca232a411ac58 100644
+index 0f385f409d4469f5eba4410504a3f4544fc849dc..212f34d7bb41148addca45d9c0dc70e440e3f9cb 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1078,7 +1078,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1098,7 +1098,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
      }
      // Paper start - optimise random block ticking
      private final ThreadLocal<BlockPos.MutableBlockPos> chunkTickMutablePosition = ThreadLocal.withInitial(() -> new BlockPos.MutableBlockPos()); // Folia - region threading

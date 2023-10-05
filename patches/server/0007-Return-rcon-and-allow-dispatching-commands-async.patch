@@ -4,11 +4,64 @@ Date: Sat, 16 Sep 2023 21:29:08 +0400
 Subject: [PATCH] Return-rcon-and-allow-dispatching-commands-async
 
 
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 160e368591a70e943c65e16bdf5fe90fda68ca96..78ff02761308da8916be8b56bb542561743fc245 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -314,25 +314,25 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @Override
+     public void execute(Runnable runnable) {
+-        if (true) {
++        /*if (true) {
+             throw new UnsupportedOperationException();
+-        }
++        }*/
+         super.execute(runnable);
+     }
+ 
+     @Override
+     public void executeBlocking(Runnable runnable) {
+-        if (true) {
++        /*if (true) {
+             throw new UnsupportedOperationException();
+-        }
++        }*/
+         super.executeBlocking(runnable);
+     }
+ 
+     @Override
+     public void tell(TickTask runnable) {
+-        if (true) {
++        /*if (true) {
+             throw new UnsupportedOperationException();
+-        }
++        }*/
+         super.tell(runnable);
+     }
+     // Folia end - regionised ticking
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 0db571d23bc730372f6811052779661f7d95a354..9a79e75424fc912689cb2119334e36a0e7f04732 100644
+index 0db571d23bc730372f6811052779661f7d95a354..f738e7ae26bdd29b27af8636707d3f227c33c73f 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -769,14 +769,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -17,6 +17,7 @@ import java.util.Collections;
+ import java.util.List;
+ import java.util.Locale;
+ import java.util.Optional;
++import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.BooleanSupplier;
+ import javax.annotation.Nullable;
+ 
+@@ -52,6 +53,8 @@ import net.minecraft.world.level.GameRules;
+ import net.minecraft.world.level.GameType;
+ import net.minecraft.world.level.block.entity.SkullBlockEntity;
+ import net.minecraft.world.level.storage.LevelStorageSource;
++import org.bukkit.command.ConsoleCommandSender;
++import org.bukkit.craftbukkit.CraftServer;
+ import org.slf4j.Logger;
+ 
+ // CraftBukkit start
+@@ -769,39 +772,40 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
      public String runCommand(RconConsoleSource rconConsoleSource, String s) {
          // Folia start - region threading
          // RIP RCON
@@ -23,16 +76,120 @@ index 0db571d23bc730372f6811052779661f7d95a354..9a79e75424fc912689cb2119334e36a0
          rconConsoleSource.prepareForCommand();
          final java.util.concurrent.atomic.AtomicReference<String> command = new java.util.concurrent.atomic.AtomicReference<>(s); // Paper
 -        this.executeBlocking(() -> {
-+        io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTaskWithoutNotify(() ->{
-             CommandSourceStack wrapper = rconConsoleSource.createCommandSourceStack();
-             RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource.getBukkitSender(wrapper), s);
-             server.getPluginManager().callEvent(event);
-
+-            CommandSourceStack wrapper = rconConsoleSource.createCommandSourceStack();
+-            RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource.getBukkitSender(wrapper), s);
+-            server.getPluginManager().callEvent(event);
+-            if (event.isCancelled()) {
+-                return;
+-            }
++        CommandSourceStack wrapper = rconConsoleSource.createCommandSourceStack();
++        RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource.getBukkitSender(wrapper), s);
++        server.getPluginManager().callEvent(event);
++        if (event.isCancelled()) {
++            return "null";
++        }
+ 
+-            // Paper start
+-            command.set(event.getCommand());
+-            if (event.getCommand().toLowerCase().startsWith("timings") && event.getCommand().toLowerCase().matches("timings (report|paste|get|merged|seperate)")) {
+-                org.bukkit.command.BufferedCommandSender sender = new org.bukkit.command.BufferedCommandSender();
+-                Waitable<String> waitable = new Waitable<>() {
+-                    @Override
+-                    protected String evaluate() {
+-                        return sender.getBuffer();
+-                    }
+-                };
+-                waitableArray[0] = waitable;
+-                co.aikar.timings.Timings.generateReport(new co.aikar.timings.TimingsReportListener(sender, waitable));
+-            } else {
++        // Paper start
++        command.set(event.getCommand());
++        if (event.getCommand().toLowerCase().startsWith("timings") && event.getCommand().toLowerCase().matches("timings (report|paste|get|merged|seperate)")) {
++            org.bukkit.command.BufferedCommandSender sender = new org.bukkit.command.BufferedCommandSender();
++            Waitable<String> waitable = new Waitable<>() {
++                @Override
++                protected String evaluate() {
++                    return sender.getBuffer();
++                }
++            };
++            waitableArray[0] = waitable;
++            co.aikar.timings.Timings.generateReport(new co.aikar.timings.TimingsReportListener(sender, waitable));
++        } else {
+             // Paper end
+-                ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), wrapper);
+-                server.dispatchServerCommand(event.getSender(), serverCommand);
+-            } // Paper
+-        });
++            ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), wrapper);
++            if (!server.dispatchServerCommand(rconConsoleSource.getBukkitSender(wrapper), serverCommand)){
++                rconConsoleSource.sendMessage("Error while dispatching command!");
++            }
++        } // Paper
+         // Paper start
+         if (waitableArray[0] != null) {
+             //noinspection unchecked
+diff --git a/src/main/java/net/minecraft/server/rcon/RconConsoleSource.java b/src/main/java/net/minecraft/server/rcon/RconConsoleSource.java
+index a04cf04cb694237ec77b38fc576f0dfc9264a25a..a88873878fa8291ab0ad0740ad908e1aa76747a1 100644
+--- a/src/main/java/net/minecraft/server/rcon/RconConsoleSource.java
++++ b/src/main/java/net/minecraft/server/rcon/RconConsoleSource.java
+@@ -48,7 +48,7 @@ public class RconConsoleSource implements CommandSource {
+     }
+ 
+     @Override
+-    public org.bukkit.command.CommandSender getBukkitSender(CommandSourceStack wrapper) {
++    public CraftRemoteConsoleCommandSender getBukkitSender(CommandSourceStack wrapper) {
+         return this.remoteConsole;
+     }
+     // CraftBukkit end
+diff --git a/src/main/java/net/minecraft/server/rcon/thread/RconClient.java b/src/main/java/net/minecraft/server/rcon/thread/RconClient.java
+index dd7cd41a334ab6c3d5c76f9dcc64c34b093e3be0..4ec8409fae0e68411d9c9bb01b72cdba2f29d605 100644
+--- a/src/main/java/net/minecraft/server/rcon/thread/RconClient.java
++++ b/src/main/java/net/minecraft/server/rcon/thread/RconClient.java
+@@ -79,11 +79,26 @@ public class RconClient extends GenericThread {
+                             if (this.authed) {
+                                 String s = PktUtils.stringFromByteArray(this.buf, k, i);
+ 
+-                                try {
+-                                    this.sendCmdResponse(l, this.serverInterface.runCommand(this.rconConsoleSource, s)); // CraftBukkit
+-                                } catch (Exception exception) {
+-                                    this.sendCmdResponse(l, "Error executing: " + s + " (" + exception.getMessage() + ")");
+-                                }
++                                io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTask(() -> {
++                                    try {
++                                        this.sendCmdResponse(l, this.serverInterface.runCommand(this.rconConsoleSource, s)); // CraftBukkit
++                                    } catch (Exception exception) {
++                                        String msg = "";
++                                        for (StackTraceElement el : exception.getStackTrace()){
++                                            msg += el.toString() + '\n';
++                                        }
++                                        try {
++                                            this.sendCmdResponse(l, "Error executing: " + s + "\n" + msg);
++                                        } catch (IOException e) {
++                                            String msg2 = "";
++                                            for (StackTraceElement el : e.getStackTrace()){
++                                                msg2 += el.toString() + '\n';
++                                            }
++                                            System.out.println("Error executing: " + s + "\n" + msg2);
++                                        }
++                                    }
++                                });
++
+                                 continue;
+                             }
+ 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index d95cb97098afce6e35d3c55bfb9ac3902acc5bfc..98eb9b3b760e7d865f1e88177011500ee07a1bbb 100644
+index d95cb97098afce6e35d3c55bfb9ac3902acc5bfc..62000c2021bfd695374b2a7fd922c6dbb6a13b4c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1012,7 +1012,7 @@ public final class CraftServer implements Server {
+@@ -259,6 +259,7 @@ import org.bukkit.scoreboard.Criteria;
+ import org.bukkit.structure.StructureManager;
+ import org.bukkit.util.StringUtil;
+ import org.bukkit.util.permissions.DefaultPermissions;
++import org.spigotmc.AsyncCatcher;
+ import org.yaml.snakeyaml.LoaderOptions;
+ import org.yaml.snakeyaml.Yaml;
+ import org.yaml.snakeyaml.constructor.SafeConstructor;
+@@ -1012,7 +1013,7 @@ public final class CraftServer implements Server {
              });
          } else {
              // huh?
@@ -41,7 +198,7 @@ index d95cb97098afce6e35d3c55bfb9ac3902acc5bfc..98eb9b3b760e7d865f1e88177011500e
          }
      }
      // Folia end - region threading
-@@ -1021,19 +1021,40 @@ public final class CraftServer implements Server {
+@@ -1021,19 +1022,40 @@ public final class CraftServer implements Server {
      public boolean dispatchCommand(CommandSender sender, String commandLine) {
          Preconditions.checkArgument(sender != null, "sender cannot be null");
          Preconditions.checkArgument(commandLine != null, "commandLine cannot be null");
@@ -62,7 +219,7 @@ index d95cb97098afce6e35d3c55bfb9ac3902acc5bfc..98eb9b3b760e7d865f1e88177011500e
          // Folia end - region threading
 -
 +        // Paper Start
-+        if (/*!org.spigotmc.AsyncCatcher.shuttingDown && */!Bukkit.isPrimaryThread()) {
++        if (AsyncCatcher.enabled && !Bukkit.isPrimaryThread()) {
 +            final CommandSender fSender = sender;
 +            final String fCommandLine = commandLine;
 +            Bukkit.getLogger().log(Level.SEVERE, "Command Dispatched Async: " + commandLine);

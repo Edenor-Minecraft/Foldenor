@@ -5,7 +5,7 @@ Subject: [PATCH] Redirect-getTPS-function-to-tegion-tps-or-return-20-tps
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index b18f8e47a52cb4c705a17c2cee814b9dccc3ca5a..24f7606bcfa12d3971f94880e2d4554831f9b55b 100644
+index 95fd5ca9d4b93b0a350040d31493ee7ef4a5478b..cf6efdc6a81dfe154b496c7bfbd0782b4791d868 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -15,6 +15,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -18,7 +18,7 @@ index b18f8e47a52cb4c705a17c2cee814b9dccc3ca5a..24f7606bcfa12d3971f94880e2d45548
  import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  import java.awt.image.BufferedImage;
  import java.io.ByteArrayOutputStream;
-@@ -2940,11 +2943,21 @@ public final class CraftServer implements Server {
+@@ -2941,11 +2944,21 @@ public final class CraftServer implements Server {
      // Paper - Add getTPS API - Further improve tick loop
      @Override
      public double[] getTPS() {
