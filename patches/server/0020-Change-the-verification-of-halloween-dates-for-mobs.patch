@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sun, 29 Oct 2023 19:15:26 +0400
+Subject: [PATCH] Change-the-verification-of-halloween-dates-for-mobs
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java b/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java
+index 9ca1e9d95e62929c0015d5ca2c2f9c70e421842e..f59fa5a9bed6230516447cc1946352635f4098c9 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java
++++ b/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java
+@@ -165,7 +165,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+             int i = localdate.get(ChronoField.DAY_OF_MONTH);
+             int j = localdate.get(ChronoField.MONTH_OF_YEAR);
+ 
+-            if (j == 10 && i == 31 && randomsource.nextFloat() < 0.25F) {
++            if ((j == 10 && i >= 20 || j == 11 && i <= 3) && randomsource.nextFloat() < 0.25F) {
+                 this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(randomsource.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
+                 this.armorDropChances[EquipmentSlot.HEAD.getIndex()] = 0.0F;
+             }
+diff --git a/src/main/java/net/minecraft/world/entity/monster/Zombie.java b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+index 720278afd8c28c4303cc2fbfe5874a79d607f6ef..53878524a7aa6e4cdd3b4f3e65f84a2d78e3013e 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/Zombie.java
++++ b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+@@ -560,7 +560,7 @@ public class Zombie extends Monster {
+             int i = localdate.get(ChronoField.DAY_OF_MONTH);
+             int j = localdate.get(ChronoField.MONTH_OF_YEAR);
+ 
+-            if (j == 10 && i == 31 && randomsource.nextFloat() < 0.25F) {
++            if ((j == 10 && i >= 20 || j == 11 && i <= 3) && randomsource.nextFloat() < 0.25F) {
+                 this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(randomsource.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
+                 this.armorDropChances[EquipmentSlot.HEAD.getIndex()] = 0.0F;
+             }

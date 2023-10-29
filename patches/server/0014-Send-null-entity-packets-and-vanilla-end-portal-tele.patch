@@ -46,7 +46,7 @@ index 196280f54e397c69d32bd4d1f6ae666efdd93773..b9a08e69dc1ad5a8f15128ac7deba47c
          return lastPassengers.stream().filter((entity) -> {
              return !passengers.contains(entity);
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 6331a7b75bcfd935d42692143c9e6ab6098bc23d..ab63ad0e31cf2d74f6df09293da9ad658912fbe1 100644
+index dac946ed23ad89b6a5d5785f8682dc445c4af211..e312c165d8a1583955c178a06db4adef964d1815 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -24,6 +24,8 @@ import java.util.function.BiConsumer;
@@ -58,7 +58,7 @@ index 6331a7b75bcfd935d42692143c9e6ab6098bc23d..ab63ad0e31cf2d74f6df09293da9ad65
  import net.minecraft.BlockUtil;
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
-@@ -4084,9 +4086,22 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -4037,9 +4039,22 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
  
                              // the portal obsidian is placed at targetPos.y - 2, so if we want to place the entity
                              // on the obsidian, we need to spawn at targetPos.y - 1
