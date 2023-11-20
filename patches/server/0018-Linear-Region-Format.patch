@@ -126,7 +126,7 @@ index 513833c2ea23df5b079d157bc5cb89d5c9754c0b..33b14f5ad03b0e3f1b7499be678c1b62
          long expectedChunks = (long)regionFiles.length * (32L * 32L);
  
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 748a78a092067ccb2c9ebb650860765180703b8f..678564999a9be7ee9ad6dc8038745a4f287fbff2 100644
+index 748a78a092067ccb2c9ebb650860765180703b8f..9a67b0107f4b79911b4d1e676e4d97c7ff8466a9 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 @@ -2,6 +2,7 @@ package net.edenor.foldenor.config;
@@ -149,7 +149,16 @@ index 748a78a092067ccb2c9ebb650860765180703b8f..678564999a9be7ee9ad6dc8038745a4f
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -84,6 +90,28 @@ public class FoldenorConfig {
+@@ -77,6 +83,8 @@ public class FoldenorConfig {
+ 
+         otherSettings();
+ 
++        worldSettings();
++
+         try {
+             config.save(CONFIG_FILE);
+         } catch (IOException ex) {
+@@ -84,6 +92,28 @@ public class FoldenorConfig {
          }
      }
  
