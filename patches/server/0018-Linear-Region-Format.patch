@@ -917,7 +917,7 @@ index 9248769e6d357f6eec68945fd7700e79b2942c41..b7988ae6bb314b6fca0c00eed2acd0fd
          try (DataInputStream out = new DataInputStream(new java.io.BufferedInputStream(new InflaterInputStream(Files.newInputStream(file))))) {
              return NbtIo.read((java.io.DataInput) out);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-index db571f658f636cdda1dcdbaffa0c4da67fae11ad..b8413d6bdd46816bebf05feacbf93d1c45f4a988 100644
+index db571f658f636cdda1dcdbaffa0c4da67fae11ad..dfeae2edb88341dfdfc9e17d89bc321ffea90536 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 @@ -21,9 +21,12 @@ public class RegionFileStorage implements AutoCloseable {
@@ -986,7 +986,7 @@ index db571f658f636cdda1dcdbaffa0c4da67fae11ad..b8413d6bdd46816bebf05feacbf93d1c
          // Paper end
          long i = ChunkPos.asLong(chunkcoordintpair.getRegionX(), chunkcoordintpair.getRegionZ()); final long regionPos = i; // Paper - OBFHELPER
 -        RegionFile regionfile = (RegionFile) this.regionCache.getAndMoveToFirst(i);
-+        net.edenor.foldenor.region.AbstractRegionFile regionfile = (RegionFile) this.regionCache.getAndMoveToFirst(i);
++        net.edenor.foldenor.region.AbstractRegionFile regionfile = (net.edenor.foldenor.region.AbstractRegionFile) this.regionCache.getAndMoveToFirst(i);
  
          if (regionfile != null) {
              // Paper start
