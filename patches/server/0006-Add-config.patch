@@ -5,10 +5,10 @@ Subject: [PATCH] Add-config
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 4d5be77d9e99a6783d653935c3ea359a7647b9a9..394b9288dd01a6102f1ba57b8a1e2530ec8f6909 100644
+index 795cce7c00f264bba253b724ce3dbce320e8bc69..d1559f5bf63ce1db13ba77731b9bb19b91166bec 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -214,9 +214,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
+@@ -212,9 +212,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
          elements.filterNot { file -> file.asFile.endsWith("minecraft.jar") }
      }
  }
@@ -236,7 +236,7 @@ index a9fe3d1c0fc217bd32e884c9e75c906d8b4bf967..0db571d23bc730372f6811052779661f
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 64df07aa5855626bf69fdcc4f505d3661b9c7ebc..d95cb97098afce6e35d3c55bfb9ac3902acc5bfc 100644
+index 033154512b44b02f258ee41b06ac73c3dfbe774d..ed379ec8766a6e191cf151d039ee4d9e16a71a06 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -45,6 +45,7 @@ import java.util.logging.Logger;
@@ -267,7 +267,7 @@ index 64df07aa5855626bf69fdcc4f505d3661b9c7ebc..d95cb97098afce6e35d3c55bfb9ac390
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index e7746952417a3ca4ea97103e38568db42039f717..ee56b743e0947d1fa4a11f3cc3b7fff2357122c1 100644
+index e4cacb17f56c618bef19e1165c07aac86af61150..dd6753404d95bbee72392dd286e416394cc95a96 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -173,6 +173,12 @@ public class Main {

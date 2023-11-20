@@ -435,7 +435,7 @@ index 72a5973c6e150533ec70496d72b53c80a142eef7..f7a6e5f18b02395706ae825ea247a623
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index a4af151e6a2d428d7c9b2a81ada7310b73867d5a..0f385f409d4469f5eba4410504a3f4544fc849dc 100644
+index 02937e40d429f42643f77b17c04277be535dc434..a506480c03b12f59b4a421a13815e7b4a4fd7ab4 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -177,6 +177,7 @@ import org.bukkit.event.world.GenericGameEvent;
@@ -468,7 +468,7 @@ index b14979ab7bed34a37fceff5589ecb789bab31318..7463140f9d5afcfc02d02535c1d56ab7
              // Paper start - Replace rules for Height in Slime Chunks
              final double maxHeightSlimeChunk = world.getMinecraftWorld().paperConfig().entities.spawning.slimeSpawnHeight.slimeChunk.maximum;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java b/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java
-index e8fb179c5f443efd70293f31cdf00ca2eaf05006..258203e750dd7cb6bf72fd83bd6e987e06a838e6 100644
+index f7e5e016a7028a9196e689e950805b0d5b31fe38..7167cbd0ad37742fbe104508860c13e56e8c5e96 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java
 @@ -53,6 +53,7 @@ import net.minecraft.world.level.material.Fluid;
@@ -489,7 +489,7 @@ index e8fb179c5f443efd70293f31cdf00ca2eaf05006..258203e750dd7cb6bf72fd83bd6e987e
      // CraftBukkit start - SPIGOT-6814: move to IChunkAccess to account for 1.17 to 1.18 chunk upgrading.
      private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
      public org.bukkit.craftbukkit.persistence.DirtyCraftPersistentDataContainer persistentDataContainer = new org.bukkit.craftbukkit.persistence.DirtyCraftPersistentDataContainer(ChunkAccess.DATA_TYPE_REGISTRY);
-@@ -166,6 +170,15 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
+@@ -172,6 +176,15 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
          return GameEventListenerRegistry.NOOP;
      }
  
@@ -831,7 +831,7 @@ index 2b138ee73efb8365aa362e08bfb785e3c1aedabb..c6e9291a9e4016e32dd1074acde37e1d
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index cb80230cb73761a063690be4cf11b2da5b2e958f..64df07aa5855626bf69fdcc4f505d3661b9c7ebc 100644
+index d3b52d22434b7d8c65c70676d9afaba79c53ac6d..033154512b44b02f258ee41b06ac73c3dfbe774d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -44,6 +44,8 @@ import java.util.logging.Level;
