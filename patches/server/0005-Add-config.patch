@@ -5,10 +5,10 @@ Subject: [PATCH] Add-config
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 795cce7c00f264bba253b724ce3dbce320e8bc69..d1559f5bf63ce1db13ba77731b9bb19b91166bec 100644
+index d40372def97bd95a3de97cd9ea798586fab3634e..9fc2ad504d81e87ed7c004532927fcc5ebe60370 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -212,9 +212,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
+@@ -226,9 +226,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
          elements.filterNot { file -> file.asFile.endsWith("minecraft.jar") }
      }
  }
@@ -210,7 +210,7 @@ index 0000000000000000000000000000000000000000..748a78a092067ccb2c9ebb6508607651
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index a9fe3d1c0fc217bd32e884c9e75c906d8b4bf967..0db571d23bc730372f6811052779661f7d95a354 100644
+index 12af517a7dd8c0bb2bc55ab3eb0e68a074011bb5..9846b7b28e06055a5dbfce6fceb466d17de273a0 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -19,6 +19,8 @@ import java.util.Locale;
@@ -236,18 +236,18 @@ index a9fe3d1c0fc217bd32e884c9e75c906d8b4bf967..0db571d23bc730372f6811052779661f
          io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
          // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 033154512b44b02f258ee41b06ac73c3dfbe774d..ed379ec8766a6e191cf151d039ee4d9e16a71a06 100644
+index 14816c699efd70b3e85bdcf6f32647f9db864c1b..c80b99d93786b9887607f377836629c3d88b1c07 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -45,6 +45,7 @@ import java.util.logging.Logger;
- import java.util.stream.Collectors;
+@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
+ // import jline.console.ConsoleReader;
  
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.edenor.foldenor.secureseed.Globals;
  import net.minecraft.advancements.Advancement;
  import net.minecraft.advancements.AdvancementHolder;
-@@ -325,6 +326,10 @@ public final class CraftServer implements Server {
+@@ -324,6 +325,10 @@ public final class CraftServer implements Server {
          return this.asyncScheduler;
      }
  
@@ -258,19 +258,19 @@ index 033154512b44b02f258ee41b06ac73c3dfbe774d..ed379ec8766a6e191cf151d039ee4d9e
      @Override
      public final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler getGlobalRegionScheduler() {
          return this.globalRegionScheduler;
-@@ -1082,6 +1087,7 @@ public final class CraftServer implements Server {
+@@ -1081,6 +1086,7 @@ public final class CraftServer implements Server {
  
-         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+         org.spigotmc.SpigotConfig.init((File) this.console.options.valueOf("spigot-settings")); // Spigot
          this.console.paperConfigurations.reloadConfigs(this.console);
 +        net.edenor.foldenor.config.FoldenorConfig.init((File) console.options.valueOf("foldenor-settings"));
          for (ServerLevel world : this.console.getAllLevels()) {
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index e4cacb17f56c618bef19e1165c07aac86af61150..dd6753404d95bbee72392dd286e416394cc95a96 100644
+index a74a8a027c99eef199c1a6a54232ac2c8ffb9d08..9334d11f8a33e62c540a061e1c4739dbb4316933 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -173,6 +173,12 @@ public class Main {
+@@ -174,6 +174,12 @@ public class Main {
                          .describedAs("Jar file");
                  // Paper end
  

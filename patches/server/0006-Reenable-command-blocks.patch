@@ -5,7 +5,7 @@ Subject: [PATCH] Reenable-command-blocks
 
 
 diff --git a/src/main/java/net/minecraft/world/level/BaseCommandBlock.java b/src/main/java/net/minecraft/world/level/BaseCommandBlock.java
-index 19cb22df8eb29d1708e3da2124de3b43378b575a..1d2da5ee3c27799e3ef153c538126ae5da9c3e63 100644
+index b7ee6b31d03cd554b229b440b1d5ef6c9ddd2fb5..2eb0ef2ea2d86769bbbf87f767df3ea2c2574a83 100644
 --- a/src/main/java/net/minecraft/world/level/BaseCommandBlock.java
 +++ b/src/main/java/net/minecraft/world/level/BaseCommandBlock.java
 @@ -111,7 +111,7 @@ public abstract class BaseCommandBlock implements CommandSource {

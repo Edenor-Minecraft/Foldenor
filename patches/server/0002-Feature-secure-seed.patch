@@ -383,10 +383,10 @@ index 342362c217df5476a927eb54cef3cafcea3889fd..097f549a0275846199f3ba929f3cb0d9
          }));
      }
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
-index c5598adb8cbcbcf7277c2fd4dd72c243d44d9700..4544b6234fc356e7a06c462f5f136a4891965fce 100644
+index 1643186bcb2caf5d29fd551afd35830726dbb80a..df4c167f5bf07917012e5a586190725a25ff726f 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServerProperties.java
-@@ -44,6 +44,7 @@ import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
+@@ -43,6 +43,7 @@ import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
  import net.minecraft.world.level.levelgen.presets.WorldPreset;
  import net.minecraft.world.level.levelgen.presets.WorldPresets;
  import org.slf4j.Logger;
@@ -394,7 +394,7 @@ index c5598adb8cbcbcf7277c2fd4dd72c243d44d9700..4544b6234fc356e7a06c462f5f136a48
  
  // CraftBukkit start
  import joptsimple.OptionSet;
-@@ -161,7 +162,17 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
+@@ -160,7 +161,17 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
          boolean flag = this.get("generate-structures", true);
          long i = WorldOptions.parseSeed(s).orElse(WorldOptions.randomSeed());
  
@@ -414,19 +414,19 @@ index c5598adb8cbcbcf7277c2fd4dd72c243d44d9700..4544b6234fc356e7a06c462f5f136a48
              return GsonHelper.parse(!s1.isEmpty() ? s1 : "{}");
          }, new JsonObject()), (String) this.get("level-type", (s1) -> {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index 72a5973c6e150533ec70496d72b53c80a142eef7..f7a6e5f18b02395706ae825ea247a623b8941d88 100644
+index d248c0492a34c11fb96c9dd6f0a3d180ee846c51..8d1df54524846409f92af3ab0f6e8c9186db136f 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-@@ -48,6 +48,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
+@@ -46,6 +46,8 @@ import net.minecraft.world.level.levelgen.RandomState;
+ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
  import net.minecraft.world.level.storage.DimensionDataStorage;
- import net.minecraft.world.level.storage.LevelData;
  import net.minecraft.world.level.storage.LevelStorageSource;
 +import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet; // Paper
 +import net.edenor.foldenor.secureseed.Globals;
  
  public class ServerChunkCache extends ChunkSource {
  
-@@ -695,6 +697,7 @@ public class ServerChunkCache extends ChunkSource {
+@@ -723,6 +725,7 @@ public class ServerChunkCache extends ChunkSource {
      }
  
      public ChunkGenerator getGenerator() {
@@ -435,10 +435,10 @@ index 72a5973c6e150533ec70496d72b53c80a142eef7..f7a6e5f18b02395706ae825ea247a623
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 02937e40d429f42643f77b17c04277be535dc434..a506480c03b12f59b4a421a13815e7b4a4fd7ab4 100644
+index 8cf413e42d560d90dfcbcb1d61ed410e992a8f4c..401bca7dd2aa59b067f23cc74043866f2d0ac68b 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -177,6 +177,7 @@ import org.bukkit.event.world.GenericGameEvent;
+@@ -179,6 +179,7 @@ import org.bukkit.event.world.GenericGameEvent;
  import org.bukkit.event.world.TimeSkipEvent;
  // CraftBukkit end
  import it.unimi.dsi.fastutil.ints.IntArrayList; // Paper
@@ -446,7 +446,7 @@ index 02937e40d429f42643f77b17c04277be535dc434..a506480c03b12f59b4a421a13815e7b4
  
  public class ServerLevel extends Level implements WorldGenLevel {
  
-@@ -806,6 +807,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -808,6 +809,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
              chunkgenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkgenerator, gen);
          }
          // CraftBukkit end
@@ -455,18 +455,18 @@ index 02937e40d429f42643f77b17c04277be535dc434..a506480c03b12f59b4a421a13815e7b4
          DataFixer datafixer = minecraftserver.getFixerUpper();
          this.entityStorage = new EntityRegionFileStorage(convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), flag2); // Paper - rewrite chunk system  //EntityPersistentStorage<Entity> entitypersistentstorage = new EntityStorage(this, convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), datafixer, flag2, minecraftserver);
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Slime.java b/src/main/java/net/minecraft/world/entity/monster/Slime.java
-index b14979ab7bed34a37fceff5589ecb789bab31318..7463140f9d5afcfc02d02535c1d56ab750c45010 100644
+index cd964e5cded6a74cb9dcf27b4134f944764062cd..869e4ca1f276852ec706624ead015d55418cb0a2 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Slime.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/Slime.java
-@@ -347,7 +347,7 @@ public class Slime extends Mob implements Enemy {
-             }
+@@ -349,7 +349,7 @@ public class Slime extends Mob implements Enemy {
+                 }
  
-             ChunkPos chunkcoordintpair = new ChunkPos(pos);
+                 ChunkPos chunkcoordintpair = new ChunkPos(pos);
 -            boolean flag = world.getMinecraftWorld().paperConfig().entities.spawning.allChunksAreSlimeChunks || WorldgenRandom.seedSlimeChunk(chunkcoordintpair.x, chunkcoordintpair.z, ((WorldGenLevel) world).getSeed(), world.getMinecraftWorld().spigotConfig.slimeSeed).nextInt(10) == 0; // Spigot // Paper
-+            boolean flag = world.getMinecraftWorld().paperConfig().entities.spawning.allChunksAreSlimeChunks || world.getChunk(chunkcoordintpair.x, chunkcoordintpair.z).isSlimeChunk(); // Spigot // Paper
++                boolean flag = world.getMinecraftWorld().paperConfig().entities.spawning.allChunksAreSlimeChunks || world.getChunk(chunkcoordintpair.x, chunkcoordintpair.z).isSlimeChunk(); // Spigot // Paper
  
-             // Paper start - Replace rules for Height in Slime Chunks
-             final double maxHeightSlimeChunk = world.getMinecraftWorld().paperConfig().entities.spawning.slimeSpawnHeight.slimeChunk.maximum;
+                 // Paper start - Replace rules for Height in Slime Chunks
+                 final double maxHeightSlimeChunk = world.getMinecraftWorld().paperConfig().entities.spawning.slimeSpawnHeight.slimeChunk.maximum;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java b/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java
 index f7e5e016a7028a9196e689e950805b0d5b31fe38..7167cbd0ad37742fbe104508860c13e56e8c5e96 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java
@@ -542,7 +542,7 @@ index 1a4da589142c515e713d879095b105de4b913bd3..82e7c39e4e31a18d8d0cb9ec73988f13
  
                      StructureSet.StructureSelectionEntry structureset_a1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
-index f8cd23fb6ea7909b8f30bd21d3f2c7bcc483ef21..9a2aee356452d0760cc187089d851f12b29f562a 100644
+index 5d3d9164a05efbecc59ace6175f449f34d8d3ccd..cf8a26c420a4d4697dae88c5661e186c1f357af4 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 @@ -37,6 +37,7 @@ import org.slf4j.Logger;
@@ -553,7 +553,7 @@ index f8cd23fb6ea7909b8f30bd21d3f2c7bcc483ef21..9a2aee356452d0760cc187089d851f12
  // Spigot end
  
  public class ChunkGeneratorStructureState {
-@@ -221,15 +222,7 @@ public class ChunkGeneratorStructureState {
+@@ -224,15 +225,7 @@ public class ChunkGeneratorStructureState {
              List<CompletableFuture<ChunkPos>> list = new ArrayList(j);
              int k = placement.spread();
              HolderSet<Biome> holderset = placement.preferredBiomes();
@@ -818,10 +818,10 @@ index 594a2dd3b1d4c29c969d1992b8e93795da00e682..1fcde46e50b6840449c5e082de56faed
          return worldgenRandom.nextInt((int)(1.0F / frequency)) == 0;
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
-index 2b138ee73efb8365aa362e08bfb785e3c1aedabb..c6e9291a9e4016e32dd1074acde37e1dcb9c5129 100644
+index b6716f2b0037d12fb9956d7d1d0fab9b86cf4433..dd4b221c768dd17d48b27aa912081633ad745009 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftChunk.java
-@@ -199,7 +199,7 @@ public class CraftChunk implements Chunk {
+@@ -200,7 +200,7 @@ public class CraftChunk implements Chunk {
      @Override
      public boolean isSlimeChunk() {
          // 987234911L is deterimined in EntitySlime when seeing if a slime can spawn in a chunk
@@ -831,20 +831,21 @@ index 2b138ee73efb8365aa362e08bfb785e3c1aedabb..c6e9291a9e4016e32dd1074acde37e1d
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index d3b52d22434b7d8c65c70676d9afaba79c53ac6d..033154512b44b02f258ee41b06ac73c3dfbe774d 100644
+index e67a8fedc4a05685df1305eb0520f8a60af23294..14816c699efd70b3e85bdcf6f32647f9db864c1b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -44,6 +44,8 @@ import java.util.logging.Level;
- import java.util.logging.Logger;
+@@ -43,6 +43,9 @@ import java.util.logging.Logger;
  import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
+ // import jline.console.ConsoleReader;
 +
 +import net.edenor.foldenor.secureseed.Globals;
- import net.minecraft.advancements.Advancement;
++import net.minecraft.advancements.Advancement;
  import net.minecraft.advancements.AdvancementHolder;
  import net.minecraft.commands.CommandSourceStack;
-@@ -1334,7 +1336,7 @@ public final class CraftServer implements Server {
-             iregistry = pair.getSecond().dimensions();
+ import net.minecraft.commands.Commands;
+@@ -1369,7 +1372,7 @@ public final class CraftServer implements Server {
+             iregistry = leveldataanddimensions.dimensions().dimensions();
          } else {
              LevelSettings worldsettings;
 -            WorldOptions worldoptions = new WorldOptions(creator.seed(), creator.generateStructures(), false);

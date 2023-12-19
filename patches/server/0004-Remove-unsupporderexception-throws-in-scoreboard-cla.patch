@@ -5,10 +5,10 @@ Subject: [PATCH] Remove-unsupporderexception-throws-in-scoreboard-classes
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
-index f59e9e6dd21a7d034b5e3b6e7787458d3c3c7bbc..99a7dc9cb244918402c81afcef94f3127a19921b 100644
+index 299e7290fea260d739687be70a796c5a4add325b..683b9c5aef06297accafa46f35a08922e9547b3e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboard.java
-@@ -43,7 +43,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
+@@ -45,7 +45,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
      }
      @Override
      public CraftObjective registerNewObjective(String name, Criteria criteria, net.kyori.adventure.text.Component displayName, RenderType renderType) throws IllegalArgumentException {
@@ -17,7 +17,7 @@ index f59e9e6dd21a7d034b5e3b6e7787458d3c3c7bbc..99a7dc9cb244918402c81afcef94f312
          if (displayName == null) {
              displayName = net.kyori.adventure.text.Component.empty();
          }
-@@ -199,7 +199,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
+@@ -205,7 +205,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
  
      @Override
      public Team registerNewTeam(String name) {
@@ -26,7 +26,7 @@ index f59e9e6dd21a7d034b5e3b6e7787458d3c3c7bbc..99a7dc9cb244918402c81afcef94f312
          Preconditions.checkArgument(name != null, "Team name cannot be null");
          Preconditions.checkArgument(name.length() <= Short.MAX_VALUE, "Team name '%s' is longer than the limit of 32767 characters (%s)", name, name.length());
          Preconditions.checkArgument(this.board.getPlayerTeam(name) == null, "Team name '%s' is already in use", name);
-@@ -227,7 +227,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
+@@ -233,7 +233,7 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
  
      @Override
      public void clearSlot(DisplaySlot slot) {
@@ -36,7 +36,7 @@ index f59e9e6dd21a7d034b5e3b6e7787458d3c3c7bbc..99a7dc9cb244918402c81afcef94f312
          this.board.setDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot), null);
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
-index 7ab760a57d1305bc4dccec97526328972c2ddfc3..c193523dca41af5745e788065aef71f96d76eb02 100644
+index 46a8262f21ef95714c122240ee86f01858010047..802688c2091c3f1a31f02599fb73432811d588ee 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
 @@ -42,7 +42,7 @@ public final class CraftScoreboardManager implements ScoreboardManager {

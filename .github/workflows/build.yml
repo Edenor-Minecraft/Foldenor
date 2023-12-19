@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "1.20.2" ]
+    branches: [ "1.20.4" ]
   workflow_dispatch:
 
 jobs:
@@ -42,11 +42,11 @@ jobs:
       - name: Make release
         uses: softprops/action-gh-release@v1
         with:
-          name: "1.20.2 build"
+          name: "1.20.4 build"
           body: |
             Foldenor build
-            Version: 1.20.2
-          tag_name: "1.20.2_${{github.run_number}}"
+            Version: 1.20.4
+          tag_name: "1.20.4_${{github.run_number}}"
           files: build/libs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
