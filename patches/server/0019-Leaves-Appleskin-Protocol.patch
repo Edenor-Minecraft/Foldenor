@@ -5,18 +5,18 @@ Subject: [PATCH] Leaves-Appleskin-Protocol
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index d9931ba2cded417ff98a35309ed5437778028be9..09b6382de25811e91040aa7c2c9779bb962178ca 100644
+index 9a67b0107f4b79911b4d1e676e4d97c7ff8466a9..3e4af65b58540520a7cde6da06aedadff6e2369c 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -26,6 +26,7 @@ public class FoldenorConfig {
+@@ -25,6 +25,7 @@ public class FoldenorConfig {
+     static boolean verbose;
  
-     //Network
      public static boolean sendNullEntityPackets = true;
 +    public static boolean appleskinProtocol = false;
  
+     public static boolean vanilaEndPortalTeleportation = false;
  
-     //Optimization
-@@ -130,6 +131,7 @@ public class FoldenorConfig {
+@@ -125,6 +126,7 @@ public class FoldenorConfig {
  
      private static void networkSettings() {
          sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);

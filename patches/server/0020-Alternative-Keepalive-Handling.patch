@@ -5,19 +5,19 @@ Subject: [PATCH] Alternative-Keepalive-Handling
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 09b6382de25811e91040aa7c2c9779bb962178ca..e8ec92a1209642cc359773ae296c27beaa96b4af 100644
+index 3e4af65b58540520a7cde6da06aedadff6e2369c..2fd84774ff73dba2b210fc7419ab8da4ee48beec 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -27,6 +27,7 @@ public class FoldenorConfig {
-     //Network
+@@ -26,6 +26,7 @@ public class FoldenorConfig {
+ 
      public static boolean sendNullEntityPackets = true;
      public static boolean appleskinProtocol = false;
-+    public static boolean alternativeKeepAlive = false;
++    public static boolean alternateKeepAlive = false;
  
+     public static boolean vanilaEndPortalTeleportation = false;
  
-     //Optimization
 diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..712631905a743649d03e1eaa1149eeca98c96571 100644
+index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..36b10e3bfc4da32ed55a057e816df07e8c6f1ad4 100644
 --- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 @@ -4,6 +4,8 @@ import com.mojang.authlib.GameProfile;
@@ -56,7 +56,7 @@ index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..712631905a743649d03e1eaa1149eeca
 -            // Paper endg
 -        }
  
-+        if (FoldenorConfig.alternativeKeepAlive) {
++        if (FoldenorConfig.alternateKeepAlive) {
 +            long id = packet.getId();
 +            if (keepAlives.size() > 0 && keepAlives.contains(id)) {
 +                int ping = (int) (Util.getMillis() - id);
@@ -88,7 +88,7 @@ index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..712631905a743649d03e1eaa1149eeca
 -            if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected
 -                ServerGamePacketListenerImpl.LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName()); // more info
 -                this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
-+        if (FoldenorConfig.alternativeKeepAlive) {
++        if (FoldenorConfig.alternateKeepAlive) {
 +            if (elapsedTime >= 1000L) { // 1 second
 +                if (!processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
 +                    LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName());
