@@ -1,0 +1,125 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Fri, 22 Dec 2023 20:54:37 +0400
+Subject: [PATCH] Alternative-Keepalive-Handling
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index 09b6382de25811e91040aa7c2c9779bb962178ca..e8ec92a1209642cc359773ae296c27beaa96b4af 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -27,6 +27,7 @@ public class FoldenorConfig {
+     //Network
+     public static boolean sendNullEntityPackets = true;
+     public static boolean appleskinProtocol = false;
++    public static boolean alternativeKeepAlive = false;
+ 
+ 
+     //Optimization
+diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
+index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..712631905a743649d03e1eaa1149eeca98c96571 100644
+--- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
+@@ -4,6 +4,8 @@ import com.mojang.authlib.GameProfile;
+ import com.mojang.logging.LogUtils;
+ import java.util.Objects;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+@@ -51,6 +53,8 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+     private long keepAliveTime = Util.getMillis(); // Paper
+     private boolean keepAlivePending;
+     private long keepAliveChallenge;
++
++    private it.unimi.dsi.fastutil.longs.LongList keepAlives = new it.unimi.dsi.fastutil.longs.LongArrayList();
+     private int latency;
+     private volatile boolean suspendFlushingOnServerThread = false;
+     private static final long KEEPALIVE_LIMIT = Long.getLong("paper.playerconnection.keepalive", 30) * 1000; // Paper - provide property to set keepalive limit
+@@ -91,20 +95,28 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+ 
+     @Override
+     public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
+-        //PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel()); // CraftBukkit // Paper - This shouldn't be on the main thread
+-        if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
+-            int i = (int) (Util.getMillis() - this.keepAliveTime);
+-
+-            this.latency = (this.latency * 3 + i) / 4;
+-            this.keepAlivePending = false;
+-        } else if (!this.isSingleplayerOwner()) {
+-            // Paper start - This needs to be handled on the main thread for plugins
+-            // Folia - region threading - do not schedule to main anymore, there is no main
+-                this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
+-            // Folia - region threading - do not schedule to main anymore, there is no main
+-            // Paper endg
+-        }
+ 
++        if (FoldenorConfig.alternativeKeepAlive) {
++            long id = packet.getId();
++            if (keepAlives.size() > 0 && keepAlives.contains(id)) {
++                int ping = (int) (Util.getMillis() - id);
++                this.latency = (this.latency * 3 + ping) / 4;
++                keepAlives.clear(); // we got a valid response, lets roll with it and forget the rest
++            }
++        } else
++            //PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel()); // CraftBukkit // Paper - This shouldn't be on the main thread
++            if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
++                int i = (int) (Util.getMillis() - this.keepAliveTime);
++
++                this.latency = (this.latency * 3 + i) / 4;
++                this.keepAlivePending = false;
++            } else if (!this.isSingleplayerOwner()) {
++                // Paper start - This needs to be handled on the main thread for plugins
++                // Folia - region threading - do not schedule to main anymore, there is no main
++                    this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++                // Folia - region threading - do not schedule to main anymore, there is no main
++                // Paper endg
++            }
+     }
+ 
+     @Override
+@@ -199,19 +211,31 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+         long currentTime = Util.getMillis();
+         long elapsedTime = currentTime - this.keepAliveTime;
+ 
+-        if (this.keepAlivePending) {
+-            if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected
+-                ServerGamePacketListenerImpl.LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName()); // more info
+-                this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++        if (FoldenorConfig.alternativeKeepAlive) {
++            if (elapsedTime >= 1000L) { // 1 second
++                if (!processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
++                    LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName());
++                    disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT);
++                } else {
++                    keepAliveTime = currentTime; // hijack this field for 1 second intervals
++                    keepAlives.add(currentTime); // currentTime is ID
++                    send(new ClientboundKeepAlivePacket(currentTime));
++                }
+             }
+-        } else {
+-            if (elapsedTime >= 15000L) { // 15 seconds
+-                this.keepAlivePending = true;
+-                this.keepAliveTime = currentTime;
+-                this.keepAliveChallenge = currentTime;
+-                this.send(new ClientboundKeepAlivePacket(this.keepAliveChallenge));
++        } else
++            if (this.keepAlivePending) {
++                if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected
++                    ServerGamePacketListenerImpl.LOGGER.warn("{} was kicked due to keepalive timeout!", this.player.getScoreboardName()); // more info
++                    this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
++                }
++            } else {
++                if (elapsedTime >= 15000L) { // 15 seconds
++                    this.keepAlivePending = true;
++                    this.keepAliveTime = currentTime;
++                    this.keepAliveChallenge = currentTime;
++                    this.send(new ClientboundKeepAlivePacket(this.keepAliveChallenge));
++                }
+             }
+-        }
+         // Paper end
+ 
+         this.server.getProfiler().pop();
