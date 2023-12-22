@@ -158,7 +158,7 @@ index 2c3e1b420303a3c3a9315983fbc7e47423f7d9e4..aa43803baac0f98cea3c632f9aa70848
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
-index ea26d9464644b5217879b8c21b4da28e57708dcb..b0ba157d44d06d374f846bb7bbc36dff31798ff6 100644
+index ea26d9464644b5217879b8c21b4da28e57708dcb..bca4d6bd711303d19350a2ed32eee436c52b18cd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
 @@ -3,6 +3,7 @@ package org.bukkit.craftbukkit.scheduler;
@@ -178,7 +178,19 @@ index ea26d9464644b5217879b8c21b4da28e57708dcb..b0ba157d44d06d374f846bb7bbc36dff
      CraftTask(final Object task, int id, String taskName) {
          this.rTask = (Runnable) task;
          this.cTask = null;
-@@ -139,12 +142,18 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+@@ -86,7 +89,10 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+ 
+     @Override
+     public final Plugin getOwner() {
+-        return this.plugin;
++        if (this.plugin == null && this.scheduledTask.getOwningPlugin() != null)
++            return this.scheduledTask.getOwningPlugin();
++        else
++            return this.plugin;
+     }
+ 
+     @Override
+@@ -139,12 +145,18 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
  
      @Override
      public boolean isCancelled() {
