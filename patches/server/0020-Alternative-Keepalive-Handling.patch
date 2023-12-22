@@ -5,7 +5,7 @@ Subject: [PATCH] Alternative-Keepalive-Handling
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 3e4af65b58540520a7cde6da06aedadff6e2369c..2fd84774ff73dba2b210fc7419ab8da4ee48beec 100644
+index 3e4af65b58540520a7cde6da06aedadff6e2369c..645345766a0a3f9e92d079c7e2eb8394a216e9f1 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 @@ -26,6 +26,7 @@ public class FoldenorConfig {
@@ -16,6 +16,14 @@ index 3e4af65b58540520a7cde6da06aedadff6e2369c..2fd84774ff73dba2b210fc7419ab8da4
  
      public static boolean vanilaEndPortalTeleportation = false;
  
+@@ -127,6 +128,7 @@ public class FoldenorConfig {
+     private static void networkSettings() {
+         sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);
+         appleskinProtocol = getBoolean("network.appleskin-protocol", appleskinProtocol);
++        alternateKeepAlive = getBoolean("network.alternate-keepalive", alternateKeepAlive);
+     }
+ 
+     protected static void set(String path, Object val) {
 diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..36b10e3bfc4da32ed55a057e816df07e8c6f1ad4 100644
 --- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
