@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 16:04:18 +0400
+Subject: [PATCH] Gale-Optimize-sun-burn-tick
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 86e9236dcb76c74d49409b7056fb476dc8de22c4..904ad1073b9b1e9b6d5eb9abf786495d5d61ca9f 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -2048,7 +2048,11 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+      */
+     @Deprecated
+     public float getLightLevelDependentMagicValue() {
+-        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ()) ? this.level().getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ())) : 0.0F;
++        return this.getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ()));
++    }
++
++    public float getLightLevelDependentMagicValue(BlockPos pos) {
++        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ()) ? this.level.getLightLevelDependentMagicValue(pos) : 0.0F;
+     }
+ 
+     public void absMoveTo(double x, double y, double z, float yaw, float pitch) {
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index 6a04de78f9f936a4279edd6dda3e2605940fadd5..769d1ffe1948b9ff04f30d341123d9dad8359f7f 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -1734,13 +1734,25 @@ public abstract class Mob extends LivingEntity implements Targeting {
+ 
+     }
+ 
++    private BlockPos cached_eye_blockpos;
++    private int cached_position_hashcode;
++
+     public boolean isSunBurnTick() {
+         if (this.level().isDay() && !this.level().isClientSide) {
+-            float f = this.getLightLevelDependentMagicValue();
+-            BlockPos blockposition = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
++            int positionHashCode = this.position().hashCode();
++            if (this.cached_position_hashcode != positionHashCode) {
++                this.cached_eye_blockpos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
++                this.cached_position_hashcode = positionHashCode;
++            }
++
++            float f = this.getLightLevelDependentMagicValue(cached_eye_blockpos); // Pass BlockPos to getBrightness
++
++            // Check brightness first
++            if (f <= 0.5F) return false;
++            if (this.random.nextFloat() * 30.0F >= (f - 0.4F) * 2.0F) return false;
+             boolean flag = this.isInWaterRainOrBubble() || this.isInPowderSnow || this.wasInPowderSnow;
+ 
+-            if (f > 0.5F && this.random.nextFloat() * 30.0F < (f - 0.4F) * 2.0F && !flag && this.level().canSeeSky(blockposition)) {
++            if (!flag && this.level().canSeeSky(this.cached_eye_blockpos)) {
+                 return true;
+             }
+         }

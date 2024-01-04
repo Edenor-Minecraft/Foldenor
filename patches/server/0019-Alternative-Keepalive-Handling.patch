@@ -25,7 +25,7 @@ index 3e4af65b58540520a7cde6da06aedadff6e2369c..645345766a0a3f9e92d079c7e2eb8394
  
      protected static void set(String path, Object val) {
 diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..36b10e3bfc4da32ed55a057e816df07e8c6f1ad4 100644
+index 2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17..dcb9fc6772e977e61880294d3315f918831f077f 100644
 --- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 @@ -4,6 +4,8 @@ import com.mojang.authlib.GameProfile;
@@ -45,8 +45,8 @@ index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..36b10e3bfc4da32ed55a057e816df07e
 +    private it.unimi.dsi.fastutil.longs.LongList keepAlives = new it.unimi.dsi.fastutil.longs.LongArrayList();
      private int latency;
      private volatile boolean suspendFlushingOnServerThread = false;
-     private static final long KEEPALIVE_LIMIT = Long.getLong("paper.playerconnection.keepalive", 30) * 1000; // Paper - provide property to set keepalive limit
-@@ -91,20 +95,28 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+     public final java.util.Map<java.util.UUID, net.kyori.adventure.resource.ResourcePackCallback> packCallbacks = new java.util.concurrent.ConcurrentHashMap<>(); // Paper - adventure resource pack callbacks
+@@ -92,20 +96,28 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
  
      @Override
      public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
@@ -88,7 +88,7 @@ index b3e9deb74c514472be6b0222f35b9c93c9f8d5ee..36b10e3bfc4da32ed55a057e816df07e
      }
  
      @Override
-@@ -199,19 +211,31 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+@@ -212,19 +224,31 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
          long currentTime = Util.getMillis();
          long elapsedTime = currentTime - this.keepAliveTime;
  

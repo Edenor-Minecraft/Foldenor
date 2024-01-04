@@ -5,7 +5,7 @@ Subject: [PATCH] Redirect-getTPS-function-to-tegion-tps-or-return-20-tps
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 7ea7ac04b824cc8d76618fe69a0aa3446b5a797b..4be9de7390640ab8648916199506fc4750b0c471 100644
+index d8b250e1c09cf8c3b5180ddb653ed9107cab929f..518ade861db3ae1702898d1364dcfa363b191185 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -14,6 +14,9 @@ import com.mojang.brigadier.tree.CommandNode;

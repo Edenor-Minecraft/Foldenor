@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 15:09:57 +0400
+Subject: [PATCH] Pufferfish-Early-return-optimization-for-target-find
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/ai/targeting/TargetingConditions.java b/src/main/java/net/minecraft/world/entity/ai/targeting/TargetingConditions.java
+index c157309ac78e7af084d3acb6e8b2bcd469a39d5e..4b3346ba1dc0d839a92434a773fbabd5356f6c58 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/targeting/TargetingConditions.java
++++ b/src/main/java/net/minecraft/world/entity/ai/targeting/TargetingConditions.java
+@@ -75,9 +75,17 @@ public class TargetingConditions {
+                 }
+ 
+                 if (this.range > 0.0D) {
+-                    double d = this.testInvisible ? targetEntity.getVisibilityPercent(baseEntity) : 1.0D;
+-                    double e = Math.max((this.useFollowRange ? this.getFollowRange(baseEntity) : this.range) * d, 2.0D); // Paper
++                    //double d = this.testInvisible ? targetEntity.getVisibilityPercent(baseEntity) : 1.0D;
++                    //double e = Math.max((this.useFollowRange ? this.getFollowRange(baseEntity) : this.range) * d, 2.0D); // Paper
+                     double f = baseEntity.distanceToSqr(targetEntity.getX(), targetEntity.getY(), targetEntity.getZ());
++                    double followRangeRaw = this.useFollowRange ? this.getFollowRange(baseEntity) : this.range;
++
++                    if (f > followRangeRaw * followRangeRaw) { // the actual follow range will always be this value or smaller, so if the distance is larger then it never will return true after getting invis
++                        return false;
++                    }
++
++                    double d = this.testInvisible ? targetEntity.getVisibilityPercent(baseEntity) : 1.0D;
++                    double e = Math.max((followRangeRaw) * d, 2.0D); // Paper
+                     if (f > e * e) {
+                         return false;
+                     }

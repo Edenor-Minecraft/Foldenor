@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 16:01:40 +0400
+Subject: [PATCH] Gale-Don-t-load-chunks-to-activate-climbing-entities
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index 3a531564559bbd333b7bb56b9896c34056576a94..c668d7e2c64379e48a12a4c93dbdf18a5ed8cbe7 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -34,6 +34,7 @@ public class FoldenorConfig {
+ 
+     public static int maxProjectileLoadsPerTick = 10;
+     public static double entityWakeUpDurationRatioStandardDeviation = 0.2;
++    public static boolean loadChunksToActiveClimbingEntities = false;
+ 
+     public static int acquirePoiForStuckEntityInterval = 60;
+     public static boolean enableSuffocationOptimization = true;
+@@ -130,6 +131,7 @@ public class FoldenorConfig {
+         acquirePoiForStuckEntityInterval = getInt("optimizations.acquire_poi_for_stuck_entity_interval", acquirePoiForStuckEntityInterval);
+         enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check",enableSuffocationOptimization);
+         entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation",entityWakeUpDurationRatioStandardDeviation);
++        loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities",loadChunksToActiveClimbingEntities);
+     }
+ 
+     private static void networkSettings() {
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index a9049fa7c3c20cfa5c4b190098c26ffe54a826a7..86e9236dcb76c74d49409b7056fb476dc8de22c4 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -5464,6 +5464,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         return this.feetBlockState;
+     }
+ 
++    public @Nullable BlockState getFeetBlockStateIfLoaded() {
++        if (this.feetBlockState == null) {
++            this.feetBlockState = this.level.getBlockStateIfLoaded(this.blockPosition());
++        }
++
++        return this.feetBlockState;
++    }
++
+     public ChunkPos chunkPosition() {
+         return this.chunkPosition;
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index f396a480b7193af25e2adf92ad308d3b5b98766d..e855fc7b4eb9996ec3a40ccc6afd15f0a7ece35c 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -2030,18 +2030,36 @@ public abstract class LivingEntity extends Entity implements Attackable {
+ 
+     public boolean onClimableCached() {
+         if (!this.blockPosition().equals(this.lastClimbingPosition)) {
+-            this.cachedOnClimable = this.onClimbable();
+-            this.lastClimbingPosition = this.blockPosition();
++            Boolean onClimbableIfLoaded = this.onClimbable(FoldenorConfig.loadChunksToActiveClimbingEntities);
++            if (onClimbableIfLoaded != null) {
++                this.cachedOnClimable = onClimbableIfLoaded;
++                this.lastClimbingPosition = this.blockPosition();
++            } else {
++                this.cachedOnClimable = false;
++                this.lastClimbingPosition = null;
++            }
+         }
+         return this.cachedOnClimable;
+     }
+ 
+     public boolean onClimbable() {
++        return onClimbable(true);
++    }
++
++    public Boolean onClimbable(boolean loadChunk) {
+         if (this.isSpectator()) {
+             return false;
+         } else {
+             BlockPos blockposition = this.blockPosition();
+-            BlockState iblockdata = this.getFeetBlockState();
++            BlockState iblockdata;
++            if (loadChunk) {
++                iblockdata = this.getFeetBlockState();
++            } else {
++                iblockdata = this.getFeetBlockStateIfLoaded();
++                if (iblockdata == null) {
++                    return null;
++                }
++            }
+ 
+             if (iblockdata.is(BlockTags.CLIMBABLE)) {
+                 this.lastClimbablePos = Optional.of(blockposition);

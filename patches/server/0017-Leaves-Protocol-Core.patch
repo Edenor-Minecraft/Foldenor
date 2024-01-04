@@ -34,10 +34,10 @@ index a55bbe3eac09be974c4cd0614379254701b63f19..7bba17c5fb78ecaffc61fc180d3c873d
  
          MinecraftTimings.tickablesTimer.startTiming(); // Spigot // Paper
 diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-index ce200192b4dddfc9b2d3c355838596b7deef1c69..b3e9deb74c514472be6b0222f35b9c93c9f8d5ee 100644
+index caa60d7ec56fa5da67f756297295296c2ff7c6d9..2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17 100644
 --- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-@@ -116,6 +116,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+@@ -117,6 +117,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
  
      @Override
      public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
@@ -45,7 +45,7 @@ index ce200192b4dddfc9b2d3c355838596b7deef1c69..b3e9deb74c514472be6b0222f35b9c93
          // Paper start - handle brand payload packet
          if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.BrandPayload brandPayload) {
              this.player.clientBrandName = brandPayload.brand();
-@@ -133,6 +134,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+@@ -134,6 +135,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
                  String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
                  for (String channel : channels.split("\0")) {
                      this.getCraftPlayer().addChannel(channel);
@@ -54,7 +54,7 @@ index ce200192b4dddfc9b2d3c355838596b7deef1c69..b3e9deb74c514472be6b0222f35b9c93
              } catch (Exception ex) {
                  ServerGamePacketListenerImpl.LOGGER.error("Couldn\'t register custom payload", ex);
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index dfc0e3ce3ba88c3dbff909524de348fbe76de3a9..3150fba2731ab8e3696992f1f32797aafe885f9b 100644
+index ded539dd20a2d037fa5d175be06d59dd76660ffe..91586104d2c83a38d0ad7a845f619cd423a55e8d 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -433,6 +433,8 @@ public abstract class PlayerList {
@@ -75,7 +75,7 @@ index dfc0e3ce3ba88c3dbff909524de348fbe76de3a9..3150fba2731ab8e3696992f1f32797aa
          ServerLevel worldserver = entityplayer.serverLevel();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 4be9de7390640ab8648916199506fc4750b0c471..80290f2611be76ed75275052d9f0bb4a2a70da46 100644
+index 518ade861db3ae1702898d1364dcfa363b191185..f2166bce683db27c84013cf5d3c169de53be3448 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -480,6 +480,7 @@ public final class CraftServer implements Server {

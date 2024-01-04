@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 14:49:50 +0400
+Subject: [PATCH] Pufferfish-Optimize-entity-coordinate-key
+
+
+diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
+index 1f0ec6add54b7503415d5f4141fe2b6046f1ec69..c498176484b82563fa401b5f4d590709492ea9a6 100644
+--- a/src/main/java/io/papermc/paper/util/MCUtil.java
++++ b/src/main/java/io/papermc/paper/util/MCUtil.java
+@@ -212,7 +212,7 @@ public final class MCUtil {
+     }
+ 
+     public static long getCoordinateKey(final Entity entity) {
+-        return ((long)(MCUtil.fastFloor(entity.getZ()) >> 4) << 32) | ((MCUtil.fastFloor(entity.getX()) >> 4) & 0xFFFFFFFFL);
++        return ((long)(entity.blockPosition().getZ() >> 4) << 32) | ((entity.blockPosition().getX() >> 4) & 0xFFFFFFFFL);
+     }
+ 
+     public static long getCoordinateKey(final ChunkPos pair) {

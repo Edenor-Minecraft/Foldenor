@@ -414,7 +414,7 @@ index 1643186bcb2caf5d29fd551afd35830726dbb80a..df4c167f5bf07917012e5a586190725a
              return GsonHelper.parse(!s1.isEmpty() ? s1 : "{}");
          }, new JsonObject()), (String) this.get("level-type", (s1) -> {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index d248c0492a34c11fb96c9dd6f0a3d180ee846c51..8d1df54524846409f92af3ab0f6e8c9186db136f 100644
+index 88db5ada13329a5fe0d0fb652d2c8a8d561649e8..8082c189fc414b741bff9ca9b259b448e8adf0d2 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 @@ -46,6 +46,8 @@ import net.minecraft.world.level.levelgen.RandomState;
@@ -426,7 +426,7 @@ index d248c0492a34c11fb96c9dd6f0a3d180ee846c51..8d1df54524846409f92af3ab0f6e8c91
  
  public class ServerChunkCache extends ChunkSource {
  
-@@ -723,6 +725,7 @@ public class ServerChunkCache extends ChunkSource {
+@@ -692,6 +694,7 @@ public class ServerChunkCache extends ChunkSource {
      }
  
      public ChunkGenerator getGenerator() {
@@ -435,7 +435,7 @@ index d248c0492a34c11fb96c9dd6f0a3d180ee846c51..8d1df54524846409f92af3ab0f6e8c91
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 8cf413e42d560d90dfcbcb1d61ed410e992a8f4c..401bca7dd2aa59b067f23cc74043866f2d0ac68b 100644
+index fdb5237935a13322d8e7332b199308513b9f8e9b..569f4d514b3249a3f025ff7ea7bc120586eaec58 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -179,6 +179,7 @@ import org.bukkit.event.world.GenericGameEvent;
@@ -446,7 +446,7 @@ index 8cf413e42d560d90dfcbcb1d61ed410e992a8f4c..401bca7dd2aa59b067f23cc74043866f
  
  public class ServerLevel extends Level implements WorldGenLevel {
  
-@@ -808,6 +809,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -813,6 +814,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
              chunkgenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkgenerator, gen);
          }
          // CraftBukkit end
@@ -506,7 +506,7 @@ index f7e5e016a7028a9196e689e950805b0d5b31fe38..7167cbd0ad37742fbe104508860c13e5
      @Nullable
      public abstract BlockState setBlockState(BlockPos pos, BlockState state, boolean moved);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkGenerator.java b/src/main/java/net/minecraft/world/level/chunk/ChunkGenerator.java
-index 1a4da589142c515e713d879095b105de4b913bd3..82e7c39e4e31a18d8d0cb9ec73988f13e343aee8 100644
+index 9c868490f4f032871d9815bfe969d1530bc001ad..eb78a920f33df14146bd46753f1e01c6f39fe8e4 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkGenerator.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkGenerator.java
 @@ -76,6 +76,7 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStruct
@@ -831,7 +831,7 @@ index b6716f2b0037d12fb9956d7d1d0fab9b86cf4433..dd4b221c768dd17d48b27aa912081633
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index e67a8fedc4a05685df1305eb0520f8a60af23294..14816c699efd70b3e85bdcf6f32647f9db864c1b 100644
+index 250942deaf337f5ea5838e02244c0e81ec16d33c..8917d0a0eb1f1298c0669465e5a15422876e62b8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -43,6 +43,9 @@ import java.util.logging.Logger;

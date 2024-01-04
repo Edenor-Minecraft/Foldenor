@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 15:46:28 +0400
+Subject: [PATCH] Pufferfish-Only-check-for-spooky-season-once-an-hour
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/ambient/Bat.java b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
+index 6b614818b14ecfc8fc82b523eeb7e21fdf9bf1ba..b1140f5fbd6c9cb7a3944dd079a4397e062d1edd 100644
+--- a/src/main/java/net/minecraft/world/entity/ambient/Bat.java
++++ b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
+@@ -3,6 +3,10 @@ package net.minecraft.world.entity.ambient;
+ import java.time.LocalDate;
+ import java.time.temporal.ChronoField;
+ import javax.annotation.Nullable;
++
++import io.papermc.paper.threadedregions.ThreadedRegionizer;
++import io.papermc.paper.threadedregions.TickRegionScheduler;
++import io.papermc.paper.threadedregions.TickRegions;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.syncher.EntityDataAccessor;
+@@ -95,10 +99,12 @@ public class Bat extends AmbientCreature {
+     }
+ 
+     @Override
+-    protected void doPush(Entity entity) {}
++    protected void doPush(Entity entity) {
++    }
+ 
+     @Override
+-    protected void pushEntities() {}
++    protected void pushEntities() {
++    }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 6.0D);
+@@ -192,7 +198,8 @@ public class Bat extends AmbientCreature {
+     }
+ 
+     @Override
+-    protected void checkFallDamage(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {}
++    protected void checkFallDamage(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {
++    }
+ 
+     @Override
+     public boolean isIgnoringBlockTriggers() {
+@@ -241,12 +248,24 @@ public class Bat extends AmbientCreature {
+         }
+     }
+ 
+-    private static boolean isHalloween() {
+-        LocalDate localdate = LocalDate.now();
+-        int i = localdate.get(ChronoField.DAY_OF_MONTH);
+-        int j = localdate.get(ChronoField.MONTH_OF_YEAR);
++    private static boolean isSpookySeason = false;
++    private static final int ONE_HOUR = 20 * 60 * 60;
++    private static int lastSpookyCheck = -ONE_HOUR;
+ 
+-        return j == 10 && i >= 20 || j == 11 && i <= 3;
++    private static boolean isHalloween() {
++        final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
++            TickRegionScheduler.getCurrentRegion();
++        final long tickCount = region.getData().getCurrentTick();
++        if (tickCount - lastSpookyCheck > ONE_HOUR) {
++            LocalDate localdate = LocalDate.now();
++            int i = localdate.get(ChronoField.DAY_OF_MONTH);
++            int j = localdate.get(ChronoField.MONTH_OF_YEAR);
++
++            //return j == 10 && i >= 20 || j == 11 && i <= 3;
++            isSpookySeason = j == 10 && i >= 20 || j == 11 && i <= 3;
++            lastSpookyCheck = (int) tickCount;
++        }
++        return isSpookySeason;
+     }
+ 
+     @Override

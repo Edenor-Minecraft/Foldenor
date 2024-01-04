@@ -5,10 +5,10 @@ Subject: [PATCH] Linear-Region-Format
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 9fc2ad504d81e87ed7c004532927fcc5ebe60370..f6963467f1a4a187106852d1b1fc4451a8f951a1 100644
+index 8f53706da0765ef2f4007b61cbb16b06b1b83ca0..85895f4587f1450552bfc555ca1b9b89415f2990 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -33,6 +33,8 @@ dependencies {
+@@ -19,6 +19,8 @@ dependencies {
          exclude("io.papermc.paper", "paper-api")
      }
      // Folia end
@@ -682,7 +682,7 @@ index a5b75bfefadb58cd90559b6268a7e36bc32b4784..a55bbe3eac09be974c4cd06143792547
  
          return flag3;
 diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
-index 50597a8b45bbd7dcc40b361da78358d9d01f5484..48089abe138c28c1fd321ab4400626cad618fdde 100644
+index c0aaa5ff3839698e262270f2bc315d39c31620ea..c31842310e16928bd7e3dac86d4e21829ccab365 100644
 --- a/src/main/java/net/minecraft/server/level/ChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
 @@ -52,6 +52,8 @@ import java.util.function.IntFunction;
@@ -694,7 +694,7 @@ index 50597a8b45bbd7dcc40b361da78358d9d01f5484..48089abe138c28c1fd321ab4400626ca
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
  import net.minecraft.ReportedException;
-@@ -212,7 +214,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -211,7 +213,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
      // Paper end - optimise chunk tick iteration
  
      public ChunkMap(ServerLevel world, LevelStorageSource.LevelStorageAccess session, DataFixer dataFixer, StructureTemplateManager structureTemplateManager, Executor executor, BlockableEventLoop<Runnable> mainThreadExecutor, LightChunkGetter chunkProvider, ChunkGenerator chunkGenerator, ChunkProgressListener worldGenerationProgressListener, ChunkStatusUpdateListener chunkStatusChangeListener, Supplier<DimensionDataStorage> persistentStateManagerFactory, int viewDistance, boolean dsync) {
@@ -703,7 +703,7 @@ index 50597a8b45bbd7dcc40b361da78358d9d01f5484..48089abe138c28c1fd321ab4400626ca
          // Paper - rewrite chunk system
          this.tickingGenerated = new AtomicInteger();
          //this.playerMap = new PlayerMap(); // Folia - region threading
-@@ -257,7 +259,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -256,7 +258,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
          this.lightEngine = new ThreadedLevelLightEngine(chunkProvider, this, this.level.dimensionType().hasSkyLight(), null, null); // Paper - rewrite chunk system
          this.distanceManager = new ChunkMap.ChunkDistanceManager(executor, mainThreadExecutor);
          this.overworldDataStorage = persistentStateManagerFactory;
@@ -712,7 +712,7 @@ index 50597a8b45bbd7dcc40b361da78358d9d01f5484..48089abe138c28c1fd321ab4400626ca
          this.setServerViewDistance(viewDistance);
          // Paper start
          this.dataRegionManager = new io.papermc.paper.chunk.SingleThreadChunkRegionManager(this.level, 2, (1.0 / 3.0), 1, 6, "Data", DataRegionData::new, DataRegionSectionData::new);
-@@ -823,13 +825,13 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -822,13 +824,13 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
  
      // Paper start - chunk status cache "api"
      public ChunkStatus getChunkStatusOnDiskIfCached(ChunkPos chunkPos) {
@@ -728,7 +728,7 @@ index 50597a8b45bbd7dcc40b361da78358d9d01f5484..48089abe138c28c1fd321ab4400626ca
  
          if (regionFile == null || !regionFileCache.chunkExists(chunkPos)) {
              return null;
-@@ -847,7 +849,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+@@ -846,7 +848,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
      }
  
      public void updateChunkStatusOnDisk(ChunkPos chunkPos, @Nullable CompoundTag compound) throws IOException {
@@ -738,7 +738,7 @@ index 50597a8b45bbd7dcc40b361da78358d9d01f5484..48089abe138c28c1fd321ab4400626ca
          regionFile.setStatus(chunkPos.x, chunkPos.z, ChunkSerializer.getStatus(compound));
      }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 857b7d321c0f76d502b402e710ea29e5814a608a..7c8fb4db8e87928f74ec56e66099a8da8e8feffb 100644
+index 48cf475c5a5462039c72fe2c1c594cd0d3b9fa96..f4cabb996f92ed7ba3023273ba11c9d38ecd1a72 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -38,6 +38,8 @@ import java.util.stream.Collectors;
@@ -761,7 +761,7 @@ index 857b7d321c0f76d502b402e710ea29e5814a608a..7c8fb4db8e87928f74ec56e66099a8da
          }
  
          protected void write(ChunkPos pos, net.minecraft.nbt.CompoundTag nbt) throws IOException {
-@@ -812,7 +814,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -817,7 +819,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
          Globals.setupGlobals(this);
          boolean flag2 = minecraftserver.forceSynchronousWrites();
          DataFixer datafixer = minecraftserver.getFixerUpper();
@@ -1163,10 +1163,10 @@ index 4aac1979cf57300825a999c876fcf24d3170e68e..e1436f956f74b93d0a7bf96388f8af5b
          this.factory = factory;
          this.fixerUpper = dataFixer;
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index a0eeba6f3b55e5fc0f5f92a1b7bee4f721910f63..554a72599790a66528c83c6b11ea780c6b652087 100644
+index 085eebd879bc514dc9f785ea31fc6c0f7a066953..526d0cd22684609e8c30d6eef478f9db7421b15e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -570,7 +570,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -569,7 +569,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
                  return true;
              }
  

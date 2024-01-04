@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 02:51:04 +0400
+Subject: [PATCH] POI-changes
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index 645345766a0a3f9e92d079c7e2eb8394a216e9f1..b873a692a13549ec39d0350703b2fafb6964e334 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -34,6 +34,8 @@ public class FoldenorConfig {
+ 
+     public static int maxProjectileLoadsPerTick = 10;
+ 
++    public static int acquirePoiForStuckEntityInterval = 60;
++
+     public static RegionFileFormat regionFormatName = RegionFileFormat.ANVIL;
+     public static int regionFormatLinearCompressionLevel = 1;
+     public static int linearFlushFrequency = 10;
+@@ -123,6 +125,7 @@ public class FoldenorConfig {
+     private static void optimizationSettings() {
+         maxProjectileLoadsPerProjectile = getInt("optimizations.max_projectile_loads_per_projectile",maxProjectileLoadsPerProjectile);
+         maxProjectileLoadsPerTick = getInt("optimizations.max_projectile_loads_per_tick",maxProjectileLoadsPerTick);
++        acquirePoiForStuckEntityInterval = getInt("optimizations.acquire_poi_for_stuck_entity_interval", acquirePoiForStuckEntityInterval);
+     }
+ 
+     private static void networkSettings() {
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
+index 8f8b29f80d1573981ccffd207dd6e0941e71a352..274d3d20afee40ea5108adff0bb3932e34580325 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
+@@ -9,10 +9,13 @@ import java.util.Set;
+ import java.util.function.Predicate;
+ import java.util.stream.Collectors;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.GlobalPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.network.protocol.game.DebugPackets;
++import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.world.entity.Mob;
+ import net.minecraft.world.entity.PathfinderMob;
+@@ -26,6 +29,11 @@ import org.apache.commons.lang3.mutable.MutableLong;
+ public class AcquirePoi {
+     public static final int SCAN_RANGE = 48;
+ 
++    public static void addAdditionalTimeToMutableLongIfEntityIsStuck(MutableLong mutableLong, ServerLevel world, PathfinderMob entity) {
++        long stuckEntityAdditionalWaitTime = FoldenorConfig.acquirePoiForStuckEntityInterval;
++        mutableLong.add(stuckEntityAdditionalWaitTime <= 0L ? 0L : entity.getNavigation().isStuck() ? stuckEntityAdditionalWaitTime : 0L);
++    }
++
+     public static BehaviorControl<PathfinderMob> create(Predicate<Holder<PoiType>> poiPredicate, MemoryModuleType<GlobalPos> poiPosModule, boolean onlyRunIfChild, Optional<Byte> entityStatus) {
+         return create(poiPredicate, poiPosModule, poiPosModule, onlyRunIfChild, entityStatus);
+     }
+@@ -42,12 +50,14 @@ public class AcquirePoi {
+                         return false;
+                     } else if (mutableLong.getValue() == 0L) {
+                         mutableLong.setValue(world.getGameTime() + (long)world.random.nextInt(20));
++                        addAdditionalTimeToMutableLongIfEntityIsStuck(mutableLong, world, entity);
+                         return false;
+                     } else if (world.getGameTime() < mutableLong.getValue()) {
+                         return false;
+                     } else {
+                         mutableLong.setValue(time + 20L + (long)world.getRandom().nextInt(20));
+-                        if (entity.getNavigation().isStuck()) mutableLong.add(200); // Paper - Wait an additional 10s to check again if they're stuck
++                        addAdditionalTimeToMutableLongIfEntityIsStuck(mutableLong, world, entity);
++                        //if (entity.getNavigation().isStuck()) mutableLong.add(200); // Paper - Wait an additional 10s to check again if they're stuck
+                         PoiManager poiManager = world.getPoiManager();
+                         long2ObjectMap.long2ObjectEntrySet().removeIf((entry) -> {
+                             return !entry.getValue().isStillValid(time);
+diff --git a/src/main/java/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java b/src/main/java/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java
+index cb1d91f9fe98f21c2afbe3894dfd9bca3bdd3ba6..6a371bc357ca58979ef79e903762e0d26ab8da69 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java
++++ b/src/main/java/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java
+@@ -22,6 +22,11 @@ public class SecondaryPoiSensor extends Sensor<Villager> {
+ 
+     @Override
+     protected void doTick(ServerLevel world, Villager entity) {
++        var secondaryPoi = entity.getVillagerData().getProfession().secondaryPoi();
++        if (secondaryPoi.isEmpty()) {
++            entity.getBrain().eraseMemory(MemoryModuleType.SECONDARY_JOB_SITE);
++            return;
++        }
+         ResourceKey<Level> resourceKey = world.dimension();
+         BlockPos blockPos = entity.blockPosition();
+         List<GlobalPos> list = Lists.newArrayList();

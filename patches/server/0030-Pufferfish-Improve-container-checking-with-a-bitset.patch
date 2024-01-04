@@ -1,0 +1,541 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Thu, 4 Jan 2024 15:35:36 +0400
+Subject: [PATCH] Pufferfish-Improve-container-checking-with-a-bitset
+
+
+diff --git a/src/main/java/gg/airplane/structs/ItemListWithBitset.java b/src/main/java/gg/airplane/structs/ItemListWithBitset.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..adb3d7acd510c8336e67bc8cc9041fa9e0bc6b95
+--- /dev/null
++++ b/src/main/java/gg/airplane/structs/ItemListWithBitset.java
+@@ -0,0 +1,114 @@
++package gg.airplane.structs;
++
++import net.minecraft.core.NonNullList;
++import net.minecraft.world.item.ItemStack;
++import org.apache.commons.lang.Validate;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++import java.util.AbstractList;
++import java.util.Arrays;
++import java.util.List;
++
++public class ItemListWithBitset extends AbstractList<ItemStack> {
++    public static ItemListWithBitset fromList(List<ItemStack> list) {
++        if (list instanceof ItemListWithBitset ours) {
++            return ours;
++        }
++        return new ItemListWithBitset(list);
++    }
++
++    private static ItemStack[] createArray(int size) {
++        ItemStack[] array = new ItemStack[size];
++        Arrays.fill(array, ItemStack.EMPTY);
++        return array;
++    }
++
++    private final ItemStack[] items;
++
++    private long bitSet = 0;
++    private final long allBits;
++
++    private static class OurNonNullList extends NonNullList<ItemStack> {
++        protected OurNonNullList(List<ItemStack> delegate) {
++            super(delegate, ItemStack.EMPTY);
++        }
++    }
++
++    public final NonNullList<ItemStack> nonNullList = new OurNonNullList(this);
++
++    private ItemListWithBitset(List<ItemStack> list) {
++        this(list.size());
++
++        for (int i = 0; i < list.size(); i++) {
++            this.set(i, list.get(i));
++        }
++    }
++
++    public ItemListWithBitset(int size) {
++        Validate.isTrue(size < Long.BYTES * 8, "size is too large");
++
++        this.items = createArray(size);
++        this.allBits = ((1L << size) - 1);
++    }
++
++    public boolean isCompletelyEmpty() {
++        return this.bitSet == 0;
++    }
++
++    public boolean hasFullStacks() {
++        return (this.bitSet & this.allBits) == allBits;
++    }
++
++    @Override
++    public ItemStack set(int index, @NotNull ItemStack itemStack) {
++        ItemStack existing = this.items[index];
++
++        this.items[index] = itemStack;
++
++        if (itemStack == ItemStack.EMPTY) {
++            this.bitSet &= ~(1L << index);
++        } else {
++            this.bitSet |= 1L << index;
++        }
++
++        return existing;
++    }
++
++    @NotNull
++    @Override
++    public ItemStack get(int var0) {
++        return this.items[var0];
++    }
++
++    @Override
++    public int size() {
++        return this.items.length;
++    }
++
++    @Override
++    public void clear() {
++        Arrays.fill(this.items, ItemStack.EMPTY);
++    }
++
++    // these are unsupported for block inventories which have a static size
++    @Override
++    public void add(int var0, ItemStack var1) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public ItemStack remove(int var0) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public String toString() {
++        return "ItemListWithBitset{" +
++            "items=" + Arrays.toString(items) +
++            ", bitSet=" + Long.toString(bitSet, 2) +
++            ", allBits=" + Long.toString(allBits, 2) +
++            ", size=" + this.items.length +
++            '}';
++    }
++}
+diff --git a/src/main/java/net/minecraft/world/CompoundContainer.java b/src/main/java/net/minecraft/world/CompoundContainer.java
+index 241fec02e6869c638d3a160819b32173a081467b..816e40961669dac6870702c741b432c9b8b4567a 100644
+--- a/src/main/java/net/minecraft/world/CompoundContainer.java
++++ b/src/main/java/net/minecraft/world/CompoundContainer.java
+@@ -1,11 +1,13 @@
+ package net.minecraft.world;
+ 
++import net.minecraft.core.Direction;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.ItemStack;
+ 
+ // CraftBukkit start
+ import java.util.ArrayList;
+ import java.util.List;
++
+ import org.bukkit.Location;
+ 
+ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+@@ -64,6 +66,21 @@ public class CompoundContainer implements Container {
+         this.container2 = second;
+     }
+ 
++    @Override
++    public boolean hasEmptySlot(Direction enumdirection) {
++        return this.container1.hasEmptySlot(null) || this.container2.hasEmptySlot(null);
++    }
++
++    @Override
++    public boolean isCompletelyFull(Direction enumdirection) {
++        return this.container1.isCompletelyFull(null) && this.container2.isCompletelyFull(null);
++    }
++
++    @Override
++    public boolean isCompletelyEmpty(Direction enumdirection) {
++        return this.container1.isCompletelyEmpty(null) && this.container2.isCompletelyEmpty(null);
++    }
++
+     @Override
+     public int getContainerSize() {
+         return this.container1.getContainerSize() + this.container2.getContainerSize();
+diff --git a/src/main/java/net/minecraft/world/Container.java b/src/main/java/net/minecraft/world/Container.java
+index d6cbe98e67fdbf8db46338a88ab1356dd63b50a3..42f1f8170501b84b00d90328560caea0e8d47098 100644
+--- a/src/main/java/net/minecraft/world/Container.java
++++ b/src/main/java/net/minecraft/world/Container.java
+@@ -2,6 +2,8 @@ package net.minecraft.world;
+ 
+ import java.util.Set;
+ import java.util.function.Predicate;
++
++import net.minecraft.core.Direction;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.Item;
+@@ -15,6 +17,62 @@ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+ 
+ public interface Container extends Clearable {
+ 
++    default boolean hasEmptySlot(@org.jetbrains.annotations.Nullable Direction enumdirection) { // there is a slot with 0 items in it
++        if (this instanceof WorldlyContainer worldlyContainer) {
++            for (int i : worldlyContainer.getSlotsForFace(enumdirection)) {
++                if (this.getItem(i).isEmpty()) {
++                    return true;
++                }
++            }
++        } else {
++            int size = this.getContainerSize();
++            for (int i = 0; i < size; i++) {
++                if (this.getItem(i).isEmpty()) {
++                    return true;
++                }
++            }
++        }
++        return false;
++    }
++
++    default boolean isCompletelyFull(@org.jetbrains.annotations.Nullable Direction enumdirection) { // every stack is maxed
++        if (this instanceof WorldlyContainer worldlyContainer) {
++            for (int i : worldlyContainer.getSlotsForFace(enumdirection)) {
++                ItemStack itemStack = this.getItem(i);
++                if (itemStack.getCount() < itemStack.getMaxStackSize()) {
++                    return false;
++                }
++            }
++        } else {
++            int size = this.getContainerSize();
++            for (int i = 0; i < size; i++) {
++                ItemStack itemStack = this.getItem(i);
++                if (itemStack.getCount() < itemStack.getMaxStackSize()) {
++                    return false;
++                }
++            }
++        }
++        return true;
++    }
++
++    default boolean isCompletelyEmpty(@org.jetbrains.annotations.Nullable Direction enumdirection) {
++        if (this instanceof WorldlyContainer worldlyContainer) {
++            for (int i : worldlyContainer.getSlotsForFace(enumdirection)) {
++                if (!this.getItem(i).isEmpty()) {
++                    return false;
++                }
++            }
++        } else {
++            int size = this.getContainerSize();
++            for (int i = 0; i < size; i++) {
++                if (!this.getItem(i).isEmpty()) {
++                    return false;
++                }
++            }
++        }
++        return true;
++    }
++
+     int LARGE_MAX_STACK_SIZE = 64;
+     int DEFAULT_DISTANCE_LIMIT = 8;
+ 
+@@ -36,9 +94,11 @@ public interface Container extends Clearable {
+ 
+     boolean stillValid(Player player);
+ 
+-    default void startOpen(Player player) {}
++    default void startOpen(Player player) {
++    }
+ 
+-    default void stopOpen(Player player) {}
++    default void stopOpen(Player player) {
++    }
+ 
+     default boolean canPlaceItem(int slot, ItemStack stack) {
+         return true;
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+index 6d23c39e4eadf23616080d6d08672e13b5d3c37d..2dd0541a0ae74477758e0cea1eb2c9b6cbe4ca1e 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+@@ -28,6 +28,7 @@ import org.bukkit.inventory.InventoryHolder;
+ public abstract class AbstractMinecartContainer extends AbstractMinecart implements ContainerEntity {
+ 
+     private NonNullList<ItemStack> itemStacks;
++    private gg.airplane.structs.ItemListWithBitset itemStacksOptimized;
+     @Nullable
+     public ResourceLocation lootTable;
+     public long lootTableSeed;
+@@ -89,7 +90,9 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+ 
+     protected AbstractMinecartContainer(EntityType<?> type, Level world) {
+         super(type, world);
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
++        //this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
++        this.itemStacksOptimized = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513
++        this.itemStacks = this.itemStacksOptimized.nonNullList;
+     }
+ 
+     protected AbstractMinecartContainer(EntityType<?> type, double x, double y, double z, Level world) {
+@@ -156,6 +159,8 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+     protected void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+         this.lootableData.loadNbt(nbt); // Paper
++        this.itemStacksOptimized = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.itemStacks = this.itemStacksOptimized.nonNullList;
+         this.readChestVehicleSaveData(nbt);
+     }
+ 
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
+index a71414397bd45ee7bcacfeef0041d80dfa25f114..db90f579c08c94591fcd39331a3b5dd0f0dbf7c9 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
+@@ -32,6 +32,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+ 
+     private static final int EVENT_SET_OPEN_COUNT = 1;
+     private NonNullList<ItemStack> items;
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
+     public final ContainerOpenersCounter openersCounter;
+     private final ChestLidController chestLidController;
+ 
+@@ -65,9 +66,12 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+     }
+     // CraftBukkit end
+ 
++    private final boolean isNative = getClass().equals(ChestBlockEntity.class);
+     protected ChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+         super(type, pos, state);
+-        this.items = NonNullList.withSize(27, ItemStack.EMPTY);
++        //this.items = NonNullList.withSize(27, ItemStack.EMPTY);
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(27);
++        this.items = this.optimizedItems.nonNullList;
+         this.openersCounter = new ContainerOpenersCounter() {
+             @Override
+             protected void onOpen(Level world, BlockPos pos, BlockState state) {
+@@ -98,6 +102,21 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+         this.chestLidController = new ChestLidController();
+     }
+ 
++    @Override
++    public boolean hasEmptySlot(Direction enumdirection) {
++         return isNative ? !this.optimizedItems.hasFullStacks() : super.hasEmptySlot(enumdirection);
++    }
++
++    @Override
++    public boolean isCompletelyFull(Direction enumdirection) {
++        return isNative ? this.optimizedItems.hasFullStacks() && super.isCompletelyFull(enumdirection) : super.isCompletelyFull(enumdirection);
++    }
++
++    @Override
++    public boolean isCompletelyEmpty(Direction enumdirection) {
++        return isNative && this.optimizedItems.isCompletelyEmpty() || super.isCompletelyEmpty(enumdirection);
++    }
++
+     public ChestBlockEntity(BlockPos pos, BlockState state) {
+         this(BlockEntityType.CHEST, pos, state);
+     }
+@@ -115,7 +134,9 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+     @Override
+     public void load(CompoundTag nbt) {
+         super.load(nbt);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        //this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items);
+         }
+@@ -187,7 +208,9 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> list) {
+-        this.items = list;
++        //this.items = list;
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(list);
++        this.items = this.optimizedItems.nonNullList;
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6c79d522f 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -6,6 +6,7 @@ import java.util.function.BooleanSupplier;
+ import java.util.stream.Collectors;
+ import java.util.stream.IntStream;
+ import javax.annotation.Nullable;
++
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.NonNullList;
+@@ -48,6 +49,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     public static final int MOVE_ITEM_SPEED = 8;
+     public static final int HOPPER_CONTAINER_SIZE = 5;
+     private NonNullList<ItemStack> items;
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
+     private int cooldownTime;
+     private long tickedGameTime;
+ 
+@@ -83,14 +85,33 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+     public HopperBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.HOPPER, pos, state);
+-        this.items = NonNullList.withSize(5, ItemStack.EMPTY);
++        //this.items = NonNullList.withSize(5, ItemStack.EMPTY);
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(5);
++        this.items = this.optimizedItems.nonNullList;
+         this.cooldownTime = -1;
+     }
+ 
++    @Override
++    public boolean hasEmptySlot(Direction enumdirection) {
++        return !this.optimizedItems.hasFullStacks();
++    }
++
++    @Override
++    public boolean isCompletelyFull(Direction enumdirection) {
++        return this.optimizedItems.hasFullStacks() && super.isCompletelyFull(enumdirection);
++    }
++
++    @Override
++    public boolean isCompletelyEmpty(Direction enumdirection) {
++        return this.optimizedItems.isCompletelyEmpty() || super.isCompletelyEmpty(enumdirection);
++    }
++
+     @Override
+     public void load(CompoundTag nbt) {
+         super.load(nbt);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        //this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items);
+         }
+@@ -426,6 +447,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         }
+         return true;
+     }
++
+     private static final java.util.function.BiPredicate<ItemStack, Integer> STACK_SIZE_TEST = (itemstack, i) -> itemstack.getCount() >= itemstack.getMaxStackSize();
+     private static final java.util.function.BiPredicate<ItemStack, Integer> IS_EMPTY_TEST = (itemstack, i) -> itemstack.isEmpty();
+     // Paper end
+@@ -470,7 +492,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+                 //         }
+                 //         int origCount = event.getItem().getAmount(); // Spigot
+                 //         ItemStack itemstack1 = HopperBlockEntity.addItem(iinventory, iinventory1, CraftItemStack.asNMSCopy(event.getItem()), enumdirection);
+-                        // CraftBukkit end
++                // CraftBukkit end
+ 
+                 //         if (itemstack1.isEmpty()) {
+                 //             iinventory1.setChanged();
+@@ -515,7 +537,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     }
+ 
+     private static boolean isEmptyContainer(Container inv, Direction facing) {
+-        return allMatch(inv, facing, IS_EMPTY_TEST);
++        //return allMatch(inv, facing, IS_EMPTY_TEST);
++        return inv.isCompletelyEmpty(facing);
+     }
+ 
+     public static boolean suckInItems(Level world, Hopper hopper) {
+@@ -597,11 +620,11 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+             // if (event.isCancelled()) {
+             //     iinventory.setItem(i, itemstack1);
+ 
+-                // if (ihopper instanceof HopperBlockEntity) {
+-                //     ((HopperBlockEntity) ihopper).setCooldown(world.spigotConfig.hopperTransfer); // Spigot
+-                // }
++            // if (ihopper instanceof HopperBlockEntity) {
++            //     ((HopperBlockEntity) ihopper).setCooldown(world.spigotConfig.hopperTransfer); // Spigot
++            // }
+ 
+-                // return false;
++            // return false;
+             // }
+             // int origCount = event.getItem().getAmount(); // Spigot
+             // ItemStack itemstack2 = HopperBlockEntity.addItem(iinventory, ihopper, CraftItemStack.asNMSCopy(event.getItem()), null);
+@@ -624,12 +647,12 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         boolean flag = false;
+         // CraftBukkit start
+         if (InventoryPickupItemEvent.getHandlerList().getRegisteredListeners().length > 0) { // Paper - optimize hoppers
+-        InventoryPickupItemEvent event = new InventoryPickupItemEvent(getInventory(inventory), (org.bukkit.entity.Item) itemEntity.getBukkitEntity()); // Paper - use getInventory() to avoid snapshot creation
+-        itemEntity.level().getCraftServer().getPluginManager().callEvent(event);
+-        if (event.isCancelled()) {
+-            return false;
+-        }
+-        // CraftBukkit end
++            InventoryPickupItemEvent event = new InventoryPickupItemEvent(getInventory(inventory), (org.bukkit.entity.Item) itemEntity.getBukkitEntity()); // Paper - use getInventory() to avoid snapshot creation
++            itemEntity.level().getCraftServer().getPluginManager().callEvent(event);
++            if (event.isCancelled()) {
++                return false;
++            }
++            // CraftBukkit end
+         } // Paper - optimize hoppers
+         ItemStack itemstack = itemEntity.getItem().copy();
+         ItemStack itemstack1 = HopperBlockEntity.addItem((Container) null, inventory, itemstack, (Direction) null);
+@@ -716,7 +739,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+         if (HopperBlockEntity.canPlaceItemInContainer(to, stack, slot, side)) {
+             boolean flag = false;
+-            boolean flag1 = to.isEmpty();
++            //boolean flag1 = to.isEmpty();
++            boolean flag1 = to.isCompletelyEmpty(side);
+ 
+             if (itemstack1.isEmpty()) {
+                 // Spigot start - SPIGOT-6693, InventorySubcontainer#setItem
+@@ -840,12 +864,13 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         // Paper start - add optimizeEntities parameter
+         return HopperBlockEntity.getContainerAt(world, x, y, z, false);
+     }
++
+     @Nullable
+     private static Container getContainerAt(Level world, double x, double y, double z, final boolean optimizeEntities) {
+         // Paper end - add optimizeEntities parameter
+         Object object = null;
+         BlockPos blockposition = BlockPos.containing(x, y, z);
+-        if ( !world.spigotConfig.hopperCanLoadChunks && !world.hasChunkAt( blockposition ) ) return null; // Spigot
++        if (!world.spigotConfig.hopperCanLoadChunks && !world.hasChunkAt(blockposition)) return null; // Spigot
+         BlockState iblockdata = world.getBlockState(blockposition);
+         Block block = iblockdata.getBlock();
+ 
+@@ -863,7 +888,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         }
+ 
+         if (object == null && (!optimizeEntities || !world.paperConfig().hopper.ignoreOccludingBlocks || !iblockdata.getBukkitMaterial().isOccluding())) { // Paper
+-            List<Entity> list = world.getEntitiesOfClass((Class)Container.class, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelector.CONTAINER_ENTITY_SELECTOR); // Paper - optimize hoppers, use getEntitiesOfClass
++            List<Entity> list = world.getEntitiesOfClass((Class) Container.class, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelector.CONTAINER_ENTITY_SELECTOR); // Paper - optimize hoppers, use getEntitiesOfClass
+ 
+             if (!list.isEmpty()) {
+                 object = (Container) list.get(world.random.nextInt(list.size()));
+@@ -911,7 +936,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> list) {
+-        this.items = list;
++        //this.items = list;
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(list);
++        this.items = this.optimizedItems.nonNullList;
+     }
+ 
+     public static void entityInside(Level world, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
+index 64875525df244db838560f5fefb7b1b07b0f1f51..4d6437418df95e36883668889516ee1821b9b742 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
+@@ -94,12 +94,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
+     public boolean isEmpty() {
+         this.unpackLootTable((Player)null);
+         // Paper start
+-        for (final ItemStack itemStack : this.getItems()) {
++        /*for (final ItemStack itemStack : this.getItems()) {
+             if (!itemStack.isEmpty()) {
+                 return false;
+             }
+         }
+-        return true;
++        return true;*/
++        return this.isCompletelyEmpty(null);
+         // Paper end
+     }
+ 

@@ -46,7 +46,7 @@ index 7b31c4ea6d01f936271bdadc3626201dcf32a683..b4dfd7a72c26bfde586c3cf854e7dfe6
                              loc.getX(), loc.getY(), loc.getZ()
                          );
 diff --git a/src/main/java/net/minecraft/server/commands/TeleportCommand.java b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
-index 15c4fa89e1f1dbc80055f6f92904d1cc05a24dba..d81472a5f9aaa9dc7a6bd2eb5a968b153eba5a66 100644
+index 2450885ef59ad32fbfadfe03f95f9ba24b8a6886..2b56c1ccdd2bbb86332002c769fb461c31855a60 100644
 --- a/src/main/java/net/minecraft/server/commands/TeleportCommand.java
 +++ b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
 @@ -32,6 +32,7 @@ import net.minecraft.world.entity.RelativeMovement;

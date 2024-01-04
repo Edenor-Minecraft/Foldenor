@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 1 Jan 2024 19:57:46 +0400
+Subject: [PATCH] Villagers-dispawn-fix
+
+Experimental
+
+
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+index a4157bc24c36c63502667d69910108a50114f370..41f50fcd74f878cf5d40bd5818465f1c55c36fcf 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+@@ -35,6 +35,7 @@ import net.minecraft.server.level.TicketType;
+ import net.minecraft.util.SortedArraySet;
+ import net.minecraft.util.Unit;
+ import net.minecraft.world.level.ChunkPos;
++import net.minecraft.world.level.chunk.LevelChunk;
+ import org.bukkit.plugin.Plugin;
+ import org.slf4j.Logger;
+ import java.io.IOException;
+@@ -1068,7 +1069,10 @@ public final class ChunkHolderManager {
+     private final AtomicLong poiLoadCounter = new AtomicLong();
+ 
+     public PoiChunk loadPoiChunk(final int chunkX, final int chunkZ) {
+-        TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Cannot create poi chunk off-main");
++        if (!io.papermc.paper.util.TickThread.isTickThreadFor(this.world, chunkX, chunkZ)){ //Add chunk to current region
++            this.world.getCurrentWorldData().addChunk(new LevelChunk(this.world, new ChunkPos(chunkX, chunkZ)));
++        }
++        //TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Cannot create poi chunk off-main");
+         PoiChunk ret;
+ 
+         NewChunkHolder current = this.getChunkHolder(chunkX, chunkZ);
+diff --git a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
+index 8156bb7d69b06b6c08af02a0aab595fb6f0964cd..3503950e12fdf6e124e0c5aaa16375f3de6fb4fd 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
++++ b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
+@@ -32,6 +32,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
+ import net.minecraft.world.level.LevelReader;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.chunk.ChunkStatus;
++import net.minecraft.world.level.chunk.LevelChunk;
+ import net.minecraft.world.level.chunk.LevelChunkSection;
+ import net.minecraft.world.level.chunk.storage.SectionStorage;
+ 
+@@ -279,7 +280,10 @@ public class PoiManager extends SectionStorage<PoiSection> {
+         int chunkY = io.papermc.paper.util.CoordinateUtils.getChunkSectionY(pos);
+         int chunkZ = io.papermc.paper.util.CoordinateUtils.getChunkSectionZ(pos);
+ 
+-        io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Accessing poi chunk off-main");
++        if (!io.papermc.paper.util.TickThread.isTickThreadFor(this.world, chunkX, chunkZ)){ //Add chunk to current region
++            this.world.getCurrentWorldData().addChunk(new LevelChunk(this.world, new ChunkPos(chunkX, chunkZ)));
++        }
++        //io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Accessing poi chunk off-main");
+ 
+         io.papermc.paper.chunk.system.scheduling.ChunkHolderManager manager = this.world.chunkTaskScheduler.chunkHolderManager;
+ 
