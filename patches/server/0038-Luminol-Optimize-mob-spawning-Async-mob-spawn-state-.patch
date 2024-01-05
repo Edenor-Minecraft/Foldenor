@@ -283,7 +283,7 @@ index 0000000000000000000000000000000000000000..f8e9e4c964145766f398a7adf7de9e4b
 +    }
 +}
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index c668d7e2c64379e48a12a4c93dbdf18a5ed8cbe7..79073eca74752d550a21f357b5370a76a1457863 100644
+index c668d7e2c64379e48a12a4c93dbdf18a5ed8cbe7..cdd37da79fade2813109f5aabdfa1f06d4b36e1a 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 @@ -2,6 +2,7 @@ package net.edenor.foldenor.config;
@@ -303,16 +303,18 @@ index c668d7e2c64379e48a12a4c93dbdf18a5ed8cbe7..79073eca74752d550a21f357b5370a76
      public static RegionFileFormat regionFormatName = RegionFileFormat.ANVIL;
      public static int regionFormatLinearCompressionLevel = 1;
      public static int linearFlushFrequency = 10;
-@@ -71,6 +74,9 @@ public class FoldenorConfig {
-         set("config-version", 1);
- 
-         readConfig();
+@@ -132,6 +135,11 @@ public class FoldenorConfig {
+         enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check",enableSuffocationOptimization);
+         entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation",entityWakeUpDurationRatioStandardDeviation);
+         loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities",loadChunksToActiveClimbingEntities);
++
++
 +
 +        enableAsyncMobSpawning = getBoolean("optimizations.enable_async_mob_spawning",enableAsyncMobSpawning);
 +        RegionizedWorldData.initMobSpawningExecutor();
      }
  
-     protected static void log(String s) {
+     private static void networkSettings() {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 index 8082c189fc414b741bff9ca9b259b448e8adf0d2..014e237f6737ac6b5a584d383fbc5219b76786d4 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java

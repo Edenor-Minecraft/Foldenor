@@ -3,8 +3,6 @@ From: AltronMaxX <max06112004@gmail.com>
 Date: Mon, 1 Jan 2024 19:57:46 +0400
 Subject: [PATCH] Villagers-dispawn-fix
 
-Experimental
-
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
 index a4157bc24c36c63502667d69910108a50114f370..41f50fcd74f878cf5d40bd5818465f1c55c36fcf 100644

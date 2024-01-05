@@ -5,12 +5,12 @@ Subject: [PATCH] Change-reload-config-work
 
 
 diff --git a/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java b/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
-index ad854d09999ce2bee9e48976eb79ef02426947a4..b9406cfec2606fabe7fcd22591d19f1ea2f04834 100644
+index 4188e8db6386fe1790192c9efd8c2fe256ce6418..9b49dafe2706a41200b1f2ee74f4b857346e5418 100644
 --- a/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
 +++ b/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
-@@ -35,7 +35,7 @@ public class FoldenorReloadConfigCommand extends Command {
-             return false;
-         }
+@@ -38,7 +38,7 @@ public class FoldenorReloadConfigCommand extends Command {
+         if (!testPermission(sender)) return true;
+ 
          try {
 -            FoldenorConfig.reload((java.io.File) DedicatedServer.getServer().options.valueOf("foldenor-settings"));
 +            FoldenorConfig.readConfig();
@@ -18,10 +18,10 @@ index ad854d09999ce2bee9e48976eb79ef02426947a4..b9406cfec2606fabe7fcd22591d19f1e
              return true;
          } catch (Exception e) {
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 79073eca74752d550a21f357b5370a76a1457863..7c50e7ab39070b72508a467fe0a93575fc09d58c 100644
+index cdd37da79fade2813109f5aabdfa1f06d4b36e1a..7c250066700fc4c822c793b46f1d50680b97efcc 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -89,7 +89,7 @@ public class FoldenorConfig {
+@@ -86,7 +86,7 @@ public class FoldenorConfig {
          Bukkit.getLogger().log(level, s);
      }
  
