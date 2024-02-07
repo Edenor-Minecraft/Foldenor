@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish-Only-check-for-spooky-season-once-an-hour
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/ambient/Bat.java b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
-index 6b614818b14ecfc8fc82b523eeb7e21fdf9bf1ba..b1140f5fbd6c9cb7a3944dd079a4397e062d1edd 100644
+index 44fa2d4f90389f5526746bd94a2450c03340bd0b..b1932466a8cb301f86b1244ed6caa47b341c301d 100644
 --- a/src/main/java/net/minecraft/world/entity/ambient/Bat.java
 +++ b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
 @@ -3,6 +3,10 @@ package net.minecraft.world.entity.ambient;

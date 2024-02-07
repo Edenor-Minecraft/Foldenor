@@ -5,12 +5,12 @@ Subject: [PATCH] Pufferfish-Dynamic-Activation-of-Brain
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece2ea60494 100644
+index 085495a2d82f2a514a01602c8aece5ace57eb240..5067fabb3a565d424248ce73212d9542d21bf06b 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -4,6 +4,9 @@ import com.google.common.base.Throwables;
+@@ -3,6 +3,9 @@ package net.edenor.foldenor.config;
+ import com.google.common.base.Throwables;
  import com.google.common.collect.ImmutableMap;
- import io.papermc.paper.threadedregions.RegionizedWorldData;
  import net.edenor.foldenor.region.RegionFileFormat;
 +import net.minecraft.core.registries.BuiltInRegistries;
 +import net.minecraft.server.MinecraftServer;
@@ -18,7 +18,7 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
  import org.bukkit.Bukkit;
  import org.bukkit.configuration.ConfigurationSection;
  import org.bukkit.configuration.InvalidConfigurationException;
-@@ -14,9 +17,11 @@ import java.io.IOException;
+@@ -13,9 +16,11 @@ import java.io.IOException;
  import java.lang.reflect.InvocationTargetException;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
@@ -30,7 +30,7 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
  public class FoldenorConfig {
      protected static final String HEADER = "This is the main configuration file for Foldenor.";
      protected static File CONFIG_FILE;
-@@ -47,6 +52,12 @@ public class FoldenorConfig {
+@@ -44,6 +49,12 @@ public class FoldenorConfig {
      public static int linearFlushFrequency = 10;
      public static int linearFlushThreads = 1;
  
@@ -43,7 +43,7 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -61,10 +72,11 @@ public class FoldenorConfig {
+@@ -58,10 +69,11 @@ public class FoldenorConfig {
          if (configFile.exists()) {
              try {
                  config.load(CONFIG_FILE);
@@ -57,7 +57,7 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
          }
          config.options().header(HEADER);
          config.options().copyDefaults(true);
-@@ -95,6 +107,8 @@ public class FoldenorConfig {
+@@ -92,6 +104,8 @@ public class FoldenorConfig {
  
          worldSettings();
  
@@ -66,7 +66,7 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
          try {
              config.save(CONFIG_FILE);
          } catch (IOException ex) {
-@@ -102,7 +116,7 @@ public class FoldenorConfig {
+@@ -99,7 +113,7 @@ public class FoldenorConfig {
          }
      }
  
@@ -75,7 +75,7 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
          regionFormatName = RegionFileFormat.fromString(getString("world.region.format", regionFormatName.name()));
          if (regionFormatName.equals(RegionFileFormat.INVALID)) {
              log(Level.SEVERE, "Unknown region format in foldenor.yml: " + regionFormatName);
-@@ -129,16 +143,15 @@ public class FoldenorConfig {
+@@ -126,12 +140,22 @@ public class FoldenorConfig {
      }
  
      private static void optimizationSettings() {
@@ -84,21 +84,23 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
 +        maxProjectileLoadsPerProjectile = getInt("optimizations.max_projectile_loads_per_projectile", maxProjectileLoadsPerProjectile);
 +        maxProjectileLoadsPerTick = getInt("optimizations.max_projectile_loads_per_tick", maxProjectileLoadsPerTick);
          acquirePoiForStuckEntityInterval = getInt("optimizations.acquire_poi_for_stuck_entity_interval", acquirePoiForStuckEntityInterval);
--        enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check",enableSuffocationOptimization);
--        entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation",entityWakeUpDurationRatioStandardDeviation);
--        loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities",loadChunksToActiveClimbingEntities);
++<<<<<<< HEAD
+         enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check",enableSuffocationOptimization);
+         entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation",entityWakeUpDurationRatioStandardDeviation);
+         loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities",loadChunksToActiveClimbingEntities);
++=======
 +        enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check", enableSuffocationOptimization);
 +        entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation", entityWakeUpDurationRatioStandardDeviation);
 +        loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities", loadChunksToActiveClimbingEntities);
- 
- 
--
--        enableAsyncMobSpawning = getBoolean("optimizations.enable_async_mob_spawning",enableAsyncMobSpawning);
++
++
 +        enableAsyncMobSpawning = getBoolean("optimizations.enable_async_mob_spawning", enableAsyncMobSpawning);
-         RegionizedWorldData.initMobSpawningExecutor();
++        RegionizedWorldData.initMobSpawningExecutor();
++>>>>>>> Pufferfish-Dynamic-Activation-of-Brain
      }
  
-@@ -148,6 +161,31 @@ public class FoldenorConfig {
+     private static void networkSettings() {
+@@ -140,6 +164,31 @@ public class FoldenorConfig {
          alternateKeepAlive = getBoolean("network.alternate-keepalive", alternateKeepAlive);
      }
  
@@ -131,10 +133,10 @@ index 7c250066700fc4c822c793b46f1d50680b97efcc..0faad28d812b5c4a019ad679efd03ece
          config.addDefault(path, val);
          config.set(path, val);
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index f4cabb996f92ed7ba3023273ba11c9d38ecd1a72..1b61a1c4c7ae4c3ec227f769d64c71d74b34d97b 100644
+index e0fcf0ef02ffd742747c887dbc4ecb49d50d6c6e..ff53a8cd2b5644eb21de25a6c78cae00dc3a48e7 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -998,6 +998,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -993,6 +993,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
              this.timings.entityTick.startTiming(); // Spigot
              profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); try { // Folia - profiler
              regionizedWorldData.forEachTickingEntity((entity) -> { // Folia - regionised ticking
@@ -143,21 +145,31 @@ index f4cabb996f92ed7ba3023273ba11c9d38ecd1a72..1b61a1c4c7ae4c3ec227f769d64c71d7
                      if (false && this.shouldDiscardEntity(entity)) { // CraftBukkit - We prevent spawning in general, so this butchering is not needed
                          entity.discard();
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 904ad1073b9b1e9b6d5eb9abf786495d5d61ca9f..92dc23864be9ba79d1b9f372f888abd33f06cf5e 100644
+index 5402b10cf54d633d9925be360ec575133ff1b14d..80705d511303edd7b2c3144ae4f138ceb2236fbc 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -448,6 +448,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
-         return this.originWorld;
-     }
+@@ -449,7 +449,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         ServerLevel world = this.portalWorld;
+         this.portalBlock = null;
+         this.portalWorld = null;
+-
++        
+         if (pos == null || world == null || world != this.level) {
+             return;
+         }
+@@ -482,6 +482,10 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
  
+     // Folia - region ticking
+     // Paper end - optimise entity tracking
 +    public boolean activatedPriorityReset = false;
 +    public int activatedPriority = FoldenorConfig.maximumActivationPrio;
 +
-     // Paper end
++    // Paper end
      public float getBukkitYaw() {
          return this.yRot;
+     }
 diff --git a/src/main/java/net/minecraft/world/entity/EntityType.java b/src/main/java/net/minecraft/world/entity/EntityType.java
-index a3a6c10f5b4157062a8a8d5ee4638c4e9d6fcf62..78f8ffe7b9268ab7c2845f1aee40bf8061b65a90 100644
+index f921c159c4f7556daf3c8405241de3607ba251ad..29e9bd15cf63da7b1574530cedee90b96c3b0839 100644
 --- a/src/main/java/net/minecraft/world/entity/EntityType.java
 +++ b/src/main/java/net/minecraft/world/entity/EntityType.java
 @@ -305,6 +305,7 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
@@ -169,7 +181,7 @@ index a3a6c10f5b4157062a8a8d5ee4638c4e9d6fcf62..78f8ffe7b9268ab7c2845f1aee40bf80
      private String descriptionId;
      @Nullable
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 769d1ffe1948b9ff04f30d341123d9dad8359f7f..45c4fdf9de9f6dc00da25d2ca3af7b638f18e8da 100644
+index 01829878a1df4729fb0057cfce4820d7dac4ca35..956f735d1a9a505e1b402063baea1d4606ad165a 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
 @@ -233,10 +233,10 @@ public abstract class Mob extends LivingEntity implements Targeting {
@@ -207,7 +219,7 @@ index 769d1ffe1948b9ff04f30d341123d9dad8359f7f..45c4fdf9de9f6dc00da25d2ca3af7b63
              this.level().getProfiler().pop();
          }
 diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
-index b738ee2d3801fadfd09313f05ae24593e56b0ec6..575b7ee8efbced023944c44cc917d82c689abae3 100644
+index 676f5485a4ca9252e911213dcda8d51776b637b6..54cc01f16bd7962e5c01c548ce70a08bb1264276 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/goal/GoalSelector.java
 @@ -11,6 +11,8 @@ import java.util.Set;
@@ -251,7 +263,7 @@ index 5ad5f22e5aa26445e5eb229958e7bf356bdd460e..6bfac7285195a31b3b857e07936b7884
          this.level().getProfiler().pop();
          this.level().getProfiler().push("allayActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
-index 387006271c246362b0df1bfcadca7b7096660003..fd290db0494512e3ed58ad0332d530bcc42a6e6c 100644
+index b21e180641d17438997a80e5bcb0ec7998d24a2e..e1ed4f03e776850c610fb47a3c59692185a8d6ff 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/axolotl/Axolotl.java
 @@ -275,9 +275,11 @@ public class Axolotl extends Animal implements LerpingModel, VariantHolder<Axolo
@@ -299,7 +311,7 @@ index 4aeab90e778629c355189dfe79c39c4b21f5f5ac..514099ae52f3f92ba79bd50b1f6325a1
          this.level().getProfiler().pop();
          this.level().getProfiler().push("tadpoleActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
-index 111a244087e24f25ba8524a46a228da10cd9498a..325711b0808faf9c73605942bf87830521823192 100644
+index 5d247ac38fe8a61603b3d934f3000bcda773142b..0d32a7cd1581b56ccc95038c703a22b904950f07 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/goat/Goat.java
 @@ -191,9 +191,11 @@ public class Goat extends Animal {
@@ -315,7 +327,7 @@ index 111a244087e24f25ba8524a46a228da10cd9498a..325711b0808faf9c73605942bf878305
          this.level().getProfiler().pop();
          this.level().getProfiler().push("goatActivityUpdate");
 diff --git a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
-index 4257f2282152aee09533c9a2e53018d3e49effa4..370c6e7df11b5f4e2e1d89712655d6fa47c2f4ea 100644
+index 01a2016ac82807d28ffe407b7dbb74bdbcde503e..0016c3aa6a189d2bfc6433a15624ab6ccb90da12 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 @@ -128,9 +128,11 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
@@ -331,7 +343,7 @@ index 4257f2282152aee09533c9a2e53018d3e49effa4..370c6e7df11b5f4e2e1d89712655d6fa
          this.level().getProfiler().pop();
          HoglinAi.updateActivity(this);
 diff --git a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
-index 6407ddef8442fce4f310ac4babf3e3de0dd5fc9a..4fa0f0031b28f5691dd4d9f71df16e898a3a4a80 100644
+index a9813da7f2b248f98f22e0ad2e7842915025ec12..24a17ef210f57c6812122d7ce1e9a0e8b46537a4 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/piglin/Piglin.java
 @@ -300,9 +300,11 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
@@ -347,7 +359,7 @@ index 6407ddef8442fce4f310ac4babf3e3de0dd5fc9a..4fa0f0031b28f5691dd4d9f71df16e89
          this.level().getProfiler().pop();
          PiglinAi.updateActivity(this);
 diff --git a/src/main/java/net/minecraft/world/entity/monster/warden/Warden.java b/src/main/java/net/minecraft/world/entity/monster/warden/Warden.java
-index 9f1b7c629644931074293151ed58a523ca6d488c..209563b2e2837ab6267bae08ab852515ee2c1d5e 100644
+index 937f81a859953498abe73bea560c86e6560e1c33..fdd34eae5ccbd43c29a2404e7b2bb15c1bf60376 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/warden/Warden.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/warden/Warden.java
 @@ -273,11 +273,13 @@ public class Warden extends Monster implements VibrationSystem {
@@ -365,7 +377,7 @@ index 9f1b7c629644931074293151ed58a523ca6d488c..209563b2e2837ab6267bae08ab852515
          this.level().getProfiler().pop();
          super.customServerAiStep();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index c8de034a2bf4654bad9a6e8a9aa831b2f90fad14..0ce9975f6aabd2c39db41b9fd323b7bb01988a37 100644
+index 853c777bad19656cd48e9de9015c12e2c078d940..6443b73cabf82c1995dfe778d57320d477ecb09d 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -142,6 +142,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
@@ -399,7 +411,7 @@ index c8de034a2bf4654bad9a6e8a9aa831b2f90fad14..0ce9975f6aabd2c39db41b9fd323b7bb
          if (this.assignProfessionWhenSpawned) {
              this.assignProfessionWhenSpawned = false;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 6c3170dfcdfaeafec6917262fbe65195c0570427..79b2cd408b59df31564996ddd58d81ea97cc98ef 100644
+index cd46b1131a33fd84b44909a3f50aa95026418bef..fa966b21dddbfe1131043f7a725b864953946216 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -39,6 +39,7 @@ import co.aikar.timings.MinecraftTimings;
@@ -410,10 +422,10 @@ index 6c3170dfcdfaeafec6917262fbe65195c0570427..79b2cd408b59df31564996ddd58d81ea
  
  public class ActivationRange
  {
-@@ -241,6 +242,22 @@ public class ActivationRange
+@@ -243,6 +244,22 @@ public class ActivationRange
                  }
-                 // Paper end - configurable marker ticking
-                 ActivationRange.activateEntity(entity);
+                 // Paper end - Configurable marker ticking
+                 ActivationRange.activateEntity(entity, bbByType); // Folia - threaded regions
 +
 +                if (FoldenorConfig.dearEnabled && entity.getType().dabEnabled) {
 +                    if (!entity.activatedPriorityReset) {

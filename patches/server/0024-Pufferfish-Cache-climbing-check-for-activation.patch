@@ -5,10 +5,10 @@ Subject: [PATCH] Pufferfish-Cache-climbing-check-for-activation
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index abf455d165004240e0b5fd96543f7da7c520e729..6f106f7bbc4c98cb9b838d179653604521fa07ae 100644
+index 28da90b59f60d3f7618a42e149467a3a55c91682..49b4c3cc5cf14babcf49f909e436a73a8f6903f8 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -2012,6 +2012,17 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2014,6 +2014,17 @@ public abstract class LivingEntity extends Entity implements Attackable {
          return this.lastClimbablePos;
      }
  
@@ -27,14 +27,14 @@ index abf455d165004240e0b5fd96543f7da7c520e729..6f106f7bbc4c98cb9b838d1796536045
          if (this.isSpectator()) {
              return false;
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index d88988200016c1a3cc76c017dfb7deabf6fc17af..09ac38a803ade3e757204a62d3e696562462b9aa 100644
+index f8718d91f4c15c74d6e6dd5f60f7f05f45f63655..877e6286fd4860e4270fee3ddb79a5f4041343b7 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -305,7 +305,7 @@ public class ActivationRange
          if ( entity instanceof LivingEntity )
          {
              LivingEntity living = (LivingEntity) entity;
--            if ( living.onClimbable() || living.jumping || living.hurtTime > 0 || living.activeEffects.size() > 0 ) // Paper
+-            if ( living.onClimbable() || living.jumping || living.hurtTime > 0 || living.activeEffects.size() > 0 || living.isFreezing()) // Paper
 +            if ( living.onClimableCached() || living.jumping || living.hurtTime > 0 || living.activeEffects.size() > 0 ) // Paper
              {
                  return 1; // Paper

@@ -158,10 +158,10 @@ index 0000000000000000000000000000000000000000..4188e8db6386fe1790192c9efd8c2fe2
 +    }
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index eff1389ff4193addf0d519a7d696a4234c2df083..d8b250e1c09cf8c3b5180ddb653ed9107cab929f 100644
+index 9d6adb4d586dc659295381851000d48e86aa46d6..323182adbaaedccd4590afd11996f003edd4004d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1117,6 +1117,7 @@ public final class CraftServer implements Server {
+@@ -1119,6 +1119,7 @@ public final class CraftServer implements Server {
          this.reloadData();
          org.spigotmc.SpigotConfig.registerCommands(); // Spigot
          io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper

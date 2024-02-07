@@ -5,10 +5,10 @@ Subject: [PATCH] Add-config
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 41d1bd344266ff4cf09b20169a5214fad8ce97da..8f53706da0765ef2f4007b61cbb16b06b1b83ca0 100644
+index 74a1fc200f3354b42e817c10010e6bb3a67f64b3..d6ba23ce0cc12a17580288e4b95ecd398be33ec9 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -212,9 +212,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
+@@ -211,9 +211,9 @@ val runtimeClasspathForRunDev = sourceSets.main.flatMap { src ->
          elements.filterNot { file -> file.asFile.endsWith("minecraft.jar") }
      }
  }
@@ -210,7 +210,7 @@ index 0000000000000000000000000000000000000000..748a78a092067ccb2c9ebb6508607651
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 12af517a7dd8c0bb2bc55ab3eb0e68a074011bb5..9846b7b28e06055a5dbfce6fceb466d17de273a0 100644
+index 0f8c868fce0a054a0ba356350baf4c3824c2c958..ba8cdec16c7828585c8aaadb6d050b167abb20dc 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -19,6 +19,8 @@ import java.util.Locale;
@@ -222,21 +222,21 @@ index 12af517a7dd8c0bb2bc55ab3eb0e68a074011bb5..9846b7b28e06055a5dbfce6fceb466d1
  import net.minecraft.DefaultUncaughtExceptionHandler;
  import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
  import net.minecraft.SharedConstants;
-@@ -218,6 +220,12 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         thread.start(); // Paper - start console thread after MinecraftServer.console & PaperConfig are initialized
-         io.papermc.paper.command.PaperCommands.registerCommands(this);
-         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics();
+@@ -221,6 +223,12 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // Paper - init PaperBrigadierProvider
 +        try {
 +            FoldenorConfig.init((java.io.File) options.valueOf("foldenor-settings"));
 +        } catch (Exception e) {
 +            DedicatedServer.LOGGER.error("Unable to load server configuration", e);
 +            return false;
 +        }
-         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
-         // Paper end
+ 
+         this.setPvpAllowed(dedicatedserverproperties.pvp);
+         this.setFlightAllowed(dedicatedserverproperties.allowFlight);
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 8917d0a0eb1f1298c0669465e5a15422876e62b8..eff1389ff4193addf0d519a7d696a4234c2df083 100644
+index 3b1046cc413d502c518c525a72c74a2d248da22d..9d6adb4d586dc659295381851000d48e86aa46d6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -44,6 +44,7 @@ import java.util.stream.Collectors;
@@ -258,7 +258,7 @@ index 8917d0a0eb1f1298c0669465e5a15422876e62b8..eff1389ff4193addf0d519a7d696a423
      @Override
      public final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler getGlobalRegionScheduler() {
          return this.globalRegionScheduler;
-@@ -1081,6 +1086,7 @@ public final class CraftServer implements Server {
+@@ -1083,6 +1088,7 @@ public final class CraftServer implements Server {
  
          org.spigotmc.SpigotConfig.init((File) this.console.options.valueOf("spigot-settings")); // Spigot
          this.console.paperConfigurations.reloadConfigs(this.console);
@@ -267,7 +267,7 @@ index 8917d0a0eb1f1298c0669465e5a15422876e62b8..eff1389ff4193addf0d519a7d696a423
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index a74a8a027c99eef199c1a6a54232ac2c8ffb9d08..9334d11f8a33e62c540a061e1c4739dbb4316933 100644
+index ce341f42b3a5e17fb6d1f7de8057e73137ae2a6e..84bb109f790bdab32c2d27a3d11d6d4327c37b5e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
 @@ -174,6 +174,12 @@ public class Main {

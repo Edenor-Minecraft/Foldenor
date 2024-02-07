@@ -25,10 +25,10 @@ index b873a692a13549ec39d0350703b2fafb6964e334..5aea39f46bdc4d61c817b37b61f2ff9a
  
      private static void networkSettings() {
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 6f106f7bbc4c98cb9b838d179653604521fa07ae..f396a480b7193af25e2adf92ad308d3b5b98766d 100644
+index 49b4c3cc5cf14babcf49f909e436a73a8f6903f8..36412510907b1b09f8ec5b83b84c17adf17d8827 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -19,6 +19,8 @@ import java.util.Optional;
+@@ -18,6 +18,8 @@ import java.util.Optional;
  import java.util.UUID;
  import java.util.function.Predicate;
  import javax.annotation.Nullable;
@@ -37,7 +37,7 @@ index 6f106f7bbc4c98cb9b838d179653604521fa07ae..f396a480b7193af25e2adf92ad308d3b
  import net.minecraft.BlockUtil;
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.commands.arguments.EntityAnchorArgument;
-@@ -420,7 +422,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -419,7 +421,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
              boolean flag = this instanceof net.minecraft.world.entity.player.Player;
  
              if (!this.level().isClientSide) {
@@ -46,7 +46,7 @@ index 6f106f7bbc4c98cb9b838d179653604521fa07ae..f396a480b7193af25e2adf92ad308d3b
                      this.hurt(this.damageSources().inWall(), 1.0F);
                  } else if (flag && !this.level().getWorldBorder().isWithinBounds(this.getBoundingBox())) {
                      double d0 = this.level().getWorldBorder().getDistanceToBorder(this) + this.level().getWorldBorder().getDamageSafeZone();
-@@ -1419,6 +1421,17 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -1420,6 +1422,17 @@ public abstract class LivingEntity extends Entity implements Attackable {
          return this.getHealth() <= 0.0F;
      }
  
@@ -65,7 +65,7 @@ index 6f106f7bbc4c98cb9b838d179653604521fa07ae..f396a480b7193af25e2adf92ad308d3b
      public boolean hurt(DamageSource source, float amount) {
          if (this.isInvulnerableTo(source)) {
 diff --git a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
-index c59e44c45d9c8c719b34e85fb3b753ac3788842d..d2fe5fd5a791cf3f7c351aa743bbce6100a19b93 100644
+index ac9eaeaf7df1e84ee588f371628c0a10784d50bc..dc03584f8a6c556d556571f9e094b1311d3affde 100644
 --- a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
 +++ b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
 @@ -150,6 +150,11 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
@@ -81,10 +81,10 @@ index c59e44c45d9c8c719b34e85fb3b753ac3788842d..d2fe5fd5a791cf3f7c351aa743bbce61
      protected SoundEvent getAmbientSound() {
          return SoundEvents.WITHER_AMBIENT;
 diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-index 334fb8945d0eb0c99333f00b52b3bc3b6069a9aa..ca0b6166910b15f018af8871e93a150324fb842f 100644
+index 172e385fe6d1ba5f58481a58f8a3847b97a28488..f49c34d0aac0985d64a456f22d3d78512b8a69e9 100644
 --- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 +++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-@@ -309,7 +309,7 @@ public abstract class FlowingFluid extends Fluid {
+@@ -308,7 +308,7 @@ public abstract class FlowingFluid extends Fluid {
              object2bytelinkedopenhashmap.putAndMoveToFirst(block_a, (byte) (flag ? 1 : 0));
          }
          */

@@ -18,10 +18,10 @@ index 4188e8db6386fe1790192c9efd8c2fe256ce6418..9b49dafe2706a41200b1f2ee74f4b857
              return true;
          } catch (Exception e) {
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index cdd37da79fade2813109f5aabdfa1f06d4b36e1a..7c250066700fc4c822c793b46f1d50680b97efcc 100644
+index c668d7e2c64379e48a12a4c93dbdf18a5ed8cbe7..085495a2d82f2a514a01602c8aece5ace57eb240 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -86,7 +86,7 @@ public class FoldenorConfig {
+@@ -83,7 +83,7 @@ public class FoldenorConfig {
          Bukkit.getLogger().log(level, s);
      }
  

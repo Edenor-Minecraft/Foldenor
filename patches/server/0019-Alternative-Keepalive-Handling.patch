@@ -25,7 +25,7 @@ index 3e4af65b58540520a7cde6da06aedadff6e2369c..645345766a0a3f9e92d079c7e2eb8394
  
      protected static void set(String path, Object val) {
 diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-index 2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17..dcb9fc6772e977e61880294d3315f918831f077f 100644
+index c5742b642e543587390ba6f521161a4c7a0725f3..a9a54fada91c7ba3afb331344139328f2ba2465f 100644
 --- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 @@ -4,6 +4,8 @@ import com.mojang.authlib.GameProfile;
@@ -46,11 +46,11 @@ index 2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17..dcb9fc6772e977e61880294d3315f918
      private int latency;
      private volatile boolean suspendFlushingOnServerThread = false;
      public final java.util.Map<java.util.UUID, net.kyori.adventure.resource.ResourcePackCallback> packCallbacks = new java.util.concurrent.ConcurrentHashMap<>(); // Paper - adventure resource pack callbacks
-@@ -92,20 +96,28 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+@@ -103,20 +107,27 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
  
      @Override
      public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
--        //PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel()); // CraftBukkit // Paper - This shouldn't be on the main thread
+-        //PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel()); // CraftBukkit // Paper - handle ServerboundKeepAlivePacket async
 -        if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
 -            int i = (int) (Util.getMillis() - this.keepAliveTime);
 -
@@ -61,9 +61,9 @@ index 2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17..dcb9fc6772e977e61880294d3315f918
 -            // Folia - region threading - do not schedule to main anymore, there is no main
 -                this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT); // Paper - kick event cause
 -            // Folia - region threading - do not schedule to main anymore, there is no main
--            // Paper endg
+-            // Paper end - This needs to be handled on the main thread for plugins
 -        }
- 
+-
 +        if (FoldenorConfig.alternateKeepAlive) {
 +            long id = packet.getId();
 +            if (keepAlives.size() > 0 && keepAlives.contains(id)) {
@@ -88,7 +88,7 @@ index 2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17..dcb9fc6772e977e61880294d3315f918
      }
  
      @Override
-@@ -212,19 +224,31 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+@@ -223,19 +234,31 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
          long currentTime = Util.getMillis();
          long elapsedTime = currentTime - this.keepAliveTime;
  
@@ -128,6 +128,6 @@ index 2cb41845bd4d7d7ca3dcb11e6934e1f38c47cf17..dcb9fc6772e977e61880294d3315f918
 +                }
              }
 -        }
-         // Paper end
+         // Paper end - give clients a longer time to respond to pings as per pre 1.12.2 timings
  
          this.server.getProfiler().pop();

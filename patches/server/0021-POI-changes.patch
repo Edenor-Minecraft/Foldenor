@@ -26,7 +26,7 @@ index 645345766a0a3f9e92d079c7e2eb8394a216e9f1..b873a692a13549ec39d0350703b2fafb
  
      private static void networkSettings() {
 diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
-index 8f8b29f80d1573981ccffd207dd6e0941e71a352..274d3d20afee40ea5108adff0bb3932e34580325 100644
+index abcc3ef59475ac170fd10b4dd4a4f3371faf17e0..274d3d20afee40ea5108adff0bb3932e34580325 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
 @@ -9,10 +9,13 @@ import java.util.Set;
@@ -65,7 +65,7 @@ index 8f8b29f80d1573981ccffd207dd6e0941e71a352..274d3d20afee40ea5108adff0bb3932e
                          return false;
                      } else {
                          mutableLong.setValue(time + 20L + (long)world.getRandom().nextInt(20));
--                        if (entity.getNavigation().isStuck()) mutableLong.add(200); // Paper - Wait an additional 10s to check again if they're stuck
+-                        if (entity.getNavigation().isStuck()) mutableLong.add(200); // Paper - Perf: Wait an additional 10s to check again if they're stuck
 +                        addAdditionalTimeToMutableLongIfEntityIsStuck(mutableLong, world, entity);
 +                        //if (entity.getNavigation().isStuck()) mutableLong.add(200); // Paper - Wait an additional 10s to check again if they're stuck
                          PoiManager poiManager = world.getPoiManager();

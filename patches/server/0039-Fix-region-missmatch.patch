@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Wed, 7 Feb 2024 14:38:39 +0400
+Subject: [PATCH] Fix-region-missmatch
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 80705d511303edd7b2c3144ae4f138ceb2236fbc..563f06d49a25b79bb46972e8b3faec7a01416dd1 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -607,8 +607,14 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         this.entityData.define(Entity.DATA_TICKS_FROZEN, 0);
+         this.defineSynchedData();
+         this.getEntityData().registrationLocked = true; // Spigot
+-        this.setPos(0.0D, 0.0D, 0.0D);
+         this.eyeHeight = this.getEyeHeight(net.minecraft.world.entity.Pose.STANDING, this.dimensions);
++        if (io.papermc.paper.util.TickThread.isTickThreadFor(world.getMinecraftWorld(), new BlockPos(0, 0, 0))) {
++            this.setPos(0.0D, 0.0D, 0.0D);
++        }
++        else {
++            world.getServer().server.getRegionScheduler().run(null, new Location(world.getWorld(), 0.0D, 0.0D, 0.0D),
++                v -> this.setPos(0.0D, 0.0D, 0.0D));
++        }
+     }
+ 
+     public boolean isColliding(BlockPos pos, BlockState state) {

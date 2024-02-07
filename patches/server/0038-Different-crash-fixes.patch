@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Tue, 6 Feb 2024 14:38:01 +0400
+Subject: [PATCH] Different-crash-fixes
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index 5067fabb3a565d424248ce73212d9542d21bf06b..4260ce4f8d4550b8214503820271ffd4d093d7bb 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -143,19 +143,9 @@ public class FoldenorConfig {
+         maxProjectileLoadsPerProjectile = getInt("optimizations.max_projectile_loads_per_projectile", maxProjectileLoadsPerProjectile);
+         maxProjectileLoadsPerTick = getInt("optimizations.max_projectile_loads_per_tick", maxProjectileLoadsPerTick);
+         acquirePoiForStuckEntityInterval = getInt("optimizations.acquire_poi_for_stuck_entity_interval", acquirePoiForStuckEntityInterval);
+-<<<<<<< HEAD
+         enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check",enableSuffocationOptimization);
+         entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation",entityWakeUpDurationRatioStandardDeviation);
+         loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities",loadChunksToActiveClimbingEntities);
+-=======
+-        enableSuffocationOptimization = getBoolean("optimizations.optimize_suffocation_check", enableSuffocationOptimization);
+-        entityWakeUpDurationRatioStandardDeviation = getDouble("optimizations.entity_wakeup_duration_ratio_standard_deviation", entityWakeUpDurationRatioStandardDeviation);
+-        loadChunksToActiveClimbingEntities = getBoolean("optimizations.load_chunks_to_active_climbing_entities", loadChunksToActiveClimbingEntities);
+-
+-
+-        enableAsyncMobSpawning = getBoolean("optimizations.enable_async_mob_spawning", enableAsyncMobSpawning);
+-        RegionizedWorldData.initMobSpawningExecutor();
+->>>>>>> Pufferfish-Dynamic-Activation-of-Brain
+     }
+ 
+     private static void networkSettings() {
+diff --git a/src/main/java/org/bukkit/craftbukkit/command/BukkitCommandWrapper.java b/src/main/java/org/bukkit/craftbukkit/command/BukkitCommandWrapper.java
+index 21b6f90cf5bd7087d1a0f512289d971f2c3e1afa..a37e80e8bd014a32c9fcda494ad7c92ccf967862 100644
+--- a/src/main/java/org/bukkit/craftbukkit/command/BukkitCommandWrapper.java
++++ b/src/main/java/org/bukkit/craftbukkit/command/BukkitCommandWrapper.java
+@@ -10,6 +10,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
+ import com.mojang.brigadier.suggestion.Suggestions;
+ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+ import com.mojang.brigadier.tree.LiteralCommandNode;
++
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.concurrent.CompletableFuture;
+ import java.util.function.Predicate;
+@@ -76,8 +78,11 @@ public class BukkitCommandWrapper implements com.mojang.brigadier.Command<Comman
+         // Defaults to sub nodes, but we have just one giant args node, so offset accordingly
+         builder = builder.createOffset(builder.getInput().lastIndexOf(' ') + 1);
+ 
+-        for (String s : results) {
+-            builder.suggest(s);
++        Iterator<String> it = results.iterator();
++        while (it.hasNext()) {
++            String item = it.next();
++            if (item != null)
++                builder.suggest(item);
+         }
+ 
+         return builder.buildFuture();

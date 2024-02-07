@@ -287,7 +287,7 @@ index 6d23c39e4eadf23616080d6d08672e13b5d3c37d..2dd0541a0ae74477758e0cea1eb2c9b6
      }
  
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
-index a71414397bd45ee7bcacfeef0041d80dfa25f114..db90f579c08c94591fcd39331a3b5dd0f0dbf7c9 100644
+index 9b1243d96e0694c62fc9e82e9be540bce0d2b3ad..cac09c4563d54dbd4098d0a4a113b5cee31eba41 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 @@ -32,6 +32,7 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
@@ -357,7 +357,7 @@ index a71414397bd45ee7bcacfeef0041d80dfa25f114..db90f579c08c94591fcd39331a3b5dd0
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6c79d522f 100644
+index 26ff1a3d07c92f7035020d08d35116f7feede600..93156b55206ee1d1774afa2a19134fc443af8a72 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -6,6 +6,7 @@ import java.util.function.BooleanSupplier;
@@ -419,7 +419,7 @@ index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6
 +
      private static final java.util.function.BiPredicate<ItemStack, Integer> STACK_SIZE_TEST = (itemstack, i) -> itemstack.getCount() >= itemstack.getMaxStackSize();
      private static final java.util.function.BiPredicate<ItemStack, Integer> IS_EMPTY_TEST = (itemstack, i) -> itemstack.isEmpty();
-     // Paper end
+     // Paper end - Perf: Optimize Hoppers
 @@ -470,7 +492,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
                  //         }
                  //         int origCount = event.getItem().getAmount(); // Spigot
@@ -433,8 +433,8 @@ index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6
      }
  
      private static boolean isEmptyContainer(Container inv, Direction facing) {
--        return allMatch(inv, facing, IS_EMPTY_TEST);
-+        //return allMatch(inv, facing, IS_EMPTY_TEST);
+-        return allMatch(inv, facing, IS_EMPTY_TEST); // Paper - Perf: Optimize Hoppers
++        //return allMatch(inv, facing, IS_EMPTY_TEST); // Paper - Perf: Optimize Hoppers
 +        return inv.isCompletelyEmpty(facing);
      }
  
@@ -455,25 +455,6 @@ index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6
              // }
              // int origCount = event.getItem().getAmount(); // Spigot
              // ItemStack itemstack2 = HopperBlockEntity.addItem(iinventory, ihopper, CraftItemStack.asNMSCopy(event.getItem()), null);
-@@ -624,12 +647,12 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
-         boolean flag = false;
-         // CraftBukkit start
-         if (InventoryPickupItemEvent.getHandlerList().getRegisteredListeners().length > 0) { // Paper - optimize hoppers
--        InventoryPickupItemEvent event = new InventoryPickupItemEvent(getInventory(inventory), (org.bukkit.entity.Item) itemEntity.getBukkitEntity()); // Paper - use getInventory() to avoid snapshot creation
--        itemEntity.level().getCraftServer().getPluginManager().callEvent(event);
--        if (event.isCancelled()) {
--            return false;
--        }
--        // CraftBukkit end
-+            InventoryPickupItemEvent event = new InventoryPickupItemEvent(getInventory(inventory), (org.bukkit.entity.Item) itemEntity.getBukkitEntity()); // Paper - use getInventory() to avoid snapshot creation
-+            itemEntity.level().getCraftServer().getPluginManager().callEvent(event);
-+            if (event.isCancelled()) {
-+                return false;
-+            }
-+            // CraftBukkit end
-         } // Paper - optimize hoppers
-         ItemStack itemstack = itemEntity.getItem().copy();
-         ItemStack itemstack1 = HopperBlockEntity.addItem((Container) null, inventory, itemstack, (Direction) null);
 @@ -716,7 +739,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
          if (HopperBlockEntity.canPlaceItemInContainer(to, stack, slot, side)) {
@@ -485,13 +466,13 @@ index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6
              if (itemstack1.isEmpty()) {
                  // Spigot start - SPIGOT-6693, InventorySubcontainer#setItem
 @@ -840,12 +864,13 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
-         // Paper start - add optimizeEntities parameter
+         // Paper start - Perf: Optimize Hoppers
          return HopperBlockEntity.getContainerAt(world, x, y, z, false);
      }
 +
      @Nullable
      private static Container getContainerAt(Level world, double x, double y, double z, final boolean optimizeEntities) {
-         // Paper end - add optimizeEntities parameter
+         // Paper end - Perf: Optimize Hoppers
          Object object = null;
          BlockPos blockposition = BlockPos.containing(x, y, z);
 -        if ( !world.spigotConfig.hopperCanLoadChunks && !world.hasChunkAt( blockposition ) ) return null; // Spigot
@@ -499,15 +480,6 @@ index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6
          BlockState iblockdata = world.getBlockState(blockposition);
          Block block = iblockdata.getBlock();
  
-@@ -863,7 +888,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
-         }
- 
-         if (object == null && (!optimizeEntities || !world.paperConfig().hopper.ignoreOccludingBlocks || !iblockdata.getBukkitMaterial().isOccluding())) { // Paper
--            List<Entity> list = world.getEntitiesOfClass((Class)Container.class, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelector.CONTAINER_ENTITY_SELECTOR); // Paper - optimize hoppers, use getEntitiesOfClass
-+            List<Entity> list = world.getEntitiesOfClass((Class) Container.class, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelector.CONTAINER_ENTITY_SELECTOR); // Paper - optimize hoppers, use getEntitiesOfClass
- 
-             if (!list.isEmpty()) {
-                 object = (Container) list.get(world.random.nextInt(list.size()));
 @@ -911,7 +936,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
      @Override
@@ -520,13 +492,13 @@ index 72779080969fe9f058c19533ffc9dad5f9c47086..dca9c4a79e6e1bdc259b0f082ba26ee6
  
      public static void entityInside(Level world, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-index 64875525df244db838560f5fefb7b1b07b0f1f51..4d6437418df95e36883668889516ee1821b9b742 100644
+index a94300a457b25f0e33a8eeabba6dd5720ca9ab1e..f55c96985990cdd470513ece0fd4a96c15bfeca0 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-@@ -94,12 +94,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
+@@ -94,13 +94,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
      public boolean isEmpty() {
          this.unpackLootTable((Player)null);
-         // Paper start
+         // Paper start - Perf: Optimize Hoppers
 -        for (final ItemStack itemStack : this.getItems()) {
 +        /*for (final ItemStack itemStack : this.getItems()) {
              if (!itemStack.isEmpty()) {
@@ -534,8 +506,9 @@ index 64875525df244db838560f5fefb7b1b07b0f1f51..4d6437418df95e36883668889516ee18
              }
          }
 -        return true;
+-        // Paper end - Perf: Optimize Hoppers
 +        return true;*/
 +        return this.isCompletelyEmpty(null);
-         // Paper end
      }
  
+     @Override

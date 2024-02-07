@@ -147,7 +147,7 @@ index 0000000000000000000000000000000000000000..805d5e7e27f99eafc16c1cbd61049b23
 +    }
 +}
 diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-index e21f4c5aff3a8e97101f6efc1349fbecf326b5ea..334fb8945d0eb0c99333f00b52b3bc3b6069a9aa 100644
+index 6d8ff6c06af5545634f255ed17dc1e489ece2548..172e385fe6d1ba5f58481a58f8a3847b97a28488 100644
 --- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 +++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 @@ -45,13 +45,17 @@ public abstract class FlowingFluid extends Fluid {
@@ -169,7 +169,7 @@ index e21f4c5aff3a8e97101f6efc1349fbecf326b5ea..334fb8945d0eb0c99333f00b52b3bc3b
      });
      private final Map<FluidState, VoxelShape> shapes = Maps.newIdentityHashMap();
  
-@@ -252,6 +256,7 @@ public abstract class FlowingFluid extends Fluid {
+@@ -251,6 +255,7 @@ public abstract class FlowingFluid extends Fluid {
              return false;
          }
          // Paper end - optimise collisions
@@ -177,7 +177,7 @@ index e21f4c5aff3a8e97101f6efc1349fbecf326b5ea..334fb8945d0eb0c99333f00b52b3bc3b
          Object2ByteLinkedOpenHashMap object2bytelinkedopenhashmap;
  
          if (!state.getBlock().hasDynamicShape() && !fromState.getBlock().hasDynamicShape()) {
-@@ -259,9 +264,17 @@ public abstract class FlowingFluid extends Fluid {
+@@ -258,9 +263,17 @@ public abstract class FlowingFluid extends Fluid {
          } else {
              object2bytelinkedopenhashmap = null;
          }
@@ -195,7 +195,7 @@ index e21f4c5aff3a8e97101f6efc1349fbecf326b5ea..334fb8945d0eb0c99333f00b52b3bc3b
          if (object2bytelinkedopenhashmap != null) {
              block_a = new Block.BlockStatePairKey(state, fromState, face);
              byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(block_a);
-@@ -272,18 +285,35 @@ public abstract class FlowingFluid extends Fluid {
+@@ -271,18 +284,35 @@ public abstract class FlowingFluid extends Fluid {
          } else {
              block_a = null;
          }

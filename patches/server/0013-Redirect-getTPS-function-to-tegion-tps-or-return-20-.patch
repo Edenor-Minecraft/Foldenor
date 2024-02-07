@@ -5,7 +5,7 @@ Subject: [PATCH] Redirect-getTPS-function-to-tegion-tps-or-return-20-tps
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index d8b250e1c09cf8c3b5180ddb653ed9107cab929f..518ade861db3ae1702898d1364dcfa363b191185 100644
+index 323182adbaaedccd4590afd11996f003edd4004d..36575b51c3ce9b1f630292d339f3d2edf041e8cf 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -14,6 +14,9 @@ import com.mojang.brigadier.tree.CommandNode;
@@ -18,14 +18,14 @@ index d8b250e1c09cf8c3b5180ddb653ed9107cab929f..518ade861db3ae1702898d1364dcfa36
  import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  import java.awt.image.BufferedImage;
  import java.io.ByteArrayOutputStream;
-@@ -3017,11 +3020,21 @@ public final class CraftServer implements Server {
-     // Paper - Add getTPS API - Further improve tick loop
+@@ -3079,11 +3082,21 @@ public final class CraftServer implements Server {
+ 
      @Override
      public double[] getTPS() {
 -        return new double[] {
--                net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
--                net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
--                net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
+-            net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
+-            net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
+-            net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
 -        };
 +        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> curRegion =  TickRegionScheduler.getCurrentRegion();
 +        if (curRegion != null){
@@ -44,4 +44,4 @@ index d8b250e1c09cf8c3b5180ddb653ed9107cab929f..518ade861db3ae1702898d1364dcfa36
 +        }
      }
  
-     @Override
+     // Paper start - adventure sounds

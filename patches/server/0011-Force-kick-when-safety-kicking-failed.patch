@@ -5,7 +5,7 @@ Subject: [PATCH] Force-kick-when-safety-kicking-failed
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index a288ed0640bfe852677294398474510ab578577a..04d77bc43dd4c7089b09d3f4b8acef801ded11c1 100644
+index fc301fcf812b79ac7ceae710132a762f101b82b2..5eeaeed63e60dfeaad81ac577b79df85506e1728 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 @@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
@@ -24,7 +24,7 @@ index a288ed0640bfe852677294398474510ab578577a..04d77bc43dd4c7089b09d3f4b8acef80
  import net.minecraft.server.PlayerAdvancements;
  import net.minecraft.server.level.ChunkMap;
  import net.minecraft.server.level.ServerLevel;
-@@ -619,7 +621,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -577,7 +579,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
          //org.spigotmc.AsyncCatcher.catchOp("player kick"); // Folia - region threading - no longer needed
          final ServerGamePacketListenerImpl connection = this.getHandle().connection;
          if (connection != null) {

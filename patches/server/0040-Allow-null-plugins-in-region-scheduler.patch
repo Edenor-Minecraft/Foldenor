@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Wed, 7 Feb 2024 14:42:39 +0400
+Subject: [PATCH] Allow-null-plugins-in-region-scheduler
+
+
+diff --git a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java
+index a12705793a63b289da13ebabeaf441637c4fe2ed..5d4ce8dee863bd1b237ed10d7f818d64225ce416 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java
++++ b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaRegionScheduler.java
+@@ -33,8 +33,9 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+             try {
+                 run.run();
+             } catch (final Throwable throwable) {
+-                plugin.getLogger().log(Level.WARNING, "Location task for " + plugin.getDescription().getFullName()
+-                    + " in world " + world + " at " + chunkX + ", " + chunkZ + " generated an exception", throwable);
++                if (plugin != null)
++                    plugin.getLogger().log(Level.WARNING, "Location task for " + plugin.getDescription().getFullName()
++                        + " in world " + world + " at " + chunkX + ", " + chunkZ + " generated an exception", throwable);
+             }
+         };
+     }
+@@ -61,7 +62,7 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+ 
+     @Override
+     public void execute(final Plugin plugin, final World world, final int chunkX, final int chunkZ, final Runnable run) {
+-        Validate.notNull(plugin, "Plugin may not be null");
++        //Validate.notNull(plugin, "Plugin may not be null");
+         Validate.notNull(world, "World may not be null");
+         Validate.notNull(run, "Runnable may not be null");
+ 
+@@ -78,14 +79,14 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+     @Override
+     public ScheduledTask runDelayed(final Plugin plugin, final World world, final int chunkX, final int chunkZ,
+                                     final Consumer<ScheduledTask> task, final long delayTicks) {
+-        Validate.notNull(plugin, "Plugin may not be null");
++        //Validate.notNull(plugin, "Plugin may not be null");
+         Validate.notNull(world, "World may not be null");
+         Validate.notNull(task, "Task may not be null");
+         if (delayTicks <= 0) {
+             throw new IllegalArgumentException("Delay ticks may not be <= 0");
+         }
+ 
+-        if (!plugin.isEnabled()) {
++        if (plugin != null && !plugin.isEnabled()) {
+             throw new IllegalPluginAccessException("Plugin attempted to register task while disabled");
+         }
+ 
+@@ -97,7 +98,7 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+             scheduleInternalOffRegion(ret, delayTicks);
+         }
+ 
+-        if (!plugin.isEnabled()) {
++        if (plugin != null && !plugin.isEnabled()) {
+             // handle race condition where plugin is disabled asynchronously
+             ret.cancel();
+         }
+@@ -108,7 +109,7 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+     @Override
+     public ScheduledTask runAtFixedRate(final Plugin plugin, final World world, final int chunkX, final int chunkZ,
+                                         final Consumer<ScheduledTask> task, final long initialDelayTicks, final long periodTicks) {
+-        Validate.notNull(plugin, "Plugin may not be null");
++        //Validate.notNull(plugin, "Plugin may not be null");
+         Validate.notNull(world, "World may not be null");
+         Validate.notNull(task, "Task may not be null");
+         if (initialDelayTicks <= 0) {
+@@ -118,7 +119,7 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+             throw new IllegalArgumentException("Period ticks may not be <= 0");
+         }
+ 
+-        if (!plugin.isEnabled()) {
++        if (plugin != null && !plugin.isEnabled()) {
+             throw new IllegalPluginAccessException("Plugin attempted to register task while disabled");
+         }
+ 
+@@ -130,7 +131,7 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+             scheduleInternalOffRegion(ret, initialDelayTicks);
+         }
+ 
+-        if (!plugin.isEnabled()) {
++        if (plugin != null && !plugin.isEnabled()) {
+             // handle race condition where plugin is disabled asynchronously
+             ret.cancel();
+         }
+@@ -316,7 +317,7 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+ 
+         @Override
+         public void run() {
+-            if (!this.plugin.isEnabled()) {
++            if (plugin != null && !this.plugin.isEnabled()) {
+                 // don't execute if the plugin is disabled
+                 return;
+             }
+@@ -330,13 +331,14 @@ public final class FoliaRegionScheduler implements RegionScheduler {
+             try {
+                 this.run.accept(this);
+             } catch (final Throwable throwable) {
+-                this.plugin.getLogger().log(Level.WARNING, "Location task for " + this.plugin.getDescription().getFullName()
+-                    + " in world " + world + " at " + chunkX + ", " + chunkZ + " generated an exception", throwable);
++                if (this.plugin != null)
++                    this.plugin.getLogger().log(Level.WARNING, "Location task for " + this.plugin.getDescription().getFullName()
++                        + " in world " + world + " at " + chunkX + ", " + chunkZ + " generated an exception", throwable);
+             } finally {
+                 boolean reschedule = false;
+                  if (!repeating) {
+                     this.setStateVolatile(STATE_FINISHED);
+-                } else if (!this.plugin.isEnabled()) {
++                } else if (this.plugin != null && !this.plugin.isEnabled()) {
+                      this.setStateVolatile(STATE_CANCELLED);
+                 } else if (STATE_EXECUTING == this.compareAndExchangeStateVolatile(STATE_EXECUTING, STATE_IDLE)) {
+                     reschedule = true;

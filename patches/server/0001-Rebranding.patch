@@ -5,7 +5,7 @@ Subject: [PATCH] Rebranding
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 38352926640d97449256d50ebdec619ce9e695a0..41d1bd344266ff4cf09b20169a5214fad8ce97da 100644
+index 959e62d800de05b2dd77a252f442c3daf8438490..74a1fc200f3354b42e817c10010e6bb3a67f64b3 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -14,7 +14,7 @@ val alsoShade: Configuration by configurations.creating
@@ -17,7 +17,7 @@ index 38352926640d97449256d50ebdec619ce9e695a0..41d1bd344266ff4cf09b20169a5214fa
      implementation("io.papermc.paper:paper-mojangapi:${project.version}") {
          exclude("io.papermc.paper", "paper-api")
      }
-@@ -74,7 +74,7 @@ tasks.jar {
+@@ -73,7 +73,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
@@ -82,7 +82,7 @@ index e2f704c115fd6e00960bb56bb0779f1100c89c17..d77980fe69758834ffded0d24c2436e6
                  org.bukkit.Bukkit.getLogger().warning("Version: " + org.bukkit.Bukkit.getBukkitVersion());
              }
 diff --git a/src/main/java/net/minecraft/CrashReport.java b/src/main/java/net/minecraft/CrashReport.java
-index e047dee632022abfe05865d1e71838be8d5d053a..8ae2f329354c6635de411f0ddd2b8d21b6ab086b 100644
+index 99c5038672b09d0874125e3df280174c1e8151e6..0cc595adcfe1af04ce1b5c2c2987ba62814ecb59 100644
 --- a/src/main/java/net/minecraft/CrashReport.java
 +++ b/src/main/java/net/minecraft/CrashReport.java
 @@ -125,6 +125,7 @@ public class CrashReport {
@@ -94,20 +94,20 @@ index e047dee632022abfe05865d1e71838be8d5d053a..8ae2f329354c6635de411f0ddd2b8d21
          stringbuilder.append(CrashReport.getErrorComment());
          stringbuilder.append("\n\n");
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 9ea861c1531c5f9d8a87e45512336eba3bddf06a..a5b75bfefadb58cd90559b6268a7e36bc32b4784 100644
+index b73699a08a368e6305759438c00066b0d5e7b39a..72d4c8cd47c8bd2f191aec01517f6ce323b1a8c4 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1965,7 +1965,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1954,7 +1954,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      @DontObfuscate
      public String getServerModName() {
--        return "Folia"; // Folia - Folia > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
-+        return "Foldenor"; // Folia - Folia > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+-        return "Folia"; // Paper // Folia - Folia
++        return "Foldenor"; // Paper // Folia - Folia
      }
  
      public SystemReport fillSystemReport(SystemReport details) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 7d1be59d03fa4e46295bc91943fea16bd9c7c802..250942deaf337f5ea5838e02244c0e81ec16d33c 100644
+index 3f266934e70a5f29d55d390841e536999cec8582..4a87a64acece79d43f495b6a5f1553273bcca6ce 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -264,7 +264,7 @@ import javax.annotation.Nullable; // Paper

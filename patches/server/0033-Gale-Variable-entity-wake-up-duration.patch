@@ -25,7 +25,7 @@ index 5aea39f46bdc4d61c817b37b61f2ff9ab1cb349f..3a531564559bbd333b7bb56b9896c340
  
      private static void networkSettings() {
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 09ac38a803ade3e757204a62d3e696562462b9aa..6c3170dfcdfaeafec6917262fbe65195c0570427 100644
+index 877e6286fd4860e4270fee3ddb79a5f4041343b7..cd46b1131a33fd84b44909a3f50aa95026418bef 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -1,5 +1,6 @@
@@ -35,7 +35,7 @@ index 09ac38a803ade3e757204a62d3e696562462b9aa..6c3170dfcdfaeafec6917262fbe65195
  import net.minecraft.core.BlockPos;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.level.ServerChunkCache;
-@@ -71,28 +72,38 @@ public class ActivationRange
+@@ -71,22 +72,22 @@ public class ActivationRange
          if (entity.activationType == ActivationType.VILLAGER) {
              if (inactiveFor > config.wakeUpInactiveVillagersEvery && worldData.wakeupInactiveRemainingVillagers > 0) { // Folia - threaded regions
                  worldData.wakeupInactiveRemainingVillagers--; // Folia - threaded regions
@@ -62,8 +62,9 @@ index 09ac38a803ade3e757204a62d3e696562462b9aa..6c3170dfcdfaeafec6917262fbe65195
              }
          }
          return -1;
-     }
-     // Paper end
+@@ -95,6 +96,18 @@ public class ActivationRange
+ 
+     // Folia - threaded regions - replaced by local variable
  
 +    private static final java.util.Random wakeUpDurationRandom = new java.util.Random();
 +
@@ -75,6 +76,8 @@ index 09ac38a803ade3e757204a62d3e696562462b9aa..6c3170dfcdfaeafec6917262fbe65195
 +        return (int) Math.min(Integer.MAX_VALUE, Math.max(1, Math.round(wakeUpDuration * wakeUpDurationRandom.nextGaussian(1, deviation))));
 +    }
 +
-     static AABB maxBB = new AABB( 0, 0, 0, 0, 0, 0 );
- 
++    static AABB maxBB = new AABB( 0, 0, 0, 0, 0, 0 );
++
      /**
+      * Initializes an entities type on construction to specify what group this
+      * entity is in for activation ranges.

@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish-Optimize-entity-coordinate-key
 
 
 diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
-index 1f0ec6add54b7503415d5f4141fe2b6046f1ec69..c498176484b82563fa401b5f4d590709492ea9a6 100644
+index 878306271d4af280c7a086d1839c446a01da1ad6..d806dd838567b2b9f9aa2cc9b26546bcefa6cd77 100644
 --- a/src/main/java/io/papermc/paper/util/MCUtil.java
 +++ b/src/main/java/io/papermc/paper/util/MCUtil.java
 @@ -212,7 +212,7 @@ public final class MCUtil {
