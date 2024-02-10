@@ -1,44 +1,47 @@
-name: Update Folia ref
-
+name: Automatically update Folia commit
 on:
-  workflow_dispatch:
-
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 0 * * *"
 jobs:
-  upload_folia_ref:
+  build:
     runs-on: ubuntu-latest
-    
-    permissions:
-       contents: write
-       actions: write
-       
     steps:
-      - name: Checkout Git Repository
+      - name: Checkout Foldenor Repository
         uses: actions/checkout@v3
-      
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-      
-      - name: Set up JDK
-        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          
-      - name: Setup node
-        uses: actions/setup-node@v1
-
-      - name: Get latest Folia commit
-        run: ./gradlew foliaRefLatest
+          path: 'Foldenor'
+          token: ${{ secrets.GITHUB_TOKEN }}
         
-      - name: Upload to GitHub
-        uses: LasyIsLazy/github-upload-action@v0.1.0
+      - name: Checkout Folia Repository
+        uses: actions/checkout@v3
         with:
-          access-token: ${{ secrets.ACCESS_TOKEN }}
-          file-path: gradle.properties
-          owner: Edenor-Minecraft
-          repo: Foldenor
-          commit-message: Update Folia reference
-          branch-name: 1.20.4
+          path: 'Folia'
+          repository: "PaperMC/Folia"
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get Folia Latest Commit Hash
+        id: foliaRef
+        run: |
+          ls
+          cd Folia
+          echo "::set-output name=foliaRef::$(git rev-parse HEAD)"
+          cd ..
+          
+      - name: Update foliaRef in Foldenor
+        run: |
+          cd Foldenor
+          sed -i "s/\(foliaRef\s*=\s*\).*/\1$PAPER_REF/" gradle.properties
+        env:
+          PAPER_REF: ${{ steps.foliaRef.outputs.foliaRef }}
+      - name: Check for changes and Write to repository
+        run: |
+          cd Foldenor
+          if ! git diff --quiet; then
+            git add gradle.properties
+            git config --global user.email "no-reply@github.com" && git config --global user.name "Github Actions"
+            git commit -m "Updated Upstream (Folia)"
+            git push
+          else
+            echo "No changes to commit."
+          fi
