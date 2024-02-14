@@ -18,7 +18,7 @@ jobs:
         with:
           path: 'Folia'
           repository: "PaperMC/Folia"
-          ref: dev/1.20.4
+          ref: master 
           token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Get Folia Latest Commit Hash
