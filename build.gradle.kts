@@ -5,7 +5,7 @@ plugins {
     java
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1" apply false
-    id("io.papermc.paperweight.patcher") version "1.5.11"
+    id("io.papermc.paperweight.patcher") version "1.5.12-SNAPSHOT"
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.8.11:fat")
+    remapper("net.fabricmc:tiny-remapper:0.10.1:fat")
     decompiler("org.vineflower:vineflower:1.9.3")
     paperclip("io.papermc:paperclip:3.0.4-SNAPSHOT")
 }
@@ -96,36 +96,3 @@ paperweight {
         }
     }
 }
-
-tasks.register("foliaRefLatest") {
-    // Update the foliaRef in gradle.properties to be the latest commit.
-    val tempDir = layout.cacheDir("foliaRefLatest");
-    val file = "gradle.properties";
-
-    doFirst {
-        data class GithubCommit(
-            val sha: String
-        )
-
-        val foliaLatestCommitJson = layout.cache.resolve("foliaLatestCommit.json");
-        download.get().download("https://api.github.com/repos/PaperMC/Folia/commits/dev/1.20.4", foliaLatestCommitJson);
-        val foliaLatestCommit = gson.fromJson<paper.libs.com.google.gson.JsonObject>(foliaLatestCommitJson)["sha"].asString;
-
-        copy {
-            from(file)
-            into(tempDir)
-            filter { line: String ->
-                line.replace("foliaRef=.*".toRegex(), "foliaRef=$foliaLatestCommit")
-            }
-        }
-    }
-
-    doLast {
-        copy {
-            from(tempDir.file("gradle.properties"))
-            into(project.file(file).parent)
-        }
-    }
-}
-
-
