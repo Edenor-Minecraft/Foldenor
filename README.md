@@ -13,7 +13,7 @@
 
 # How to use
 
-[Gradle](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry)
+[Gradle](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package)
 
 [Maven](https://docs.github.com/ru/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)
 
