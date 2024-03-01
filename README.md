@@ -11,9 +11,11 @@
 
 ## Foldenor api
 
-#How to use
-	[Gradle](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry)
-	[Maven](https://docs.github.com/ru/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)
+# How to use
+
+[Gradle](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry)
+
+[Maven](https://docs.github.com/ru/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)
 
 # Maven
 
