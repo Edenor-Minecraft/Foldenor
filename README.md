@@ -10,40 +10,38 @@
 [Folia region logic](https://docs.papermc.io/folia/reference/region-logic)
 
 ## Foldenor api
+
+#How to use
+	[Gradle](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry)
+	[Maven](https://docs.github.com/ru/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)
+
 # Maven
 
-Maven Repo (for foldenor-api):
-    
-    <repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-	</repository>
-  
 Artifact Information:
     
     <dependency>
-	    <groupId>com.github.Edenor-Minecraft</groupId>
-	    <artifactId>Foldenor</artifactId>
-	    <version>1.20.2_131</version>
-        <scope>provided</scope>
+		<groupId>dev.edenor.foldenor</groupId>
+		<artifactId>foldenor-api</artifactId>
+		<version>1.20.4-R0.1-SNAPSHOT</version>
 	</dependency>
 
 # Gradle
 
 Gradle Repo (for foldenor-api):
     
-        allprojects {
-		    repositories {
-			    ...
-			    maven { url 'https://jitpack.io' }
-		    }
-	    }
+	maven {
+        url = uri("https://maven.pkg.github.com/Edenor-Minecraft/Foldenor/")
+        credentials {
+            username = System.getenv("USERNAME")
+            password = System.getenv("TOKEN")
+        }
+   }
 
 Artifact Information:
     
-        dependencies {
-	        implementation 'com.github.Edenor-Minecraft:Foldenor:1.20.2_131'
-	    }
+    dependencies {
+	    compileOnly 'dev.edenor.foldenor:foldenor-api:1.20.4-R0.1-SNAPSHOT'
+	}
 
 ## About Edenor
 [VK](https://vk.com/edenorrp)

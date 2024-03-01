@@ -36,6 +36,24 @@ allprojects {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    publishing {
+        repositories {
+            maven {
+                name = "githubPackage"
+                url = uri("https://maven.pkg.github.com/Edenor-Minecraft/Foldenor")
+
+                credentials {
+                    username = System.getenv("GITHUB_USERNAME")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+
+            publications.register<MavenPublication>("gpr") {
+                from(components["java"])
+            }
+        }
+    }
 }
 
 subprojects {
@@ -54,17 +72,6 @@ subprojects {
         mavenCentral()
         maven(paperMavenPublicUrl)
         maven("https://jitpack.io")
-    }
-
-
-    publishing {
-        publications {
-            register<MavenPublication>("release") {
-                groupId = rootProject.group.toString()
-                artifactId = rootProject.name
-                version = providers.gradleProperty("mcVersion").get()
-            }
-        }
     }
 }
 
