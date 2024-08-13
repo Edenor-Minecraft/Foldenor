@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Aug 2024 17:06:35 +0400
+Subject: [PATCH] ShreddedPaper: Optimization:
+ entity-activation-check-frequency
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index e3ef04b52ed1c0dfb9e40cc2daedc0659f761fb7..418a3e07512b81c1fb6b6f8f2b1478cd033f05ff 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -59,6 +59,8 @@ public class FoldenorConfig {
+     public static int linearFlushFrequency = 5;
+     public static EnumRegionFileExtension regionFormatType;
+ 
++    public static int entityActivationCheckFrequency = 20;
++
+     public static void init(File configFile) {
+         init(configFile, true);
+     }
+@@ -134,6 +136,7 @@ public class FoldenorConfig {
+         piglinSpawnChancePersentInPortal = getInt("optimizations.piglin-spawn-chance-persent-in-portal", 100,
+             "Reduces piglin spawn in portal, by reducing change to spawn");
+         skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
++        entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);
+     }
+ 
+     private static void readMiscSettings() {
+diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
+index 69784dbf1fc50b27d15582ca058b7b0027fa49ae..f758fdf1d6e4d42f0fcdb11026988c1b9115f940 100644
+--- a/src/main/java/org/spigotmc/ActivationRange.java
++++ b/src/main/java/org/spigotmc/ActivationRange.java
+@@ -1,5 +1,6 @@
+ package org.spigotmc;
+ 
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerChunkCache;
+@@ -197,6 +198,8 @@ public class ActivationRange
+ 
+         for ( Player player : world.getLocalPlayers() ) // Folia - region threading
+         {
++            if (FoldenorConfig.entityActivationCheckFrequency > 1 && (player.getId() + io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick()) % FoldenorConfig
++                .entityActivationCheckFrequency != 0) continue; // ShreddedPaper - Configurable entity activation check frequency
+             player.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick(); // Folia - region threading
+             if ( world.spigotConfig.ignoreSpectatorActivation && player.isSpectator() )
+             {
+@@ -263,16 +266,16 @@ public class ActivationRange
+      */
+     private static void activateEntity(Entity entity, AABB[] bbByType) // Folia - threaded regions
+     {
+-        if ( io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick() > entity.activatedTick ) // Folia - threaded regions
++        if ( io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick() + Math.max(0, FoldenorConfig.entityActivationCheckFrequency) > entity.activatedTick ) // Folia - threaded regions // ShreddedPaper - Configurable entity activation check frequency
+         {
+             if ( entity.defaultActivationState )
+             {
+-                entity.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick(); // Folia - threaded regions
++                entity.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick() + Math.max(0, FoldenorConfig.entityActivationCheckFrequency); // Folia - threaded regions // ShreddedPaper - Configurable entity activation check frequency
+                 return;
+             }
+             if ( bbByType[entity.activationType.ordinal()].intersects( entity.getBoundingBox() ) ) // Folia - threaded regions
+             {
+-                entity.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick(); // Folia - threaded regions
++                entity.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick() + Math.max(0, FoldenorConfig.entityActivationCheckFrequency); // Folia - threaded regions // ShreddedPaper - Configurable entity activation check frequency
+             }
+         }
+     }

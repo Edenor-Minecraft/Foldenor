@@ -4,168 +4,87 @@ Date: Wed, 31 Jul 2024 14:55:42 +0400
 Subject: [PATCH] Add-Foldenor-commands
 
 
-diff --git a/src/main/java/net/edenor/foldenor/command/FoldenorCommands.java b/src/main/java/net/edenor/foldenor/command/FoldenorCommands.java
+diff --git a/src/main/java/net/edenor/foldenor/commands/FoldenorCommand.java b/src/main/java/net/edenor/foldenor/commands/FoldenorCommand.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..0a31c1c7ae98ceca60e8e57a56298e36650b9e68
+index 0000000000000000000000000000000000000000..a4bbdbb119c9e9c15265cd06831ee7a0c1f54622
 --- /dev/null
-+++ b/src/main/java/net/edenor/foldenor/command/FoldenorCommands.java
-@@ -0,0 +1,28 @@
-+package net.edenor.foldenor.command;
-+
-+import net.edenor.foldenor.commands.ChunkTPCommand;
-+import net.edenor.foldenor.commands.FoldenorReloadConfigCommand;
-+import net.minecraft.server.MinecraftServer;
-+import org.bukkit.command.Command;
-+import org.checkerframework.checker.nullness.qual.NonNull;
-+import org.checkerframework.framework.qual.DefaultQualifier;
-+
-+import java.util.HashMap;
-+import java.util.Map;
-+
-+@DefaultQualifier(NonNull.class)
-+public final class FoldenorCommands {
-+
-+    private FoldenorCommands() {
-+    }
-+
-+    private static final Map<String, Command> COMMANDS = new HashMap<>();
-+    static {
-+        COMMANDS.put("foldenor-reload", new FoldenorReloadConfigCommand("foldenor-reload"));
-+        COMMANDS.put("chunktp", new ChunkTPCommand("chunktp"));
-+    }
-+
-+    public static void registerCommands(final MinecraftServer server) {
-+        COMMANDS.forEach((s, command) -> server.server.getCommandMap().register(s, "Foldenor", command));
-+    }
-+}
-diff --git a/src/main/java/net/edenor/foldenor/commands/ChunkTPCommand.java b/src/main/java/net/edenor/foldenor/commands/ChunkTPCommand.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..f343f7921361c4ddb58db4b0f02de978b21dbdb4
---- /dev/null
-+++ b/src/main/java/net/edenor/foldenor/commands/ChunkTPCommand.java
-@@ -0,0 +1,58 @@
++++ b/src/main/java/net/edenor/foldenor/commands/FoldenorCommand.java
+@@ -0,0 +1,66 @@
 +package net.edenor.foldenor.commands;
 +
-+
-+import org.bukkit.Bukkit;
-+import org.bukkit.Location;
-+import org.bukkit.command.Command;
-+import org.bukkit.command.CommandSender;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
-+import org.bukkit.event.player.PlayerTeleportEvent;
-+import org.bukkit.permissions.Permission;
-+import org.bukkit.permissions.PermissionDefault;
-+import org.bukkit.plugin.PluginManager;
-+import org.jetbrains.annotations.NotNull;
-+
-+import java.util.ArrayList;
-+import java.util.List;
-+
-+public class ChunkTPCommand extends Command {
-+    public ChunkTPCommand(@NotNull String name) {
-+        super(name);
-+        this.setPermission("bukkit.command.foldenor.chunktp");
-+        this.description = "Teleport to chunk";
-+        this.usageMessage = "/chunktp [chunkX] [chunkZ]";
-+    }
-+
-+    @Override
-+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-+        if (!testPermission(sender)) return true;
-+
-+        if (sender instanceof CraftPlayer player) {
-+            if (args.length == 2) {
-+                if (this.validateArguments(args[0], args[1])) {
-+                    double x = Integer.parseInt(args[0]) * 16;
-+                    double z = Integer.parseInt(args[1]) * 16;
-+                    if (player.teleport(new Location(player.getWorld(), x, 100.0D, z), PlayerTeleportEvent.TeleportCause.PLUGIN)) {
-+                        player.sendMessage("You were teleported to: " + x + " , 100, " + z);
-+                    } else {
-+                        player.sendMessage("You couldn't be teleported there for some reason.");
-+                    }
-+                }
-+            } else {
-+                player.sendMessage("You must specify chunk coordinates. Example: /chunktp -230 334");
-+            }
-+        }
-+
-+        return true;
-+    }
-+
-+    private boolean validateArguments(String string, String string2) {
-+        try {
-+            Integer.parseInt(string);
-+            Integer.parseInt(string2);
-+            return true;
-+        } catch (NumberFormatException var4) {
-+            return false;
-+        }
-+    }
-+}
-diff --git a/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java b/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..4188e8db6386fe1790192c9efd8c2fe256ce6418
---- /dev/null
-+++ b/src/main/java/net/edenor/foldenor/commands/FoldenorReloadConfigCommand.java
-@@ -0,0 +1,49 @@
-+package net.edenor.foldenor.commands;
-+
-+import net.edenor.foldenor.config.FoldenorConfig;
-+import net.minecraft.server.dedicated.DedicatedServer;
-+import org.bukkit.Bukkit;
-+import org.bukkit.Location;
-+import org.bukkit.command.Command;
-+import org.bukkit.command.CommandSender;
-+import org.bukkit.permissions.Permission;
-+import org.bukkit.permissions.PermissionDefault;
-+import org.bukkit.plugin.PluginManager;
-+import org.jetbrains.annotations.NotNull;
-+
-+import java.util.ArrayList;
++import java.io.File;
 +import java.util.Collections;
 +import java.util.List;
++import java.util.stream.Collectors;
++import java.util.stream.Stream;
 +
-+import static net.kyori.adventure.text.Component.text;
-+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-+import static net.kyori.adventure.text.format.NamedTextColor.RED;
++import net.edenor.foldenor.config.FoldenorConfig;
++import net.kyori.adventure.text.Component;
++import net.kyori.adventure.text.format.TextColor;
++import net.kyori.adventure.text.format.TextDecoration;
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
++import org.bukkit.Location;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++import org.jetbrains.annotations.NotNull;
 +
-+public class FoldenorReloadConfigCommand extends Command {
++public class FoldenorCommand extends Command {
 +
-+    public FoldenorReloadConfigCommand(@NotNull String name) {
-+        super(name);
-+        this.setPermission("bukkit.command.foldenor.reload_config");
-+        this.description = "Reload Foldenor config";
-+        this.usageMessage = "/foldenor-reload";
++    public static void init() {
++        MinecraftServer.getServer().server.getCommandMap().register("foldenor", "Foldenor", new FoldenorCommand());
++    }
++
++    protected FoldenorCommand() {
++        super("foldenor");
++        this.description = "Foldenor related commands";
++        this.usageMessage = "/foldenor [reload | version]";
++        this.setPermission("bukkit.command.foldenor");
 +    }
 +
 +    @Override
-+    public @NotNull List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
++    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, String[] args, Location location) throws IllegalArgumentException {
++        if (args.length == 1) {
++            return Stream.of("reload", "version")
++                .filter(arg -> arg.startsWith(args[0].toLowerCase()))
++                .collect(Collectors.toList());
++        }
 +        return Collections.emptyList();
 +    }
 +
 +    @Override
 +    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 +        if (!testPermission(sender)) return true;
++        Component prefix = Component.text("Foldenor » ", TextColor.fromHexString("#12fff6"), TextDecoration.BOLD);
 +
-+        try {
-+            FoldenorConfig.reload((java.io.File) DedicatedServer.getServer().options.valueOf("foldenor-settings"));
-+            Command.broadcastCommandMessage(sender, text("Foldenor config reload complete.", GREEN));
-+            return true;
-+        } catch (Exception e) {
-+            Command.broadcastCommandMessage(sender, text("Error while reloading Foldenor config \n." + e.toString(), RED));
-+            throw new RuntimeException(e);
++        if (args.length != 1) {
++            sender.sendMessage(prefix.append(Component.text("Usage: " + usageMessage).color(TextColor.fromHexString("#e8f9f9"))));
++            args = new String[]{"version"};
 +        }
++
++        if (args[0].equalsIgnoreCase("reload")) {
++            MinecraftServer console = MinecraftServer.getServer();
++            FoldenorConfig.init(new File("foldenor.yml"));
++            console.server.reloadCount++;
++
++            Command.broadcastCommandMessage(sender, prefix.append(Component.text("Foldenor configuration has been reloaded.").color(TextColor.fromHexString("#e8f9f9"))));
++        } else if (args[0].equalsIgnoreCase("version")) {
++            Command.broadcastCommandMessage(sender, prefix.append(Component.text("This server is running " + Bukkit.getName() + " version " +
++                Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")").color(TextColor.fromHexString("#e8f9f9"))));
++        }
++
++        return true;
 +    }
 +}
-diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index fc5f7909d85d99b7fdaceb15d2672e36dcb6a426..c19b0a9552a642b1ace5b61109d1be6501b4342f 100644
---- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-+++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1149,6 +1149,7 @@ public final class CraftServer implements Server {
-         this.reloadData();
-         org.spigotmc.SpigotConfig.registerCommands(); // Spigot
-         io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper
-+        net.edenor.foldenor.command.FoldenorCommands.registerCommands(this.console);
-         this.spark.registerCommandBeforePlugins(this); // Paper - spark
-         this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
-         this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index a196839396e9a54c449b7dd5f1953a8a16657ba4..6a140fa920002798f7e88f699416ae04d6a4915b 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -246,6 +246,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+             DedicatedServer.LOGGER.error("Unable to load server configuration", e);
+             return false;
+         }
++        net.edenor.foldenor.commands.FoldenorCommand.init(); // Foldenor
+ 
+         this.setPvpAllowed(dedicatedserverproperties.pvp);
+         this.setFlightAllowed(dedicatedserverproperties.allowFlight);

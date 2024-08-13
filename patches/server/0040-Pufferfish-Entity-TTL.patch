@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 12 Aug 2024 15:27:53 +0400
+Subject: [PATCH] Pufferfish Entity TTL
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index d4f616a4580e2fc29f9f34b7bbcbf27eecaa27ab..49c5684edf5f605ba862599b0afcb48d8d0bebaa 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+ import java.util.Collections;
+ import java.util.List;
++import java.util.Locale;
+ import java.util.Map;
+ import java.util.logging.Level;
+ 
+@@ -106,6 +107,8 @@ public class FoldenorConfig {
+ 
+         readRegionFormatSettings();
+ 
++        projectileTimeouts();
++
+         try {
+             readDynamicActivationOfBrains();
+         } catch (IOException e) {
+@@ -179,6 +182,22 @@ public class FoldenorConfig {
+                     }, () -> MinecraftServer.LOGGER.warn("Unknown entity \"" + name + "\"")));
+     }
+ 
++    public static Map<String, Integer> projectileTimeouts;
++	private static void projectileTimeouts() {
++        // Set some defaults
++        getInt("entity_timeouts.SNOWBALL", -1);
++        getInt("entity_timeouts.LLAMA_SPIT", -1);
++        //"These values define a entity's maximum lifespan. If an",
++        //"entity is in this list and it has survived for longer than",
++        //"that number of ticks, then it will be removed. Setting a value to",
++        //"-1 disables this feature."
++
++        for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
++            String type = EntityType.getKey(entityType).getPath().toUpperCase(Locale.ROOT);
++            entityType.ttl = config.getInt("entity_timeouts." + type, -1);
++        }
++    }
++
+     protected static void set(String path, Object val) {
+         config.addDefault(path, val);
+         config.set(path, val);
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 93457c36f3b8dabb860472c8336bca57668a408b..b3b3be71268a39e24b3da69e284885b94c73d0fe 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -862,6 +862,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     }
+ 
+     public void tick() {
++        // Pufferfish start - entity TTL
++        if (type != EntityType.PLAYER && type.ttl >= 0 && this.tickCount >= type.ttl) {
++            discard();
++            return;
++        }
++        // Pufferfish end - entity TTL
+         this.baseTick();
+     }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/EntityType.java b/src/main/java/net/minecraft/world/entity/EntityType.java
+index 280b65d9ea6cde9f417057632c305645de10c1ed..a4e49c4097cc77686ea56fe1cf4a01a2c739c8db 100644
+--- a/src/main/java/net/minecraft/world/entity/EntityType.java
++++ b/src/main/java/net/minecraft/world/entity/EntityType.java
+@@ -317,6 +317,7 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
+     private final int clientTrackingRange;
+     private final int updateInterval;
+     public boolean dabEnabled = false; // Pufferfish
++    public int ttl = -1; // Pufferfish
+     @Nullable
+     private String descriptionId;
+     @Nullable
