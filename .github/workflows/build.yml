@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "1.21.1" ]
+    branches: [ "1.21.4" ]
   workflow_dispatch:
   #workflow_run:
     #workflows: ["Automatically update Folia commit"]
@@ -10,7 +10,7 @@ on:
      # - completed
 
 jobs:
-  compile_1_21_1_core_jar:
+  compile_1_21_4_core_jar:
     runs-on: windows-latest
     
     permissions:
@@ -49,8 +49,8 @@ jobs:
       - name: Make release
         uses: marvinpinto/action-automatic-releases@master
         with:
-          title: "Foldenor 1.21.1 release"
-          automatic_release_tag: "1.21.1"
+          title: "Foldenor 1.21.4 release"
+          automatic_release_tag: "1.21.4"
           files: build/libs/*
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
