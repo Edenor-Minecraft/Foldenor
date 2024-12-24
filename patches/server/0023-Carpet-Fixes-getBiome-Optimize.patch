@@ -5,7 +5,7 @@ Subject: [PATCH] Carpet-Fixes-getBiome-Optimize
 
 
 diff --git a/src/main/java/net/minecraft/world/level/biome/BiomeManager.java b/src/main/java/net/minecraft/world/level/biome/BiomeManager.java
-index 01352cc83b25eb0e30b7e0ff521fc7c1b3d5155b..4da3c8b4fadf120b3ce20a129ffa640736100aa3 100644
+index 90f8360f547ce709fd13ee34f8e67d8bfa94b498..a409434736f7c36d65c88f16ba2212a1e5faf96e 100644
 --- a/src/main/java/net/minecraft/world/level/biome/BiomeManager.java
 +++ b/src/main/java/net/minecraft/world/level/biome/BiomeManager.java
 @@ -14,6 +14,7 @@ public class BiomeManager {

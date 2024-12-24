@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Tue, 20 Aug 2024 17:32:40 +0400
+Subject: [PATCH] Paper PR: Prevent zombie reinforcements loading chunks
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java.rej b/src/main/java/net/minecraft/world/entity/Entity.java.rej
+deleted file mode 100644
+index eea763eab872b794fc1080d4434c67a5ff7a776a..0000000000000000000000000000000000000000
+--- a/src/main/java/net/minecraft/world/entity/Entity.java.rej
++++ /dev/null
+@@ -1,17 +0,0 @@
+-diff a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java	(rejected hunks)
+-@@ -1337,9 +1337,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+-                     }
+-                 }
+-                 // Gale end - skip negligible planar movement multiplication
+--                if (this.level().getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6D)).noneMatch((iblockdata2) -> {
+--                    return iblockdata2.is(BlockTags.FIRE) || iblockdata2.is(Blocks.LAVA);
+--                })) {
+-+                // Leaf start - Optimize check nearby fire or lava on entity move
+-+                if (nearByBlockStateNoneMatch(
+-+                        this.level().getBlockStatesListIfLoaded(this.getBoundingBox().deflate(1.0E-6D), new java.util.ArrayList<>()),
+-+                        iblockdata2 -> iblockdata2.is(BlockTags.FIRE) || iblockdata2.is(Blocks.LAVA)
+-+                )) {
+-+                    // Leaf end - Optimize check nearby fire or lava on entity move
+-                     if (this.remainingFireTicks <= 0) {
+-                         this.setRemainingFireTicks(-this.getFireImmuneTicks());
+-                     }
+diff --git a/src/main/java/net/minecraft/world/entity/monster/Zombie.java b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+index a12461907278cfbfa3b1c0aa74b9f07a31768b8a..d0047dde262d063d5fcd38ef48a7d814f07c79d9 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/Zombie.java
++++ b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
+@@ -362,6 +362,12 @@ public class Zombie extends Monster {
+                     int k1 = k + Mth.nextInt(this.random, 7, 40) * Mth.nextInt(this.random, -1, 1);
+                     BlockPos blockposition = new BlockPos(i1, j1, k1);
+ 
++                    // Paper start - Prevent reinforcement checks from loading chunks
++                    if (this.level().getChunkIfLoadedImmediately(blockposition.getX() >> 4, blockposition.getZ() >> 4) == null) {
++                        continue;
++                    }
++                    // Paper end - Prevent reinforcement checks from loading chunks
++
+                     if (SpawnPlacements.isSpawnPositionOk(entitytypes, world, blockposition) && SpawnPlacements.checkSpawnRules(entitytypes, world, EntitySpawnReason.REINFORCEMENT, blockposition, world.random)) {
+                         entityzombie.setPos((double) i1, (double) j1, (double) k1);
+                         if (!world.hasNearbyAlivePlayerThatAffectsSpawning((double) i1, (double) j1, (double) k1, 7.0D) && world.isUnobstructed(entityzombie) && world.noCollision((Entity) entityzombie) && (entityzombie.canSpawnInLiquids() || !world.containsAnyLiquid(entityzombie.getBoundingBox()))) { // Paper - affects spawning api

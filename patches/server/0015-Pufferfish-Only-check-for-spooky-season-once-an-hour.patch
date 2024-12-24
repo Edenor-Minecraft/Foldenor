@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish-Only-check-for-spooky-season-once-an-hour
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/ambient/Bat.java b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
-index dc27ddf5131e7398a5390a5187261d4c7fb6ccaa..daf1ca43b154dbff5ceb16c2366473fa3de260f8 100644
+index 60c2868f255d372226e0c1389caaa5477bbef41e..e15b174af1dfe2d6dd6598e508d56a733d4fe412 100644
 --- a/src/main/java/net/minecraft/world/entity/ambient/Bat.java
 +++ b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
 @@ -3,6 +3,10 @@ package net.minecraft.world.entity.ambient;
@@ -19,7 +19,7 @@ index dc27ddf5131e7398a5390a5187261d4c7fb6ccaa..daf1ca43b154dbff5ceb16c2366473fa
  import net.minecraft.core.BlockPos;
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.network.syncher.EntityDataAccessor;
-@@ -239,12 +243,24 @@ public class Bat extends AmbientCreature {
+@@ -242,12 +246,24 @@ public class Bat extends AmbientCreature {
          }
      }
  

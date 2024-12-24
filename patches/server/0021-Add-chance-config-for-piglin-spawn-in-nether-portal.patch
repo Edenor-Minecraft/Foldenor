@@ -5,10 +5,10 @@ Subject: [PATCH] Add-chance-config-for-piglin-spawn-in-nether-portal
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 3252f121394f9dff7025708eb8528809b3abc248..9000c8836bbbe9d9931d6e35d303aed71e8d4e6e 100644
+index 373ed11dac6d42dc0c2ea4a59e74b9c503b113d1..dc3eefb624b0f8e6cb196f9aa72857ab5a369e10 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -41,6 +41,8 @@ public class FoldenorConfig {
+@@ -37,6 +37,8 @@ public class FoldenorConfig {
  
      public static boolean useAlternateKeepAlive = false;
  
@@ -17,7 +17,7 @@ index 3252f121394f9dff7025708eb8528809b3abc248..9000c8836bbbe9d9931d6e35d303aed7
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -83,6 +85,8 @@ public class FoldenorConfig {
+@@ -79,6 +81,8 @@ public class FoldenorConfig {
      static void readConfig() {
          readNetworkSettings();
  
@@ -26,7 +26,7 @@ index 3252f121394f9dff7025708eb8528809b3abc248..9000c8836bbbe9d9931d6e35d303aed7
          try {
              readDynamicActivationOfBrains();
          } catch (IOException e) {
-@@ -102,6 +106,11 @@ public class FoldenorConfig {
+@@ -98,6 +102,11 @@ public class FoldenorConfig {
          useAlternateKeepAlive = getBoolean("network.use-alternate-keepalive", useAlternateKeepAlive);
      }
  
@@ -39,7 +39,7 @@ index 3252f121394f9dff7025708eb8528809b3abc248..9000c8836bbbe9d9931d6e35d303aed7
          dearEnabled = getBoolean("dab.enabled",  true);
          startDistance = getInt("dab.start-distance",  12,
 diff --git a/src/main/java/net/minecraft/world/level/block/NetherPortalBlock.java b/src/main/java/net/minecraft/world/level/block/NetherPortalBlock.java
-index eba62f1336697157da94c7dcde389cc2e929bb0b..918b50e1f17fa2b49e5e7ef48182538ea12aae02 100644
+index 88e33ae16848afe9885684537ef32e1836425fa3..f097dd5c4d2ea147e81d064a93ed084dddd0b9d6 100644
 --- a/src/main/java/net/minecraft/world/level/block/NetherPortalBlock.java
 +++ b/src/main/java/net/minecraft/world/level/block/NetherPortalBlock.java
 @@ -4,6 +4,8 @@ import com.mojang.logging.LogUtils;
@@ -51,7 +51,7 @@ index eba62f1336697157da94c7dcde389cc2e929bb0b..918b50e1f17fa2b49e5e7ef48182538e
  import net.minecraft.BlockUtil;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
-@@ -77,7 +79,9 @@ public class NetherPortalBlock extends Block implements Portal {
+@@ -78,7 +80,9 @@ public class NetherPortalBlock extends Block implements Portal {
  
      @Override
      protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {

@@ -6,10 +6,10 @@ Subject: [PATCH] Divine: lithium: entity.fast_elytra_check +
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 33f6905706f333904ccd08f5f01ad6276b3fa24d..ac95df2d619ef79a2f07e0071523c05ea1a4d08b 100644
+index 7b745943a781906b2ef87510557aec08ee396d8e..b674ca7318095509b1268d6b2ed5f4263d8c797b 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -2658,6 +2658,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2768,6 +2768,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
      }
  
      protected void updateSwingTime() {
@@ -17,11 +17,11 @@ index 33f6905706f333904ccd08f5f01ad6276b3fa24d..ac95df2d619ef79a2f07e0071523c05e
          int i = this.getCurrentSwingDuration();
  
          if (this.swinging) {
-@@ -3606,6 +3607,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -3760,6 +3761,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
      }
  
-     private void updateFallFlying() {
+     protected void updateFallFlying() {
 +        if (!this.isFallFlying()) return; // DivineMC - lithium: entity.fast_elytra_check
-         boolean flag = this.getSharedFlag(7);
- 
-         if (flag && !this.onGround() && !this.isPassenger() && !this.hasEffect(MobEffects.LEVITATION)) {
+         this.checkSlowFallDistance();
+         if (!this.level().isClientSide) {
+             if (!this.canGlide()) {

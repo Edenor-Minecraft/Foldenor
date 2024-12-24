@@ -6,10 +6,10 @@ Subject: [PATCH]
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index 04403a5dadc5a4d2d5503a57c49011cba90b1105..83a98ed3a8331e5e042dbd4c9500472a7ed4e271 100644
+index 86c6c06235b55490ca6054e492c2b6772b4d4a0c..0da62b7f36e1999752c14a9db599815193d82401 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
-@@ -607,7 +607,7 @@ public class Metrics {
+@@ -606,7 +606,7 @@ public class Metrics {
                  final String implVersion = org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion();
                  if (implVersion != null) {
                      final String buildOrHash = implVersion.substring(implVersion.lastIndexOf('-') + 1);
@@ -19,13 +19,13 @@ index 04403a5dadc5a4d2d5503a57c49011cba90b1105..83a98ed3a8331e5e042dbd4c9500472a
                      paperVersion = "unknown";
                  }
 diff --git a/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java b/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java
-index 7b31c4ea6d01f936271bdadc3626201dcf32a683..b4dfd7a72c26bfde586c3cf854e7dfe69cb11ebe 100644
+index 74ac328bf8d5f762f7060a6c5d49089dee1ddaea..9ba48911752789b690ac79eda0a77807950e4261 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/TeleportUtils.java
 @@ -1,6 +1,7 @@
  package io.papermc.paper.threadedregions;
  
- import ca.spottedleaf.concurrentutil.completable.Completable;
+ import ca.spottedleaf.concurrentutil.completable.CallbackCompletable;
 +import net.minecraft.server.level.ServerPlayer;
  import net.minecraft.world.entity.Entity;
  import net.minecraft.world.phys.Vec3;
@@ -47,18 +47,19 @@ index 7b31c4ea6d01f936271bdadc3626201dcf32a683..b4dfd7a72c26bfde586c3cf854e7dfe6
                              loc.getX(), loc.getY(), loc.getZ()
                          );
 diff --git a/src/main/java/net/minecraft/server/commands/TeleportCommand.java b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
-index 4a13ac9f5342a1b8dc155431eb33f045f87c9196..48fd150de5c30ee87030eec3ca5256fc8cd66245 100644
+index 854897f5fcc8109a69cabc7d4fef1a23289d2733..91764b72a879fe54e2212429f402687195a10980 100644
 --- a/src/main/java/net/minecraft/server/commands/TeleportCommand.java
 +++ b/src/main/java/net/minecraft/server/commands/TeleportCommand.java
-@@ -32,6 +32,7 @@ import net.minecraft.world.entity.RelativeMovement;
+@@ -31,6 +31,8 @@ import net.minecraft.world.entity.Relative;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.phys.Vec2;
  import net.minecraft.world.phys.Vec3;
 +import net.minecraft.world.entity.player.Player;
- // CraftBukkit start
++// CraftBukkit start
  import org.bukkit.Location;
  import org.bukkit.craftbukkit.CraftWorld;
-@@ -72,11 +73,26 @@ public class TeleportCommand {
+ import org.bukkit.event.entity.EntityTeleportEvent;
+@@ -70,11 +72,26 @@ public class TeleportCommand {
      }
  
      private static int teleportToEntity(CommandSourceStack source, Collection<? extends Entity> targets, Entity destination) throws CommandSyntaxException {
@@ -85,23 +86,22 @@ index 4a13ac9f5342a1b8dc155431eb33f045f87c9196..48fd150de5c30ee87030eec3ca5256fc
              io.papermc.paper.threadedregions.TeleportUtils.teleport(entity1, false, destination, Float.valueOf(destination.getYRot()), Float.valueOf(destination.getXRot()), Entity.TELEPORT_FLAG_LOAD_CHUNK, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND, null); // Folia - region threading
          }
  
-@@ -94,6 +110,13 @@ public class TeleportCommand {
+@@ -92,6 +109,12 @@ public class TeleportCommand {
      }
  
-     private static int teleportToPos(CommandSourceStack source, Collection<? extends Entity> targets, ServerLevel world, Coordinates location, @Nullable Coordinates rotation, @Nullable TeleportCommand.LookAt facingLocation) throws CommandSyntaxException {
+     private static int teleportToPos(CommandSourceStack source, Collection<? extends Entity> targets, ServerLevel world, Coordinates location, @Nullable Coordinates rotation, @Nullable LookAt facingLocation) throws CommandSyntaxException {
 +        if (source.getPlayer() != null){
 +            ServerPlayer sender = source.getPlayer();
 +            if (sender.isSpectator() && sender.getCamera() != sender){
 +                sender.setCamera(sender);
 +            }
 +        }
-+
          Vec3 vec3d = location.getPosition(source);
          Vec2 vec2f = rotation == null ? null : rotation.getRotation(source);
-         Set<RelativeMovement> set = EnumSet.noneOf(RelativeMovement.class);
-@@ -128,6 +151,13 @@ public class TeleportCommand {
-         while (iterator.hasNext()) {
+         Iterator iterator = targets.iterator();
+@@ -100,6 +123,13 @@ public class TeleportCommand {
              Entity entity = (Entity) iterator.next();
+             Set<Relative> set = TeleportCommand.getRelatives(location, rotation, entity.level().dimension() == world.dimension());
  
 +            if (entity.isSpectator()){
 +                ServerPlayer sender = (ServerPlayer) entity;
@@ -110,10 +110,10 @@ index 4a13ac9f5342a1b8dc155431eb33f045f87c9196..48fd150de5c30ee87030eec3ca5256fc
 +                }
 +            }
 +
-             if (rotation == null) {
+             if (vec2f == null) {
                  TeleportCommand.performTeleport(source, entity, world, vec3d.x, vec3d.y, vec3d.z, set, entity.getYRot(), entity.getXRot(), facingLocation);
              } else {
-@@ -168,6 +198,13 @@ public class TeleportCommand {
+@@ -180,6 +210,13 @@ public class TeleportCommand {
                  Float yawFinal = Float.valueOf(f2);
                  Float pitchFinal = Float.valueOf(f3);
                  target.getBukkitEntity().taskScheduler.schedule((nmsEntity) -> {

@@ -5,22 +5,80 @@ Subject: [PATCH] Lumina PCA-sync-protocol
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 448c311508b57978a76713da538580cf4beba9dc..197954520907e99b7523b3543612bad751d9e969 100644
+index 0dea335420bc0acacf9045fe0123593cbb689287..4224de6dd0aa9ce934384ba357dfc17791c93e7d 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -110,6 +110,8 @@ public class FoldenorConfig {
+@@ -25,14 +25,6 @@ public class FoldenorConfig {
  
-         projectileTimeouts();
+     public static boolean sendNullEntityPackets = false;
  
-+        pcaSyncProtocol();
+-    // Pufferfish DAB
+-    public static boolean dearEnabled;
+-    public static int startDistance;
+-    public static int startDistanceSquared;
+-    public static int maximumActivationPrio;
+-    public static int activationDistanceMod;
+-    // Pufferfish DAB
+-
+     public static boolean appleskinProtocol = false;
+ 
+     public static boolean useAlternateKeepAlive = false;
+@@ -43,6 +35,8 @@ public class FoldenorConfig {
+ 
+     public static boolean skipMapItemUpdatesIfNoBukkitRender = true;
+ 
++    public static int entityActivationCheckFrequency = 20;
 +
+     public static void init(File configFile) {
+         init(configFile, true);
+     }
+@@ -89,11 +83,7 @@ public class FoldenorConfig {
+ 
+         readMiscSettings();
+ 
+-        try {
+-            readDynamicActivationOfBrains();
+-        } catch (IOException e) {
+-            throw new RuntimeException(e);
+-        }
++        pcaSyncProtocol();
+ 
          try {
-             readDynamicActivationOfBrains();
-         } catch (IOException e) {
-@@ -205,6 +207,21 @@ public class FoldenorConfig {
-         }
+             config.save(CONFIG_FILE);
+@@ -112,6 +102,7 @@ public class FoldenorConfig {
+         piglinSpawnChancePersentInPortal = getInt("optimizations.piglin-spawn-chance-persent-in-portal", 100,
+             "Reduces piglin spawn in portal, by reducing change to spawn");
+         skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
++        entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);
      }
  
+     private static void readMiscSettings() {
+@@ -119,28 +110,19 @@ public class FoldenorConfig {
+             "Use the new Virtual Thread introduced in JDK 21 for CraftAsyncScheduler.");
+     }
+ 
+-    private static void readDynamicActivationOfBrains() throws IOException {
+-        dearEnabled = getBoolean("dab.enabled",  true);
+-        startDistance = getInt("dab.start-distance",  12,
+-                "This value determines how far away an entity has to be",
+-                "from the player to start being effected by DEAR.");
+-        startDistanceSquared = startDistance * startDistance;
+-        maximumActivationPrio = getInt("dab.max-tick-freq",  20,
+-                "This value defines how often in ticks, the furthest entity",
+-                "will get their pathfinders and behaviors ticked. 20 = 1s");
+-        activationDistanceMod = getInt("dab.activation-dist-mod", 8,
+-                "This value defines how much distance modifies an entity's",
+-                "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
+-                "If you want further away entities to tick less often, use 7.",
+-                "If you want further away entities to tick more often, try 9.");
+-
+-        for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
+-            entityType.dabEnabled = true; // reset all, before setting the ones to true
+-        }
+-        getStringList("dab.blacklisted-entities",  Collections.emptyList(), "A list of entities to ignore for activation")
+-                .forEach(name -> EntityType.byString(name).ifPresentOrElse(entityType -> {
+-                    entityType.dabEnabled = false;
+-                    }, () -> MinecraftServer.LOGGER.warn("Unknown entity \"" + name + "\"")));
 +    public static boolean pcaSyncProtocolEnabled = false;
 +    public static SyncOption pcaSyncProtocolOption = SyncOption.OPS;
 +    private static void pcaSyncProtocol() {
@@ -34,25 +92,23 @@ index 448c311508b57978a76713da538580cf4beba9dc..197954520907e99b7523b3543612bad7
 +        OPS,
 +        OPS_AND_SELF,
 +        EVERYONE
-+    }
-+
+     }
+ 
      protected static void set(String path, Object val) {
-         config.addDefault(path, val);
-         config.set(path, val);
 diff --git a/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java b/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java
-index 1f5ed236fb7c0c1b0181675747d25d233f534284..f0f521411cdfb7b8016fb22f715b3d28d33628d4 100644
+index 8aed30cdbbfdd42c20dcd4c8773c8a0ee21a980d..a94cf68cfc1e4d68c70556546fa6c2d3c7bf961b 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java
 +++ b/src/main/java/net/minecraft/world/entity/animal/horse/AbstractHorse.java
-@@ -7,6 +7,8 @@ import java.util.function.DoubleSupplier;
+@@ -6,6 +6,8 @@ import java.util.UUID;
+ import java.util.function.DoubleSupplier;
  import java.util.function.IntUnaryOperator;
- import java.util.function.Predicate;
  import javax.annotation.Nullable;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
-@@ -436,6 +438,11 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
+@@ -449,6 +451,11 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
  
      @Override
      public void containerChanged(Container sender) {
@@ -65,7 +121,7 @@ index 1f5ed236fb7c0c1b0181675747d25d233f534284..f0f521411cdfb7b8016fb22f715b3d28
  
          this.syncSaddleToClients();
 diff --git a/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java b/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
-index 4153d16c3fc6b16315b3822251e4f740cf7dbd98..0a8de8a27b8ca60039863878b089c91af812cfc0 100644
+index a1dee26ed47a423fbad57b9b2ec98b4f58b9470b..bd714cee55d20ef7d127df38b8bffbdc3b2b4732 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/AbstractVillager.java
 @@ -6,6 +6,8 @@ import com.mojang.serialization.DataResult;
@@ -94,10 +150,10 @@ index 4153d16c3fc6b16315b3822251e4f740cf7dbd98..0a8de8a27b8ca60039863878b089c91a
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-index 9549eee0d92f322bd5232abd7e695213660c2e22..76b7b1dfbc7ba0eab32ecfb5b00b01fd93c7913a 100644
+index d528e8e4aea266c495377365f01e314001eb1970..ca847099af203cf6a07980fc4bd62c814bdaa9ca 100644
 --- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
 +++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-@@ -126,7 +126,13 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+@@ -122,7 +122,13 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
      }
  
      @Override
@@ -113,11 +169,11 @@ index 9549eee0d92f322bd5232abd7e695213660c2e22..76b7b1dfbc7ba0eab32ecfb5b00b01fd
      @Override
      public boolean stillValid(Player player) {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
-index 730aca233f6e7564d4cb85b5b628d23c4f01d2f4..e345703bd95901ff306380c6c18ebd15ca3828b3 100644
+index a9809c18233d82f910735e59363a49de488defcd..9601e56e86cc152341cf4b3d82b6d3ec6200b387 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
-@@ -558,6 +558,16 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
- 
+@@ -435,6 +435,16 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
+         }
      }
  
 +    // Leaves start - pca
@@ -134,7 +190,7 @@ index 730aca233f6e7564d4cb85b5b628d23c4f01d2f4..e345703bd95901ff306380c6c18ebd15
      public boolean canPlaceItem(int slot, ItemStack stack) {
          if (slot == 2) {
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
-index 6186e55014bbb9d5bedaa0e9d196879c55339d42..88bd1ddcfbe03a4bb166691b3c28612c7027204d 100644
+index 618552afbdacc919c33b30a6bf4834fb71ab3d5b..03e39b5b573847e1205468d479923484b6740418 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
 @@ -132,6 +132,16 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
@@ -155,10 +211,10 @@ index 6186e55014bbb9d5bedaa0e9d196879c55339d42..88bd1ddcfbe03a4bb166691b3c28612c
      protected Component getDefaultName() {
          return Component.translatable("container.barrel");
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/BeehiveBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BeehiveBlockEntity.java
-index f933fa419a4b55b0096ff42caf1b071d027b8e7e..a23f5de13a6a9d832018952e597680b5847ade46 100644
+index 65a85b4a4e159cfe55e435ed342a87bcc07b21d5..7342a6f98de8c86c05e388ec0ca9c7c778bc1470 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/BeehiveBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/BeehiveBlockEntity.java
-@@ -143,6 +143,11 @@ public class BeehiveBlockEntity extends BlockEntity {
+@@ -144,6 +144,11 @@ public class BeehiveBlockEntity extends BlockEntity {
              super.setChanged();
          }
  
@@ -170,7 +226,7 @@ index f933fa419a4b55b0096ff42caf1b071d027b8e7e..a23f5de13a6a9d832018952e597680b5
          return list;
      }
  
-@@ -197,6 +202,12 @@ public class BeehiveBlockEntity extends BlockEntity {
+@@ -193,6 +198,12 @@ public class BeehiveBlockEntity extends BlockEntity {
                  this.level.gameEvent((Holder) GameEvent.BLOCK_CHANGE, blockposition, GameEvent.Context.of(entity, this.getBlockState()));
              }
  
@@ -183,7 +239,7 @@ index f933fa419a4b55b0096ff42caf1b071d027b8e7e..a23f5de13a6a9d832018952e597680b5
              entity.discard(EntityRemoveEvent.Cause.ENTER_BLOCK); // CraftBukkit - add Bukkit remove cause
              super.setChanged();
          }
-@@ -312,6 +323,11 @@ public class BeehiveBlockEntity extends BlockEntity {
+@@ -308,6 +319,11 @@ public class BeehiveBlockEntity extends BlockEntity {
                  if (BeehiveBlockEntity.releaseOccupant(world, pos, state, tileentitybeehive_hivebee.toOccupant(), (List) null, tileentitybeehive_releasestatus, flowerPos)) {
                      flag = true;
                      iterator.remove();
@@ -195,7 +251,7 @@ index f933fa419a4b55b0096ff42caf1b071d027b8e7e..a23f5de13a6a9d832018952e597680b5
                      // CraftBukkit start
                  } else {
                      tileentitybeehive_hivebee.exitTickCounter = tileentitybeehive_hivebee.occupant.minTicksInHive / 2; // Not strictly Vanilla behaviour in cases where bees cannot spawn but still reasonable // Paper - Fix bees aging inside hives; use exitTickCounter to keep actual bee life
-@@ -357,6 +373,11 @@ public class BeehiveBlockEntity extends BlockEntity {
+@@ -353,6 +369,11 @@ public class BeehiveBlockEntity extends BlockEntity {
              this.maxBees = nbt.getInt("Bukkit.MaxEntities");
          }
          // CraftBukkit end
@@ -208,10 +264,10 @@ index f933fa419a4b55b0096ff42caf1b071d027b8e7e..a23f5de13a6a9d832018952e597680b5
  
      @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/BrewingStandBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BrewingStandBlockEntity.java
-index 0a93bacd62249bae1800ff306b8a7c765b0e5a8b..ac6247b15aa5a06c43b2be8020125d81fb66993c 100644
+index 02fc9ce21c7d367055da350d21be4870d4242f3a..16f33142e55d986c1c57dbde6944a97bba6ebdf1 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/BrewingStandBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/BrewingStandBlockEntity.java
-@@ -344,6 +344,16 @@ public class BrewingStandBlockEntity extends BaseContainerBlockEntity implements
+@@ -345,6 +345,16 @@ public class BrewingStandBlockEntity extends BaseContainerBlockEntity implements
          return this.canPlaceItem(slot, stack);
      }
  
@@ -229,7 +285,7 @@ index 0a93bacd62249bae1800ff306b8a7c765b0e5a8b..ac6247b15aa5a06c43b2be8020125d81
      public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
          return slot == 3 ? stack.is(Items.GLASS_BOTTLE) : true;
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
-index b88aa184cd06a0485146f58a5b61a56a50911209..7b652017c08a419d652420f3e8ec6836f9e9e628 100644
+index 3165e13b0cf5089cfed9d0bdbc7ce96495de5133..ee898caa000e6467cada7859039008d634ed54c9 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 @@ -191,6 +191,16 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
@@ -250,7 +306,7 @@ index b88aa184cd06a0485146f58a5b61a56a50911209..7b652017c08a419d652420f3e8ec6836
      public float getOpenNess(float tickDelta) {
          return this.chestLidController.getOpenness(tickDelta);
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
-index 431fb6a658c6aac43b6f9dbd1f578b83f261a4e3..75df0fc2eb581b36713001f1f43912ffc8e3b80d 100644
+index c7f1937b0f171eee967388ab4699703dcdcfbd2b..c1a3664a3ffdfbf9866fea6296f3328ab5e8b154 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
 @@ -109,6 +109,16 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
@@ -271,7 +327,7 @@ index 431fb6a658c6aac43b6f9dbd1f578b83f261a4e3..75df0fc2eb581b36713001f1f43912ff
      protected Component getDefaultName() {
          return Component.translatable("container.dispenser");
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 1035a68aaeb9c50752a03cd72fe65c5eb7e8746c..1aab9e49b8046f926f7c6e0d7d535f2382d711fa 100644
+index 44aae845da6cd34fc00e0c71795d6f610679bd4b..bcd5b6948aee2064b1f698bd43ae6485251049ac 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -144,6 +144,16 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -304,10 +360,10 @@ index 1035a68aaeb9c50752a03cd72fe65c5eb7e8746c..1aab9e49b8046f926f7c6e0d7d535f23
                  }
              }
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
-index 0d68db20f5fbe5e834f12c1e8fd429099a44e4b6..8355c1ab072cbc68517a177a9a298010f5b943f7 100644
+index 26f0c6ddea76c8a6e17faea2e5603e7c02a7f1b1..1ad5c71d739274f80a6c1a5a7d85e07154590418 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
-@@ -270,6 +270,16 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
+@@ -281,6 +281,16 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
          this.itemStacks = inventory;
      }
  
@@ -326,7 +382,7 @@ index 0d68db20f5fbe5e834f12c1e8fd429099a44e4b6..8355c1ab072cbc68517a177a9a298010
          return ShulkerBoxBlockEntity.SLOTS;
 diff --git a/src/main/java/org/leavesmc/leaves/protocol/PcaSyncProtocol.java b/src/main/java/org/leavesmc/leaves/protocol/PcaSyncProtocol.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..0b29f88c87b453f02c48e3006fca574c7d3cd017
+index 0000000000000000000000000000000000000000..20727b1d08971642c49fcb2a66e701f69357bd21
 --- /dev/null
 +++ b/src/main/java/org/leavesmc/leaves/protocol/PcaSyncProtocol.java
 @@ -0,0 +1,389 @@
@@ -443,7 +499,7 @@ index 0000000000000000000000000000000000000000..0b29f88c87b453f02c48e3006fca574c
 +            BlockEntity blockEntityAdj = null;
 +            if (blockState.getBlock() instanceof ChestBlock) {
 +                if (blockState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
-+                    BlockPos posAdj = pos.offset(ChestBlock.getConnectedDirection(blockState).getNormal());
++                    BlockPos posAdj = pos.relative(ChestBlock.getConnectedDirection(blockState));
 +                    // The method in World now checks that the caller is from the same thread...
 +                    blockEntityAdj = world.getChunk(posAdj).getBlockEntity(posAdj);
 +                }
@@ -604,7 +660,7 @@ index 0000000000000000000000000000000000000000..0b29f88c87b453f02c48e3006fca574c
 +
 +            if (blockState.getBlock() instanceof ChestBlock) {
 +                if (blockState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
-+                    BlockPos posAdj = pos.offset(ChestBlock.getConnectedDirection(blockState).getNormal());
++                    BlockPos posAdj = pos.relative(ChestBlock.getConnectedDirection(blockState));
 +                    playerListAdj = getWatchPlayerList(world, posAdj);
 +                }
 +            }

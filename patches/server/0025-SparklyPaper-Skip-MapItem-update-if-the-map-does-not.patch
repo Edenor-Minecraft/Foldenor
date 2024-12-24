@@ -5,10 +5,10 @@ Subject: [PATCH] SparklyPaper Skip 'MapItem#update()' if the map does not have
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index dd3d35a8870022d6f260020377c97e0be6970481..f57a71b1182b3b8e03d3f42ecc6e1b55cb93b788 100644
+index 9ecfcf62f4add8968010374f46e14e15a86c9fe1..0dea335420bc0acacf9045fe0123593cbb689287 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -45,6 +45,8 @@ public class FoldenorConfig {
+@@ -41,6 +41,8 @@ public class FoldenorConfig {
  
      public static boolean useVirtualThreadForAsyncScheduler = false;
  
@@ -17,7 +17,7 @@ index dd3d35a8870022d6f260020377c97e0be6970481..f57a71b1182b3b8e03d3f42ecc6e1b55
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -113,6 +115,7 @@ public class FoldenorConfig {
+@@ -109,6 +111,7 @@ public class FoldenorConfig {
      private static void readOptimizationSettings() {
          piglinSpawnChancePersentInPortal = getInt("optimizations.piglin-spawn-chance-persent-in-portal", 100,
              "Reduces piglin spawn in portal, by reducing change to spawn");
@@ -26,7 +26,7 @@ index dd3d35a8870022d6f260020377c97e0be6970481..f57a71b1182b3b8e03d3f42ecc6e1b55
  
      private static void readMiscSettings() {
 diff --git a/src/main/java/net/minecraft/world/item/MapItem.java b/src/main/java/net/minecraft/world/item/MapItem.java
-index e96f15814986109e5e947c7b3b210be6e56ba0ed..ea5a77d1f54bc6df33a78c3231cf04a5760dac04 100644
+index 65d1af43b8bc740a9dc77dd8d5ba99de000fe57a..9c98fa64e9875ca8e126fce55dea13b66a039b32 100644
 --- a/src/main/java/net/minecraft/world/item/MapItem.java
 +++ b/src/main/java/net/minecraft/world/item/MapItem.java
 @@ -6,6 +6,8 @@ import com.google.common.collect.Multiset;
@@ -38,7 +38,7 @@ index e96f15814986109e5e947c7b3b210be6e56ba0ed..ea5a77d1f54bc6df33a78c3231cf04a5
  import net.minecraft.ChatFormatting;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
-@@ -281,7 +283,7 @@ public class MapItem extends ComplexItem {
+@@ -280,7 +282,7 @@ public class MapItem extends Item {
                      mapItemSavedData.tickCarriedBy(player, stack);
                  }
  

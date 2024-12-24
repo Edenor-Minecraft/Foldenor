@@ -4,47 +4,6 @@ Date: Tue, 20 Aug 2024 17:25:30 +0400
 Subject: [PATCH] Leaf: Optimize check nearby fire or lava on entity move
 
 
-diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 5c3e7f346271c21dbff8cd9308f91fe4e2024aed..49ab0ca06f19cf2f85862e4c1c22f5e36587ba8c 100644
---- a/src/main/java/net/minecraft/world/entity/Entity.java
-+++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -1312,9 +1312,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-                 float f = this.getBlockSpeedFactor();
- 
-                 this.setDeltaMovement(this.getDeltaMovement().multiply((double) f, 1.0D, (double) f));
--                if (this.level().getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6D)).noneMatch((iblockdata2) -> {
--                    return iblockdata2.is(BlockTags.FIRE) || iblockdata2.is(Blocks.LAVA);
--                })) {
-+                // Leaf start - Optimize check nearby fire or lava on entity move
-+                if (nearByBlockStateNoneMatch(
-+                    this.level().getBlockStatesListIfLoaded(this.getBoundingBox().deflate(1.0E-6D), new java.util.ArrayList<>()),
-+                    iblockdata2 -> iblockdata2.is(BlockTags.FIRE) || iblockdata2.is(Blocks.LAVA)
-+                )) {
-+                    // Leaf end - Optimize check nearby fire or lava on entity move
-                     if (this.remainingFireTicks <= 0) {
-                         this.setRemainingFireTicks(-this.getFireImmuneTicks());
-                     }
-@@ -1340,6 +1343,20 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-         // Paper end - detailed watchdog information
-     }
- 
-+    // Leaf start - Optimize check nearby fire or lava on entity move
-+    private boolean nearByBlockStateNoneMatch(java.util.List<BlockState> into, Predicate<BlockState> predicate) {
-+        if (into.isEmpty()) return true;
-+
-+        for (BlockState iblockdata : into) {
-+            if (predicate.test(iblockdata)) {
-+                return false;
-+            }
-+        }
-+
-+        return true;
-+    }
-+    // Leaf end - Optimize check nearby fire or lava on entity move
-+
-     private boolean isStateClimbable(BlockState state) {
-         return state.is(BlockTags.CLIMBABLE) || state.is(Blocks.POWDER_SNOW);
-     }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java.rej b/src/main/java/net/minecraft/world/entity/Entity.java.rej
 new file mode 100644
 index 0000000000000000000000000000000000000000..eea763eab872b794fc1080d4434c67a5ff7a776a
@@ -69,10 +28,10 @@ index 0000000000000000000000000000000000000000..eea763eab872b794fc1080d4434c67a5
 +                         this.setRemainingFireTicks(-this.getFireImmuneTicks());
 +                     }
 diff --git a/src/main/java/net/minecraft/world/level/BlockGetter.java b/src/main/java/net/minecraft/world/level/BlockGetter.java
-index 0fa131a6c98adb498fc8d534e0e39647e80c6923..b2c9a14c22eade293ff4fee71663001ff0701744 100644
+index 62719778c62d6632a8eb6f2bc670956c15a247de..9290276f248a7c8b162187f296e0659cd481d625 100644
 --- a/src/main/java/net/minecraft/world/level/BlockGetter.java
 +++ b/src/main/java/net/minecraft/world/level/BlockGetter.java
-@@ -55,6 +55,24 @@ public interface BlockGetter extends LevelHeightAccessor {
+@@ -56,6 +56,24 @@ public interface BlockGetter extends LevelHeightAccessor {
          return BlockPos.betweenClosedStream(box).map(this::getBlockState);
      }
  
@@ -98,7 +57,7 @@ index 0fa131a6c98adb498fc8d534e0e39647e80c6923..b2c9a14c22eade293ff4fee71663001f
          return (BlockHitResult) BlockGetter.traverseBlocks(context.getFrom(), context.getTo(), context, (clipblockstatecontext1, blockposition) -> {
              BlockState iblockdata = this.getBlockState(blockposition);
 diff --git a/src/main/java/net/minecraft/world/level/LevelReader.java b/src/main/java/net/minecraft/world/level/LevelReader.java
-index 345090afeab4f6396244c50bdbe8320887e15d7e..2a94d773890ae2170908c8a33166df2845726d6b 100644
+index 8fd969d3fe8c9ea8dcb53b4187897b401d1af4a1..67fa8e2c28ce3ddea5fafd04b951b6a18760d664 100644
 --- a/src/main/java/net/minecraft/world/level/LevelReader.java
 +++ b/src/main/java/net/minecraft/world/level/LevelReader.java
 @@ -63,6 +63,18 @@ public interface LevelReader extends ca.spottedleaf.moonrise.patches.chunk_syste

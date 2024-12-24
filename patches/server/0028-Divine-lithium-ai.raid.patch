@@ -5,7 +5,7 @@ Subject: [PATCH] Divine-lithium-ai.raid
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/raid/Raid.java b/src/main/java/net/minecraft/world/entity/raid/Raid.java
-index 909d1966b2f22c65ef4b887521b3b0e772f2a7ee..22d62fb2e11ba319fe04834cb2cfb7b7064d72e4 100644
+index 1df579db8286113f8412fe678259fb53098e57ed..bcaaf6cffad5be4d402a7c8ddade11e56a4c8b6c 100644
 --- a/src/main/java/net/minecraft/world/entity/raid/Raid.java
 +++ b/src/main/java/net/minecraft/world/entity/raid/Raid.java
 @@ -107,6 +107,7 @@ public class Raid {
@@ -29,7 +29,7 @@ index 909d1966b2f22c65ef4b887521b3b0e772f2a7ee..22d62fb2e11ba319fe04834cb2cfb7b7
              if (this.status == Raid.RaidStatus.ONGOING) {
                  boolean flag = this.active;
  
-@@ -675,21 +682,24 @@ public class Raid {
+@@ -666,21 +673,24 @@ public class Raid {
  
      }
  
@@ -60,7 +60,7 @@ index 909d1966b2f22c65ef4b887521b3b0e772f2a7ee..22d62fb2e11ba319fe04834cb2cfb7b7
              }
          }
  
-@@ -705,7 +715,7 @@ public class Raid {
+@@ -696,7 +706,7 @@ public class Raid {
      }
  
      public void removeFromRaid(Raider entity, boolean countHealth) {

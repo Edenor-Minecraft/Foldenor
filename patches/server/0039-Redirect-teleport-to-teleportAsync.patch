@@ -5,7 +5,7 @@ Subject: [PATCH] Redirect 'teleport' to 'teleportAsync'
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-index 7be80f2774b5ec3d0bede096da8f2b6d1cf7b09b..7fab39d746dacf604891655cdedf412f116f6996 100644
+index 982778c4828e79bc7a55745418beb04f9c56cc78..3629c08c0d35903ce01c2e30b2907c9ae398dbf0 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 @@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
@@ -17,7 +17,7 @@ index 7be80f2774b5ec3d0bede096da8f2b6d1cf7b09b..7fab39d746dacf604891655cdedf412f
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.nbt.Tag;
  import net.minecraft.network.chat.Component;
-@@ -230,19 +232,41 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -231,19 +233,41 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
  
      @Override
      public boolean teleport(Location location) {
@@ -60,7 +60,7 @@ index 7be80f2774b5ec3d0bede096da8f2b6d1cf7b09b..7fab39d746dacf604891655cdedf412f
              throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
          }
          // Folia end - region threading
-@@ -300,11 +324,27 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
+@@ -301,11 +325,27 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
  
      @Override
      public boolean teleport(org.bukkit.entity.Entity destination) {

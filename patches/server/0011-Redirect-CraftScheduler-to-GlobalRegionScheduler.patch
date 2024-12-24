@@ -5,7 +5,7 @@ Subject: [PATCH] Redirect-CraftScheduler-to-GlobalRegionScheduler
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 5548c10b3ced9def2e3062f0bbdc922e99839851..b13eff962e65653bfcb15a94498bace6d3b8e18a 100644
+index 76949e896e5a6804ba98753a1ebfba9b0697d47f..ecab96e631e7d6a0d3707ea4c4429ea79ae62740 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -1,3 +1,4 @@
@@ -14,11 +14,11 @@ index 5548c10b3ced9def2e3062f0bbdc922e99839851..b13eff962e65653bfcb15a94498bace6
  import java.time.Instant
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c98e5b8a3 100644
+index fad85bea8643a3a88ec5c4194de7a5060e81c136..8ab51adc6eb4e98e1586786317e8ca31838fd0dc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-@@ -3,21 +3,17 @@ package org.bukkit.craftbukkit.scheduler;
- import co.aikar.timings.MinecraftTimings; // Paper
+@@ -2,21 +2,17 @@ package org.bukkit.craftbukkit.scheduler;
+ 
  import com.google.common.base.Preconditions;
  import com.google.common.util.concurrent.ThreadFactoryBuilder;
 -import java.util.ArrayList;
@@ -45,7 +45,7 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
  import org.bukkit.plugin.IllegalPluginAccessException;
  import org.bukkit.plugin.Plugin;
  import org.bukkit.scheduler.BukkitRunnable;
-@@ -112,6 +108,8 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -111,6 +107,8 @@ public class CraftScheduler implements BukkitScheduler {
      */ // Paper end
      private static final int RECENT_TICKS;
  
@@ -54,7 +54,7 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
      static {
          RECENT_TICKS = 30;
      }
-@@ -267,7 +265,10 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -266,7 +264,10 @@ public class CraftScheduler implements BukkitScheduler {
          }
          // Paper start
          if (!this.isAsyncScheduler) {
@@ -66,7 +66,7 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
          }
          // Paper end
          CraftTask task = this.runners.get(taskId);
-@@ -305,6 +306,7 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -304,6 +305,7 @@ public class CraftScheduler implements BukkitScheduler {
              }
              if (taskPending.getTaskId() == taskId) {
                  taskPending.cancel0();
@@ -74,7 +74,7 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
              }
          }
      }
-@@ -314,7 +316,8 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -313,7 +315,8 @@ public class CraftScheduler implements BukkitScheduler {
          Preconditions.checkArgument(plugin != null, "Cannot cancel tasks of null plugin");
          // Paper start
          if (!this.isAsyncScheduler) {
@@ -84,7 +84,7 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
          }
          // Paper end
          final CraftTask task = new CraftTask(
-@@ -350,6 +353,7 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -349,6 +352,7 @@ public class CraftScheduler implements BukkitScheduler {
          for (CraftTask runner : this.runners.values()) {
              if (runner.getOwner().equals(plugin)) {
                  runner.cancel0();
@@ -92,7 +92,7 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
              }
          }
      }
-@@ -521,15 +525,69 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -514,15 +518,69 @@ public class CraftScheduler implements BukkitScheduler {
      }
  
      protected CraftTask handle(final CraftTask task, final long delay) { // Paper
@@ -167,18 +167,19 @@ index 5a24902b735cbd64dd5cd5ad46b096c4bdfa799f..8ecf35fe449683e34b4bcdecbad54d5c
      }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
-index ba369f3dcfdf498e971dc4405d39657a9b6e97cc..1cd8e107c33d05f89f291fbe52be1d39c0bed64a 100644
+index 17680f112d0c7e7aee07e34477daa21ef2ddaa6f..33ba7f4f63f52a9b402bca45f28067c88408f886 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftTask.java
-@@ -3,6 +3,7 @@ package org.bukkit.craftbukkit.scheduler;
+@@ -2,6 +2,8 @@ package org.bukkit.craftbukkit.scheduler;
+ 
  import java.util.function.Consumer;
  
- import co.aikar.timings.NullTimingHandler;
++import co.aikar.timings.NullTimingHandler;
 +import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
  import org.bukkit.Bukkit;
  import org.bukkit.plugin.Plugin;
  import org.bukkit.scheduler.BukkitTask;
-@@ -35,6 +36,7 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+@@ -29,6 +31,7 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
      private final Plugin plugin;
      private final int id;
      private final long createdAt = System.nanoTime();
@@ -186,7 +187,7 @@ index ba369f3dcfdf498e971dc4405d39657a9b6e97cc..1cd8e107c33d05f89f291fbe52be1d39
  
      CraftTask() {
          this(null, null, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
-@@ -71,7 +73,10 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+@@ -64,7 +67,10 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
  
      @Override
      public final Plugin getOwner() {
@@ -198,7 +199,7 @@ index ba369f3dcfdf498e971dc4405d39657a9b6e97cc..1cd8e107c33d05f89f291fbe52be1d39
      }
  
      @Override
-@@ -124,12 +129,19 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
+@@ -115,12 +121,19 @@ public class CraftTask implements BukkitTask, Runnable { // Spigot
  
      @Override
      public boolean isCancelled() {

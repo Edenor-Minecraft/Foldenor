@@ -5,29 +5,130 @@ Subject: [PATCH] Leaves-Appleskin-Protocol
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 5b5a2491ec297c87458cf66171f5ed4c1e41e80d..36cf79632b12c67291ccccfda7341ee543e607c6 100644
+index c8c6631093ff2ebd23527e80778b35f9c44cc8bf..e9f5b546c8b6545c611d8e6cc3a91cb738c5cca3 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -37,6 +37,8 @@ public class FoldenorConfig {
-     public static int activationDistanceMod;
-     // Pufferfish DAB
+@@ -25,6 +25,26 @@ public class FoldenorConfig {
  
+     public static boolean sendNullEntityPackets = false;
+ 
++    // Pufferfish DAB
++    public static boolean dearEnabled;
++    public static int startDistance;
++    public static int startDistanceSquared;
++    public static int maximumActivationPrio;
++    public static int activationDistanceMod;
++    // Pufferfish DAB
++
 +    public static boolean appleskinProtocol = false;
++
++    public static boolean useAlternateKeepAlive = false;
++
++    public static int piglinSpawnChancePersentInPortal = 100;
++
++    public static boolean useVirtualThreadForAsyncScheduler = false;
++
++    public static boolean skipMapItemUpdatesIfNoBukkitRender = true;
++
++    public static int entityActivationCheckFrequency = 20;
 +
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -94,6 +96,7 @@ public class FoldenorConfig {
+@@ -67,6 +87,14 @@ public class FoldenorConfig {
+     static void readConfig() {
+         readNetworkSettings();
+ 
++        readOptimizationSettings();
++
++        readMiscSettings();
++
++        projectileTimeouts();
++
++        pcaSyncProtocol();
++
+         try {
+             config.save(CONFIG_FILE);
+         } catch (IOException ex) {
+@@ -76,6 +104,75 @@ public class FoldenorConfig {
  
      protected static void readNetworkSettings(){
          sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);
 +        appleskinProtocol = getBoolean("network.appleskin-protocol", appleskinProtocol);
++        useAlternateKeepAlive = getBoolean("network.use-alternate-keepalive", useAlternateKeepAlive);
++    }
++
++    private static void readOptimizationSettings() {
++        piglinSpawnChancePersentInPortal = getInt("optimizations.piglin-spawn-chance-persent-in-portal", 100,
++            "Reduces piglin spawn in portal, by reducing change to spawn");
++        skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
++        entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);
++    }
++
++    private static void readMiscSettings() {
++        useVirtualThreadForAsyncScheduler = getBoolean("optimizations.use-virtual-thread-for-async-scheduler", useVirtualThreadForAsyncScheduler,
++            "Use the new Virtual Thread introduced in JDK 21 for CraftAsyncScheduler.");
++    }
++
++    private static void readDynamicActivationOfBrains() throws IOException {
++        dearEnabled = getBoolean("dab.enabled",  true);
++        startDistance = getInt("dab.start-distance",  12,
++                "This value determines how far away an entity has to be",
++                "from the player to start being effected by DEAR.");
++        startDistanceSquared = startDistance * startDistance;
++        maximumActivationPrio = getInt("dab.max-tick-freq",  20,
++                "This value defines how often in ticks, the furthest entity",
++                "will get their pathfinders and behaviors ticked. 20 = 1s");
++        activationDistanceMod = getInt("dab.activation-dist-mod", 8,
++                "This value defines how much distance modifies an entity's",
++                "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
++                "If you want further away entities to tick less often, use 7.",
++                "If you want further away entities to tick more often, try 9.");
++
++        for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
++            entityType.dabEnabled = true; // reset all, before setting the ones to true
++        }
++        getStringList("dab.blacklisted-entities",  Collections.emptyList(), "A list of entities to ignore for activation")
++                .forEach(name -> EntityType.byString(name).ifPresentOrElse(entityType -> {
++                    entityType.dabEnabled = false;
++                    }, () -> MinecraftServer.LOGGER.warn("Unknown entity \"" + name + "\"")));
++    }
++
++    public static Map<String, Integer> projectileTimeouts;
++	private static void projectileTimeouts() {
++        // Set some defaults
++        getInt("entity_timeouts.SNOWBALL", -1);
++        getInt("entity_timeouts.LLAMA_SPIT", -1);
++        //"These values define a entity's maximum lifespan. If an",
++        //"entity is in this list and it has survived for longer than",
++        //"that number of ticks, then it will be removed. Setting a value to",
++        //"-1 disables this feature."
++
++        for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
++            String type = EntityType.getKey(entityType).getPath().toUpperCase(Locale.ROOT);
++            entityType.ttl = config.getInt("entity_timeouts." + type, -1);
++        }
++    }
++
++    public static boolean pcaSyncProtocolEnabled = false;
++    public static SyncOption pcaSyncProtocolOption = SyncOption.OPS;
++    private static void pcaSyncProtocol() {
++        pcaSyncProtocolEnabled = getBoolean("pcaSyncProtocol.enabled", pcaSyncProtocolEnabled);
++        pcaSyncProtocolOption = SyncOption.valueOf(getString("pcaSyncProtocol.option", String.valueOf(pcaSyncProtocolOption)));
++    }
++
++    public enum SyncOption {
++        NOBODY,
++        BOT,
++        OPS,
++        OPS_AND_SELF,
++        EVERYONE
      }
  
-     private static void readDynamicActivationOfBrains() throws IOException {
+     protected static void set(String path, Object val) {
 diff --git a/src/main/java/org/leavesmc/leaves/protocol/AppleSkinProtocol.java b/src/main/java/org/leavesmc/leaves/protocol/AppleSkinProtocol.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..a8694777f0619584c76c9cba47f7926435b768a9
+index 0000000000000000000000000000000000000000..82394432345d858a6cc9ea5dab2af3bba819ae8f
 --- /dev/null
 +++ b/src/main/java/org/leavesmc/leaves/protocol/AppleSkinProtocol.java
 @@ -0,0 +1,105 @@
@@ -106,7 +207,7 @@ index 0000000000000000000000000000000000000000..a8694777f0619584c76c9cba47f79264
 +                    previousSaturationLevels.put(player.getUUID(), saturation);
 +                }
 +
-+                float exhaustion = data.getExhaustionLevel();
++                float exhaustion = data.exhaustionLevel;
 +                Float previousExhaustion = previousExhaustionLevels.get(player.getUUID());
 +                if (previousExhaustion == null || Math.abs(exhaustion - previousExhaustion) >= MINIMUM_EXHAUSTION_CHANGE_THRESHOLD) {
 +                    ProtocolUtils.sendPayloadPacket(player, EXHAUSTION_KEY, buf -> {

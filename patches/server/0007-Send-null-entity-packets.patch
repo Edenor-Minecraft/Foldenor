@@ -37,10 +37,10 @@ index 344a70e3c1274936d218757059c713bf9e75603b..c8c6631093ff2ebd23527e80778b35f9
          config.addDefault(path, val);
          config.set(path, val);
 diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
-index 8ea2f24695f5dad55e21f238b69442513e7a90c6..38ca0acf3a1af7dcdd9e87e6d9e2e14c6d3fad41 100644
+index 103e2c414780be66324bcb9cd4ea539bbdfe12ad..c22d874924b92ee516a3a0e20606af0c7b26ab49 100644
 --- a/src/main/java/net/minecraft/server/level/ServerEntity.java
 +++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
-@@ -50,6 +50,7 @@ import net.minecraft.server.network.ServerPlayerConnection;
+@@ -54,6 +54,7 @@ import net.minecraft.server.network.ServerPlayerConnection;
  import net.minecraft.util.Mth;
  import org.bukkit.entity.Player;
  import org.bukkit.event.player.PlayerVelocityEvent;
@@ -48,17 +48,18 @@ index 8ea2f24695f5dad55e21f238b69442513e7a90c6..38ca0acf3a1af7dcdd9e87e6d9e2e14c
  // CraftBukkit end
  
  public class ServerEntity {
-@@ -212,6 +213,9 @@ public class ServerEntity {
-                     packet1 = new ClientboundTeleportEntityPacket(this.entity);
-                     flag4 = true;
-                     flag5 = true;
+@@ -226,7 +227,10 @@ public class ServerEntity {
+                         packet1 = ClientboundEntityPositionSyncPacket.of(this.entity);
+                         flag3 = true;
+                         flag4 = true;
 +                    if (!FoldenorConfig.sendNullEntityPackets && isNullMovePacket(packet1)) {
 +                        packet1 = null;
-+                    }
-                 }
+                     }
++                }
  
-                 if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) && this.tickCount > 0) {
-@@ -288,6 +292,18 @@ public class ServerEntity {
+                     if (this.entity.hasImpulse || this.trackDelta || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) {
+                         Vec3 vec3d1 = this.entity.getDeltaMovement();
+@@ -304,6 +308,18 @@ public class ServerEntity {
  
      }
  
@@ -74,14 +75,14 @@ index 8ea2f24695f5dad55e21f238b69442513e7a90c6..38ca0acf3a1af7dcdd9e87e6d9e2e14c
 +        return false;
 +    }
 +
-     private static Stream<Entity> removedPassengers(List<Entity> passengers, List<Entity> lastPassengers) {
-         return lastPassengers.stream().filter((entity) -> {
-             return !passengers.contains(entity);
+     private void handleMinecartPosRot(NewMinecartBehavior controller, byte yaw, byte pitch, boolean changedAngles) {
+         this.sendDirtyEntityData();
+         if (controller.lerpSteps.isEmpty()) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 2ccc358daae43dcebf03db64526f17fbd9df23f8..beedb9037d4557b3534405ec22b20329d8c5c84b 100644
+index 94f2610e1f2cce41d998bb9c92abbb38d9811f56..064bb0ce9160555ed5f735063ee9c11df8a6e88d 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -27,6 +27,8 @@ import java.util.function.BiConsumer;
+@@ -31,6 +31,8 @@ import java.util.function.BiConsumer;
  import java.util.function.Predicate;
  import java.util.stream.Stream;
  import javax.annotation.Nullable;
@@ -90,7 +91,7 @@ index 2ccc358daae43dcebf03db64526f17fbd9df23f8..beedb9037d4557b3534405ec22b20329
  import net.minecraft.BlockUtil;
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
-@@ -1177,7 +1179,16 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -1235,7 +1237,16 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                      }
                  }
  
@@ -107,4 +108,4 @@ index 2ccc358daae43dcebf03db64526f17fbd9df23f8..beedb9037d4557b3534405ec22b20329
 +                }
              }
  
-             this.level().getProfiler().pop();
+             gameprofilerfiller.pop();

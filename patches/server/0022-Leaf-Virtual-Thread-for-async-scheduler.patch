@@ -5,10 +5,10 @@ Subject: [PATCH] Leaf-Virtual-Thread-for-async-scheduler
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 9000c8836bbbe9d9931d6e35d303aed71e8d4e6e..dd3d35a8870022d6f260020377c97e0be6970481 100644
+index dc3eefb624b0f8e6cb196f9aa72857ab5a369e10..9ecfcf62f4add8968010374f46e14e15a86c9fe1 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -43,6 +43,8 @@ public class FoldenorConfig {
+@@ -39,6 +39,8 @@ public class FoldenorConfig {
  
      public static int piglinSpawnChancePersentInPortal = 100;
  
@@ -17,7 +17,7 @@ index 9000c8836bbbe9d9931d6e35d303aed71e8d4e6e..dd3d35a8870022d6f260020377c97e0b
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -87,6 +89,8 @@ public class FoldenorConfig {
+@@ -83,6 +85,8 @@ public class FoldenorConfig {
  
          readOptimizationSettings();
  
@@ -26,7 +26,7 @@ index 9000c8836bbbe9d9931d6e35d303aed71e8d4e6e..dd3d35a8870022d6f260020377c97e0b
          try {
              readDynamicActivationOfBrains();
          } catch (IOException e) {
-@@ -111,6 +115,11 @@ public class FoldenorConfig {
+@@ -107,6 +111,11 @@ public class FoldenorConfig {
              "Reduces piglin spawn in portal, by reducing change to spawn");
      }
  
@@ -39,7 +39,7 @@ index 9000c8836bbbe9d9931d6e35d303aed71e8d4e6e..dd3d35a8870022d6f260020377c97e0b
          dearEnabled = getBoolean("dab.enabled",  true);
          startDistance = getInt("dab.start-distance",  12,
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
-index 3c1992e212a6d6f1db4d5b807b38d71913619fc0..3a9d20bda722447247475a8d6aa8b64252f24ca8 100644
+index 0ca279fb71d39c81b1f608e0ee9ba3e498d55fa3..ea1290a7d541808fef5d0c97d9ea8342c269b0d1 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
 @@ -25,6 +25,7 @@ package org.bukkit.craftbukkit.scheduler;

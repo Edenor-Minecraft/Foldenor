@@ -5,10 +5,10 @@ Subject: [PATCH] Enable-a-lot-of-commands
 
 
 diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
-index 460786301818da923664057c4cc0f5a76fcddd2c..775f2c93fd199754c508f4e4cd31746cb23eab35 100644
+index 7f16e3040f4686ffe6338290db33d2733bd6659f..e452ecbe4bbd72aa35d6f558f9095a0a94beb20f 100644
 --- a/src/main/java/net/minecraft/commands/Commands.java
 +++ b/src/main/java/net/minecraft/commands/Commands.java
-@@ -163,8 +163,8 @@ public class Commands {
+@@ -167,8 +167,8 @@ public class Commands {
          ClearInventoryCommands.register(this.dispatcher, commandRegistryAccess);
          //CloneCommands.register(this.dispatcher, commandRegistryAccess); // Folia - region threading - TODO
          DamageCommand.register(this.dispatcher, commandRegistryAccess);
@@ -19,21 +19,22 @@ index 460786301818da923664057c4cc0f5a76fcddd2c..775f2c93fd199754c508f4e4cd31746c
          //DebugCommand.register(this.dispatcher); // Folia - region threading - TODO
          DefaultGameModeCommands.register(this.dispatcher);
          DifficultyCommand.register(this.dispatcher);
-@@ -175,7 +175,7 @@ public class Commands {
+@@ -179,7 +179,7 @@ public class Commands {
          FillCommand.register(this.dispatcher, commandRegistryAccess);
          FillBiomeCommand.register(this.dispatcher, commandRegistryAccess);
          ForceLoadCommand.register(this.dispatcher);
 -        //FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
 +        FunctionCommand.register(this.dispatcher); // Folia - region threading - TODO
          GameModeCommand.register(this.dispatcher);
-         GameRuleCommand.register(this.dispatcher);
+         GameRuleCommand.register(this.dispatcher, commandRegistryAccess);
          GiveCommand.register(this.dispatcher, commandRegistryAccess);
-@@ -194,19 +194,19 @@ public class Commands {
+@@ -198,20 +198,20 @@ public class Commands {
          //ReloadCommand.register(this.dispatcher); // Folia - region threading
          RecipeCommand.register(this.dispatcher);
          //ReturnCommand.register(this.dispatcher); // Folia - region threading - TODO later
 -        //RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
 +        RideCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //RotateCommand.register(this.dispatcher); // Folia - region threading - TODO later
          SayCommand.register(this.dispatcher);
          //ScheduleCommand.register(this.dispatcher); // Folia - region threading
 -        //ScoreboardCommand.register(this.dispatcher, commandRegistryAccess); // Folia - region threading - TODO later

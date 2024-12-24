@@ -5,29 +5,8 @@ Subject: [PATCH] ShreddedPaper: Optimization:
  entity-activation-check-frequency
 
 
-diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 197954520907e99b7523b3543612bad751d9e969..4d2f828ef93673cf24d038d4645838bba194f887 100644
---- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-+++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -60,6 +60,8 @@ public class FoldenorConfig {
-     public static EnumRegionFileExtension regionFormatType;
-     public static int linearFlushThreads = 1;
- 
-+    public static int entityActivationCheckFrequency = 20;
-+
-     public static void init(File configFile) {
-         init(configFile, true);
-     }
-@@ -135,6 +137,7 @@ public class FoldenorConfig {
-         piglinSpawnChancePersentInPortal = getInt("optimizations.piglin-spawn-chance-persent-in-portal", 100,
-             "Reduces piglin spawn in portal, by reducing change to spawn");
-         skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
-+        entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);
-     }
- 
-     private static void readMiscSettings() {
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 69784dbf1fc50b27d15582ca058b7b0027fa49ae..f758fdf1d6e4d42f0fcdb11026988c1b9115f940 100644
+index d998ac44fee5cdfa03ab20a61bd46c6a1b96e8fa..f1b7ac4663e8304e754ff0b00b112e4a18621d95 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -1,5 +1,6 @@
@@ -37,7 +16,7 @@ index 69784dbf1fc50b27d15582ca058b7b0027fa49ae..f758fdf1d6e4d42f0fcdb11026988c1b
  import net.minecraft.core.BlockPos;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.level.ServerChunkCache;
-@@ -197,6 +198,8 @@ public class ActivationRange
+@@ -195,6 +196,8 @@ public class ActivationRange
  
          for ( Player player : world.getLocalPlayers() ) // Folia - region threading
          {
@@ -46,7 +25,7 @@ index 69784dbf1fc50b27d15582ca058b7b0027fa49ae..f758fdf1d6e4d42f0fcdb11026988c1b
              player.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick(); // Folia - region threading
              if ( world.spigotConfig.ignoreSpectatorActivation && player.isSpectator() )
              {
-@@ -263,16 +266,16 @@ public class ActivationRange
+@@ -242,16 +245,16 @@ public class ActivationRange
       */
      private static void activateEntity(Entity entity, AABB[] bbByType) // Folia - threaded regions
      {
