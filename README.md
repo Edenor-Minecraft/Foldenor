@@ -1,7 +1,7 @@
 <div align=center>
     <img src="./foldenor.png">
     <br /><br />
-    <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> which adds secure seed, comparability for paper plugins and some useful patches. This project is originally aimed for <a href="https://edenor.ru/">Edenor</a> Minecraft server.</p>
+    <p>Fork of <a href="https://github.com/PaperMC/Folia">Folia</a> which adds secure seed and some useful patches. This project is originally aimed for <a href="https://edenor.ru/">Edenor</a> Minecraft server.</p>
 </div>
 
 ## About Folia
@@ -11,8 +11,8 @@
 
 ## Features
  - **Bukkit Plugins Support!** Just add folia-supported: true at the end of any plugin.yml.
+   > ⚠️ Attention: Not all plugins can run on Foldenor without changing the plugin code!
  - **Various patches** blending from [other forks](https://github.com/Edenor-Minecraft/Foldenor?tab=readme-ov-file#credits).
- - **Better Region Format** Support for the Linear region file format from [LinearPurpur](https://github.com/StupidCraft/LinearPurpur)
  - ...
 
 ## Downloads
