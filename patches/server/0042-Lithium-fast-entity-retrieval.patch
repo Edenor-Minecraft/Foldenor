@@ -1,0 +1,77 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 4 Jan 2025 14:42:42 +0400
+Subject: [PATCH] Lithium fast entity retrieval
+
+
+diff --git a/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java b/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java
+index af92a3ae38df4df02a5028d1d7568b674a60da51..9fade710ed998a29edda2791c78b134dc19f0a81 100644
+--- a/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java
++++ b/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java
+@@ -35,6 +35,8 @@ public class EntitySectionStorage<T extends EntityAccess> {
+     }
+ 
+     public void forEachAccessibleNonEmptySection(AABB box, AbortableIterationConsumer<EntitySection<T>> consumer) {
++        // Mizi start - lithium fast entity retrieval
++        /* 
+         int i = SectionPos.posToSectionCoord(box.minX - 2.0);
+         int j = SectionPos.posToSectionCoord(box.minY - 4.0);
+         int k = SectionPos.posToSectionCoord(box.minZ - 2.0);
+@@ -60,10 +62,57 @@ public class EntitySectionStorage<T extends EntityAccess> {
+                         return;
+                     }
+                 }
++ */
++        int minX = SectionPos.posToSectionCoord(box.minX - 2.0D);
++        int minY = SectionPos.posToSectionCoord(box.minY - 4.0D);
++        int minZ = SectionPos.posToSectionCoord(box.minZ - 2.0D);
++        int maxX = SectionPos.posToSectionCoord(box.maxX + 2.0D);
++        int maxY = SectionPos.posToSectionCoord(box.maxY + 0.0D);
++        int maxZ = SectionPos.posToSectionCoord(box.maxZ + 2.0D);
++
++        if (maxX >= minX + 4 || maxZ >= minZ + 4) {
++            return;
++        }
++        for (int x = minX; x <= maxX; x++) {
++            for (int z = Math.max(minZ, 0); z <= maxZ; z++) {
++                if (this.forEachInColumn(x, minY, maxY, z, consumer).shouldAbort()) {
++                return;
++             }
++        }
++            int bound = Math.min(-1, maxZ);
++            for (int z = minZ; z <= bound; z++) {
++                if (this.forEachInColumn(x, minY, maxY, z, consumer).shouldAbort()) {
++                    return;
++               }
+             }
+         }
+     }
+ 
++    private AbortableIterationConsumer.Continuation forEachInColumn(int x, int minY, int maxY, int z, AbortableIterationConsumer<EntitySection<T>> consumer) {
++        AbortableIterationConsumer.Continuation ret = AbortableIterationConsumer.Continuation.CONTINUE;
++        //y from negative to positive, but y is treated as unsigned
++        for (int y = Math.max(minY, 0); y <= maxY; y++) {
++            if ((ret = this.consumeSection(SectionPos.asLong(x, y, z), consumer)).shouldAbort()) {
++            return ret;
++         }
++        }
++        int bound = Math.min(-1, maxY);
++        for (int y = minY; y <= bound; y++) {
++            if ((ret = this.consumeSection(SectionPos.asLong(x, y, z), consumer)).shouldAbort()) {
++            return ret;
++        }
++     }
++     return ret;
++    }
++
++    private AbortableIterationConsumer.Continuation consumeSection(long sectionPos, AbortableIterationConsumer<EntitySection<T>> consumer) {
++        EntitySection<T> section = this.getSection(sectionPos);
++        if (section != null && 0 != section.size() && section.getStatus().isAccessible()) {
++            return consumer.accept(section);
++        }
++        return AbortableIterationConsumer.Continuation.CONTINUE;
++     } // Mizi end
++
+     public LongStream getExistingSectionPositionsInChunk(long chunkPos) {
+         int i = ChunkPos.getX(chunkPos);
+         int j = ChunkPos.getZ(chunkPos);

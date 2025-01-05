@@ -1,0 +1,96 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Sat, 4 Jan 2025 15:02:02 +0400
+Subject: [PATCH] Paper PR: Skip AI during inactive ticks for non-aware mobs
+
+
+diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+index 8b3481286976b4ef60c236d16f380d9b2ebe3996..e2472260256ed02f00384a23942bce1cd86538be 100644
+--- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -55,6 +55,8 @@ public class FoldenorConfig {
+     public static int maximumActivationPrio;
+     public static int activationDistanceMod;
+ 
++    public static boolean skipAIForNonAwareMob = true;
++
+     public static void init(File configFile) {
+         init(configFile, true);
+     }
+@@ -105,6 +107,12 @@ public class FoldenorConfig {
+ 
+         readRegionSettings();
+ 
++        try {
++            dynamicActivationOfBrains();
++        } catch (IOException e) {
++            throw new RuntimeException(e);
++        }
++
+         try {
+             config.save(CONFIG_FILE);
+         } catch (IOException ex) {
+@@ -123,6 +131,7 @@ public class FoldenorConfig {
+             "Reduces piglin spawn in portal, by reducing change to spawn");
+         skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
+         entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);
++        skipAIForNonAwareMob = getBoolean("optimizations.skip-ai-for-non-aware-mob", skipAIForNonAwareMob);
+     }
+ 
+     private static void readMiscSettings() {
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index 34895cefe32e2698ef20b1656dc8b40491c33027..81a3fa36ed7c35d7d3ac924933c3e38bcf07b663 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -14,6 +14,8 @@ import java.util.Optional;
+ import java.util.Set;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.NonNullList;
+@@ -235,6 +237,11 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
+     @Override
+     public void inactiveTick() {
+         super.inactiveTick();
++        // Paper start - Skip AI during inactive ticks for non-aware mobs
++        if (FoldenorConfig.skipAIForNonAwareMob && !(this.isEffectiveAi() && this.aware)) {
++            return;
++        }
++        // Paper end - Skip AI during inactive ticks for non-aware mobs
+         if (this.goalSelector.inactiveTick(this.activatedPriority, true)) { // Pufferfish - pass activated priroity
+             this.goalSelector.tick();
+         }
+diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+index 7cc9eb0e5bc27bd6b3c7f2b3089248ccd4ed93e1..521791d4449f1220ee44e5ae7f5e7cc09f90dd67 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+@@ -16,6 +16,8 @@ import java.util.Objects;
+ import java.util.Optional;
+ import java.util.function.BiPredicate;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.GlobalPos;
+ import net.minecraft.core.Holder;
+@@ -234,14 +236,14 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+         if (this.getUnhappyCounter() > 0) {
+             this.setUnhappyCounter(this.getUnhappyCounter() - 1);
+         }
+-        if (this.isEffectiveAi()) {
++        if (this.isEffectiveAi() && (!FoldenorConfig.skipAIForNonAwareMob || this.aware)) { // Paper - Skip AI during inactive ticks for non-aware mobs
+             if (this.level().spigotConfig.tickInactiveVillagers) {
+                 this.customServerAiStep(this.level().getMinecraftWorld());
+             } else {
+                 this.customServerAiStep(this.level().getMinecraftWorld(), true);
+             }
+-        }
+-        maybeDecayGossip();
++            }
++            maybeDecayGossip();
+         // Paper end
+         super.inactiveTick();
+     }
