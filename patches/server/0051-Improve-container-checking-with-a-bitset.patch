@@ -1,0 +1,649 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Tue, 7 Jan 2025 14:53:55 +0400
+Subject: [PATCH] Improve container checking with a bitset
+
+
+diff --git a/src/main/java/gg/airplane/structs/ItemListWithBitset.java b/src/main/java/gg/airplane/structs/ItemListWithBitset.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7755d6fb54e6ecaf9f58859451b31c886370b812
+--- /dev/null
++++ b/src/main/java/gg/airplane/structs/ItemListWithBitset.java
+@@ -0,0 +1,137 @@
++package gg.airplane.structs;
++
++import net.minecraft.core.NonNullList;
++import net.minecraft.world.item.ItemStack;
++import org.apache.commons.lang.Validate;
++import org.jetbrains.annotations.NotNull;
++
++import java.util.AbstractList;
++import java.util.Arrays;
++import java.util.List;
++
++public class ItemListWithBitset extends AbstractList<ItemStack> {
++
++    // Hopper / Hopper Minecart: 5
++    // Dispenser / Dropper: 9
++    // Chest / Chest Minecart / Trap Chest / Barrel / Shulker Box: 27
++    private static final int MAX_SIZE = Integer.SIZE;
++
++    private static final int ALL_BITS_5 = createAllBits(5);
++    private static final int ALL_BITS_9 = createAllBits(9);
++    private static final int ALL_BITS_27 = createAllBits(27);
++
++    private static int createAllBits(int size) {
++        return ((1 << size) - 1);
++    }
++
++    private static int allBits(int size) {
++        if (size == 5) {
++            return ALL_BITS_5;
++        } else if (size == 9) {
++            return ALL_BITS_9;
++        } else if (size == 27) {
++            return ALL_BITS_27;
++        } else {
++            return createAllBits(size);
++        }
++    }
++
++    public static ItemListWithBitset fromList(List<ItemStack> list) {
++        if (list instanceof ItemListWithBitset ours) {
++            return ours;
++        }
++        return new ItemListWithBitset(list);
++    }
++
++    private static ItemStack[] createArray(int size) {
++        ItemStack[] array = new ItemStack[size];
++        Arrays.fill(array, ItemStack.EMPTY);
++        return array;
++    }
++
++    private final ItemStack[] items;
++
++    private int bitSet = 0;
++
++    private static class OurNonNullList extends NonNullList<ItemStack> {
++        protected OurNonNullList(List<ItemStack> delegate) {
++            super(delegate, ItemStack.EMPTY);
++        }
++    }
++
++    public final NonNullList<ItemStack> nonNullList = new OurNonNullList(this);
++
++    private ItemListWithBitset(List<ItemStack> list) {
++        this(list.size());
++
++        for (int i = 0; i < list.size(); i++) {
++            this.set(i, list.get(i));
++        }
++    }
++
++    public ItemListWithBitset(int size) {
++        Validate.isTrue(size < MAX_SIZE, "size is too large");
++
++        this.items = createArray(size);
++    }
++
++    public boolean isCompletelyEmpty() {
++        return this.bitSet == 0;
++    }
++
++    public boolean isSlotFilled() {
++        int allBits = allBits(this.items.length);
++        return (this.bitSet & allBits) == allBits;
++    }
++
++    @Override
++    public ItemStack set(int index, @NotNull ItemStack itemStack) {
++        ItemStack existing = this.items[index];
++
++        this.items[index] = itemStack;
++
++        if (itemStack.isEmpty()) {
++            this.bitSet &= ~(1 << index);
++        } else {
++            this.bitSet |= (1 << index);
++        }
++
++        return existing;
++    }
++
++    @NotNull
++    @Override
++    public ItemStack get(int var0) {
++        return this.items[var0];
++    }
++
++    @Override
++    public int size() {
++        return this.items.length;
++    }
++
++    @Override
++    public void clear() {
++        Arrays.fill(this.items, ItemStack.EMPTY);
++    }
++
++    // these are unsupported for block inventories which have a static size
++    @Override
++    public void add(int var0, ItemStack var1) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public ItemStack remove(int var0) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public String toString() {
++        return "ItemListWithBitset{" +
++                "items=" + Arrays.toString(this.items) +
++                ", slotState=" + Long.toString(this.bitSet, 2) +
++                ", size=" + this.items.length +
++                '}';
++    }
++}
+diff --git a/src/main/java/net/minecraft/world/CompoundContainer.java b/src/main/java/net/minecraft/world/CompoundContainer.java
+index 241fec02e6869c638d3a160819b32173a081467b..008c509974a1123ec61315f5b0a4eeb0bf58b736 100644
+--- a/src/main/java/net/minecraft/world/CompoundContainer.java
++++ b/src/main/java/net/minecraft/world/CompoundContainer.java
+@@ -64,6 +64,18 @@ public class CompoundContainer implements Container {
+         this.container2 = second;
+     }
+ 
++    // Pufferfish start - Improve container checking with a bitset
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.container1.hasEmptySlot().and(this.container2.hasEmptySlot());
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.container1.isCompletelyEmpty().and(this.container2.isCompletelyEmpty());
++    }
++    // Pufferfish end - Improve container checking with a bitset
++
+     @Override
+     public int getContainerSize() {
+         return this.container1.getContainerSize() + this.container2.getContainerSize();
+diff --git a/src/main/java/net/minecraft/world/Container.java b/src/main/java/net/minecraft/world/Container.java
+index 5db5ba026462ca642dcee718af732f80fadabef5..dd1bc63b068d5b42c0a68f00771b20fcc5d17c29 100644
+--- a/src/main/java/net/minecraft/world/Container.java
++++ b/src/main/java/net/minecraft/world/Container.java
+@@ -14,6 +14,28 @@ import org.bukkit.craftbukkit.entity.CraftHumanEntity;
+ // CraftBukkit end
+ 
+ public interface Container extends Clearable {
++    // Pufferfish start - Improve container checking with a bitset; allow the inventory to override and optimize these frequent calls
++    enum OptionalState {
++        TRUE,
++        FALSE,
++        NOT_IMPLEMENTED;
++
++        public OptionalState and(OptionalState other) {
++            if (this == NOT_IMPLEMENTED || other == NOT_IMPLEMENTED) {
++                return NOT_IMPLEMENTED;
++            }
++            return this == TRUE ? other : FALSE;
++        }
++    }
++
++    default OptionalState hasEmptySlot() {
++        return OptionalState.NOT_IMPLEMENTED;
++    }
++
++    default OptionalState isCompletelyEmpty() {
++        return OptionalState.NOT_IMPLEMENTED;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+ 
+     float DEFAULT_DISTANCE_BUFFER = 4.0F;
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+index ca847099af203cf6a07980fc4bd62c814bdaa9ca..b9854109c2a826058a7fac3d14cf2db9767e75ba 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
+@@ -32,6 +32,18 @@ import org.bukkit.inventory.InventoryHolder;
+ public abstract class AbstractMinecartContainer extends AbstractMinecart implements ContainerEntity {
+ 
+     private NonNullList<ItemStack> itemStacks;
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+     @Nullable
+     public ResourceKey<LootTable> lootTable;
+     public long lootTableSeed;
+@@ -87,7 +99,10 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+ 
+     protected AbstractMinecartContainer(EntityType<?> type, Level world) {
+         super(type, world);
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize()); // CraftBukkit - SPIGOT-3513
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override
+@@ -236,6 +251,9 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
+ 
+     @Override
+     public void clearItemStacks() {
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ }
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
+index 03e39b5b573847e1205468d479923484b6740418..baa0ad13835829e03f8df0992d088f1a991498e4 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
+@@ -63,12 +63,27 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+         this.maxStack = i;
+     }
+     // CraftBukkit end
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+     private NonNullList<ItemStack> items;
+     public final ContainerOpenersCounter openersCounter;
+ 
+     public BarrelBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.BARREL, pos, state);
+-        this.items = NonNullList.withSize(27, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         this.openersCounter = new ContainerOpenersCounter() {
+             @Override
+             protected void onOpen(Level world, BlockPos pos, BlockState state) {
+@@ -110,7 +125,10 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+     @Override
+     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+         super.loadAdditional(nbt, registries);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items, registries);
+         }
+@@ -129,7 +147,10 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> inventory) {
+-        this.items = inventory;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(inventory);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     // Leaves start - pca
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
+index 1f29b2419914ca9257db6553f01b7e7ec49bfc18..ce12888f1602ff534bd1aa82eebcd8e6101bbc3b 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
+@@ -119,6 +119,7 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
+ 
+     @Override
+     public boolean isEmpty() {
++        if (this.isCompletelyEmpty() == net.minecraft.world.Container.OptionalState.TRUE) return true; // Pufferfish - Improve container checking with a bitset
+         Iterator iterator = this.getItems().iterator();
+ 
+         ItemStack itemstack;
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
+index ee898caa000e6467cada7859039008d634ed54c9..787c757c99b2dfaf067d1ab63b2172db2e722c37 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/ChestBlockEntity.java
+@@ -30,6 +30,18 @@ import org.bukkit.entity.HumanEntity;
+ // CraftBukkit end
+ 
+ public class ChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+ 
+     private static final int EVENT_SET_OPEN_COUNT = 1;
+     private NonNullList<ItemStack> items;
+@@ -68,7 +80,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+ 
+     protected ChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+         super(type, pos, state);
+-        this.items = NonNullList.withSize(27, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         this.openersCounter = new ContainerOpenersCounter() {
+             @Override
+             protected void onOpen(Level world, BlockPos pos, BlockState state) {
+@@ -116,7 +131,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+     @Override
+     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+         super.loadAdditional(nbt, registries);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items, registries);
+         }
+@@ -188,7 +206,10 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> inventory) {
+-        this.items = inventory;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(inventory);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     // Leaves start - pca
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/CrafterBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
+index f07d5d806eee59d534c45af8fc17057e966c19b3..98068fb4646560ffc990a2efc8d3618f61784e5d 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
+@@ -37,6 +37,18 @@ public class CrafterBlockEntity extends RandomizableContainerBlockEntity impleme
+     public static final int SLOT_ENABLED = 0;
+     public static final int DATA_TRIGGERED = 9;
+     public static final int NUM_DATA = 10;
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+     private NonNullList<ItemStack> items;
+     public int craftingTicksRemaining;
+     protected final ContainerData containerData;
+@@ -83,7 +95,10 @@ public class CrafterBlockEntity extends RandomizableContainerBlockEntity impleme
+ 
+     public CrafterBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.CRAFTER, pos, state);
+-        this.items = NonNullList.withSize(9, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         this.craftingTicksRemaining = 0;
+         this.containerData = new ContainerData() { // CraftBukkit - decompile error
+             private final int[] slotStates = new int[9];
+@@ -162,7 +177,10 @@ public class CrafterBlockEntity extends RandomizableContainerBlockEntity impleme
+     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+         super.loadAdditional(nbt, registries);
+         this.craftingTicksRemaining = nbt.getInt("crafting_ticks_remaining");
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items, registries);
+         }
+@@ -247,7 +265,10 @@ public class CrafterBlockEntity extends RandomizableContainerBlockEntity impleme
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> inventory) {
+-        this.items = inventory;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(inventory);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
+index c1a3664a3ffdfbf9866fea6296f3328ab5e8b154..95ba08d06bb1caff366139c81ceb30d599bfff10 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
+@@ -20,6 +20,18 @@ import org.bukkit.entity.HumanEntity;
+ // CraftBukkit end
+ 
+ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public net.minecraft.world.Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public net.minecraft.world.Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+ 
+     public static final int CONTAINER_SIZE = 9;
+     private NonNullList<ItemStack> items;
+@@ -56,7 +68,10 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
+ 
+     protected DispenserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+         super(type, pos, state);
+-        this.items = NonNullList.withSize(9, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     public DispenserBlockEntity(BlockPos pos, BlockState state) {
+@@ -127,7 +142,10 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
+     @Override
+     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+         super.loadAdditional(nbt, registries);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items, registries);
+         }
+@@ -150,7 +168,10 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> inventory) {
+-        this.items = inventory;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(inventory);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index 976fdee175a27452d9d9e8253c1ade693411aeaa..6d37157beb5b2a9ce852bc399c5e0f13bf807e18 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -45,6 +45,18 @@ import org.bukkit.inventory.Inventory;
+ // CraftBukkit end
+ 
+ public class HopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+ 
+     public static final int MOVE_ITEM_SPEED = 8;
+     public static final int HOPPER_CONTAINER_SIZE = 5;
+@@ -96,7 +108,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+     public HopperBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.HOPPER, pos, state);
+-        this.items = NonNullList.withSize(5, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(HOPPER_CONTAINER_SIZE);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         this.cooldownTime = -1;
+         this.facing = (Direction) state.getValue(HopperBlock.FACING);
+     }
+@@ -104,7 +119,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     @Override
+     protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+         super.loadAdditional(nbt, registries);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(nbt)) {
+             ContainerHelper.loadAllItems(nbt, this.items, registries);
+         }
+@@ -186,6 +204,14 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     private static int getFullState(final HopperBlockEntity tileEntity) {
+         tileEntity.unpackLootTable(null);
+ 
++        // Puffrefish start - Improve container checking with a bitset; use bitsets
++        if (tileEntity.optimizedItems.isCompletelyEmpty()) {
++            return HOPPER_EMPTY;
++        } else if (!tileEntity.optimizedItems.isSlotFilled()) {
++            return HOPPER_HAS_ITEMS;
++        }
++        // Pufferfish end - Improve container checking with a bitset
++
+         final List<ItemStack> hopperItems = tileEntity.getItems();
+ 
+         boolean empty = true;
+@@ -564,6 +590,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     }
+ 
+     private static boolean isFullContainer(Container inventory, Direction direction) {
++        if (inventory.hasEmptySlot() == Container.OptionalState.TRUE) return false; // Pufferfish - Improve container checking with a bitset
+         int[] aint = HopperBlockEntity.getSlots(inventory, direction);
+         int[] aint1 = aint;
+         int i = aint.length;
+@@ -956,7 +983,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> inventory) {
+-        this.items = inventory;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(inventory);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     public static void entityInside(Level world, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
+index 1ad5c71d739274f80a6c1a5a7d85e07154590418..583fd9df543e9e4ed6c664041b6e932b3005009d 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
+@@ -39,6 +39,18 @@ import org.bukkit.entity.HumanEntity;
+ // CraftBukkit end
+ 
+ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public net.minecraft.world.Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public net.minecraft.world.Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+ 
+     public static final int COLUMNS = 9;
+     public static final int ROWS = 3;
+@@ -89,14 +101,20 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
+ 
+     public ShulkerBoxBlockEntity(@Nullable DyeColor color, BlockPos pos, BlockState state) {
+         super(BlockEntityType.SHULKER_BOX, pos, state);
+-        this.itemStacks = NonNullList.withSize(27, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         this.animationStatus = ShulkerBoxBlockEntity.AnimationStatus.CLOSED;
+         this.color = color;
+     }
+ 
+     public ShulkerBoxBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.SHULKER_BOX, pos, state);
+-        this.itemStacks = NonNullList.withSize(27, ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         this.animationStatus = ShulkerBoxBlockEntity.AnimationStatus.CLOSED;
+         Block block = state.getBlock();
+         DyeColor enumcolor;
+@@ -264,7 +282,10 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
+     }
+ 
+     public void loadFromTag(CompoundTag nbt, HolderLookup.Provider registries) {
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(nbt) && nbt.contains("Items", 9)) {
+             ContainerHelper.loadAllItems(nbt, this.itemStacks, registries);
+         }
+@@ -278,7 +299,10 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> inventory) {
+-        this.itemStacks = inventory;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(inventory);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     // Leaves start - pca

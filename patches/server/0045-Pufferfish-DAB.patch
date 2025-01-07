@@ -5,30 +5,30 @@ Subject: [PATCH] Pufferfish: DAB
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 15f6c81e41c3d1f047147c28e4b6b491fde7e057..8b3481286976b4ef60c236d16f380d9b2ebe3996 100644
+index d65c0ea4b66c586f28bafc40a1c6fef9fc08d0ff..469c99c7b529d68475cf34a9be8fb92a59ae705e 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -4,7 +4,9 @@ import abomination.LinearRegionFile;
+@@ -3,6 +3,9 @@ package net.edenor.foldenor.config;
  import com.google.common.base.Throwables;
  import com.google.common.collect.ImmutableMap;
- import me.earthme.luminol.utils.EnumRegionFormat;
+ import com.triassic.linearpaper.region.RegionFileFormat;
 +import net.minecraft.core.registries.BuiltInRegistries;
- import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.MinecraftServer;
 +import net.minecraft.world.entity.EntityType;
  import org.bukkit.Bukkit;
  import org.bukkit.configuration.ConfigurationSection;
  import org.bukkit.configuration.InvalidConfigurationException;
-@@ -12,6 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
+@@ -10,6 +13,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  
  import java.io.File;
  import java.io.IOException;
 +import java.util.Collections;
- import java.util.List;
- import java.util.Map;
- import java.util.logging.Level;
-@@ -46,6 +49,12 @@ public class FoldenorConfig {
-     public static EnumRegionFormat regionFormat;
-     // Luminol End - Configurable region file format
+ import java.lang.reflect.InvocationTargetException;
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+@@ -43,6 +47,12 @@ public class FoldenorConfig {
+     public static RegionFileFormat regionFormat = RegionFileFormat.ANVIL;
+     public static int linearCompressionLevel = 1;
  
 +    public static boolean dearEnabled;
 +    public static int startDistance;
@@ -39,8 +39,21 @@ index 15f6c81e41c3d1f047147c28e4b6b491fde7e057..8b3481286976b4ef60c236d16f380d9b
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -161,6 +170,30 @@ public class FoldenorConfig {
-         }
+@@ -93,6 +103,12 @@ public class FoldenorConfig {
+ 
+         readLinearRegion();
+ 
++        try {
++            dynamicActivationOfBrains();
++        } catch (IOException e) {
++            throw new RuntimeException(e);
++        }
++
+         try {
+             config.save(CONFIG_FILE);
+         } catch (IOException ex) {
+@@ -157,6 +173,30 @@ public class FoldenorConfig {
+         EVERYONE
      }
  
 +    private static void dynamicActivationOfBrains() throws IOException {

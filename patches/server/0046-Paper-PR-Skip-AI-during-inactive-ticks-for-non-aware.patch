@@ -5,10 +5,10 @@ Subject: [PATCH] Paper PR: Skip AI during inactive ticks for non-aware mobs
 
 
 diff --git a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-index 8b3481286976b4ef60c236d16f380d9b2ebe3996..e2472260256ed02f00384a23942bce1cd86538be 100644
+index 469c99c7b529d68475cf34a9be8fb92a59ae705e..2c608fc97e62a5c03b49ae177320a8d725f3c081 100644
 --- a/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
 +++ b/src/main/java/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -55,6 +55,8 @@ public class FoldenorConfig {
+@@ -53,6 +53,8 @@ public class FoldenorConfig {
      public static int maximumActivationPrio;
      public static int activationDistanceMod;
  
@@ -17,9 +17,9 @@ index 8b3481286976b4ef60c236d16f380d9b2ebe3996..e2472260256ed02f00384a23942bce1c
      public static void init(File configFile) {
          init(configFile, true);
      }
-@@ -105,6 +107,12 @@ public class FoldenorConfig {
- 
-         readRegionSettings();
+@@ -109,6 +111,12 @@ public class FoldenorConfig {
+             throw new RuntimeException(e);
+         }
  
 +        try {
 +            dynamicActivationOfBrains();
@@ -30,7 +30,7 @@ index 8b3481286976b4ef60c236d16f380d9b2ebe3996..e2472260256ed02f00384a23942bce1c
          try {
              config.save(CONFIG_FILE);
          } catch (IOException ex) {
-@@ -123,6 +131,7 @@ public class FoldenorConfig {
+@@ -151,6 +159,7 @@ public class FoldenorConfig {
              "Reduces piglin spawn in portal, by reducing change to spawn");
          skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
          entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);

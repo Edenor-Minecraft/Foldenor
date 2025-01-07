@@ -728,10 +728,10 @@ index 0000000000000000000000000000000000000000..9d71f8e6af24301bedf60f5c87e0bb3c
 +}
 diff --git a/src/main/java/org/leavesmc/leaves/protocol/core/ProtocolUtils.java b/src/main/java/org/leavesmc/leaves/protocol/core/ProtocolUtils.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..f54381eec7ec0ffde39e87b39b16e02d3ed1b419
+index 0000000000000000000000000000000000000000..0f2b2d94c6be0953a1fd1c366cc2dc24ab13936c
 --- /dev/null
 +++ b/src/main/java/org/leavesmc/leaves/protocol/core/ProtocolUtils.java
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,50 @@
 +package org.leavesmc.leaves.protocol.core;
 +
 +import io.netty.buffer.ByteBuf;
@@ -752,27 +752,30 @@ index 0000000000000000000000000000000000000000..f54381eec7ec0ffde39e87b39b16e02d
 +    private static final Function<ByteBuf, RegistryFriendlyByteBuf> bufDecorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
 +
 +    public static void sendEmptyPayloadPacket(ServerPlayer player, ResourceLocation id) {
-+        player.connection.send(new ClientboundCustomPayloadPacket(new LeavesProtocolManager.EmptyPayload(id)));
++        if (player.connection != null)
++            player.connection.send(new ClientboundCustomPayloadPacket(new LeavesProtocolManager.EmptyPayload(id)));
 +    }
 +
 +    @SuppressWarnings("all")
 +    public static void sendPayloadPacket(@NotNull ServerPlayer player, ResourceLocation id, Consumer<FriendlyByteBuf> consumer) {
-+        player.connection.send(new ClientboundCustomPayloadPacket(new LeavesCustomPayload() {
-+            @Override
-+            public void write(@NotNull FriendlyByteBuf buf) {
-+                consumer.accept(buf);
-+            }
++        if (player.connection != null)
++            player.connection.send(new ClientboundCustomPayloadPacket(new LeavesCustomPayload() {
++                @Override
++                public void write(@NotNull FriendlyByteBuf buf) {
++                    consumer.accept(buf);
++                }
 +
-+            @Override
-+            @NotNull
-+            public ResourceLocation id() {
-+                return id;
-+            }
-+        }));
++                @Override
++                @NotNull
++                public ResourceLocation id() {
++                    return id;
++                }
++            }));
 +    }
 +
 +    public static void sendPayloadPacket(ServerPlayer player, CustomPacketPayload payload) {
-+        player.connection.send(new ClientboundCustomPayloadPacket(payload));
++        if (player.connection != null)
++            player.connection.send(new ClientboundCustomPayloadPacket(payload));
 +    }
 +
 +    public static RegistryFriendlyByteBuf decorate(ByteBuf buf) {
