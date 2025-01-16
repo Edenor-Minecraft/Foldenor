@@ -1,0 +1,20 @@
+--- a/net/minecraft/gametest/framework/GameTestServer.java
++++ b/net/minecraft/gametest/framework/GameTestServer.java
+@@ -13,6 +_,8 @@
+ import java.util.concurrent.TimeUnit;
+ import java.util.function.BooleanSupplier;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.secureseed.Globals;
+ import net.minecraft.CrashReport;
+ import net.minecraft.ReportType;
+ import net.minecraft.SystemReport;
+@@ -70,7 +_,7 @@
+         gameRules.getRule(GameRules.RULE_RANDOMTICKING).set(0, null);
+         gameRules.getRule(GameRules.RULE_DOFIRETICK).set(false, null);
+     });
+-    private static final WorldOptions WORLD_OPTIONS = new WorldOptions(0L, false, false);
++    private static final WorldOptions WORLD_OPTIONS = new WorldOptions(0L, Globals.worldSeed, false, false);
+     @Nullable
+     private MultipleTestTracker testTracker;
+ 

@@ -1,0 +1,24 @@
+--- a/net/minecraft/world/level/chunk/storage/RegionStorageInfo.java
++++ b/net/minecraft/world/level/chunk/storage/RegionStorageInfo.java
+@@ -1,5 +_,6 @@
+ package net.minecraft.world.level.chunk.storage;
+ 
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.world.level.Level;
+ 
+@@ -7,4 +_,14 @@
+     public RegionStorageInfo withTypeSuffix(String suffix) {
+         return new RegionStorageInfo(this.level, this.dimension, this.type + suffix);
+     }
++
++    // LinearPaper start
++    public com.triassic.linearpaper.region.RegionFileFormat regionFormat() {
++        return FoldenorConfig.regionFormat;
++    }
++
++    public int linearCompressionLevel() {
++        return FoldenorConfig.linearCompressionLevel;
++    }
++    // LinearPaper end
+ }

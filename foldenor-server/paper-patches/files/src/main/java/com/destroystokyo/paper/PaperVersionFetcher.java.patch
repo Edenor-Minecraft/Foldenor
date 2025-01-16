@@ -1,0 +1,48 @@
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -35,7 +_,7 @@
+     private static final Logger LOGGER = LogUtils.getClassLogger();
+     private static final int DISTANCE_ERROR = -1;
+     private static final int DISTANCE_UNKNOWN = -2;
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads/paper";
++    private static final String DOWNLOAD_PAGE = "https://github.com/Edenor-Minecraft/Foldenor";
+ 
+     @Override
+     public long getCacheTime() {
+@@ -49,7 +_,7 @@
+         if (build.buildNumber().isEmpty() && build.gitCommit().isEmpty()) {
+             updateMessage = text("You are running a development version without access to version information", color(0xFF5300));
+         } else {
+-            updateMessage = getUpdateStatusMessage("PaperMC/Folia", build); // Folia
++            updateMessage = getUpdateStatusMessage("Edenor-Minecraft/Foldenor", build); // Foldenor
+         }
+         final @Nullable Component history = this.getHistory();
+ 
+@@ -60,15 +_,15 @@
+         int distance = DISTANCE_ERROR;
+ 
+         final OptionalInt buildNumber = build.buildNumber();
+-        if (buildNumber.isPresent()) {
++        /*if (buildNumber.isPresent()) {
+             distance = fetchDistanceFromSiteApi(build, buildNumber.getAsInt());
+-        } else {
++        } else {*/
+             final Optional<String> gitBranch = build.gitBranch();
+             final Optional<String> gitCommit = build.gitCommit();
+             if (gitBranch.isPresent() && gitCommit.isPresent()) {
+                 distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
+             }
+-        }
++        //}
+ 
+         return switch (distance) {
+             case DISTANCE_ERROR -> text("Error obtaining version information", NamedTextColor.YELLOW);
+@@ -86,7 +_,7 @@
+     private static int fetchDistanceFromSiteApi(final ServerBuildInfo build, final int jenkinsBuild) {
+         try {
+             try (final BufferedReader reader = Resources.asCharSource(
+-                URI.create("https://api.papermc.io/v2/projects/folia/versions/" + build.minecraftVersionId()).toURL(), // Folia
++                URI.create("https://api.papermc.io/v2/projects/folia/versions/" + build.minecraftVersionId()).toURL(), // Foldenor
+                 Charsets.UTF_8
+             ).openBufferedStream()) {
+                 final JsonObject json = new Gson().fromJson(reader, JsonObject.class);

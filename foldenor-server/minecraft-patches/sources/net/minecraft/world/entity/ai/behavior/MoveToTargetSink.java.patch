@@ -1,0 +1,21 @@
+--- a/net/minecraft/world/entity/ai/behavior/MoveToTargetSink.java
++++ b/net/minecraft/world/entity/ai/behavior/MoveToTargetSink.java
+@@ -1,5 +_,6 @@
+ package net.minecraft.world.entity.ai.behavior;
+ 
++import ca.spottedleaf.moonrise.common.util.TickThread;
+ import com.google.common.collect.ImmutableMap;
+ import java.util.Optional;
+ import javax.annotation.Nullable;
+@@ -119,7 +_,10 @@
+ 
+     private boolean tryComputePath(Mob mob, WalkTarget target, long time) {
+         BlockPos blockPos = target.getTarget().currentBlockPosition();
+-        this.path = mob.getNavigation().createPath(blockPos, 0);
++        if (TickThread.isTickThreadFor((ServerLevel) mob.level(), blockPos))
++            this.path = mob.getNavigation().createPath(blockPos, 0);
++        else
++            this.path = null;
+         this.speedModifier = target.getSpeedModifier();
+         Brain<?> brain = mob.getBrain();
+         if (this.reachedTarget(mob, target)) {

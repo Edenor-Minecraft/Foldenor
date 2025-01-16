@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
++++ b/net/minecraft/world/level/levelgen/feature/GeodeFeature.java
+@@ -41,7 +_,7 @@
+         int i1 = geodeConfiguration.maxGenOffset;
+         List<Pair<BlockPos, Integer>> list = Lists.newLinkedList();
+         int i2 = geodeConfiguration.distributionPoints.sample(randomSource);
+-        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(worldGenLevel.getSeed()));
++        WorldgenRandom worldgenRandom = new net.edenor.foldenor.secureseed.WorldgenCryptoRandom(0, 0, net.edenor.foldenor.secureseed.Globals.Salt.GEODE_FEATURE, 0);
+         NormalNoise normalNoise = NormalNoise.create(worldgenRandom, -4, 1.0);
+         List<BlockPos> list1 = Lists.newLinkedList();
+         double d = (double)i2 / geodeConfiguration.outerWallDistance.getMaxValue();

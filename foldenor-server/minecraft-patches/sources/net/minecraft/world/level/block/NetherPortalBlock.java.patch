@@ -1,0 +1,24 @@
+--- a/net/minecraft/world/level/block/NetherPortalBlock.java
++++ b/net/minecraft/world/level/block/NetherPortalBlock.java
+@@ -4,6 +_,8 @@
+ import com.mojang.serialization.MapCodec;
+ import java.util.Optional;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.BlockUtil;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+@@ -70,9 +_,9 @@
+ 
+     @Override
+     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+-        if (level.spigotConfig.enableZombiePigmenPortalSpawns && level.dimensionType().natural() // Spigot
+-            && level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
+-            && random.nextInt(2000) < level.getDifficulty().getId()) {
++        if (level.spigotConfig.enableZombiePigmenPortalSpawns && level.dimensionType().natural()
++                && level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) && random.nextInt(2000) < level.getDifficulty().getId()
++                && random.nextInt(100) <= FoldenorConfig.piglinSpawnChancePersentInPortal) { // Spigot // Foldenor
+             while (level.getBlockState(pos).is(this)) {
+                 pos = pos.below();
+             }

@@ -1,0 +1,70 @@
+--- a/net/minecraft/world/level/entity/EntitySectionStorage.java
++++ b/net/minecraft/world/level/entity/EntitySectionStorage.java
+@@ -35,6 +_,8 @@
+     }
+ 
+     public void forEachAccessibleNonEmptySection(AABB boundingBox, AbortableIterationConsumer<EntitySection<T>> consumer) {
++        // Mizi start - lithium fast entity retrieval
++        /*
+         int sectionPosCoord = SectionPos.posToSectionCoord(boundingBox.minX - 2.0);
+         int sectionPosCoord1 = SectionPos.posToSectionCoord(boundingBox.minY - 4.0);
+         int sectionPosCoord2 = SectionPos.posToSectionCoord(boundingBox.minZ - 2.0);
+@@ -60,9 +_,55 @@
+                         return;
+                     }
+                 }
+-            }
+-        }
+-    }
++                */
++        int minX = SectionPos.posToSectionCoord(boundingBox.minX - 2.0D);
++        int minY = SectionPos.posToSectionCoord(boundingBox.minY - 4.0D);
++        int minZ = SectionPos.posToSectionCoord(boundingBox.minZ - 2.0D);
++        int maxX = SectionPos.posToSectionCoord(boundingBox.maxX + 2.0D);
++        int maxY = SectionPos.posToSectionCoord(boundingBox.maxY + 0.0D);
++        int maxZ = SectionPos.posToSectionCoord(boundingBox.maxZ + 2.0D);
++        if (maxX >= minX + 4 || maxZ >= minZ + 4) {
++            return;
++        }
++        for (int x = minX; x <= maxX; x++) {
++            for (int z = Math.max(minZ, 0); z <= maxZ; z++) {
++                if (this.forEachInColumn(x, minY, maxY, z, consumer).shouldAbort()) {
++                    return;
++                }
++            }
++            int bound = Math.min(-1, maxZ);
++            for (int z = minZ; z <= bound; z++) {
++                if (this.forEachInColumn(x, minY, maxY, z, consumer).shouldAbort()) {
++                    return;
++                }
++            }
++        }
++    }
++
++    private AbortableIterationConsumer.Continuation forEachInColumn(int x, int minY, int maxY, int z, AbortableIterationConsumer<EntitySection<T>> consumer) {
++        AbortableIterationConsumer.Continuation ret = AbortableIterationConsumer.Continuation.CONTINUE;
++        //y from negative to positive, but y is treated as unsigned
++        for (int y = Math.max(minY, 0); y <= maxY; y++) {
++            if ((ret = this.consumeSection(SectionPos.asLong(x, y, z), consumer)).shouldAbort()) {
++                return ret;
++            }
++        }
++        int bound = Math.min(-1, maxY);
++        for (int y = minY; y <= bound; y++) {
++            if ((ret = this.consumeSection(SectionPos.asLong(x, y, z), consumer)).shouldAbort()) {
++                return ret;
++            }
++        }
++        return ret;
++    }
++
++    private AbortableIterationConsumer.Continuation consumeSection(long sectionPos, AbortableIterationConsumer<EntitySection<T>> consumer) {
++        EntitySection<T> section = this.getSection(sectionPos);
++        if (section != null && 0 != section.size() && section.getStatus().isAccessible()) {
++            return consumer.accept(section);
++        }
++        return AbortableIterationConsumer.Continuation.CONTINUE;
++    } // Mizi end
+ 
+     public LongStream getExistingSectionPositionsInChunk(long pos) {
+         int x = ChunkPos.getX(pos);

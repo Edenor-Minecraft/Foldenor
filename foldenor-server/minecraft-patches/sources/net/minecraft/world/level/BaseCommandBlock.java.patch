@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/BaseCommandBlock.java
++++ b/net/minecraft/world/level/BaseCommandBlock.java
+@@ -114,7 +_,7 @@
+     }
+ 
+     public boolean performCommand(Level level) {
+-        if (true) return false; // Folia - region threading
++        //if (true) return false; // Folia - region threading
+         if (level.isClientSide || level.getGameTime() == this.lastExecution) {
+             return false;
+         } else if ("Searge".equalsIgnoreCase(this.command)) {

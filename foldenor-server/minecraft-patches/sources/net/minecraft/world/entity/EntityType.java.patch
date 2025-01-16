@@ -1,0 +1,10 @@
+--- a/net/minecraft/world/entity/EntityType.java
++++ b/net/minecraft/world/entity/EntityType.java
+@@ -1063,6 +_,7 @@
+     private final boolean canSpawnFarFromPlayer;
+     private final int clientTrackingRange;
+     private final int updateInterval;
++    public boolean dabEnabled = false; // Pufferfish
+     private final String descriptionId;
+     @Nullable
+     private Component description;

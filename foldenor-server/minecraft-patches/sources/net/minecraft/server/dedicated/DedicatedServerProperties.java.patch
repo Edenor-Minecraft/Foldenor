@@ -1,0 +1,30 @@
+--- a/net/minecraft/server/dedicated/DedicatedServerProperties.java
++++ b/net/minecraft/server/dedicated/DedicatedServerProperties.java
+@@ -18,6 +_,8 @@
+ import java.util.concurrent.TimeUnit;
+ import java.util.regex.Pattern;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.secureseed.Globals;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.HolderLookup;
+ import net.minecraft.core.RegistryAccess;
+@@ -113,7 +_,17 @@
+         String string = this.get("level-seed", "");
+         boolean flag = this.get("generate-structures", true);
+         long l = WorldOptions.parseSeed(string).orElse(WorldOptions.randomSeed());
+-        this.worldOptions = new WorldOptions(l, flag, false);
++        // Foldenor start - Feature secure seed
++        String featureSeedString = this.get("feature-level-seed", "");
++        long[] featureSeed;
++        if (featureSeedString.isEmpty()) {
++            featureSeed = Globals.createRandomWorldSeed();
++        } else {
++            featureSeed = Globals.parseSeed(featureSeedString).orElseGet(Globals::createRandomWorldSeed);
++        }
++
++        this.worldOptions = new WorldOptions(l, featureSeed, flag, false);
++        // Foldenor end - Feature secure seed
+         this.worldDimensionData = new DedicatedServerProperties.WorldDimensionData(
+             this.get("generator-settings", property -> GsonHelper.parse(!property.isEmpty() ? property : "{}"), new JsonObject()),
+             this.get("level-type", property -> property.toLowerCase(Locale.ROOT), WorldPresets.NORMAL.location().toString())

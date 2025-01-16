@@ -1,0 +1,10 @@
+--- a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
+@@ -114,6 +_,7 @@
+ 
+     @Override
+     public boolean isEmpty() {
++        if (this.isCompletelyEmpty() == net.minecraft.world.Container.OptionalState.TRUE) return true; // Pufferfish - Improve container checking with a bitset
+         for (ItemStack itemStack : this.getItems()) {
+             if (!itemStack.isEmpty()) {
+                 return false;

@@ -1,0 +1,82 @@
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
+@@ -8,6 +_,8 @@
+ import java.util.List;
+ import java.util.Set;
+ import java.util.UUID;
++import java.util.concurrent.ExecutionException;
++
+ import io.papermc.paper.entity.LookAnchor;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.nbt.Tag;
+@@ -233,12 +_,25 @@
+ 
+     @Override
+     public boolean teleport(Location location) {
++        if (true)
++            try {
++                this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
++                this.teleportAsync(location, TeleportCause.PLUGIN, new io.papermc.paper.entity.TeleportFlag[0]).get();
++                return true;
++            } catch (InterruptedException | ExecutionException e) {
++                throw new RuntimeException(e);
++            }
+         return this.teleport(location, TeleportCause.PLUGIN);
+     }
+ 
+     @Override
+     public boolean teleport(Location location, TeleportCause cause) {
+         // Paper start - Teleport passenger API
++        if (true) {
++            this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
++            this.teleportAsync(location, cause);
++            return true;
++        }
+         return teleport(location, cause, new io.papermc.paper.entity.TeleportFlag[0]);
+     }
+ 
+@@ -246,6 +_,16 @@
+     public boolean teleport(Location location, TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
+         // Folia start - region threading
+         if (true) {
++            this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
++            try {
++                this.teleportAsync(location, cause, flags).get();
++                return true;
++            } catch (InterruptedException | ExecutionException e) {
++                throw new RuntimeException(e);
++            }
++        }
++        // Folia start - region threading
++        if (false) {
+             throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
+         }
+         // Folia end - region threading
+@@ -306,11 +_,27 @@
+ 
+     @Override
+     public boolean teleport(org.bukkit.entity.Entity destination) {
++        if (true)
++            try {
++                this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
++                this.teleportAsync(destination.getLocation(), TeleportCause.PLUGIN, new io.papermc.paper.entity.TeleportFlag[0]).get();
++                return true;
++            } catch (InterruptedException | ExecutionException e) {
++                throw new RuntimeException(e);
++            }
+         return this.teleport(destination.getLocation());
+     }
+ 
+     @Override
+     public boolean teleport(org.bukkit.entity.Entity destination, TeleportCause cause) {
++        if (true)
++            try {
++                this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
++                this.teleportAsync(destination.getLocation(), cause, new io.papermc.paper.entity.TeleportFlag[0]).get();
++                return true;
++            } catch (InterruptedException | ExecutionException e) {
++                throw new RuntimeException(e);
++            }
+         return this.teleport(destination.getLocation(), cause);
+     }
+ 

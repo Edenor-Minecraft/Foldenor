@@ -1,0 +1,68 @@
+--- a/net/minecraft/server/commands/TeleportCommand.java
++++ b/net/minecraft/server/commands/TeleportCommand.java
+@@ -20,6 +_,7 @@
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.util.Mth;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.LivingEntity;
+@@ -153,7 +_,19 @@
+     }
+ 
+     private static int teleportToEntity(CommandSourceStack source, Collection<? extends Entity> targets, Entity destination) throws CommandSyntaxException {
++        if (source.getPlayer() != null){
++            ServerPlayer sender = source.getPlayer();
++            if (sender.isSpectator() && sender.getCamera() != sender){
++                sender.setCamera(sender);
++            }
++        }
+         for (Entity entity : targets) {
++            if (entity.isSpectator()){
++                ServerPlayer sender = (ServerPlayer) entity;
++                if (sender.getCamera() != sender){
++                    sender.setCamera(sender);
++                }
++            }
+             io.papermc.paper.threadedregions.TeleportUtils.teleport(entity, false, destination, Float.valueOf(destination.getYRot()), Float.valueOf(destination.getXRot()), Entity.TELEPORT_FLAG_LOAD_CHUNK, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND, null); // Folia - region threading
+         }
+ 
+@@ -179,11 +_,23 @@
+         @Nullable Coordinates rotation,
+         @Nullable LookAt lookAt
+     ) throws CommandSyntaxException {
++        if (source.getPlayer() != null){
++            ServerPlayer sender = source.getPlayer();
++            if (sender.isSpectator() && sender.getCamera() != sender){
++                sender.setCamera(sender);
++            }
++        }
+         Vec3 position1 = position.getPosition(source);
+         Vec2 vec2 = rotation == null ? null : rotation.getRotation(source);
+ 
+         for (Entity entity : targets) {
+             Set<Relative> relatives = getRelatives(position, rotation, entity.level().dimension() == level.dimension());
++            if (entity.isSpectator()){
++                ServerPlayer sender = (ServerPlayer) entity;
++                if (sender.isSpectator() && sender.getCamera() != sender){
++                    sender.setCamera(sender);
++                }
++            }
+             if (vec2 == null) {
+                 performTeleport(source, entity, level, position1.x, position1.y, position1.z, relatives, entity.getYRot(), entity.getXRot(), lookAt);
+             } else {
+@@ -286,6 +_,13 @@
+                 Float yawFinal = Float.valueOf(f);
+                 Float pitchFinal = Float.valueOf(f1);
+                 target.getBukkitEntity().taskScheduler.schedule((Entity nmsEntity) -> {
++                    if (nmsEntity instanceof ServerPlayer player){
++                        if (player.isSpectator()){
++                            if (player.isSpectator() && player.getCamera() != player){
++                                player.setCamera(player);
++                            }
++                        }
++                    }
+                     nmsEntity.unRide();
+                     nmsEntity.teleportAsync(
+                             worldFinal, posFinal, yawFinal, pitchFinal, Vec3.ZERO,

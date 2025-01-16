@@ -1,0 +1,87 @@
+--- a/net/minecraft/world/entity/Mob.java
++++ b/net/minecraft/world/entity/Mob.java
+@@ -13,6 +_,8 @@
+ import java.util.Set;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.NonNullList;
+@@ -219,10 +_,15 @@
+     @Override
+     public void inactiveTick() {
+         super.inactiveTick();
+-        if (this.goalSelector.inactiveTick()) {
++        // Paper start - Skip AI during inactive ticks for non-aware mobs
++        if (FoldenorConfig.skipAIForNonAwareMob && !(this.isEffectiveAi() && this.aware)) {
++            return;
++        }
++        // Paper end - Skip AI during inactive ticks for non-aware mobs
++        if (this.goalSelector.inactiveTick(this.activatedPriority, true)) { // Pufferfish - pass activated priroity
+             this.goalSelector.tick();
+         }
+-        if (this.targetSelector.inactiveTick()) {
++        if (this.targetSelector.inactiveTick(this.activatedPriority, true)) { // Pufferfish - pass activated priroity
+             this.targetSelector.tick();
+         }
+     }
+@@ -873,16 +_,20 @@
+         int i = this.tickCount + this.getId();
+         if (i % 2 != 0 && this.tickCount > 1) {
+             profilerFiller.push("targetSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.targetSelector.tickRunningGoals(false);
+             profilerFiller.pop();
+             profilerFiller.push("goalSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.goalSelector.tickRunningGoals(false);
+             profilerFiller.pop();
+         } else {
+             profilerFiller.push("targetSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.targetSelector.tick();
+             profilerFiller.pop();
+             profilerFiller.push("goalSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.goalSelector.tick();
+             profilerFiller.pop();
+         }
+@@ -1637,17 +_,28 @@
+     protected void playAttackSound() {
+     }
+ 
++    // Gale start - JettPack - optimize sun burn tick - cache eye blockpos
++    private BlockPos cached_eye_blockpos;
++    private int cached_position_hashcode;
++    // Gale end - JettPack - optimize sun burn tick - cache eye blockpos
++
+     public boolean isSunBurnTick() {
+         if (this.level().isDay() && !this.level().isClientSide) {
+-            float lightLevelDependentMagicValue = this.getLightLevelDependentMagicValue();
+-            BlockPos blockPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
++            // Gale start - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
++            int positionHashCode = this.position.hashCode();
++            if (this.cached_position_hashcode != positionHashCode) {
++                this.cached_eye_blockpos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
++                this.cached_position_hashcode = positionHashCode;
++            }
++
++            float lightLevelDependentMagicValue = this.getLightLevelDependentMagicValue(cached_eye_blockpos); // Pass BlockPos to getBrightness
++
++            // Check brightness first
++            if (lightLevelDependentMagicValue <= 0.5F) return false;
++            if (this.random.nextFloat() * 30.0F >= (lightLevelDependentMagicValue - 0.4F) * 2.0F) return false;
++            // Gale end - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
+             boolean flag = this.isInWaterRainOrBubble() || this.isInPowderSnow || this.wasInPowderSnow;
+-            if (lightLevelDependentMagicValue > 0.5F
+-                && this.random.nextFloat() * 30.0F < (lightLevelDependentMagicValue - 0.4F) * 2.0F
+-                && !flag
+-                && this.level().canSeeSky(blockPos)) {
+-                return true;
+-            }
++            return !flag && this.level().canSeeSky(this.cached_eye_blockpos); // Gale - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
+         }
+ 
+         return false;

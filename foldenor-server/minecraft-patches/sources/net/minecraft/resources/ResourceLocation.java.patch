@@ -1,0 +1,11 @@
+--- a/net/minecraft/resources/ResourceLocation.java
++++ b/net/minecraft/resources/ResourceLocation.java
+@@ -36,7 +_,7 @@
+     private final String namespace;
+     private final String path;
+ 
+-    private ResourceLocation(String namespace, String path) {
++    public ResourceLocation(String namespace, String path) { // Leaves - private -> public
+         assert isValidNamespace(namespace);
+ 
+         assert isValidPath(path);

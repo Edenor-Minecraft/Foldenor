@@ -1,0 +1,32 @@
+--- a/net/minecraft/world/Container.java
++++ b/net/minecraft/world/Container.java
+@@ -10,6 +_,29 @@
+ import net.minecraft.world.level.block.entity.BlockEntity;
+ 
+ public interface Container extends Clearable {
++    // Pufferfish start - Improve container checking with a bitset; allow the inventory to override and optimize these frequent calls
++    enum OptionalState {
++        TRUE,
++        FALSE,
++        NOT_IMPLEMENTED;
++
++        public OptionalState and(OptionalState other) {
++            if (this == NOT_IMPLEMENTED || other == NOT_IMPLEMENTED) {
++                return NOT_IMPLEMENTED;
++            }
++            return this == TRUE ? other : FALSE;
++        }
++    }
++
++    default OptionalState hasEmptySlot() {
++        return OptionalState.NOT_IMPLEMENTED;
++    }
++
++    default OptionalState isCompletelyEmpty() {
++        return OptionalState.NOT_IMPLEMENTED;
++    }
++    // Pufferfish end - Improve container checking with a bitset
++
+     float DEFAULT_DISTANCE_BUFFER = 4.0F;
+ 
+     int getContainerSize();

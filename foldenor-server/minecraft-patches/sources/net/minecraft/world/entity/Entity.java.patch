@@ -1,0 +1,77 @@
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -28,6 +_,8 @@
+ import java.util.function.Predicate;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.BlockUtil;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+@@ -133,6 +_,7 @@
+ import net.minecraft.world.scores.PlayerTeam;
+ import net.minecraft.world.scores.ScoreHolder;
+ import net.minecraft.world.scores.Team;
++import org.bukkit.event.player.PlayerTeleportEvent;
+ import org.slf4j.Logger;
+ 
+ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess, ScoreHolder, ca.spottedleaf.moonrise.patches.chunk_system.entity.ChunkSystemEntity, ca.spottedleaf.moonrise.patches.entity_tracker.EntityTrackerEntity {  // Paper - rewrite chunk system // Paper - optimise entity tracker
+@@ -226,7 +_,7 @@
+     public double xo;
+     public double yo;
+     public double zo;
+-    private Vec3 position;
++    public Vec3 position; // Gale - JettPack - optimize sun burn tick - private -> public
+     private BlockPos blockPosition;
+     private ChunkPos chunkPosition;
+     private Vec3 deltaMovement = Vec3.ZERO;
+@@ -342,6 +_,8 @@
+     public long activatedTick = Integer.MIN_VALUE;
+     public boolean isTemporarilyActive;
+     public long activatedImmunityTick = Integer.MIN_VALUE;
++    public boolean activatedPriorityReset = false; // Pufferfish - DAB
++    public int activatedPriority = FoldenorConfig.maximumActivationPrio; // Pufferfish - DAB (golf score)
+ 
+     public void inactiveTick() {
+     }
+@@ -1154,6 +_,16 @@
+                 }
+ 
+                 this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
++                try {
++                    this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
++                } catch (IllegalStateException e) {
++                    this.teleportAsync((ServerLevel) this.level(), this.position().add(vec3),
++                            this.getYRot(), this.getXRot(),
++                            Vec3.ZERO, PlayerTeleportEvent.TeleportCause.UNKNOWN,
++                            Entity.TELEPORT_FLAG_LOAD_CHUNK | Entity.TELEPORT_FLAG_TELEPORT_PASSENGERS,
++                            null
++                    );
++                }
+             }
+ 
+             profilerFiller.pop();
+@@ -2048,10 +_,18 @@
+ 
+     @Deprecated
+     public float getLightLevelDependentMagicValue() {
+-        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ())
+-            ? this.level().getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ()))
+-            : 0.0F;
+-    }
++        return this.getLightLevelDependentMagicValue(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ())); // Gale - JettPack - optimize sun burn tick - allow passing BlockPos to getLightLevelDependentMagicValue
++    }
++
++    // Gale start - JettPack - optimize sun burn tick - allow passing BlockPos to getLightLevelDependentMagicValue
++    /**
++      * @deprecated
++      */
++    @Deprecated
++    public float getLightLevelDependentMagicValue(BlockPos pos) {
++        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ()) ? this.level.getLightLevelDependentMagicValue(pos) : 0.0F;
++    }
++    // Gale end - JettPack - optimize sun burn tick - allow passing BlockPos to getLightLevelDependentMagicValue
+ 
+     public void absMoveTo(double x, double y, double z, float yRot, float xRot) {
+         this.absMoveTo(x, y, z);

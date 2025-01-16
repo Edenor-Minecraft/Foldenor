@@ -1,0 +1,31 @@
+--- /dev/null
++++ b/com/triassic/linearpaper/region/AbstractRegionFile.java
+@@ -1,0 +_,28 @@
++package com.triassic.linearpaper.region;
++
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.IOException;
++import java.nio.ByteBuffer;
++import java.nio.file.Path;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.world.level.ChunkPos;
++
++public interface AbstractRegionFile extends AutoCloseable {
++
++    Path getPath();
++    DataInputStream getChunkDataInputStream(ChunkPos pos) throws IOException;
++    DataOutputStream getChunkDataOutputStream(ChunkPos pos) throws IOException;
++    CompoundTag getOversizedData(int x, int z) throws IOException;
++
++    boolean hasChunk(ChunkPos pos);
++    boolean doesChunkExist(ChunkPos pos);
++    boolean isOversized(int x, int z);
++    boolean recalculateHeader() throws IOException;
++
++    void flush() throws IOException;
++    void close() throws IOException;
++    void clear(ChunkPos pos) throws IOException;
++    void setOversized(int x, int z, boolean oversized) throws IOException;
++    void write(ChunkPos pos, ByteBuffer buf) throws IOException;
++}

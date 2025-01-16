@@ -1,0 +1,56 @@
+--- a/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
+@@ -30,6 +_,18 @@
+     public static final int SLOT_ENABLED = 0;
+     public static final int DATA_TRIGGERED = 9;
+     public static final int NUM_DATA = 10;
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+     private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
+     public int craftingTicksRemaining = 0;
+     protected final ContainerData containerData = new ContainerData() {
+@@ -99,6 +_,10 @@
+ 
+     public CrafterBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.CRAFTER, pos, state);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override
+@@ -150,7 +_,10 @@
+     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+         super.loadAdditional(tag, registries);
+         this.craftingTicksRemaining = tag.getInt("crafting_ticks_remaining");
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(tag)) {
+             ContainerHelper.loadAllItems(tag, this.items, registries);
+         }
+@@ -224,7 +_,10 @@
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> items) {
+-        this.items = items;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(items);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override

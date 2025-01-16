@@ -1,59 +1,72 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+import io.papermc.paperweight.tasks.RebuildGitPatches
 
 plugins {
-    java
-    `maven-publish`
-    id("io.papermc.paperweight.patcher") version "1.7.7"
+    java // TODO java launcher tasks
+    id("io.papermc.paperweight.patcher") version "2.0.0-beta.13"
 }
+
+paperweight {
+    upstreams.register("Folia") {
+        repo = github("PaperMC", "Folia")
+        ref = providers.gradleProperty("foliaRef")
+
+        patchFile {
+            path = "folia-server/build.gradle.kts"
+            outputFile = file("foldenor-server/build.gradle.kts")
+            patchFile = file("foldenor-server/build.gradle.kts.patch")
+        }
+        patchFile {
+            path = "folia-api/build.gradle.kts"
+            outputFile = file("foldenor-api/build.gradle.kts")
+            patchFile = file("foldenor-api/build.gradle.kts.patch")
+        }
+        patchRepo("paperApi") {
+            upstreamPath = "paper-api"
+            patchesDir = file("foldenor-api/paper-patches")
+            outputDir = file("paper-api")
+        }
+        patchRepo("paperApiGenerator") {
+            upstreamPath = "paper-api-generator"
+            patchesDir = file("foldenor-api-generator/paper-patches")
+            outputDir = file("paper-api-generator")
+        }
+        patchDir("foliaApi") {
+            upstreamPath = "folia-api"
+            excludes = listOf("build.gradle.kts", "build.gradle.kts.patch", "paper-patches")
+            patchesDir = file("foldenor-api/fork-patches")
+            outputDir = file("folia-api")
+        }
+    }
+}
+
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
 
-repositories {
-    mavenCentral()
-    maven(paperMavenPublicUrl) {
-        content { onlyForConfigurations(configurations.paperclip.name) }
-    }
-    maven("https://maven.nostal.ink/repository/maven-snapshots/")
-}
-
-dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.10.3:fat")
-    decompiler("org.vineflower:vineflower:1.10.1")
-    paperclip("io.papermc:paperclip:3.0.3")
-}
-
-allprojects {
-    apply(plugin = "java")
+subprojects {
+    apply(plugin = "java-library")
     apply(plugin = "maven-publish")
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
+            languageVersion = JavaLanguageVersion.of(21)
         }
     }
 
-    /*publishing {
-        repositories {
-            maven {
-                name = "githubPackage"
-                url = uri("https://maven.pkg.github.com/Edenor-Minecraft/Foldenor")
+    repositories {
+        mavenCentral()
+        maven(paperMavenPublicUrl)
+    }
 
-                credentials {
-                    username = System.getenv("GITHUB_USERNAME")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
-            }
-
-            publications.register<MavenPublication>("gpr") {
-                from(components["java"])
-            }
-        }
-    }*/
-}
-
-subprojects {
+    tasks.withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+    }
     tasks.withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
-        options.release.set(21)
+        options.release = 21
+        options.isFork = true
     }
     tasks.withType<Javadoc> {
         options.encoding = Charsets.UTF_8.name()
@@ -61,39 +74,38 @@ subprojects {
     tasks.withType<ProcessResources> {
         filteringCharset = Charsets.UTF_8.name()
     }
+    tasks.withType<Test> {
+        testLogging {
+            showStackTraces = true
+            exceptionFormat = TestExceptionFormat.FULL
+            events(TestLogEvent.STANDARD_OUT)
+        }
+    }
 
-    repositories {
-        mavenCentral()
-        maven(paperMavenPublicUrl)
+    extensions.configure<PublishingExtension> {
+        repositories {
+            /*
+            maven("https://repo.papermc.io/repository/maven-snapshots/") {
+                name = "paperSnapshots"
+                credentials(PasswordCredentials::class)
+            }
+             */
+        }
     }
 }
 
-paperweight {
-    serverProject.set(project(":foldenor-server"))
+tasks.withType<RebuildGitPatches> {
+    filterPatches.set(false)
+}
 
-    remapRepo.set(paperMavenPublicUrl)
-    decompileRepo.set(paperMavenPublicUrl)
+tasks.register("printMinecraftVersion") {
+    doLast {
+        println(providers.gradleProperty("mcVersion").get().trim())
+    }
+}
 
-    useStandardUpstream("Folia") {
-        url.set(github("PaperMC", "Folia"))
-        ref.set(providers.gradleProperty("foliaRef"))
-
-        withStandardPatcher {
-            apiSourceDirPath.set("folia-api")
-            serverSourceDirPath.set("folia-server")
-
-            apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
-            apiOutputDir.set(layout.projectDirectory.dir("Foldenor-api"))
-
-            serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
-            serverOutputDir.set(layout.projectDirectory.dir("Foldenor-server"))
-        }
-
-        patchTasks.register("generatedApi") {
-            isBareDirectory = true
-            upstreamDirPath = "paper-api-generator/generated"
-            patchDir = layout.projectDirectory.dir("patches/generatedApi")
-            outputDir = layout.projectDirectory.dir("paper-api-generator/generated")
-        }
+tasks.register("printPaperVersion") {
+    doLast {
+        println(project.version)
     }
 }

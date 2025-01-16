@@ -1,0 +1,26 @@
+--- a/net/minecraft/world/level/storage/LevelStorageSource.java
++++ b/net/minecraft/world/level/storage/LevelStorageSource.java
+@@ -514,7 +_,10 @@
+             CompoundTag compoundTag = serverConfiguration.createTag(registries, hostPlayerNBT);
+             CompoundTag compoundTag1 = new CompoundTag();
+             compoundTag1.put("Data", compoundTag);
+-            this.saveLevelData(compoundTag1);
++            // Leaf start - Nitori - Async playerdata save
++            Runnable runnable = () -> this.saveLevelData(compoundTag1);
++            org.dreeam.leaf.async.AsyncPlayerDataSaving.saveAsync(runnable);
++            // Leaf end - Nitori - Async playerdata save
+         }
+ 
+         private void saveLevelData(CompoundTag tag) {
+@@ -601,7 +_,10 @@
+             this.checkLock();
+             CompoundTag levelDataTagRaw = LevelStorageSource.readLevelDataTagRaw(this.levelDirectory.dataFile());
+             modifier.accept(levelDataTagRaw.getCompound("Data"));
+-            this.saveLevelData(levelDataTagRaw);
++            // Leaf start - Nitori - Async playerdata save
++            Runnable runnable = () -> this.saveLevelData(levelDataTagRaw);
++            org.dreeam.leaf.async.AsyncPlayerDataSaving.saveAsync(runnable);
++            // Leaf end - Nitori - Async playerdata save
+         }
+ 
+         public long makeWorldBackup() throws IOException {

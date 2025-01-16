@@ -1,0 +1,51 @@
+--- a/net/minecraft/world/entity/npc/Villager.java
++++ b/net/minecraft/world/entity/npc/Villager.java
+@@ -13,6 +_,8 @@
+ import java.util.Optional;
+ import java.util.function.BiPredicate;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.GlobalPos;
+ import net.minecraft.core.Holder;
+@@ -180,6 +_,8 @@
+         (villager, holder) -> holder.is(PoiTypes.MEETING)
+     );
+ 
++    public long nextGolemPanic = -1; // Pufferfish
++
+     public Villager(EntityType<? extends Villager> entityType, Level level) {
+         this(entityType, level, VillagerType.PLAINS);
+     }
+@@ -272,7 +_,7 @@
+         if (this.getUnhappyCounter() > 0) {
+             this.setUnhappyCounter(this.getUnhappyCounter() - 1);
+         }
+-        if (this.isEffectiveAi()) {
++        if (this.isEffectiveAi() && (!FoldenorConfig.skipAIForNonAwareMob || this.aware)) { // Paper - Skip AI during inactive ticks for non-aware mobs
+             if (this.level().spigotConfig.tickInactiveVillagers) {
+                 this.customServerAiStep(this.level().getMinecraftWorld());
+             } else {
+@@ -284,6 +_,8 @@
+     }
+     // Paper end - EAR 2
+ 
++    private int behaviorTick = 0; // Pufferfish
++
+     @Override
+     protected void customServerAiStep(ServerLevel level) {
+         // Paper start - EAR 2
+@@ -293,7 +_,11 @@
+         // Paper end - EAR 2
+         ProfilerFiller profilerFiller = Profiler.get();
+         profilerFiller.push("villagerBrain");
+-        if (!inactive) this.getBrain().tick(level, this); // Paper - EAR 2
++        // Pufferfish start
++        if (!inactive && this.behaviorTick++ % this.activatedPriority == 0) {
++            this.getBrain().tick((ServerLevel) this.level(), this); // Paper
++        }
++        // Pufferfish end
+         profilerFiller.pop();
+         if (this.assignProfessionWhenSpawned) {
+             this.assignProfessionWhenSpawned = false;
