@@ -44,7 +44,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@master
         with:
           title: "Foldenor 1.21.4 release"
-          automatic_release_tag: "1.21.4"
-          files: build/libs/*
+          automatic_release_tag: "latest_1.21.4"
+          files: foldenor-server/build/libs/*
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
