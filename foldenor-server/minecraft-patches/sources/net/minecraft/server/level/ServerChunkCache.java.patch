@@ -1,0 +1,10 @@
+--- a/net/minecraft/server/level/ServerChunkCache.java
++++ b/net/minecraft/server/level/ServerChunkCache.java
+@@ -682,6 +_,7 @@
+     }
+ 
+     public ChunkGenerator getGenerator() {
++        net.edenor.foldenor.secureseed.Globals.setupGlobals(level);
+         return this.chunkMap.generator();
+     }
+ 

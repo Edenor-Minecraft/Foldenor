@@ -1,0 +1,22 @@
+--- a/net/minecraft/world/entity/ai/goal/GoalSelector.java
++++ b/net/minecraft/world/entity/ai/goal/GoalSelector.java
+@@ -7,6 +_,8 @@
+ import java.util.Map;
+ import java.util.Set;
+ import java.util.function.Predicate;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.util.profiling.Profiler;
+ import net.minecraft.util.profiling.ProfilerFiller;
+ 
+@@ -38,7 +_,9 @@
+     }
+ 
+     // Paper start - EAR 2
+-    public boolean inactiveTick() {
++        public boolean inactiveTick(int tickRate, boolean inactive) { // Pufferfish start
++                if (inactive && !FoldenorConfig.dearEnabled) tickRate = 4; // reset to Paper's
++                tickRate = Math.min(tickRate, 3);
+         this.curRate++;
+         return this.curRate % 3 == 0; // TODO newGoalRate was already unused in 1.20.4, check if this is correct
+     }

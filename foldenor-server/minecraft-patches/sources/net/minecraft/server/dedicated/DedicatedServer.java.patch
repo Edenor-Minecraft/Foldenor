@@ -1,0 +1,25 @@
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -19,6 +_,7 @@
+ import java.util.Locale;
+ import java.util.Optional;
+ import javax.annotation.Nullable;
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.DefaultUncaughtExceptionHandler;
+ import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
+ import net.minecraft.SharedConstants;
+@@ -225,6 +_,14 @@
+         this.server.spark.registerCommandBeforePlugins(this.server); // Paper - spark
+         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
++
++        try {
++            FoldenorConfig.init((java.io.File) options.valueOf("foldenor-settings"));
++        } catch (Exception e) {
++            DedicatedServer.LOGGER.error("Unable to load server configuration", e);
++            return false;
++        }
++        net.edenor.foldenor.commands.FoldenorCommand.init(); // Foldenor
+ 
+         this.setPvpAllowed(properties.pvp);
+         this.setFlightAllowed(properties.allowFlight);

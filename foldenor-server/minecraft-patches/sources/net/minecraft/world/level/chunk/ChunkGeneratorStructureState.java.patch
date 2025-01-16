@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
++++ b/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
+@@ -205,7 +_,7 @@
+             List<CompletableFuture<ChunkPos>> list = new ArrayList<>(count);
+             int spread = placement.spread();
+             HolderSet<Biome> holderSet = placement.preferredBiomes();
+-            RandomSource randomSource = RandomSource.create();
++            RandomSource randomSource = new net.edenor.foldenor.secureseed.WorldgenCryptoRandom(0, 0, net.edenor.foldenor.secureseed.Globals.Salt.STRONGHOLDS, 0);
+             // Paper start - Add missing structure set seed configs
+             if (this.conf.strongholdSeed != null && structureSet.is(net.minecraft.world.level.levelgen.structure.BuiltinStructureSets.STRONGHOLDS)) {
+                 randomSource.setSeed(this.conf.strongholdSeed);

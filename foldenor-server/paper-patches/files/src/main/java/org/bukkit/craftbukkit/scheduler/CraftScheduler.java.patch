@@ -1,0 +1,147 @@
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -2,21 +_,17 @@
+ 
+ import com.google.common.base.Preconditions;
+ import com.google.common.util.concurrent.ThreadFactoryBuilder;
+-import java.util.ArrayList;
+-import java.util.Comparator;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.PriorityQueue;
+-import java.util.concurrent.Callable;
+-import java.util.concurrent.ConcurrentHashMap;
+-import java.util.concurrent.Executor;
+-import java.util.concurrent.Executors;
+-import java.util.concurrent.Future;
++
++import java.util.*;
++import java.util.concurrent.*;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.Consumer;
+ import java.util.function.IntUnaryOperator;
+ import java.util.logging.Level;
++
++import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
++import org.bukkit.Bukkit;
+ import org.bukkit.plugin.IllegalPluginAccessException;
+ import org.bukkit.plugin.Plugin;
+ import org.bukkit.scheduler.BukkitRunnable;
+@@ -115,6 +_,7 @@
+         RECENT_TICKS = 30;
+     }
+ 
++    private static final Map<Integer, ScheduledTask> taskMap = new HashMap<>();
+ 
+     // Paper start
+     private final CraftScheduler asyncScheduler;
+@@ -266,7 +_,10 @@
+         }
+         // Paper start
+         if (!this.isAsyncScheduler) {
+-            this.asyncScheduler.cancelTask(taskId);
++            //this.asyncScheduler.cancelTask(taskId);
++            if (taskMap.containsKey(taskId)) {
++                taskMap.get(taskId).cancel();
++            }
+         }
+         // Paper end
+         CraftTask task = this.runners.get(taskId);
+@@ -304,6 +_,7 @@
+             }
+             if (taskPending.getTaskId() == taskId) {
+                 taskPending.cancel0();
++                taskMap.remove(taskPending.getTaskId());
+             }
+         }
+     }
+@@ -313,7 +_,8 @@
+         Preconditions.checkArgument(plugin != null, "Cannot cancel tasks of null plugin");
+         // Paper start
+         if (!this.isAsyncScheduler) {
+-            this.asyncScheduler.cancelTasks(plugin);
++            //this.asyncScheduler.cancelTasks(plugin);
++            Bukkit.getAsyncScheduler().cancelTasks(plugin);
+         }
+         // Paper end
+         final CraftTask task = new CraftTask(
+@@ -349,6 +_,7 @@
+         for (CraftTask runner : this.runners.values()) {
+             if (runner.getOwner().equals(plugin)) {
+                 runner.cancel0();
++                taskMap.remove(runner.getTaskId());
+             }
+         }
+     }
+@@ -514,15 +_,66 @@
+     }
+ 
+     protected CraftTask handle(final CraftTask task, final long delay) { // Paper
+-        if (true) throw new UnsupportedOperationException(); // Folia - region threading
++        //if (true) throw new UnsupportedOperationException(); // Folia - region threading
++        Plugin owner = task.getOwner();
++        boolean repeat = task.getPeriod() != CraftTask.NO_REPEATING;
+         // Paper start
+         if (!this.isAsyncScheduler && !task.isSync()) {
+-            this.asyncScheduler.handle(task, delay);
++            //this.asyncScheduler.handle(task, delay);
++            long millis_delay = (long) (delay / 20.0 * 1000.0);
++            ScheduledTask scheduledTask;
++            if (millis_delay <= 0) {
++                if (repeat) {
++                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
++                        task.run();
++                        }, 1, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                } else {
++                    scheduledTask = Bukkit.getAsyncScheduler().runNow(owner, stask -> {
++                        task.run();
++                    });
++                }
++            } else {
++                if (repeat) {
++                    scheduledTask = Bukkit.getAsyncScheduler().runAtFixedRate(owner, stask -> {
++                        task.run();
++                        }, millis_delay, (long) (task.getPeriod() / 20.0 * 1000.0), TimeUnit.MILLISECONDS);
++                } else {
++                    scheduledTask = Bukkit.getAsyncScheduler().runDelayed(owner, stask -> {
++                        task.run();
++                        }, millis_delay, TimeUnit.MILLISECONDS);
++                }
++            }
++            task.setScheduledTask(scheduledTask);
++            taskMap.put(task.getTaskId(), scheduledTask);
+             return task;
+         }
+         // Paper end
+-        task.setNextRun(this.currentTick + delay);
+-        this.addTask(task);
++        //task.setNextRun(this.currentTick + delay);
++        //this.addTask(task);
++        ScheduledTask scheduledTask;
++        if (delay <= 0) {
++            if (repeat) {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
++                    task.run();
++                    }, 1L, task.getPeriod());
++            } else {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().run(owner, stask -> {
++                    task.run();
++                });
++            }
++        } else {
++            if (repeat) {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(owner, stask -> {
++                    task.run();
++                    }, delay, task.getPeriod());
++            } else {
++                scheduledTask = Bukkit.getGlobalRegionScheduler().runDelayed(owner, stask -> {
++                    task.run();
++                    }, delay);
++            }
++        }
++        task.setScheduledTask(scheduledTask);
++        taskMap.put(task.getTaskId(), scheduledTask);
+         return task;
+     }
+ 

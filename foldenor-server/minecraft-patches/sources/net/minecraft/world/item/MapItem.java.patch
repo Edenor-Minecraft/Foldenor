@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/item/MapItem.java
++++ b/net/minecraft/world/item/MapItem.java
+@@ -6,6 +_,8 @@
+ import com.google.common.collect.Multisets;
+ import java.util.List;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+@@ -282,7 +_,7 @@
+                     savedData.tickCarriedBy(player, stack);
+                 }
+ 
+-                if (!savedData.locked && (isSelected || entity instanceof Player && ((Player)entity).getOffhandItem() == stack)) {
++                if (!savedData.locked && (!FoldenorConfig.skipMapItemUpdatesIfNoBukkitRender || savedData.mapView.getRenderers().stream().anyMatch(mapRenderer -> mapRenderer.getClass() == org.bukkit.craftbukkit.map.CraftMapRenderer.class)) && (isSelected || entity instanceof Player && ((Player)entity).getOffhandItem() == stack)) { // SparklyPaper - don't update maps if they don't have the CraftMapRenderer in the render list
+                     this.update(level, entity, savedData);
+                 }
+                 } // Folia - region threading

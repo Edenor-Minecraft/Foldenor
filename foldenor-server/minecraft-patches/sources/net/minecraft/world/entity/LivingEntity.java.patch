@@ -1,0 +1,36 @@
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -2039,6 +_,17 @@
+         return this.lastClimbablePos;
+     }
+ 
++    private boolean cachedOnClimable = false;
++    private BlockPos lastClimbingPosition = null;
++
++    public boolean onClimableCached() {
++        if (!this.blockPosition().equals(this.lastClimbingPosition)) {
++            this.cachedOnClimable = this.onClimbable();
++            this.lastClimbingPosition = this.blockPosition();
++        }
++        return this.cachedOnClimable;
++    }
++
+     public boolean onClimbable() {
+         if (this.isSpectator()) {
+             return false;
+@@ -2616,6 +_,7 @@
+     }
+ 
+     protected void updateSwingTime() {
++        if (!this.swinging && this.swingTime == 0) return; // DivineMC - lithium: entity.fast_hand_swing
+         int currentSwingDuration = this.getCurrentSwingDuration();
+         if (this.swinging) {
+             this.swingTime++;
+@@ -3521,6 +_,7 @@
+     }
+ 
+     protected void updateFallFlying() {
++        if (!this.isFallFlying()) return; // DivineMC - lithium: entity.fast_elytra_check
+         this.checkSlowFallDistance();
+         if (!this.level().isClientSide) {
+             if (!this.canGlide()) {

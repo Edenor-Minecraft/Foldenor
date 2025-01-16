@@ -1,0 +1,98 @@
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -3,6 +_,8 @@
+ import java.util.List;
+ import java.util.function.BooleanSupplier;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.HolderLookup;
+@@ -29,6 +_,18 @@
+ import net.minecraft.world.phys.AABB;
+ 
+ public class HopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+     public static final int MOVE_ITEM_SPEED = 8;
+     public static final int HOPPER_CONTAINER_SIZE = 5;
+     private static final int[][] CACHED_SLOTS = new int[54][];
+@@ -80,12 +_,19 @@
+     public HopperBlockEntity(BlockPos pos, BlockState blockState) {
+         super(BlockEntityType.HOPPER, pos, blockState);
+         this.facing = blockState.getValue(HopperBlock.FACING);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(HOPPER_CONTAINER_SIZE);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override
+     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+         super.loadAdditional(tag, registries);
+-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(tag)) {
+             ContainerHelper.loadAllItems(tag, this.items, registries);
+         }
+@@ -156,6 +_,14 @@
+     private static int getFullState(final HopperBlockEntity hopper) {
+         hopper.unpackLootTable(null);
+ 
++        // Puffrefish start - Improve container checking with a bitset; use bitsets
++        if (hopper.optimizedItems.isCompletelyEmpty()) {
++            return HOPPER_EMPTY;
++        } else if (!hopper.optimizedItems.isSlotFilled()) {
++            return HOPPER_HAS_ITEMS;
++        }
++        // Pufferfish end - Improve container checking with a bitset
++
+         final List<ItemStack> hopperItems = hopper.items;
+ 
+         boolean empty = true;
+@@ -430,6 +_,11 @@
+         } else {
+             Direction opposite = blockEntity.facing.getOpposite();
+             if (isFullContainer(attachedContainer, opposite)) {
++                // Leaf start - Throttle hopper when full
++                if (FoldenorConfig.throttleHopperWhenFullEnabled && FoldenorConfig.throttleHopperWhenFullSkipTicks > 0) {
++                    blockEntity.setCooldown(FoldenorConfig.throttleHopperWhenFullSkipTicks);
++                }
++                // Leaf end - Throttle hopper when full
+                 return false;
+             } else {
+                 // Paper start - Perf: Optimize Hoppers
+@@ -522,6 +_,7 @@
+     }
+ 
+     private static boolean isFullContainer(Container container, Direction direction) {
++        if (container.hasEmptySlot() == Container.OptionalState.TRUE) return false; // Pufferfish - Improve container checking with a bitset
+         int[] slots = getSlots(container, direction);
+ 
+         for (int i : slots) {
+@@ -867,7 +_,10 @@
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> items) {
+-        this.items = items;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(items);
++        this.items = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     public static void entityInside(Level level, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {

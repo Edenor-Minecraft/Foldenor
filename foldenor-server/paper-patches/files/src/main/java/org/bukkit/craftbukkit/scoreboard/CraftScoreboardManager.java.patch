@@ -1,0 +1,20 @@
+--- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
++++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
+@@ -42,7 +_,7 @@
+ 
+     @Override
+     public CraftScoreboard getNewScoreboard() {
+-        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
+         org.spigotmc.AsyncCatcher.catchOp("scoreboard creation"); // Spigot
+         CraftScoreboard scoreboard = new CraftScoreboard(new ServerScoreboard(this.server));
+         // Paper start
+@@ -69,7 +_,7 @@
+ 
+     // CraftBukkit method
+     public void setPlayerBoard(CraftPlayer player, org.bukkit.scoreboard.Scoreboard bukkitScoreboard) {
+-        if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
++        //if (true) throw new UnsupportedOperationException(); // Folia - not supported yet
+         Preconditions.checkArgument(bukkitScoreboard instanceof CraftScoreboard, "Cannot set player scoreboard to an unregistered Scoreboard");
+ 
+         CraftScoreboard scoreboard = (CraftScoreboard) bukkitScoreboard;

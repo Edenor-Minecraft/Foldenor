@@ -1,0 +1,27 @@
+--- a/net/minecraft/network/protocol/common/custom/CustomPacketPayload.java
++++ b/net/minecraft/network/protocol/common/custom/CustomPacketPayload.java
+@@ -40,13 +_,23 @@
+ 
+             @Override
+             public void encode(B buffer, CustomPacketPayload value) {
++                // Leaves start - protocol core
++                if (value instanceof org.leavesmc.leaves.protocol.core.LeavesCustomPayload<?> leavesCustomPayload) {
++                    buffer.writeResourceLocation(leavesCustomPayload.id());
++                    leavesCustomPayload.write(buffer);
++                    return;
++                }
++                // Leaves end - protocol core
+                 this.writeCap(buffer, value.type(), value);
+             }
+ 
+             @Override
+             public CustomPacketPayload decode(B buffer) {
+                 ResourceLocation resourceLocation = buffer.readResourceLocation();
+-                return (CustomPacketPayload)this.findCodec(resourceLocation).decode(buffer);
++                // Leaves start - protocol core
++                var leavesCustomPayload = org.leavesmc.leaves.protocol.core.LeavesProtocolManager.decode(resourceLocation, buffer);
++                return java.util.Objects.requireNonNullElseGet(leavesCustomPayload, () -> this.findCodec(resourceLocation).decode(buffer));
++                // Leaves end - protocol core
+             }
+         };
+     }

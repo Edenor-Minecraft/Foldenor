@@ -1,0 +1,63 @@
+--- a/io/papermc/paper/threadedregions/commands/CommandServerHealth.java
++++ b/io/papermc/paper/threadedregions/commands/CommandServerHealth.java
+@@ -16,6 +_,7 @@
+ import net.kyori.adventure.text.format.TextColor;
+ import net.kyori.adventure.text.format.TextDecoration;
+ import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.world.level.ChunkPos;
+ import org.bukkit.Bukkit;
+ import org.bukkit.World;
+@@ -24,6 +_,8 @@
+ import org.bukkit.craftbukkit.CraftWorld;
+ import org.bukkit.entity.Entity;
+ import org.bukkit.entity.Player;
++import org.jetbrains.annotations.NotNull;
++
+ import java.text.DecimalFormat;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -79,6 +_,34 @@
+             .build();
+     }
+ 
++    private static Component formatRegionStatsAsRegion(final TickRegions.RegionStats stats, final boolean newline) {
++        List<ServerPlayer> players = TickRegionScheduler.getCurrentRegionizedWorldData().getLocalPlayers();
++        final TextComponent builder = getTextComponent(players);
++        return Component.text()
++                .append(Component.text("Chunks: ", PRIMARY))
++                .append(Component.text(NO_DECIMAL_PLACES.get().format(stats.getChunkCount()), INFORMATION))
++                .append(Component.text(" Players: ", PRIMARY).hoverEvent(HoverEvent.showText(builder)))
++                .append(Component.text(NO_DECIMAL_PLACES.get().format(stats.getPlayerCount()), INFORMATION))
++                .append(Component.text(" Entities: ", PRIMARY))
++                .append(Component.text(NO_DECIMAL_PLACES.get().format(stats.getEntityCount()) + (newline ? "\n" : ""), INFORMATION))
++                .build();
++    }
++
++    private static @NotNull TextComponent getTextComponent(List<ServerPlayer> players) {
++        @NotNull TextComponent builder = Component.text("Region Player List: ");
++        for (final ServerPlayer player : players) {
++            builder = builder.append(Component.text("\n")).
++                    append(Component.text(player.gameProfile.getName()))
++                    .append(Component.text(" | In "))
++                    .append(Component.text(player.getOnPos().getX()))
++                    .append(Component.text(", "))
++                    .append(Component.text(player.getOnPos().getY()))
++                    .append(Component.text(", "))
++                    .append(Component.text(player.getOnPos().getZ()));
++        }
++        return builder;
++    }
++
+     private static boolean executeRegion(final CommandSender sender, final String commandLabel, final String[] args) {
+         final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
+             TickRegionScheduler.getCurrentRegion();
+@@ -120,7 +_,7 @@
+                 formatRegionInfo("1m: ", util1m, mspt1m, tps1m, true)
+             )
+             .append(
+-                formatRegionStats(region.getData().getRegionStats(), false)
++                    formatRegionStatsAsRegion(region.getData().getRegionStats(), false)
+             )
+ 
+             .build();

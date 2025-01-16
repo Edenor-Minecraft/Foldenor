@@ -1,0 +1,69 @@
+--- a/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
+@@ -41,6 +_,7 @@
+     private long keepAliveChallenge;
+     private long closedListenerTime;
+     private boolean closed = false;
++    private it.unimi.dsi.fastutil.longs.LongList keepAlives = new it.unimi.dsi.fastutil.longs.LongArrayList(); // Purpur
+     private int latency;
+     private volatile boolean suspendFlushingOnServerThread = false;
+     // CraftBukkit start
+@@ -130,6 +_,16 @@
+ 
+     @Override
+     public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
++        // Purpur start
++        if (net.edenor.foldenor.config.FoldenorConfig.useAlternateKeepAlive) {
++            if (this.keepAlivePending && !keepAlives.isEmpty() && keepAlives.contains(packet.getId())) {
++                int ping = (int) (Util.getMillis() - packet.getId());
++                this.latency = (this.latency * 3 + ping) / 4;
++                this.keepAlivePending = false;
++                keepAlives.clear(); // we got a valid response, lets roll with it and forget the rest
++            }
++        } else
++            // Purpur end
+         if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
+             int i = (int)(Util.getMillis() - this.keepAliveTime);
+             this.latency = (this.latency * 3 + i) / 4;
+@@ -149,6 +_,11 @@
+     @Override
+     public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
+         // CraftBukkit start
++        // Leaves start - protocol
++        if (packet.payload() instanceof org.leavesmc.leaves.protocol.core.LeavesCustomPayload<?> leavesPayload) {
++            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePayload(player, leavesPayload);
++        }
++        // Leaves end - protocol
+         // Paper start - Brand support
+         if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.BrandPayload(String brand)) {
+             this.player.clientBrandName = brand;
+@@ -166,6 +_,7 @@
+                 String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
+                 for (String channel : channels.split("\0")) {
+                     this.getCraftPlayer().addChannel(channel);
++                    org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleMinecraftRegister(channel, player); // Leaves - protocol
+                 }
+             } catch (Exception ex) {
+                 ServerGamePacketListenerImpl.LOGGER.error("Couldn't register custom payload", ex);
+@@ -250,6 +_,21 @@
+         // Paper start - give clients a longer time to respond to pings as per pre 1.12.2 timings
+         // This should effectively place the keepalive handling back to "as it was" before 1.12.2
+         final long elapsedTime = millis - this.keepAliveTime;
++
++        // Purpur start
++        if (net.edenor.foldenor.config.FoldenorConfig.useAlternateKeepAlive) {
++            if (elapsedTime >= 1000L) { // 1 second
++                if (this.keepAlivePending && !this.processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
++                    this.disconnect(ServerCommonPacketListenerImpl.TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT);
++                } else if (this.checkIfClosed(millis)) {
++                    this.keepAlivePending = true;
++                    this.keepAliveTime = millis; // hijack this field for 1 second intervals
++                    this.keepAlives.add(millis); // currentTime is ID
++                    this.send(new ClientboundKeepAlivePacket(millis));
++                }
++            }
++        } else
++            // Purpur end
+         if (!this.isSingleplayerOwner() && elapsedTime >= 15000L) { // use vanilla's 15000L between keep alive packets
+             if (this.keepAlivePending) {
+                 if (!this.processedDisconnect && elapsedTime >= KEEPALIVE_LIMIT) { // check keepalive limit, don't fire if already disconnected

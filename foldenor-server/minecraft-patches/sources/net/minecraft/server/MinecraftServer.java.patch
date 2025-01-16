@@ -1,0 +1,23 @@
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -986,10 +_,10 @@
+         // CraftBukkit end
+         if (flush) {
+             for (ServerLevel serverLevel2 : this.getAllLevels()) {
+-                LOGGER.info("ThreadedAnvilChunkStorage ({}): All chunks are saved", serverLevel2.getChunkSource().chunkMap.getStorageName());
++                LOGGER.info("ThreadedChunkStorage ({}): All chunks are saved", serverLevel2.getChunkSource().chunkMap.getStorageName()); // LinearPaper
+             }
+ 
+-            LOGGER.info("ThreadedAnvilChunkStorage: All dimensions are saved");
++            LOGGER.info("ThreadedChunkStorage: All dimensions are saved"); // LinearPaper
+         }
+ 
+         return flag;
+@@ -1855,6 +_,7 @@
+         }
+ 
+         profilerFiller.popPush("server gui refresh");
++        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleTick(); // Leaves - protocol
+ 
+         if (false) for (int i = 0; i < this.tickables.size(); i++) { // Folia - region threading - TODO WTF is this?
+             this.tickables.get(i).run();

@@ -1,0 +1,65 @@
+--- a/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
+@@ -33,6 +_,18 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
++    // Pufferfish start - Improve container checking with a bitset
++    private gg.airplane.structs.ItemListWithBitset optimizedItems;
++    @Override
++    public net.minecraft.world.Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    }
++
++    @Override
++    public net.minecraft.world.Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    }
++    // Pufferfish end - Improve container checking with a bitset
+     public static final int COLUMNS = 9;
+     public static final int ROWS = 3;
+     public static final int CONTAINER_SIZE = 27;
+@@ -83,11 +_,19 @@
+     public ShulkerBoxBlockEntity(@Nullable DyeColor color, BlockPos pos, BlockState blockState) {
+         super(BlockEntityType.SHULKER_BOX, pos, blockState);
+         this.color = color;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     public ShulkerBoxBlockEntity(BlockPos pos, BlockState blockState) {
+         super(BlockEntityType.SHULKER_BOX, pos, blockState);
+         this.color = blockState.getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock ? shulkerBoxBlock.getColor() : null;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     public static void tick(Level level, BlockPos pos, BlockState state, ShulkerBoxBlockEntity blockEntity) {
+@@ -242,7 +_,10 @@
+     }
+ 
+     public void loadFromTag(CompoundTag tag, HolderLookup.Provider levelRegistry) {
+-        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+         if (!this.tryLoadLootTable(tag) && tag.contains("Items", 9)) {
+             ContainerHelper.loadAllItems(tag, this.itemStacks, levelRegistry);
+         }
+@@ -255,7 +_,10 @@
+ 
+     @Override
+     protected void setItems(NonNullList<ItemStack> items) {
+-        this.itemStacks = items;
++        // Pufferfish start - Improve container checking with a bitset
++        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(items);
++        this.itemStacks = this.optimizedItems.nonNullList;
++        // Pufferfish end - Improve container checking with a bitset
+     }
+ 
+     @Override
