@@ -14,7 +14,7 @@
              getManifestAttribute(manifest, ATTRIBUTE_BRAND_ID)
                  .map(Key::key)
 -                .orElse(Key.key("papermc", "folia")), // Folia
-+                .orElse(Key.key("edenor-minecraft", "аoldenor")), // Foldenor
++                .orElse(Key.key("edenor", "foldenor")), // Foldenor
              getManifestAttribute(manifest, ATTRIBUTE_BRAND_NAME)
 -                .orElse("Folia"), // Folia
 +                .orElse("Foldenor"), // Foldenor

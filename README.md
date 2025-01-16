@@ -24,7 +24,7 @@ Pre-built Jars can be found in the [Releases Tab](https://github.com/Edenor-Mine
 Building a Paperclip JAR for distribution:
 
 ```bash
-./gradlew applyPatches && ./gradlew createMojmapPaperclipJar
+./gradlew applyAllPatches && ./gradlew createMojmapPaperclipJar
 ```
 
 ## About Edenor
