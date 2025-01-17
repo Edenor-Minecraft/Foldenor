@@ -75,3 +75,37 @@
  
      public void absMoveTo(double x, double y, double z, float yRot, float xRot) {
          this.absMoveTo(x, y, z);
+@@ -4601,13 +_,13 @@
+         return this;
+     }
+ 
+-    private Entity teleportCrossDimension(ServerLevel level, TeleportTransition teleportTransition) {
++    protected Entity teleportCrossDimension(ServerLevel world, TeleportTransition teleportTarget) { // Leaves - private -> protected
+         List<Entity> passengers = this.getPassengers();
+         List<Entity> list = new ArrayList<>(passengers.size());
+         this.ejectPassengers();
+ 
+         for (Entity entity : passengers) {
+-            Entity entity1 = entity.teleport(this.calculatePassengerTransition(teleportTransition, entity));
++            Entity entity1 = entity.teleport(this.calculatePassengerTransition(teleportTarget, entity));
+             if (entity1 != null) {
+                 list.add(entity1);
+             }
+@@ -4631,15 +_,13 @@
+             //this.getBukkitEntity().setHandle(entity);
+             //entity.bukkitEntity = this.getBukkitEntity(); // Paper - forward CraftEntity in teleport command; moved to Entity#restoreFrom
+             // CraftBukkit end
+-            entityx.teleportSetPosition(PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
+-            if (this.inWorld) level.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
++            entityx.teleportSetPosition(PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
+ 
+             for (Entity entity2 : list) {
+                 entity2.startRiding(entityx, true);
+             }
+ 
+-            level.resetEmptyTime();
+-            teleportTransition.postTeleportTransition().onTransition(entityx);
++            teleportTarget.postTeleportTransition().onTransition(entityx);
+             profilerFiller.pop();
+             return entityx;
+         }

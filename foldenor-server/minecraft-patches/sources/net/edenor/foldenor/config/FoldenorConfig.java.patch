@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -1,0 +_,282 @@
+@@ -1,0 +_,288 @@
 +package net.edenor.foldenor.config;
 +
 +import com.google.common.base.Throwables;
@@ -62,6 +62,10 @@
 +    public static int throttleHopperWhenFullSkipTicks = 0;
 +
 +    public static boolean asyncPlayerDataSaveEnabled = false;
++
++    public static boolean villagersDontReleaseMemoryFix = true;
++
++    public static boolean skipSecondaryPOISensorIfAbsent = false;
 +
 +    public static void init(File configFile) {
 +        init(configFile, true);
@@ -162,6 +166,8 @@
 +        skipAIForNonAwareMob = getBoolean("optimizations.skip-ai-for-non-aware-mob", skipAIForNonAwareMob);
 +        throttleHopperWhenFullEnabled = getBoolean("optimizations.throttle-hopper-when-full.enabled", throttleHopperWhenFullEnabled);
 +        throttleHopperWhenFullSkipTicks = getInt("optimizations.throttle-hopper-when-full.skip-ticks", throttleHopperWhenFullSkipTicks);
++        villagersDontReleaseMemoryFix = getBoolean("optimizations.villagers-dont-release-memory-fix", villagersDontReleaseMemoryFix);
++        skipSecondaryPOISensorIfAbsent = getBoolean("optimizations.skip-secondary-POI-sensor-if-absent", skipSecondaryPOISensorIfAbsent);
 +    }
 +
 +    private static void readMiscSettings() {

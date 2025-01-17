@@ -18,6 +18,28 @@
      public Villager(EntityType<? extends Villager> entityType, Level level) {
          this(entityType, level, VillagerType.PLAINS);
      }
+@@ -265,6 +_,21 @@
+         return this.assignProfessionWhenSpawned;
+     }
+ 
++    // Leaves start - fixes a memory leak when villagers get moved to another world
++    @Override
++    public Entity teleportCrossDimension(ServerLevel world, net.minecraft.world.level.portal.TeleportTransition transition) {
++        if (FoldenorConfig.villagersDontReleaseMemoryFix) {
++            this.releaseAllPois();
++            this.getBrain().eraseMemory(MemoryModuleType.HOME);
++            this.getBrain().eraseMemory(MemoryModuleType.JOB_SITE);
++            this.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
++            this.getBrain().eraseMemory(MemoryModuleType.MEETING_POINT);
++            this.refreshBrain(transition.newLevel());
++        }
++        return super.teleportCrossDimension(world, transition);
++    }
++    // Leaves end - fixes a memory leak when villagers get moved to another world
++
+     // Paper start - EAR 2
+     @Override
+     public void inactiveTick() {
 @@ -272,7 +_,7 @@
          if (this.getUnhappyCounter() > 0) {
              this.setUnhappyCounter(this.getUnhappyCounter() - 1);

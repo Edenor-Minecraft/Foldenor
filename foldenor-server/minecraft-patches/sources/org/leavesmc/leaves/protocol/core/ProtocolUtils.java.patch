@@ -1,9 +1,10 @@
 --- /dev/null
 +++ b/org/leavesmc/leaves/protocol/core/ProtocolUtils.java
-@@ -1,0 +_,50 @@
+@@ -1,0 +_,55 @@
 +package org.leavesmc.leaves.protocol.core;
 +
 +import io.netty.buffer.ByteBuf;
++import io.papermc.paper.ServerBuildInfo;
 +import net.minecraft.network.FriendlyByteBuf;
 +import net.minecraft.network.RegistryFriendlyByteBuf;
 +import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
@@ -19,6 +20,10 @@
 +public class ProtocolUtils {
 +
 +    private static final Function<ByteBuf, RegistryFriendlyByteBuf> bufDecorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
++
++    public static String buildProtocolVersion(String protocol) {
++        return protocol + "-leaves-" + ServerBuildInfo.buildInfo().asString(ServerBuildInfo.StringRepresentation.VERSION_SIMPLE);
++    }
 +
 +    public static void sendEmptyPayloadPacket(ServerPlayer player, ResourceLocation id) {
 +        if (player.connection != null)

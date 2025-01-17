@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/commands/OpCommand.java
++++ b/net/minecraft/server/commands/OpCommand.java
+@@ -25,7 +_,7 @@
+                             (context, builder) -> {
+                                 PlayerList playerList = context.getSource().getServer().getPlayerList();
+                                 return SharedSuggestionProvider.suggest(
+-                                    playerList.getPlayers()
++                                    playerList.realPlayers // Leaves - only real player
+                                         .stream()
+                                         .filter(player -> !playerList.isOp(player.getGameProfile()))
+                                         .map(player -> player.getGameProfile().getName()),

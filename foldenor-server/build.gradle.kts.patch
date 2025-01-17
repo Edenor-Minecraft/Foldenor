@@ -58,7 +58,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -177,6 +_,11 @@
+@@ -177,6 +_,13 @@
      runtimeOnly("com.mysql:mysql-connector-j:9.1.0")
      runtimeOnly("com.lmax:disruptor:3.4.4")
  
@@ -66,6 +66,8 @@
 +    implementation("com.github.luben:zstd-jni:1.5.6-6")
 +    implementation("org.lz4:lz4-java:1.8.0")
 +    // LinearPaper end
++
++    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 +
      runtimeOnly("org.apache.maven:maven-resolver-provider:3.9.6")
      runtimeOnly("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.18")

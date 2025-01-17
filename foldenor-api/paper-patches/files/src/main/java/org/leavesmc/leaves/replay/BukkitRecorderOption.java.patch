@@ -1,0 +1,21 @@
+--- /dev/null
++++ b/src/main/java/org/leavesmc/leaves/replay/BukkitRecorderOption.java
+@@ -1,0 +_,18 @@
++package org.leavesmc.leaves.replay;
++
++public class BukkitRecorderOption {
++
++    // public int recordDistance = -1;
++    public String serverName = "Leaves";
++    public BukkitRecordWeather forceWeather = BukkitRecordWeather.NULL;
++    public int forceDayTime = -1;
++    public boolean ignoreChat = false;
++    // public boolean ignoreItem = false;
++
++    public enum BukkitRecordWeather {
++        CLEAR,
++        RAIN,
++        THUNDER,
++        NULL
++    }
++}

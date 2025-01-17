@@ -1,0 +1,22 @@
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -66,6 +_,7 @@
+ import org.jetbrains.annotations.Contract;
+ import org.jetbrains.annotations.NotNull;
+ import org.jetbrains.annotations.Nullable;
++import org.leavesmc.leaves.entity.PhotographerManager;
+ 
+ /**
+  * Represents a server implementation.
+@@ -83,6 +_,11 @@
+      */
+     @NotNull
+     File getPluginsFolder();
++
++    // Leaves start - Photographer API
++    @NotNull
++    PhotographerManager getPhotographerManager();
++    // Leaves end - Photographer API
+ 
+     /**
+      * Used for all administrative messages, such as an operator using a

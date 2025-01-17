@@ -9,7 +9,13 @@
      private final Set<UUID> unlistedEntities = new HashSet<>(); // Paper - Add Listing API for Player
      private static final WeakHashMap<Plugin, WeakReference<Plugin>> pluginWeakReferences = new WeakHashMap<>();
      private int hash = 0;
-@@ -2260,8 +_,15 @@
+@@ -2255,13 +_,20 @@
+ 
+     @Override
+     public boolean canSee(Player player) {
+-        return this.canSee((org.bukkit.entity.Entity) player);
++        return !(player instanceof org.leavesmc.leaves.entity.Photographer) && this.canSee((org.bukkit.entity.Entity) player); // Leaves - skip photographer
+     }
  
      @Override
      public boolean canSee(org.bukkit.entity.Entity entity) {
