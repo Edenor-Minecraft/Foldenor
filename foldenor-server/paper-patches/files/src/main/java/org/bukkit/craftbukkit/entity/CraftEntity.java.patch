@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -8,6 +_,8 @@
+@@ -9,6 +_,8 @@
  import java.util.List;
  import java.util.Set;
  import java.util.UUID;
@@ -9,7 +9,7 @@
  import io.papermc.paper.entity.LookAnchor;
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.nbt.Tag;
-@@ -102,6 +_,8 @@
+@@ -103,6 +_,8 @@
              return new CraftHumanEntity(server, (net.minecraft.world.entity.player.Player) entity);
          }
  
@@ -18,7 +18,7 @@
          // Special case complex part, since there is no extra entity type for them
          if (entity instanceof EnderDragonPart complexPart) {
              if (complexPart.parentMob instanceof EnderDragon) {
-@@ -233,12 +_,25 @@
+@@ -234,12 +_,25 @@
  
      @Override
      public boolean teleport(Location location) {
@@ -44,7 +44,7 @@
          return teleport(location, cause, new io.papermc.paper.entity.TeleportFlag[0]);
      }
  
-@@ -246,6 +_,16 @@
+@@ -247,6 +_,16 @@
      public boolean teleport(Location location, TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
          // Folia start - region threading
          if (true) {
@@ -61,7 +61,7 @@
              throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
          }
          // Folia end - region threading
-@@ -306,11 +_,27 @@
+@@ -307,11 +_,27 @@
  
      @Override
      public boolean teleport(org.bukkit.entity.Entity destination) {

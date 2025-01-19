@@ -1,0 +1,20 @@
+--- a/net/minecraft/core/Direction.java
++++ b/net/minecraft/core/Direction.java
+@@ -217,7 +_,7 @@
+     }
+ 
+     public Direction getOpposite() {
+-        return this.opposite; // Paper - optimise collisions
++        return VALUES[this.oppositeIndex]; // Leaf - Lithium - fast util
+     }
+ 
+     public Direction getClockWise(Direction.Axis axis) {
+@@ -350,7 +_,7 @@
+     }
+ 
+     public static Direction getRandom(RandomSource random) {
+-        return Util.getRandom(VALUES, random);
++        return VALUES[random.nextInt(VALUES.length)]; // Leaf - Lithium - fast util
+     }
+ 
+     public static Direction getApproximateNearest(double x, double y, double z) {

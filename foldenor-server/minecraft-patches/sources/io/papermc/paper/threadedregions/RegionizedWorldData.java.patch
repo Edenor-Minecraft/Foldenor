@@ -1,0 +1,13 @@
+--- a/io/papermc/paper/threadedregions/RegionizedWorldData.java
++++ b/io/papermc/paper/threadedregions/RegionizedWorldData.java
+@@ -361,8 +_,8 @@
+     private final LevelTicks<Fluid> fluidLevelTicks;
+ 
+     // tile entity ticking
+-    private final List<TickingBlockEntity> pendingBlockEntityTickers = new ArrayList<>();
+-    private final List<TickingBlockEntity> blockEntityTickers = new ArrayList<>();
++    private final List<TickingBlockEntity> pendingBlockEntityTickers = new org.dreeam.leaf.util.HashedReferenceList<>(new ArrayList<>()); // Leaf - Lithium - hashed list
++    private final List<TickingBlockEntity> blockEntityTickers = new org.dreeam.leaf.util.HashedReferenceList<>(new ArrayList<>()); // Leaf - Lithium - hashed list
+     private boolean tickingBlockEntities;
+ 
+     // time

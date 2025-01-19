@@ -1,0 +1,21 @@
+--- a/net/minecraft/core/BlockPos.java
++++ b/net/minecraft/core/BlockPos.java
+@@ -341,7 +_,18 @@
+         };
+     }
+ 
++    // JettPack start - lithium: cached iterate outwards
++    private static final org.dreeam.leaf.util.cache.IterateOutwardsCache ITERATE_OUTWARDS_CACHE = new org.dreeam.leaf.util.cache.IterateOutwardsCache(50);
++    private static final it.unimi.dsi.fastutil.longs.LongList HOGLIN_PIGLIN_CACHE = ITERATE_OUTWARDS_CACHE.getOrCompute(8, 4, 8);
++    // JettPack end
++
+     public static Iterable<BlockPos> withinManhattan(BlockPos pos, int xSize, int ySize, int zSize) {
++        // JettPack start - lithium: cached iterate outwards
++        if (pos != org.dreeam.leaf.util.cache.IterateOutwardsCache.POS_ZERO) {
++            final it.unimi.dsi.fastutil.longs.LongList positions = xSize == 8 && ySize == 4 && zSize == 8 ? HOGLIN_PIGLIN_CACHE : ITERATE_OUTWARDS_CACHE.getOrCompute(xSize, ySize, zSize);
++            return new org.dreeam.leaf.util.cache.LongList2BlockPosMutableIterable(pos, positions);
++        }
++        // JettPack end
+         int i = xSize + ySize + zSize;
+         int x1 = pos.getX();
+         int y1 = pos.getY();

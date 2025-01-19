@@ -4,7 +4,7 @@ import io.papermc.paperweight.tasks.RebuildGitPatches
 
 plugins {
     java // TODO java launcher tasks
-    id("io.papermc.paperweight.patcher") version "2.0.0-beta.13"
+    id("io.papermc.paperweight.patcher") version "2.0.0-beta.14"
 }
 
 paperweight {
@@ -26,11 +26,6 @@ paperweight {
             upstreamPath = "paper-api"
             patchesDir = file("foldenor-api/paper-patches")
             outputDir = file("paper-api")
-        }
-        patchRepo("paperApiGenerator") {
-            upstreamPath = "paper-api-generator"
-            patchesDir = file("foldenor-api-generator/paper-patches")
-            outputDir = file("paper-api-generator")
         }
         patchDir("foliaApi") {
             upstreamPath = "folia-api"
