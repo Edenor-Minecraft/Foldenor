@@ -1,0 +1,11 @@
+--- a/src/main/java/org/bukkit/craftbukkit/map/CraftMapColorCache.java
++++ b/src/main/java/org/bukkit/craftbukkit/map/CraftMapColorCache.java
+@@ -145,7 +_,7 @@
+     }
+ 
+     @Override
+-    public boolean isCached() {
++    public synchronized boolean isCached() { // SparklyPaper - fix concurrency issues when using "imageToBytes" in multiple threads
+         return this.cached || (!this.running.get() && this.initCache().isDone());
+     }
+ 

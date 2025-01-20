@@ -1,0 +1,31 @@
+--- a/net/minecraft/stats/ServerStatsCounter.java
++++ b/net/minecraft/stats/ServerStatsCounter.java
+@@ -81,11 +_,15 @@
+         this.dirty.add(stat);
+     }
+ 
++    // SparklyPaper start - Skip dirty stats copy when requesting player stats
++    /*
+     private Set<Stat<?>> getDirty() {
+         Set<Stat<?>> set = Sets.newHashSet(this.dirty);
+         this.dirty.clear();
+         return set;
+     }
++    */
++    // SparklyPaper end
+ 
+     public void parseLocal(DataFixer fixerUpper, String json) {
+         try {
+@@ -190,9 +_,11 @@
+     public void sendStats(ServerPlayer player) {
+         Object2IntMap<Stat<?>> map = new Object2IntOpenHashMap<>();
+ 
+-        for (Stat<?> stat : this.getDirty()) {
++        for (Stat<?> stat : this.dirty) { // SparklyPaper - Skip dirty stats copy when requesting player stats
+             map.put(stat, this.getValue(stat));
+         }
++
++        this.dirty.clear(); // SparklyPaper - Skip dirty stats copy when requesting player stats
+ 
+         player.connection.send(new ClientboundAwardStatsPacket(map));
+     }

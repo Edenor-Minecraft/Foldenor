@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
-@@ -682,6 +_,7 @@
+@@ -680,6 +_,7 @@
      }
  
      public ChunkGenerator getGenerator() {

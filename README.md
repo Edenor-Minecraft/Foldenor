@@ -53,3 +53,5 @@ If these excellent projects hadn't appeared, Foldenor wouldn't have become great
 - [Leaves](https://github.com/LeavesMC/Leaves)
 - [Kaiiju](https://github.com/KaiijuMC/Kaiiju)
 - [SparklyPaper](https://github.com/SparklyPower/SparklyPaper)
+- [Mizi](https://github.com/Toffikk/Mizi)
+- [Canvas](https://github.com/CraftCanvasMC/Canvas)
