@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -1,0 +_,288 @@
+@@ -1,0 +_,296 @@
 +package net.edenor.foldenor.config;
 +
 +import com.google.common.base.Throwables;
@@ -66,6 +66,11 @@
 +    public static boolean villagersDontReleaseMemoryFix = true;
 +
 +    public static boolean skipSecondaryPOISensorIfAbsent = false;
++
++    public static boolean turtleEggSearch = true;
++    public static float turtleEggSearchPercentChance = 100;
++
++    public static boolean mobRePathFinding = true;
 +
 +    public static void init(File configFile) {
 +        init(configFile, true);
@@ -168,6 +173,9 @@
 +        throttleHopperWhenFullSkipTicks = getInt("optimizations.throttle-hopper-when-full.skip-ticks", throttleHopperWhenFullSkipTicks);
 +        villagersDontReleaseMemoryFix = getBoolean("optimizations.villagers-dont-release-memory-fix", villagersDontReleaseMemoryFix);
 +        skipSecondaryPOISensorIfAbsent = getBoolean("optimizations.skip-secondary-POI-sensor-if-absent", skipSecondaryPOISensorIfAbsent);
++        turtleEggSearch = getBoolean("optimizations.turtle-egg-search.enabled", turtleEggSearch);
++        turtleEggSearchPercentChance = (float) getDouble("optimizations.turtle-egg-search.enabled", turtleEggSearchPercentChance);
++        mobRePathFinding = getBoolean("optimizations.mob-repathfinding", mobRePathFinding);
 +    }
 +
 +    private static void readMiscSettings() {

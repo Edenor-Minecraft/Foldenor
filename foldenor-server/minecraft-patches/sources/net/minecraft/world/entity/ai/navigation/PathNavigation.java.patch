@@ -1,0 +1,27 @@
+--- a/net/minecraft/world/entity/ai/navigation/PathNavigation.java
++++ b/net/minecraft/world/entity/ai/navigation/PathNavigation.java
+@@ -5,6 +_,8 @@
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Vec3i;
+ import net.minecraft.network.protocol.game.DebugPackets;
+@@ -96,6 +_,7 @@
+     }
+ 
+     public void recomputePath() {
++        if (!FoldenorConfig.mobRePathFinding) return;
+         if (this.tick - this.timeLastRecompute > 20L) { // Folia - region threading
+             if (this.targetPos != null) {
+                 this.path = null;
+@@ -458,6 +_,7 @@
+     }
+ 
+     public boolean shouldRecomputePath(BlockPos pos) {
++        if (!FoldenorConfig.mobRePathFinding) return false;
+         if (this.hasDelayedRecomputation) {
+             return false;
+         } else if (this.path != null && !this.path.isDone() && this.path.getNodeCount() != 0) {

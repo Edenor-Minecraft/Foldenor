@@ -1,6 +1,16 @@
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -2039,6 +_,17 @@
+@@ -1372,7 +_,8 @@
+                 player.setRealHealth(health);
+             }
+ 
+-            player.updateScaledHealth(false);
++            //player.updateScaledHealth(false); // Leaf - Fix sprint glitch - commented out
++            this.entityData.set(LivingEntity.DATA_HEALTH_ID, player.getScaledHealth()); // Leaf - Fix sprint glitch
+             return;
+         }
+         // CraftBukkit end
+@@ -2044,6 +_,17 @@
          return this.lastClimbablePos;
      }
  
@@ -18,7 +28,7 @@
      public boolean onClimbable() {
          if (this.isSpectator()) {
              return false;
-@@ -2616,6 +_,7 @@
+@@ -2621,6 +_,7 @@
      }
  
      protected void updateSwingTime() {
@@ -26,7 +36,7 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
-@@ -3523,6 +_,7 @@
+@@ -3528,6 +_,7 @@
      protected void updateFallFlying() {
          this.checkSlowFallDistance();
          if (!this.level().isClientSide) {

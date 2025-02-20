@@ -1,15 +1,5 @@
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -13,6 +_,9 @@
- import com.mojang.brigadier.exceptions.CommandSyntaxException;
- import com.mojang.serialization.Dynamic;
- import com.mojang.serialization.Lifecycle;
-+import io.papermc.paper.threadedregions.ThreadedRegionizer;
-+import io.papermc.paper.threadedregions.TickRegionScheduler;
-+import io.papermc.paper.threadedregions.TickRegions;
- import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
- import java.awt.image.BufferedImage;
- import java.io.ByteArrayOutputStream;
 @@ -41,6 +_,8 @@
  import java.util.stream.Collectors;
  import javax.imageio.ImageIO;
@@ -27,14 +17,6 @@
      private YamlConfiguration configuration;
      private YamlConfiguration commandsConfiguration;
      private final Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
-@@ -314,6 +_,7 @@
-     private final io.papermc.paper.logging.SysoutCatcher sysoutCatcher = new io.papermc.paper.logging.SysoutCatcher(); // Paper
-     private final io.papermc.paper.potion.PaperPotionBrewer potionBrewer; // Paper - Custom Potion Mixes
-     public final io.papermc.paper.SparksFly spark; // Paper - spark
-+    private final org.leavesmc.leaves.entity.CraftPhotographerManager photographerManager = new org.leavesmc.leaves.entity.CraftPhotographerManager(); // Leaves
- 
-     // Paper start - Folia region threading API
-     private final io.papermc.paper.threadedregions.scheduler.FoliaRegionScheduler regionizedScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaRegionScheduler(); // Folia - region threading
 @@ -330,6 +_,10 @@
          return this.asyncScheduler;
      }
@@ -46,32 +28,14 @@
      @Override
      public final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler getGlobalRegionScheduler() {
          return this.globalRegionScheduler;
-@@ -408,7 +_,7 @@
-     public CraftServer(DedicatedServer console, PlayerList playerList) {
-         this.console = console;
-         this.playerList = (DedicatedPlayerList) playerList;
--        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, new Function<ServerPlayer, CraftPlayer>() {
-+        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.realPlayers, new Function<ServerPlayer, CraftPlayer>() { // Leaves - replay api
-             @Override
-             public CraftPlayer apply(ServerPlayer player) {
-                 return player.getBukkitEntity();
-@@ -492,7 +_,15 @@
+@@ -492,6 +_,7 @@
          this.potionBrewer = new io.papermc.paper.potion.PaperPotionBrewer(console); // Paper - custom potion mixes
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
          this.spark = new io.papermc.paper.SparksFly(this); // Paper - spark
--    }
 +        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.init(); // Leaves - protocol
-+    }
-+
-+    // Leaves start - replay mod api
-+    @Override
-+    public org.leavesmc.leaves.entity.CraftPhotographerManager getPhotographerManager() {
-+        return photographerManager;
-+    }
-+    // Leaves end - replay mod api
+     }
  
      public boolean getCommandBlockOverride(String command) {
-         return this.overrideAllCommandBlockCommands || this.commandsConfiguration.getStringList("command-block-overrides").contains(command);
 @@ -1158,6 +_,7 @@
          this.spark.registerCommandBeforePlugins(this); // Paper - spark
          this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
@@ -113,30 +77,3 @@
          this.worlds.put(world.getName().toLowerCase(Locale.ROOT), world);
      }
  
-@@ -3122,11 +_,21 @@
- 
-     @Override
-     public double[] getTPS() {
--        return new double[] {
--            net.minecraft.server.MinecraftServer.getServer().tps1.getAverage(),
--            net.minecraft.server.MinecraftServer.getServer().tps5.getAverage(),
--            net.minecraft.server.MinecraftServer.getServer().tps15.getAverage()
--        };
-+        ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> curRegion =  TickRegionScheduler.getCurrentRegion();
-+        if (curRegion != null){
-+            return new double[] {
-+                    curRegion.getData().getRegionSchedulingHandle().getTickReport5s(System.nanoTime()).tpsData().segmentAll().average(),
-+                    curRegion.getData().getRegionSchedulingHandle().getTickReport1m(System.nanoTime()).tpsData().segmentAll().average(),
-+                    curRegion.getData().getRegionSchedulingHandle().getTickReport5m(System.nanoTime()).tpsData().segmentAll().average()
-+            };
-+        }
-+        else{
-+            return new double[] {
-+                    20,
-+                    20,
-+                    20
-+            };
-+        }
-     }
- 
-     // Paper start - adventure sounds

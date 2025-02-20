@@ -9,15 +9,6 @@
  import io.papermc.paper.entity.LookAnchor;
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.nbt.Tag;
-@@ -103,6 +_,8 @@
-             return new CraftHumanEntity(server, (net.minecraft.world.entity.player.Player) entity);
-         }
- 
-+        if (entity instanceof org.leavesmc.leaves.replay.ServerPhotographer photographer) { return new org.leavesmc.leaves.entity.CraftPhotographer(server, photographer); }
-+
-         // Special case complex part, since there is no extra entity type for them
-         if (entity instanceof EnderDragonPart complexPart) {
-             if (complexPart.parentMob instanceof EnderDragon) {
 @@ -234,12 +_,25 @@
  
      @Override

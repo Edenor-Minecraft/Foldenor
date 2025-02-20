@@ -9,3 +9,15 @@
      private final PlayerAdvancements advancements;
      private final ServerStatsCounter stats;
      private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
+@@ -1110,9 +_,10 @@
+             }
+             // CraftBukkit end
+         } catch (Throwable var4) {
+-            CrashReport crashReport = CrashReport.forThrowable(var4, "Ticking player");
++           CrashReport crashReport = CrashReport.forThrowable(var4, "Ticking player");
+             CrashReportCategory crashReportCategory = crashReport.addCategory("Player being ticked");
+             this.fillCrashReportCategory(crashReportCategory);
++            MinecraftServer.LOGGER.error(var4.getMessage(), var4); // Foldenor - more info
+             throw new ReportedException(crashReport);
+         }
+     }

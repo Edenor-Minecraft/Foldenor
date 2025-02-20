@@ -13,15 +13,6 @@
          }
  
          return flag;
-@@ -1754,7 +_,7 @@
-     }
- 
-     private ServerStatus.Players buildPlayerStatus() {
--        List<ServerPlayer> players = new java.util.ArrayList<>(this.playerList.getPlayers()); // Folia - region threading
-+        List<ServerPlayer> players = new java.util.ArrayList<>(this.playerList.realPlayers); // Folia - region threading // Leaves - only real player
-         int maxPlayers = this.getMaxPlayers();
-         if (this.hidesOnlinePlayers()) {
-             return new ServerStatus.Players(maxPlayers, players.size(), List.of());
 @@ -1855,6 +_,7 @@
          }
  

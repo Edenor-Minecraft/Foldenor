@@ -102,7 +102,7 @@
          }
      }
  
-@@ -4601,13 +_,13 @@
+@@ -4610,13 +_,13 @@
          return this;
      }
  
@@ -118,7 +118,7 @@
              if (entity1 != null) {
                  list.add(entity1);
              }
-@@ -4631,15 +_,13 @@
+@@ -4640,15 +_,13 @@
              //this.getBukkitEntity().setHandle(entity);
              //entity.bukkitEntity = this.getBukkitEntity(); // Paper - forward CraftEntity in teleport command; moved to Entity#restoreFrom
              // CraftBukkit end
@@ -136,7 +136,7 @@
              profilerFiller.pop();
              return entityx;
          }
-@@ -4986,6 +_,11 @@
+@@ -4995,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {
@@ -148,12 +148,3 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
-@@ -5287,7 +_,7 @@
- 
-     // Paper start - optimise collisions
-     public boolean updateFluidHeightAndDoFluidPushing(final TagKey<Fluid> fluid, final double flowScale) {
--        if (this.touchingUnloadedChunk()) {
-+        if (false && this.touchingUnloadedChunk()) { // Pufferfish - cost of a lookup here is the same cost as below, so skip
-             return false;
-         }
- 

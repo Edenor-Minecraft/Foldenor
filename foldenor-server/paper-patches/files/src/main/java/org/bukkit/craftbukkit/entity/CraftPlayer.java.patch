@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -207,7 +_,7 @@
+@@ -213,7 +_,7 @@
      private boolean hasPlayedBefore = false;
      private final ConversationTracker conversationTracker = new ConversationTracker();
      private final Set<String> channels = new HashSet<String>();
@@ -9,27 +9,3 @@
      private final Set<UUID> unlistedEntities = new HashSet<>(); // Paper - Add Listing API for Player
      private static final WeakHashMap<Plugin, WeakReference<Plugin>> pluginWeakReferences = new WeakHashMap<>();
      private int hash = 0;
-@@ -2255,13 +_,20 @@
- 
-     @Override
-     public boolean canSee(Player player) {
--        return this.canSee((org.bukkit.entity.Entity) player);
-+        return !(player instanceof org.leavesmc.leaves.entity.Photographer) && this.canSee((org.bukkit.entity.Entity) player); // Leaves - skip photographer
-     }
- 
-     @Override
-     public boolean canSee(org.bukkit.entity.Entity entity) {
--        return this.equals(entity) || entity.isVisibleByDefault() ^ this.invertedVisibilityEntities.containsKey(entity.getUniqueId()); // SPIGOT-7312: Can always see self
--    }
-+        return this.equals(entity) || entity.isVisibleByDefault() ^ (!invertedVisibilityEntities.isEmpty() && this.invertedVisibilityEntities.containsKey(entity.getUniqueId())); // SPIGOT-7312: Can always see self // SparklyPaper - optimize canSee checks
-+    }
-+
-+    // SparklyPaper - optimize canSee checks
-+    // The check in ChunkMap#updatePlayer already rejects if it is the same entity, so we don't need to check it twice, especially because CraftPlayer's equals check is a bit expensive
-+    public boolean canSeeChunkMapUpdatePlayer(org.bukkit.entity.Entity entity) {
-+        return entity.isVisibleByDefault() ^ (!invertedVisibilityEntities.isEmpty() && this.invertedVisibilityEntities.containsKey(entity.getUniqueId())); // SPIGOT-7312: Can always see self // SparklyPaper - optimize canSee checks
-+    }
-+    // SparklyPaper end
- 
-     public boolean canSeePlayer(UUID uuid) {
-         org.bukkit.entity.Entity entity = this.getServer().getPlayer(uuid);

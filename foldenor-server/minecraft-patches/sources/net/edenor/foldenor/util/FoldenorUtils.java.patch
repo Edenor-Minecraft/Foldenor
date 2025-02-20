@@ -1,0 +1,12 @@
+--- /dev/null
++++ b/net/edenor/foldenor/util/FoldenorUtils.java
+@@ -1,0 +_,9 @@
++package net.edenor.foldenor.util;
++
++import io.netty.util.internal.ThreadLocalRandom;
++
++public class FoldenorUtils {
++    public static boolean rollPercentChance(float percent) {
++        return percent != 0.0 && ThreadLocalRandom.current().nextFloat() <= (percent / 100.0);
++    }
++}

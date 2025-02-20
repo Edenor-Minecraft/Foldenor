@@ -1,6 +1,6 @@
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-@@ -36,14 +_,22 @@
+@@ -36,14 +_,16 @@
  
      // SimplePluginManager
      public void callEvent(@NotNull Event event) {
@@ -14,14 +14,9 @@
          } else if (!event.isAsynchronous() && !this.server.isPrimaryThread() && !this.server.isStopping()) {
              throw new IllegalStateException(event.getEventName() + " may only be triggered synchronously.");
          }
- 
+-
 -        HandlerList handlers = event.getHandlers();
 -        RegisteredListener[] listeners = handlers.getRegisteredListeners();
-+        // Leaves start - skip bot
-+        if (event instanceof org.bukkit.event.player.PlayerEvent playerEvent && playerEvent.getPlayer() instanceof org.leavesmc.leaves.entity.Photographer) {
-+            return;
-+        }
-+        // Leaves end - skip bot
  
          for (RegisteredListener registration : listeners) {
              if (!registration.getPlugin().isEnabled()) {
