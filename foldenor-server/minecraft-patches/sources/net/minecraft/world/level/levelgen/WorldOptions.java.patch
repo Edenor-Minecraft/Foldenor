@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/levelgen/WorldOptions.java
 +++ b/net/minecraft/world/level/levelgen/WorldOptions.java
-@@ -5,38 +_,47 @@
+@@ -5,38 +_,51 @@
  import com.mojang.serialization.codecs.RecordCodecBuilder;
  import java.util.Optional;
  import java.util.OptionalLong;
@@ -35,6 +35,10 @@
  
 -    public WorldOptions(long seed, boolean generateStructures, boolean generateBonusChest) {
 -        this(seed, generateStructures, generateBonusChest, Optional.empty());
++    public WorldOptions(long seed, boolean generateStructures, boolean bonusChest) {
++        this(seed, Globals.worldSeed, generateStructures, bonusChest, Optional.empty());
++    }
++
 +    public WorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean bonusChest) {
 +        this(seed, featureSeed, generateStructures, bonusChest, Optional.empty());
      }

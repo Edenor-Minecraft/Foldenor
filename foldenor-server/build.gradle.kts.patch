@@ -58,7 +58,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -173,6 +_,13 @@
+@@ -174,6 +_,13 @@
      runtimeOnly("com.mysql:mysql-connector-j:9.1.0")
      runtimeOnly("com.lmax:disruptor:3.4.4")
  
@@ -72,7 +72,7 @@
      runtimeOnly("org.apache.maven:maven-resolver-provider:3.9.6")
      runtimeOnly("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.18")
      runtimeOnly("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
-@@ -212,14 +_,14 @@
+@@ -213,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",

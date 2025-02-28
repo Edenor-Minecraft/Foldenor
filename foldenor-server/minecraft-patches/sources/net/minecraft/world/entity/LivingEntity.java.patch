@@ -28,7 +28,7 @@
      public boolean onClimbable() {
          if (this.isSpectator()) {
              return false;
-@@ -2621,6 +_,7 @@
+@@ -2628,6 +_,7 @@
      }
  
      protected void updateSwingTime() {
@@ -36,7 +36,7 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
-@@ -3528,6 +_,7 @@
+@@ -3553,6 +_,7 @@
      protected void updateFallFlying() {
          this.checkSlowFallDistance();
          if (!this.level().isClientSide) {

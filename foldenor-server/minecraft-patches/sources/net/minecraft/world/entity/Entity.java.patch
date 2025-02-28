@@ -26,7 +26,7 @@
      private BlockPos blockPosition;
      private ChunkPos chunkPosition;
      private Vec3 deltaMovement = Vec3.ZERO;
-@@ -342,6 +_,9 @@
+@@ -343,6 +_,9 @@
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
@@ -36,7 +36,7 @@
  
      public void inactiveTick() {
      }
-@@ -898,7 +_,11 @@
+@@ -899,7 +_,11 @@
  
          this.checkBelowWorld();
          if (!this.level().isClientSide) {
@@ -49,7 +49,7 @@
          }
  
          this.firstTick = false;
-@@ -1100,6 +_,11 @@
+@@ -1101,6 +_,11 @@
      // Paper end - detailed watchdog information
  
      public void move(MoverType type, Vec3 movement) {
@@ -61,7 +61,7 @@
          final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
          // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
-@@ -2048,10 +_,18 @@
+@@ -2049,10 +_,18 @@
  
      @Deprecated
      public float getLightLevelDependentMagicValue() {
@@ -84,7 +84,7 @@
  
      public void absMoveTo(double x, double y, double z, float yRot, float xRot) {
          this.absMoveTo(x, y, z);
-@@ -2170,8 +_,7 @@
+@@ -2171,8 +_,7 @@
      }
  
      public void push(Entity entity) {
@@ -94,7 +94,7 @@
                  if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
                  double d = entity.getX() - this.getX();
                  double d1 = entity.getZ() - this.getZ();
-@@ -2197,7 +_,6 @@
+@@ -2198,7 +_,6 @@
                          entity.push(d, 0.0, d1);
                      }
                  }
@@ -102,7 +102,7 @@
          }
      }
  
-@@ -4610,13 +_,13 @@
+@@ -4613,13 +_,13 @@
          return this;
      }
  
@@ -118,7 +118,7 @@
              if (entity1 != null) {
                  list.add(entity1);
              }
-@@ -4640,15 +_,13 @@
+@@ -4643,15 +_,13 @@
              //this.getBukkitEntity().setHandle(entity);
              //entity.bukkitEntity = this.getBukkitEntity(); // Paper - forward CraftEntity in teleport command; moved to Entity#restoreFrom
              // CraftBukkit end
@@ -136,7 +136,7 @@
              profilerFiller.pop();
              return entityx;
          }
-@@ -4995,6 +_,11 @@
+@@ -4998,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {
