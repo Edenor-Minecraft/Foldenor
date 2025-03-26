@@ -4,10 +4,10 @@ on:
   push:
     branches: [ "1.21.4" ]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Automatically update Folia commit"]
-    types:
-      - completed
+  #workflow_run:
+    #workflows: ["Automatically update Folia commit"]
+    #types:
+      #- completed
 
 jobs:
   compile_1_21_4_core_jar:
