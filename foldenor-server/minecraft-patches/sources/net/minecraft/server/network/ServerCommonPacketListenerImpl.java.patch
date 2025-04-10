@@ -25,27 +25,27 @@
          if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
              int i = (int)(Util.getMillis() - this.keepAliveTime);
              this.latency = (this.latency * 3 + i) / 4;
-@@ -149,6 +_,11 @@
+@@ -148,6 +_,11 @@
+ 
      @Override
      public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
-         // CraftBukkit start
 +        // Leaves start - protocol
 +        if (packet.payload() instanceof org.leavesmc.leaves.protocol.core.LeavesCustomPayload<?> leavesPayload) {
 +            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePayload(player, leavesPayload);
 +        }
 +        // Leaves end - protocol
-         // Paper start - Brand support
+         // Paper start
          if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.BrandPayload(String brand)) {
              this.player.clientBrandName = brand;
-@@ -166,6 +_,7 @@
-                 String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
-                 for (String channel : channels.split("\0")) {
-                     this.getCraftPlayer().addChannel(channel);
-+                    org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleMinecraftRegister(channel, player); // Leaves - protocol
-                 }
-             } catch (Exception ex) {
-                 ServerGamePacketListenerImpl.LOGGER.error("Couldn't register custom payload", ex);
-@@ -250,6 +_,21 @@
+@@ -201,6 +_,7 @@
+         final String channel = new String(data, from, length, java.nio.charset.StandardCharsets.US_ASCII);
+         if (register) {
+             this.getCraftPlayer().addChannel(channel);
++            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleMinecraftRegister(channel, player); // Leaves - protocol
+         } else {
+             this.getCraftPlayer().removeChannel(channel);
+         }
+@@ -254,6 +_,21 @@
          // Paper start - give clients a longer time to respond to pings as per pre 1.12.2 timings
          // This should effectively place the keepalive handling back to "as it was" before 1.12.2
          final long elapsedTime = millis - this.keepAliveTime;
