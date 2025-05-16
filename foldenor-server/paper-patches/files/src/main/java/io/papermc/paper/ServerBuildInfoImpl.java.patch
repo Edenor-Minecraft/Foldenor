@@ -1,11 +1,12 @@
 --- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
 +++ b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
-@@ -30,7 +_,7 @@
+@@ -30,7 +_,8 @@
      private static final String ATTRIBUTE_GIT_BRANCH = "Git-Branch";
      private static final String ATTRIBUTE_GIT_COMMIT = "Git-Commit";
  
 -    private static final String BRAND_PAPER_NAME = "Paper";
 +    private static final String BRAND_PAPER_NAME = "Foldenor";
++    private static final Key BRAND_FOLIA_ID = Key.key("papermc", "folia");
  
      private static final String BUILD_DEV = "DEV";
  
@@ -21,3 +22,12 @@
              SharedConstants.getCurrentVersion().getId(),
              SharedConstants.getCurrentVersion().getName(),
              getManifestAttribute(manifest, ATTRIBUTE_BUILD_NUMBER)
+@@ -61,7 +_,7 @@
+ 
+     @Override
+     public boolean isBrandCompatible(final @NotNull Key brandId) {
+-        return brandId.equals(this.brandId);
++        return brandId.equals(this.brandId) || brandId.equals(BRAND_FOLIA_ID);
+     }
+ 
+     @Override
