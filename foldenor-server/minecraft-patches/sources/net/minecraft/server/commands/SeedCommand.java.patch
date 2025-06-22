@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/commands/SeedCommand.java
 +++ b/net/minecraft/server/commands/SeedCommand.java
-@@ -1,17 +_,37 @@
+@@ -1,10 +_,14 @@
  package net.minecraft.server.commands;
  
 +import net.edenor.foldenor.secureseed.Globals;
@@ -15,27 +15,17 @@
  
  public class SeedCommand {
      public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean notIntegratedServer) {
-         dispatcher.register(Commands.literal("seed").requires(source -> !notIntegratedServer || source.hasPermission(2)).executes(context -> {
+@@ -12,6 +_,14 @@
              long seed = context.getSource().getLevel().getSeed();
--            Component component = ComponentUtils.copyOnClickText(String.valueOf(seed));
--            context.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false);
-+            //Component component = ComponentUtils.copyOnClickText(String.valueOf(l)); Foldenor - feature secure seed
-+            //context.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false); Foldenor - feature secure seed
+             Component component = ComponentUtils.copyOnClickText(String.valueOf(seed));
+             context.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false);
 +
 +            // Foldenor start - feature secure seed
 +            Globals.setupGlobals(context.getSource().getLevel());
 +            String seedStr = Globals.seedToString(Globals.worldSeed);
 +
-+            Component seedComponent = ComponentUtils.wrapInSquareBrackets(Component.literal(String.valueOf(seed)).withStyle((style) ->
-+                style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, String.valueOf(seed)))
-+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(String.valueOf(seed))));
-+
-+            Component featureSeedComponent = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.copy.click").withStyle((style) ->
-+                style.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, seedStr))
-+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click"))).withInsertion(seedStr)));
-+
-+            context.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", seedComponent), false);
-+            context.getSource().sendSuccess(() -> Component.translatable("Feature seed: %s", featureSeedComponent), false);
++            Component featureSeedComponent = ComponentUtils.copyOnClickText(seedStr);
++            context.getSource().sendSuccess(() -> Component.translatable(("Feature seed: %s"), featureSeedComponent), false);
 +            // Foldenor end
              return (int)seed;
          }));

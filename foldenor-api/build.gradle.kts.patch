@@ -37,7 +37,7 @@
  
      // Annotations - Slowly migrate to jspecify
      val annotations = "org.jetbrains:annotations:$annotationsVersion"
-@@ -83,10 +_,10 @@
+@@ -83,11 +_,15 @@
      // Test dependencies
      testImplementation("org.apache.commons:commons-lang3:3.17.0")
      testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
@@ -49,8 +49,13 @@
 -    mockitoAgent("org.mockito:mockito-core:5.14.1") { isTransitive = false } // configure mockito agent that is needed in newer java versions
 +    mockitoAgent("org.mockito:mockito-core:5.16.1") { isTransitive = false } // configure mockito agent that is needed in newer java versions
      testRuntimeOnly("org.junit.platform:junit-platform-launcher")
++
++    // commons-lang3 is removed in maven-resolver-provider since 3.9.8
++    // Add this because bukkit api still need it.
++    compileOnly("org.apache.commons:commons-lang3:3.17.0")
  }
  
+ val generatedDir: java.nio.file.Path = rootProject.layout.projectDirectory.dir("paper-api/src/generated/java").asFile.toPath()
 @@ -101,17 +_,21 @@
          java {
              srcDir(generatedDir)

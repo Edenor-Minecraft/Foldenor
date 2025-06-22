@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/com/triassic/linearpaper/region/AbstractRegionFile.java
-@@ -1,0 +_,28 @@
+@@ -1,0 +_,30 @@
 +package com.triassic.linearpaper.region;
 +
 +import java.io.DataInputStream;
@@ -28,4 +28,6 @@
 +    void clear(ChunkPos pos) throws IOException;
 +    void setOversized(int x, int z, boolean oversized) throws IOException;
 +    void write(ChunkPos pos, ByteBuffer buf) throws IOException;
++
++    int getRecalculateCount();
 +}

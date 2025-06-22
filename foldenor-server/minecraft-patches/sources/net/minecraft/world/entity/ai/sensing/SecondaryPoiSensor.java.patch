@@ -15,7 +15,7 @@
      protected void doTick(ServerLevel level, Villager entity) {
 +        // Leaves start - skip secondary POI sensor if absent
 +        if (FoldenorConfig.skipSecondaryPOISensorIfAbsent) {
-+            var secondaryPoi = entity.getVillagerData().getProfession().secondaryPoi();
++            var secondaryPoi = entity.getVillagerData().profession().value().secondaryPoi();
 +            if (secondaryPoi.isEmpty()) {
 +                entity.getBrain().eraseMemory(MemoryModuleType.SECONDARY_JOB_SITE);
 +                return;

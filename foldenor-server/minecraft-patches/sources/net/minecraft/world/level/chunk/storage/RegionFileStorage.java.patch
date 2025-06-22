@@ -1,6 +1,12 @@
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-@@ -6,6 +_,8 @@
+@@ -1,11 +_,14 @@
+ package net.minecraft.world.level.chunk.storage;
+ 
++import com.triassic.linearpaper.region.AbstractRegionFile;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+ import java.io.DataInputStream;
+ import java.io.DataOutputStream;
  import java.io.IOException;
  import java.nio.file.Path;
  import javax.annotation.Nullable;
@@ -84,6 +90,15 @@
  
          final DataInputStream input = regionFile == null ? null : regionFile.getChunkDataInputStream(new ChunkPos(chunkX, chunkZ));
  
+@@ -238,7 +_,7 @@
+ 
+             final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+             final ChunkPos headerChunkPos = SerializableChunkData.getChunkCoordinate(ret);
+-            final RegionFile regionFile = this.getRegionFile(pos);
++            final AbstractRegionFile regionFile = this.getRegionFile(pos);
+ 
+             if (regionFile.getRecalculateCount() != readData.recalculateCount()) {
+                 return null;
 @@ -262,7 +_,7 @@
      }
      // Paper end - rewrite chunk system

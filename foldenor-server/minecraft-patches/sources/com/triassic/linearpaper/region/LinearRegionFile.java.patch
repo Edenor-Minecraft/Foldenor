@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/com/triassic/linearpaper/region/LinearRegionFile.java
-@@ -1,0 +_,315 @@
+@@ -1,0 +_,320 @@
 +package com.triassic.linearpaper.region;
 +
 +import ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO;
@@ -231,6 +231,11 @@
 +            LOGGER.error("Chunk write IOException {} {}", e, this.path);
 +        }
 +        markToSave();
++    }
++
++    @Override
++    public int getRecalculateCount() {
++        return 0;
 +    }
 +
 +    public DataOutputStream getChunkDataOutputStream(ChunkPos pos) {
