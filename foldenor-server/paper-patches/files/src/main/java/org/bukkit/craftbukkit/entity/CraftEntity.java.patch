@@ -1,15 +1,15 @@
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -9,6 +_,8 @@
- import java.util.List;
- import java.util.Set;
+@@ -13,6 +_,8 @@
  import java.util.UUID;
+ import io.papermc.paper.entity.LookAnchor;
+ import java.util.concurrent.CompletableFuture;
 +import java.util.concurrent.ExecutionException;
 +
- import io.papermc.paper.entity.LookAnchor;
+ import net.kyori.adventure.util.TriState;
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.nbt.Tag;
-@@ -234,12 +_,25 @@
+@@ -275,19 +_,41 @@
  
      @Override
      public boolean teleport(Location location) {
@@ -35,10 +35,9 @@
          return teleport(location, cause, new io.papermc.paper.entity.TeleportFlag[0]);
      }
  
-@@ -247,6 +_,16 @@
+     @Override
      public boolean teleport(Location location, TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
-         // Folia start - region threading
-         if (true) {
++        if (true) {
 +            this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
 +            try {
 +                this.teleportAsync(location, cause, flags).get();
@@ -47,12 +46,13 @@
 +                throw new RuntimeException(e);
 +            }
 +        }
-+        // Folia start - region threading
+         // Folia start - region threading
+-        if (true) {
 +        if (false) {
              throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
          }
          // Folia end - region threading
-@@ -307,11 +_,27 @@
+@@ -346,11 +_,27 @@
  
      @Override
      public boolean teleport(org.bukkit.entity.Entity destination) {

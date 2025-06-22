@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/storage/LevelStorageSource.java
 +++ b/net/minecraft/world/level/storage/LevelStorageSource.java
-@@ -514,7 +_,10 @@
+@@ -515,7 +_,10 @@
              CompoundTag compoundTag = serverConfiguration.createTag(registries, hostPlayerNBT);
              CompoundTag compoundTag1 = new CompoundTag();
              compoundTag1.put("Data", compoundTag);
@@ -12,10 +12,10 @@
          }
  
          private void saveLevelData(CompoundTag tag) {
-@@ -601,7 +_,10 @@
+@@ -602,7 +_,10 @@
              this.checkLock();
              CompoundTag levelDataTagRaw = LevelStorageSource.readLevelDataTagRaw(this.levelDirectory.dataFile());
-             modifier.accept(levelDataTagRaw.getCompound("Data"));
+             modifier.accept(levelDataTagRaw.getCompoundOrEmpty("Data"));
 -            this.saveLevelData(levelDataTagRaw);
 +            // Leaf start - Nitori - Async playerdata save
 +            Runnable runnable = () -> this.saveLevelData(levelDataTagRaw);

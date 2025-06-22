@@ -8,7 +8,7 @@
  import net.minecraft.DefaultUncaughtExceptionHandler;
  import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
  import net.minecraft.SharedConstants;
-@@ -225,6 +_,14 @@
+@@ -184,6 +_,14 @@
          this.server.spark.registerCommandBeforePlugins(this.server); // Paper - spark
          com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now

@@ -38,7 +38,7 @@
      }
  
      @Override
-@@ -170,7 +_,10 @@
+@@ -163,7 +_,10 @@
  
      @Override
      public void clearItemStacks() {

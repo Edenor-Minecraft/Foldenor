@@ -37,12 +37,3 @@
  
          return switch (distance) {
              case DISTANCE_ERROR -> text("Error obtaining version information", NamedTextColor.YELLOW);
-@@ -86,7 +_,7 @@
-     private static int fetchDistanceFromSiteApi(final ServerBuildInfo build, final int jenkinsBuild) {
-         try {
-             try (final BufferedReader reader = Resources.asCharSource(
--                URI.create("https://api.papermc.io/v2/projects/folia/versions/" + build.minecraftVersionId()).toURL(), // Folia
-+                URI.create("https://api.papermc.io/v2/projects/folia/versions/" + build.minecraftVersionId()).toURL(), // Foldenor
-                 Charsets.UTF_8
-             ).openBufferedStream()) {
-                 final JsonObject json = new Gson().fromJson(reader, JsonObject.class);

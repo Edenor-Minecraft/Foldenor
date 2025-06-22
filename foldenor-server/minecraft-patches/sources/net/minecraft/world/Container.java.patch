@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/Container.java
 +++ b/net/minecraft/world/Container.java
-@@ -10,6 +_,29 @@
+@@ -12,6 +_,28 @@
  import net.minecraft.world.level.block.entity.BlockEntity;
  
- public interface Container extends Clearable {
+ public interface Container extends Clearable, Iterable<ItemStack> {
 +    // Pufferfish start - Improve container checking with a bitset; allow the inventory to override and optimize these frequent calls
 +    enum OptionalState {
 +        TRUE,
@@ -26,7 +26,6 @@
 +        return OptionalState.NOT_IMPLEMENTED;
 +    }
 +    // Pufferfish end - Improve container checking with a bitset
-+
      float DEFAULT_DISTANCE_BUFFER = 4.0F;
  
      int getContainerSize();

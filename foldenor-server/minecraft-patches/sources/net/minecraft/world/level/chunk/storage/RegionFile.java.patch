@@ -17,16 +17,16 @@
      private static final Logger LOGGER = LogUtils.getLogger();
      public static final int MAX_CHUNK_SIZE = 500 * 1024 * 1024; // Paper - don't write garbage data to disk if writing serialization fails
      private static final int SECTOR_BYTES = 4096;
-@@ -124,7 +_,7 @@
+@@ -130,7 +_,7 @@
+         return this.recalculateCount.get();
      }
  
-     // note: only call for CHUNK regionfiles
 -    boolean recalculateHeader() throws IOException {
 +    public boolean recalculateHeader() throws IOException { // LinearPaper - make public
          if (!this.canRecalcHeader) {
              return false;
          }
-@@ -786,7 +_,7 @@
+@@ -794,7 +_,7 @@
          }
      }
  
@@ -35,7 +35,7 @@
          int offsetIndex = getOffsetIndex(chunkPos);
          int i = this.offsets.get(offsetIndex);
          int sectorNumber = getSectorNumber(i);
-@@ -904,7 +_,7 @@
+@@ -912,7 +_,7 @@
          }
  
          @Override
@@ -44,7 +44,7 @@
              regionFile.write(this.pos, ByteBuffer.wrap(this.buf, 0, this.count));
          }
          // Paper end - rewrite chunk system
-@@ -970,11 +_,11 @@
+@@ -978,11 +_,11 @@
          return (x & 31) + (z & 31) * 32;
      }
  
@@ -58,7 +58,7 @@
          final int offset = getChunkIndex(x, z);
          boolean previous = this.oversized[offset] == 1;
          this.oversized[offset] = (byte) (oversized ? 1 : 0);
-@@ -1013,7 +_,7 @@
+@@ -1021,7 +_,7 @@
          return this.path.getParent().resolve(this.path.getFileName().toString().replaceAll("\\.mca$", "") + "_oversized_" + x + "_" + z + ".nbt");
      }
  

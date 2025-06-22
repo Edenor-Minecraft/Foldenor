@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -11,6 +_,8 @@
+@@ -14,6 +_,8 @@
  import java.util.function.Consumer;
  import java.util.stream.Stream;
  import javax.annotation.Nullable;
@@ -9,7 +9,7 @@
  import net.minecraft.core.component.DataComponents;
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
-@@ -179,6 +_,9 @@
+@@ -189,6 +_,9 @@
                      packet = ClientboundEntityPositionSyncPacket.of(this.entity);
                      flag3 = true;
                      flag4 = true;
@@ -19,7 +19,7 @@
                  } else if ((!flag2 || !flag) && !(this.entity instanceof AbstractArrow)) {
                      if (flag2) {
                          packet = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short)l, (short)l1, (short)l2, this.entity.onGround());
-@@ -193,9 +_,10 @@
+@@ -203,9 +_,10 @@
                      flag4 = true;
                  }
  
@@ -32,7 +32,7 @@
                      if (d > 1.0E-7 || d > 0.0 && deltaMovement.lengthSqr() == 0.0) {
                          this.lastSentMovement = deltaMovement;
                          if (this.entity instanceof AbstractHurtingProjectile abstractHurtingProjectile) {
-@@ -213,6 +_,8 @@
+@@ -223,6 +_,8 @@
                          }
                      }
                  }
@@ -41,10 +41,10 @@
  
                  if (packet != null) {
                      this.broadcast.accept(packet);
-@@ -265,6 +_,25 @@
-             this.entity.hurtMarked = false;
-             this.broadcastAndSend(new ClientboundSetEntityMotionPacket(this.entity));
-         }
+@@ -282,6 +_,25 @@
+             this.lastPassengers.stream().filter(entity -> !entities.contains(entity)),
+             entities.stream().filter(entity -> !this.lastPassengers.contains(entity))
+         );
 +    }
 +
 +    private boolean isNullMovePacket(Packet<?> packet) {
@@ -54,10 +54,10 @@
 +                    return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0;
 +                }
 +                case ClientboundMoveEntityPacket.PosRot posRot -> {
-+                    return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0 && move.getyRot() == 0 && move.getxRot() == 0;
++                    return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0 && move.getYRot() == 0 && move.getXRot() == 0;
 +                }
 +                case ClientboundMoveEntityPacket.Rot rot -> {
-+                    return move.getyRot() == 0 && move.getxRot() == 0;
++                    return move.getYRot() == 0 && move.getXRot() == 0;
 +                }
 +                default -> {
 +                }

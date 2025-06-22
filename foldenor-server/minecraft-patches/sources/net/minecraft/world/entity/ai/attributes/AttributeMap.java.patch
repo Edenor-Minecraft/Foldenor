@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
 +++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
-@@ -19,13 +_,17 @@
+@@ -14,13 +_,17 @@
+ import net.minecraft.resources.ResourceLocation;
  
  public class AttributeMap {
-     private static final Logger LOGGER = LogUtils.getLogger();
 -    private final Map<Holder<Attribute>, AttributeInstance> attributes = new Object2ObjectOpenHashMap<>();
 -    private final Set<AttributeInstance> attributesToSync = new ObjectOpenHashSet<>();
 -    private final Set<AttributeInstance> attributesToUpdate = new ObjectOpenHashSet<>();
@@ -21,7 +21,7 @@
      }
  
      private void onAttributeModified(AttributeInstance instance) {
-@@ -49,7 +_,7 @@
+@@ -44,7 +_,7 @@
  
      @Nullable
      public AttributeInstance getInstance(Holder<Attribute> attribute) {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/util/worldupdate/WorldUpgrader.java
 +++ b/net/minecraft/util/worldupdate/WorldUpgrader.java
-@@ -72,7 +_,7 @@
+@@ -75,7 +_,7 @@
      volatile int skipped;
      final Reference2FloatMap<ResourceKey<Level>> progressMap = Reference2FloatMaps.synchronize(new Reference2FloatOpenHashMap<>());
      volatile Component status = Component.translatable("optimizeWorld.stage.counting");
@@ -9,7 +9,7 @@
      final DimensionDataStorage overworldDataStorage;
  
      public WorldUpgrader(
-@@ -261,7 +_,9 @@
+@@ -272,7 +_,9 @@
          }
  
          private static List<WorldUpgrader.FileToUpgrade> getAllChunkPositions(RegionStorageInfo regionStorageInfo, Path path) {
@@ -20,7 +20,7 @@
              if (files == null) {
                  return List.of();
              } else {
-@@ -274,7 +_,8 @@
+@@ -285,7 +_,8 @@
                          int i1 = Integer.parseInt(matcher.group(2)) << 5;
                          List<ChunkPos> list1 = Lists.newArrayList();
  
@@ -30,7 +30,7 @@
                              for (int i2 = 0; i2 < 32; i2++) {
                                  for (int i3 = 0; i3 < 32; i3++) {
                                      ChunkPos chunkPos = new ChunkPos(i2 + i, i3 + i1);
-@@ -322,7 +_,7 @@
+@@ -333,7 +_,7 @@
  
          protected abstract boolean tryProcessOnePosition(T chunkStorage, ChunkPos chunkPos, ResourceKey<Level> dimension);
  
@@ -39,7 +39,7 @@
              if (WorldUpgrader.this.recreateRegionFiles) {
                  if (this.previousWriteFuture != null) {
                      this.previousWriteFuture.join();
-@@ -424,7 +_,7 @@
+@@ -438,7 +_,7 @@
          }
      }
  

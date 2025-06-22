@@ -84,7 +84,7 @@
  
          final DataInputStream input = regionFile == null ? null : regionFile.getChunkDataInputStream(new ChunkPos(chunkX, chunkZ));
  
-@@ -237,7 +_,7 @@
+@@ -262,7 +_,7 @@
      }
      // Paper end - rewrite chunk system
      // Paper start - rewrite chunk system
@@ -93,7 +93,7 @@
          return this.getRegionFile(chunkcoordintpair, false);
      }
      // Paper end - rewrite chunk system
-@@ -249,7 +_,7 @@
+@@ -274,7 +_,7 @@
          this.isChunkData = isChunkDataFolder(this.folder); // Paper - recalculate region file headers
      }
  
@@ -102,7 +102,7 @@
          // Paper start - rewrite chunk system
          if (existingOnly) {
              return this.moonrise$getRegionFileIfExists(chunkPos.x, chunkPos.z);
-@@ -257,7 +_,7 @@
+@@ -282,7 +_,7 @@
          synchronized (this) {
              final long key = ChunkPos.asLong(chunkPos.x >> REGION_SHIFT, chunkPos.z >> REGION_SHIFT);
  
@@ -111,7 +111,7 @@
              if (ret != null) {
                  return ret;
              }
-@@ -272,7 +_,7 @@
+@@ -297,7 +_,7 @@
  
              FileUtil.createDirectoriesSafe(this.folder);
  
@@ -120,7 +120,7 @@
  
              this.regionCache.putAndMoveToFirst(key, ret);
  
-@@ -286,7 +_,7 @@
+@@ -311,7 +_,7 @@
          org.apache.logging.log4j.LogManager.getLogger().fatal(msg + " (" + file.toString().replaceAll(".+[\\\\/]", "") + " - " + x + "," + z + ") Go clean it up to remove this message. /minecraft:tp " + (x<<4)+" 128 "+(z<<4) + " - DO NOT REPORT THIS TO PAPER - You may ask for help on Discord, but do not file an issue. These error messages can not be removed.");
      }
  
@@ -129,7 +129,7 @@
          synchronized (regionfile) {
              try (DataInputStream datainputstream = regionfile.getChunkDataInputStream(chunkCoordinate)) {
                  CompoundTag oversizedData = regionfile.getOversizedData(chunkCoordinate.x, chunkCoordinate.z);
-@@ -321,7 +_,7 @@
+@@ -346,7 +_,7 @@
      @Nullable
      public CompoundTag read(ChunkPos chunkPos) throws IOException {
          // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
@@ -138,7 +138,7 @@
          if (regionFile == null) {
              return null;
          }
-@@ -360,7 +_,7 @@
+@@ -385,7 +_,7 @@
  
      public void scanChunk(ChunkPos chunkPos, StreamTagVisitor visitor) throws IOException {
          // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
@@ -147,7 +147,7 @@
          if (regionFile == null) {
              return;
          }
-@@ -374,7 +_,7 @@
+@@ -399,7 +_,7 @@
      }
  
      public void write(ChunkPos chunkPos, @Nullable CompoundTag chunkData) throws IOException { // Paper - rewrite chunk system - public
@@ -156,7 +156,7 @@
          // Paper start - rewrite chunk system
          if (regionFile == null) {
              // if the RegionFile doesn't exist, no point in deleting from it
-@@ -404,7 +_,7 @@
+@@ -429,7 +_,7 @@
          // Paper start - rewrite chunk system
          synchronized (this) {
              final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();
@@ -165,7 +165,7 @@
                  try {
                      regionFile.close();
                  } catch (final IOException ex) {
-@@ -420,7 +_,7 @@
+@@ -445,7 +_,7 @@
          // Paper start - rewrite chunk system
          synchronized (this) {
              final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();

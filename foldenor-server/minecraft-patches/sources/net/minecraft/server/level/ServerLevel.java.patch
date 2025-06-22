@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -620,6 +_,7 @@
+@@ -564,6 +_,7 @@
              chunkGenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkGenerator, gen);
          }
          // CraftBukkit end
@@ -8,7 +8,7 @@
          boolean flag = server.forceSynchronousWrites();
          DataFixer fixerUpper = server.getFixerUpper();
          // Paper - rewrite chunk system
-@@ -814,6 +_,7 @@
+@@ -808,6 +_,7 @@
              regionizedWorldData // Folia - regionised ticking
                  .forEachTickingEntity( // Folia - regionised ticking
                      entity -> {
@@ -16,7 +16,7 @@
                          if (!entity.isRemoved()) {
                              if (!tickRateManager.isEntityFrozen(entity)) {
                                  profilerFiller.push("checkDespawn");
-@@ -831,7 +_,21 @@
+@@ -825,7 +_,21 @@
                                      }
  
                                      profilerFiller.push("tick");
@@ -39,11 +39,11 @@
                                      profilerFiller.pop();
                                  }
                              }
-@@ -991,7 +_,7 @@
+@@ -1008,7 +_,7 @@
          int minBlockZ = pos.getMinBlockZ();
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("thunder");
--        if (!this.paperConfig().environment.disableThunder && isRaining && this.isThundering() && this.spigotConfig.thunderChance > 0 && simpleRandom.nextInt(this.spigotConfig.thunderChance) == 0) { // Spigot // Paper - Option to disable thunder // Paper - optimise random ticking
+-        if (!this.paperConfig().environment.disableThunder && isRaining && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0) { // Spigot // Paper - Option to disable thunder
 +        if (!this.paperConfig().environment.disableThunder && isRaining && this.isThundering() && this.spigotConfig.thunderChance > 0 && chunk.shouldDoLightning(this.simpleRandom)) { // Spigot // Paper - Option to disable thunder // Paper - optimise random ticking // Pufferfish // Mizi
              BlockPos blockPos = this.findLightningTargetAround(this.getBlockRandomPos(minBlockX, 0, minBlockZ, 15));
              if (this.isRainingAt(blockPos)) {

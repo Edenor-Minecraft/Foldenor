@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/goat/Goat.java
 +++ b/net/minecraft/world/entity/animal/goat/Goat.java
-@@ -184,10 +_,12 @@
+@@ -187,10 +_,12 @@
          return (Brain<Goat>)super.getBrain();
      }
  

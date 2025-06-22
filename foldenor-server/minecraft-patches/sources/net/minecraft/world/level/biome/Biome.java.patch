@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/biome/Biome.java
 +++ b/net/minecraft/world/level/biome/Biome.java
-@@ -67,7 +_,7 @@
+@@ -68,7 +_,7 @@
      private final BiomeGenerationSettings generationSettings;
      private final MobSpawnSettings mobSettings;
      private final BiomeSpecialEffects specialEffects;

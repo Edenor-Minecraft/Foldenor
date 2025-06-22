@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/map/CraftMapColorCache.java
 +++ b/src/main/java/org/bukkit/craftbukkit/map/CraftMapColorCache.java
-@@ -145,7 +_,7 @@
+@@ -151,7 +_,7 @@
      }
  
      @Override

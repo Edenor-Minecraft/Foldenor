@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -92,6 +_,17 @@
+@@ -93,6 +_,17 @@
      private final LevelChunkTicks<Block> blockTicks;
      private final LevelChunkTicks<Fluid> fluidTicks;
      private LevelChunk.UnsavedListener unsavedListener = chunkPos -> {};
@@ -18,7 +18,7 @@
      // CraftBukkit start
      public boolean mustNotSave;
      public boolean needsDecoration;
-@@ -170,6 +_,7 @@
+@@ -171,6 +_,7 @@
          this.debug = !empty && this.level.isDebug();
          this.defaultBlockState = empty ? VOID_AIR_BLOCKSTATE : AIR_BLOCKSTATE;
          // Paper end - get block chunk optimisation

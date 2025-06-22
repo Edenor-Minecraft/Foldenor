@@ -9,7 +9,7 @@
  
  public abstract class StructurePlacement {
      public static final Codec<StructurePlacement> CODEC = BuiltInRegistries.STRUCTURE_PLACEMENT
-@@ -118,34 +_,32 @@
+@@ -119,34 +_,32 @@
      public abstract StructurePlacementType<?> type();
  
      private static boolean probabilityReducer(long levelSeed, int regionX, int regionZ, int salt, float probability, @org.jetbrains.annotations.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs; ignore here

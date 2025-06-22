@@ -1,16 +1,16 @@
 --- a/net/minecraft/world/entity/raid/Raid.java
 +++ b/net/minecraft/world/entity/raid/Raid.java
-@@ -104,6 +_,7 @@
+@@ -126,6 +_,7 @@
      private Raid.RaidStatus status;
      private int celebrationTicks;
      private Optional<BlockPos> waveSpawnPos = Optional.empty();
 +    private boolean isBarDirty; // DivineMC - lithium: ai.raid
-     // Paper start
-     private static final String PDC_NBT_KEY = "BukkitValues";
-     private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry PDC_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
-@@ -271,6 +_,12 @@
  
-     public void tick() {
+     // Folia start - make raids thread-safe
+     public boolean ownsRaid(ServerLevel world) {
+@@ -286,6 +_,12 @@
+ 
+     public void tick(ServerLevel level) {
          if (!this.isStopped()) {
 +            // DivineMC start - lithium: ai.raid
 +            if (this.isBarDirty) {
@@ -20,8 +20,8 @@
 +            // DivineMC end
              if (this.status == Raid.RaidStatus.ONGOING) {
                  boolean flag = this.active;
-                 this.active = this.level.hasChunkAt(this.center);
-@@ -594,9 +_,15 @@
+                 this.active = level.hasChunkAt(this.center);
+@@ -603,9 +_,15 @@
          }
      }
  

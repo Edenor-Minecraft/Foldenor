@@ -1,9 +1,9 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -3013,7 +_,7 @@
+@@ -2991,7 +_,7 @@
          if (this.player.isImmobile()) return; // CraftBukkit
          this.player.resetLastActionTime();
-         if (this.player.containerMenu.containerId == packet.getContainerId() && this.player.containerMenu.stillValid(this.player)) { // CraftBukkit
+         if (this.player.containerMenu.containerId == packet.containerId() && this.player.containerMenu.stillValid(this.player)) { // CraftBukkit
 -            boolean cancelled = this.player.isSpectator(); // CraftBukkit - see below if
 +            boolean cancelled = !this.player.getBukkitEntity().hasPermission("foldenor.spectatorinv") && this.player.isSpectator(); // CraftBukkit - see below if
              if (false/*this.player.isSpectator()*/) { // CraftBukkit

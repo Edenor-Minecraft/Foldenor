@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/allay/Allay.java
 +++ b/net/minecraft/world/entity/animal/allay/Allay.java
-@@ -243,10 +_,12 @@
+@@ -239,10 +_,12 @@
          return 0.4F;
      }
  

@@ -19,7 +19,7 @@
      public static final int COLUMNS = 9;
      public static final int ROWS = 3;
      public static final int CONTAINER_SIZE = 27;
-@@ -83,11 +_,19 @@
+@@ -88,11 +_,19 @@
      public ShulkerBoxBlockEntity(@Nullable DyeColor color, BlockPos pos, BlockState blockState) {
          super(BlockEntityType.SHULKER_BOX, pos, blockState);
          this.color = color;
@@ -39,7 +39,7 @@
      }
  
      public static void tick(Level level, BlockPos pos, BlockState state, ShulkerBoxBlockEntity blockEntity) {
-@@ -242,7 +_,10 @@
+@@ -251,7 +_,10 @@
      }
  
      public void loadFromTag(CompoundTag tag, HolderLookup.Provider levelRegistry) {
@@ -48,10 +48,10 @@
 +        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
 +        this.itemStacks = this.optimizedItems.nonNullList;
 +        // Pufferfish end - Improve container checking with a bitset
-         if (!this.tryLoadLootTable(tag) && tag.contains("Items", 9)) {
+         if (!this.tryLoadLootTable(tag)) {
              ContainerHelper.loadAllItems(tag, this.itemStacks, levelRegistry);
          }
-@@ -255,7 +_,10 @@
+@@ -264,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

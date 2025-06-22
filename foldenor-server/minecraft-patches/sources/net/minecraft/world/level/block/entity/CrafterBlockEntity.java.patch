@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
-@@ -30,6 +_,18 @@
-     public static final int SLOT_ENABLED = 0;
-     public static final int DATA_TRIGGERED = 9;
+@@ -32,6 +_,18 @@
      public static final int NUM_DATA = 10;
+     private static final int DEFAULT_CRAFTING_TICKS_REMAINING = 0;
+     private static final int DEFAULT_TRIGGERED = 0;
 +    // Pufferfish start - Improve container checking with a bitset
 +    private gg.airplane.structs.ItemListWithBitset optimizedItems;
 +    @Override
@@ -19,7 +19,7 @@
      private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
      public int craftingTicksRemaining = 0;
      protected final ContainerData containerData = new ContainerData() {
-@@ -99,6 +_,10 @@
+@@ -101,6 +_,10 @@
  
      public CrafterBlockEntity(BlockPos pos, BlockState state) {
          super(BlockEntityType.CRAFTER, pos, state);
@@ -30,10 +30,10 @@
      }
  
      @Override
-@@ -150,7 +_,10 @@
+@@ -152,7 +_,10 @@
      protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
          super.loadAdditional(tag, registries);
-         this.craftingTicksRemaining = tag.getInt("crafting_ticks_remaining");
+         this.craftingTicksRemaining = tag.getIntOr("crafting_ticks_remaining", 0);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 +        // Pufferfish start - Improve container checking with a bitset
 +        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
@@ -42,7 +42,7 @@
          if (!this.tryLoadLootTable(tag)) {
              ContainerHelper.loadAllItems(tag, this.items, registries);
          }
-@@ -224,7 +_,10 @@
+@@ -225,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

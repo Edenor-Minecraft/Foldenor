@@ -28,7 +28,7 @@
      public static final int MOVE_ITEM_SPEED = 8;
      public static final int HOPPER_CONTAINER_SIZE = 5;
      private static final int[][] CACHED_SLOTS = new int[54][];
-@@ -80,12 +_,19 @@
+@@ -85,12 +_,19 @@
      public HopperBlockEntity(BlockPos pos, BlockState blockState) {
          super(BlockEntityType.HOPPER, pos, blockState);
          this.facing = blockState.getValue(HopperBlock.FACING);
@@ -49,7 +49,7 @@
          if (!this.tryLoadLootTable(tag)) {
              ContainerHelper.loadAllItems(tag, this.items, registries);
          }
-@@ -156,6 +_,14 @@
+@@ -161,6 +_,14 @@
      private static int getFullState(final HopperBlockEntity hopper) {
          hopper.unpackLootTable(null);
  
@@ -64,7 +64,7 @@
          final List<ItemStack> hopperItems = hopper.items;
  
          boolean empty = true;
-@@ -430,6 +_,11 @@
+@@ -435,6 +_,11 @@
          } else {
              Direction opposite = blockEntity.facing.getOpposite();
              if (isFullContainer(attachedContainer, opposite)) {
@@ -76,7 +76,7 @@
                  return false;
              } else {
                  // Paper start - Perf: Optimize Hoppers
-@@ -522,6 +_,7 @@
+@@ -527,6 +_,7 @@
      }
  
      private static boolean isFullContainer(Container container, Direction direction) {
@@ -84,7 +84,7 @@
          int[] slots = getSlots(container, direction);
  
          for (int i : slots) {
-@@ -867,7 +_,10 @@
+@@ -872,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

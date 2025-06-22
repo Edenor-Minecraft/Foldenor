@@ -1,15 +1,6 @@
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -13,6 +_,8 @@
- import java.util.Set;
- import java.util.function.Predicate;
- import javax.annotation.Nullable;
-+
-+import net.edenor.foldenor.config.FoldenorConfig;
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.Holder;
- import net.minecraft.core.NonNullList;
-@@ -219,10 +_,15 @@
+@@ -207,10 +_,15 @@
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -27,7 +18,7 @@
              this.targetSelector.tick();
          }
      }
-@@ -825,7 +_,7 @@
+@@ -695,7 +_,7 @@
          if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
              this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
          } else if (!this.isPersistenceRequired() && !this.requiresCustomPersistence()) {
@@ -36,7 +27,7 @@
              if (nearestPlayer != null) {
                  // Paper start - Configurable despawn distances
                  final io.papermc.paper.configuration.WorldConfiguration.Entities.Spawning.DespawnRangePair despawnRangePair = this.level().paperConfig().entities.spawning.despawnRanges.get(this.getType().getCategory());
-@@ -854,6 +_,19 @@
+@@ -724,6 +_,19 @@
          }
      }
  
@@ -56,7 +47,7 @@
      @Override
      protected final void serverAiStep() {
          this.noActionTime++;
-@@ -873,16 +_,20 @@
+@@ -743,16 +_,20 @@
          int i = this.tickCount + this.getId();
          if (i % 2 != 0 && this.tickCount > 1) {
              profilerFiller.push("targetSelector");
@@ -77,7 +68,7 @@
              this.goalSelector.tick();
              profilerFiller.pop();
          }
-@@ -1639,17 +_,28 @@
+@@ -1517,17 +_,28 @@
      protected void playAttackSound() {
      }
  
@@ -87,7 +78,7 @@
 +    // Gale end - JettPack - optimize sun burn tick - cache eye blockpos
 +
      public boolean isSunBurnTick() {
-         if (this.level().isDay() && !this.level().isClientSide) {
+         if (this.level().isBrightOutside() && !this.level().isClientSide) {
 -            float lightLevelDependentMagicValue = this.getLightLevelDependentMagicValue();
 -            BlockPos blockPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
 +            // Gale start - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
@@ -103,7 +94,7 @@
 +            if (lightLevelDependentMagicValue <= 0.5F) return false;
 +            if (this.random.nextFloat() * 30.0F >= (lightLevelDependentMagicValue - 0.4F) * 2.0F) return false;
 +            // Gale end - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
-             boolean flag = this.isInWaterRainOrBubble() || this.isInPowderSnow || this.wasInPowderSnow;
+             boolean flag = this.isInWaterOrRain() || this.isInPowderSnow || this.wasInPowderSnow;
 -            if (lightLevelDependentMagicValue > 0.5F
 -                && this.random.nextFloat() * 30.0F < (lightLevelDependentMagicValue - 0.4F) * 2.0F
 -                && !flag

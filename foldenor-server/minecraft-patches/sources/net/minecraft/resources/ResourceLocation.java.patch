@@ -1,6 +1,6 @@
 --- a/net/minecraft/resources/ResourceLocation.java
 +++ b/net/minecraft/resources/ResourceLocation.java
-@@ -36,7 +_,7 @@
+@@ -27,7 +_,7 @@
      private final String namespace;
      private final String path;
  

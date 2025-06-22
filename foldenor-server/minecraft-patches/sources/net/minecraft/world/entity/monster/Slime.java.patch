@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/entity/monster/Slime.java
 +++ b/net/minecraft/world/entity/monster/Slime.java
-@@ -339,8 +_,8 @@
+@@ -327,8 +_,8 @@
                  return false;
              }
  
 -            ChunkPos chunkPos = new ChunkPos(pos);
--            boolean flag = level.getMinecraftWorld().paperConfig().entities.spawning.allChunksAreSlimeChunks || WorldgenRandom.seedSlimeChunk(chunkPos.x, chunkPos.z, ((WorldGenLevel) level).getSeed(), level.getMinecraftWorld().spigotConfig.slimeSeed).nextInt(10) == 0; // Spigot // Paper
+-            boolean flag = level.getMinecraftWorld().paperConfig().entities.spawning.allChunksAreSlimeChunks || WorldgenRandom.seedSlimeChunk(chunkPos.x, chunkPos.z, ((WorldGenLevel) level).getSeed(), level.getMinecraftWorld().spigotConfig.slimeSeed).nextInt(10) == 0; // Paper
 +            ChunkPos chunkcoordintpair = new ChunkPos(pos);
 +            boolean flag = level.getMinecraftWorld().paperConfig().entities.spawning.allChunksAreSlimeChunks || level.getChunk(chunkcoordintpair.x, chunkcoordintpair.z).isSlimeChunk(); // Spigot // Paper
                  // Paper start - Replace rules for Height in Slime Chunks

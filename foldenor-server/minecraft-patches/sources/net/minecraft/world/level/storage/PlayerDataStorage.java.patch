@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/storage/PlayerDataStorage.java
 +++ b/net/minecraft/world/level/storage/PlayerDataStorage.java
-@@ -34,6 +_,13 @@
+@@ -32,6 +_,13 @@
  
      public void save(Player player) {
          if (org.spigotmc.SpigotConfig.disablePlayerDataSaving) return; // Spigot

@@ -1,7 +1,7 @@
 --- a/net/minecraft/world/entity/animal/frog/Frog.java
 +++ b/net/minecraft/world/entity/animal/frog/Frog.java
-@@ -184,10 +_,12 @@
-             .ifPresent(this::setVariant);
+@@ -201,10 +_,12 @@
+         VariantUtils.readVariant(compound, this.registryAccess(), Registries.FROG_VARIANT).ifPresent(this::setVariant);
      }
  
 +    private int behaviorTick = 0; // Pufferfish

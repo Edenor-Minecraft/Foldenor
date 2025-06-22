@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/armadillo/Armadillo.java
 +++ b/net/minecraft/world/entity/animal/armadillo/Armadillo.java
-@@ -131,10 +_,12 @@
+@@ -132,10 +_,12 @@
          return ArmadilloAi.makeBrain(this.brainProvider().makeBrain(dynamic));
      }
  

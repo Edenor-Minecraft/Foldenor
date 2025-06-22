@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
-@@ -974,15 +_,17 @@
+@@ -958,15 +_,18 @@
          for (int i = 0, len = entities.size(); i < len; ++i) {
              Entity entity = entities.get(i);
  
@@ -8,9 +8,9 @@
 -                && !((net.minecraft.server.level.ServerPlayer) source).getBukkitEntity().canSee(((net.minecraft.server.level.ServerPlayer) entity).getBukkitEntity())) {
 -                continue;
 -            }
--
 +            // Leaf - move up
-             // !entity1.dead && entity1.i && (entity == null || !entity1.x(entity));
+ 
+             // !entity1.isRemoved() && entity1.blocksBuilding && (entity == null || !entity1.isPassengerOfSameVehicle(entity))
              // elide the last check since vanilla calls with entity = null
              // only we care about the source for the canSee check
              if (entity.isRemoved() || !entity.blocksBuilding) {
@@ -19,7 +19,7 @@
 +            // Leaf end
 +
 +            if (checkCanSee && source instanceof net.minecraft.server.level.ServerPlayer && entity instanceof net.minecraft.server.level.ServerPlayer
-+                && !((net.minecraft.server.level.ServerPlayer) source).getBukkitEntity().canSee(((net.minecraft.server.level.ServerPlayer) entity).getBukkitEntity())) {
++                    && !((net.minecraft.server.level.ServerPlayer) source).getBukkitEntity().canSee(((net.minecraft.server.level.ServerPlayer) entity).getBukkitEntity())) {
                  continue;
              }
  

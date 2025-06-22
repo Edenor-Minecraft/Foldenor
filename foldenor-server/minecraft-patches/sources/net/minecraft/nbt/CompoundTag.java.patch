@@ -1,6 +1,6 @@
 --- a/net/minecraft/nbt/CompoundTag.java
 +++ b/net/minecraft/nbt/CompoundTag.java
-@@ -49,7 +_,7 @@
+@@ -54,7 +_,7 @@
  
          private static CompoundTag loadCompound(DataInput input, NbtAccounter nbtAccounter) throws IOException {
              nbtAccounter.accountBytes(48L);
@@ -9,7 +9,7 @@
  
              byte b;
              while ((b = input.readByte()) != 0) {
-@@ -166,7 +_,7 @@
+@@ -171,7 +_,7 @@
      }
  
      public CompoundTag() {
@@ -18,7 +18,7 @@
      }
  
      @Override
-@@ -497,6 +_,11 @@
+@@ -402,6 +_,11 @@
  
      @Override
      public CompoundTag copy() {

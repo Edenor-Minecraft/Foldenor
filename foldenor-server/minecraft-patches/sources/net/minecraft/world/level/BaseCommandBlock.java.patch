@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/BaseCommandBlock.java
 +++ b/net/minecraft/world/level/BaseCommandBlock.java
-@@ -114,7 +_,7 @@
+@@ -102,7 +_,7 @@
      }
  
      public boolean performCommand(Level level) {

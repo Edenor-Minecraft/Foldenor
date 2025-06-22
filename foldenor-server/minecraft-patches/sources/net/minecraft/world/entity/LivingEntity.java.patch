@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -1372,7 +_,8 @@
+@@ -1385,7 +_,8 @@
                  player.setRealHealth(health);
              }
  
@@ -10,7 +10,7 @@
              return;
          }
          // CraftBukkit end
-@@ -2044,6 +_,17 @@
+@@ -2112,6 +_,17 @@
          return this.lastClimbablePos;
      }
  
@@ -28,7 +28,7 @@
      public boolean onClimbable() {
          if (this.isSpectator()) {
              return false;
-@@ -2628,6 +_,7 @@
+@@ -2690,6 +_,7 @@
      }
  
      protected void updateSwingTime() {
@@ -36,7 +36,7 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
-@@ -3553,6 +_,7 @@
+@@ -3573,6 +_,7 @@
      protected void updateFallFlying() {
          this.checkSlowFallDistance();
          if (!this.level().isClientSide) {
