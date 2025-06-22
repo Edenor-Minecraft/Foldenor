@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/monster/Slime.java
 +++ b/net/minecraft/world/entity/monster/Slime.java
-@@ -327,8 +_,8 @@
+@@ -328,8 +_,8 @@
                  return false;
              }
  

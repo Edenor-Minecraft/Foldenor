@@ -9,7 +9,7 @@
  import net.minecraft.BlockUtil;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
-@@ -70,10 +_,9 @@
+@@ -65,10 +_,9 @@
  
      @Override
      protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {

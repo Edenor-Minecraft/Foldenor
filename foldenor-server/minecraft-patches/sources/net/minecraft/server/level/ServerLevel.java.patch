@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -564,6 +_,7 @@
+@@ -567,6 +_,7 @@
              chunkGenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkGenerator, gen);
          }
          // CraftBukkit end
@@ -8,7 +8,7 @@
          boolean flag = server.forceSynchronousWrites();
          DataFixer fixerUpper = server.getFixerUpper();
          // Paper - rewrite chunk system
-@@ -808,6 +_,7 @@
+@@ -812,6 +_,7 @@
              regionizedWorldData // Folia - regionised ticking
                  .forEachTickingEntity( // Folia - regionised ticking
                      entity -> {
@@ -16,7 +16,7 @@
                          if (!entity.isRemoved()) {
                              if (!tickRateManager.isEntityFrozen(entity)) {
                                  profilerFiller.push("checkDespawn");
-@@ -825,7 +_,21 @@
+@@ -829,7 +_,21 @@
                                      }
  
                                      profilerFiller.push("tick");
@@ -39,7 +39,7 @@
                                      profilerFiller.pop();
                                  }
                              }
-@@ -1008,7 +_,7 @@
+@@ -1012,7 +_,7 @@
          int minBlockZ = pos.getMinBlockZ();
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("thunder");

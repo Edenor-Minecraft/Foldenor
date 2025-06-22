@@ -1,6 +1,6 @@
 --- a/folia-server/build.gradle.kts
 +++ b/folia-server/build.gradle.kts
-@@ -37,7 +_,22 @@
+@@ -33,7 +_,22 @@
          }
      }
  
@@ -23,8 +23,8 @@
 +    activeFork = foldenor
  
      spigot {
-         buildDataRef = "702e1a0a5072b2c4082371d5228cb30525687efc"
-@@ -123,10 +_,14 @@
+         enabled = true
+@@ -120,10 +_,14 @@
      main {
          java { srcDir("../paper-server/src/main/java"); srcDir("../paper-server/src/generated/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -39,7 +39,7 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -153,7 +_,7 @@
+@@ -150,7 +_,7 @@
  }
  
  dependencies {
@@ -48,21 +48,21 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -190,6 +_,13 @@
-         isTransitive = false // includes junit
-     }
- 
+@@ -212,6 +_,13 @@
+     // Spark
+     implementation("me.lucko:spark-api:0.1-20240720.200737-2")
+     implementation("me.lucko:spark-paper:1.10.133-20250413.112336-1")
++
 +    // LinearPaper start
 +    implementation("com.github.luben:zstd-jni:1.5.6-6")
 +    implementation("org.lz4:lz4-java:1.8.0")
 +    // LinearPaper end
 +
 +    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
-+
-     runtimeOnly("org.apache.maven:maven-resolver-provider:3.9.6")
-     runtimeOnly("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.18")
-     runtimeOnly("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
-@@ -229,14 +_,14 @@
+ }
+ 
+ tasks.jar {
+@@ -226,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",

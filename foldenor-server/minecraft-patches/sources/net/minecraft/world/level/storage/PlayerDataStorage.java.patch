@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/storage/PlayerDataStorage.java
 +++ b/net/minecraft/world/level/storage/PlayerDataStorage.java
-@@ -32,6 +_,13 @@
+@@ -33,6 +_,13 @@
  
      public void save(Player player) {
          if (org.spigotmc.SpigotConfig.disablePlayerDataSaving) return; // Spigot
@@ -11,6 +11,6 @@
 +
 +    private void save0(Player player) {
 +        // Leaf end - Nitori - Async playerdata save
-         try {
-             CompoundTag compoundTag = player.saveWithoutId(new CompoundTag());
-             Path path = this.playerDir.toPath();
+         try (ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+             TagValueOutput tagValueOutput = TagValueOutput.createWithContext(scopedCollector, player.registryAccess());
+             player.saveWithoutId(tagValueOutput);

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/monster/hoglin/Hoglin.java
 +++ b/net/minecraft/world/entity/monster/hoglin/Hoglin.java
-@@ -159,10 +_,12 @@
+@@ -160,10 +_,12 @@
          return (Brain<Hoglin>)super.getBrain();
      }
  

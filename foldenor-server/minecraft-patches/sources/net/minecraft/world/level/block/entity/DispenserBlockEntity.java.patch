@@ -1,7 +1,7 @@
 --- a/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
 @@ -14,6 +_,18 @@
- import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.storage.ValueOutput;
  
  public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
 +    // Pufferfish start - Improve container checking with a bitset
@@ -32,15 +32,15 @@
      public DispenserBlockEntity(BlockPos pos, BlockState blockState) {
 @@ -112,7 +_,10 @@
      @Override
-     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-         super.loadAdditional(tag, registries);
+     protected void loadAdditional(ValueInput input) {
+         super.loadAdditional(input);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 +        // Pufferfish start - Improve container checking with a bitset
 +        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
 +        this.items = this.optimizedItems.nonNullList;
 +        // Pufferfish end - Improve container checking with a bitset
-         if (!this.tryLoadLootTable(tag)) {
-             ContainerHelper.loadAllItems(tag, this.items, registries);
+         if (!this.tryLoadLootTable(input)) {
+             ContainerHelper.loadAllItems(input, this.items);
          }
 @@ -133,7 +_,10 @@
  

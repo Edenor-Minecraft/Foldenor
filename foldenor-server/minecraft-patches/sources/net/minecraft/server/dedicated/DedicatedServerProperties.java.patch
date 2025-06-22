@@ -9,7 +9,7 @@
  import net.minecraft.core.Holder;
  import net.minecraft.core.HolderLookup;
  import net.minecraft.core.RegistryAccess;
-@@ -113,7 +_,17 @@
+@@ -115,7 +_,17 @@
          String string = this.get("level-seed", "");
          boolean flag = this.get("generate-structures", true);
          long l = WorldOptions.parseSeed(string).orElse(WorldOptions.randomSeed());

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -889,11 +_,11 @@
+@@ -869,11 +_,11 @@
      }
  
      public static boolean isSameItem(ItemStack stack, ItemStack other) {

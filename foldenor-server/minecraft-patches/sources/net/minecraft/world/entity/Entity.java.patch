@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -27,6 +_,8 @@
+@@ -29,6 +_,8 @@
  import java.util.function.Predicate;
  import java.util.stream.Stream;
  import javax.annotation.Nullable;
@@ -9,7 +9,7 @@
  import net.minecraft.BlockUtil;
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
-@@ -233,7 +_,7 @@
+@@ -253,7 +_,7 @@
      public double xo;
      public double yo;
      public double zo;
@@ -18,7 +18,7 @@
      private BlockPos blockPosition;
      private ChunkPos chunkPosition;
      private Vec3 deltaMovement = Vec3.ZERO;
-@@ -350,6 +_,9 @@
+@@ -371,6 +_,9 @@
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
@@ -28,7 +28,7 @@
  
      public void inactiveTick() {
      }
-@@ -883,7 +_,11 @@
+@@ -905,7 +_,11 @@
  
          this.checkBelowWorld();
          if (!this.level().isClientSide) {
@@ -41,7 +41,7 @@
          }
  
          this.firstTick = false;
-@@ -1086,6 +_,11 @@
+@@ -1108,6 +_,11 @@
      // Paper end - detailed watchdog information
  
      public void move(MoverType type, Vec3 movement) {
@@ -53,7 +53,7 @@
          final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
          // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
-@@ -2046,10 +_,18 @@
+@@ -2116,10 +_,18 @@
  
      @Deprecated
      public float getLightLevelDependentMagicValue() {
@@ -76,7 +76,7 @@
  
      public void absSnapTo(double x, double y, double z, float yRot, float xRot) {
          this.absSnapTo(x, y, z);
-@@ -2168,8 +_,7 @@
+@@ -2238,8 +_,7 @@
      }
  
      public void push(Entity entity) {
@@ -86,7 +86,7 @@
                  if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
                  double d = entity.getX() - this.getX();
                  double d1 = entity.getZ() - this.getZ();
-@@ -2195,7 +_,6 @@
+@@ -2265,7 +_,6 @@
                          entity.push(d, 0.0, d1);
                      }
                  }
@@ -94,41 +94,30 @@
          }
      }
  
-@@ -4602,13 +_,13 @@
+@@ -4809,7 +_,7 @@
          return this;
      }
  
--    private Entity teleportCrossDimension(ServerLevel level, TeleportTransition teleportTransition) {
-+    protected Entity teleportCrossDimension(ServerLevel world, TeleportTransition teleportTarget) { // Leaves - private -> protected
+-    private Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
++    protected Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
          List<Entity> passengers = this.getPassengers();
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
- 
-         for (Entity entity : passengers) {
--            Entity entity1 = entity.teleport(this.calculatePassengerTransition(teleportTransition, entity));
-+            Entity entity1 = entity.teleport(this.calculatePassengerTransition(teleportTarget, entity));
-             if (entity1 != null) {
-                 list.add(entity1);
-             }
-@@ -4628,15 +_,13 @@
-             // Paper end - Fix item duplication and teleport issues
+@@ -4836,13 +_,11 @@
              entityx.restoreFrom(this);
              this.removeAfterChangingDimensions();
--            entityx.teleportSetPosition(PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
--            if (this.inWorld) level.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
-+            entityx.teleportSetPosition(PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
+             entityx.teleportSetPosition(PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
+-            if (this.inWorld) newLevel.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
  
              for (Entity entity2 : list) {
                  entity2.startRiding(entityx, true);
              }
  
--            level.resetEmptyTime();
--            teleportTransition.postTeleportTransition().onTransition(entityx);
-+            teleportTarget.postTeleportTransition().onTransition(entityx);
+-            newLevel.resetEmptyTime();
+             teleportTransition.postTeleportTransition().onTransition(entityx);
+             this.teleportSpectators(teleportTransition, oldLevel);
              profilerFiller.pop();
-             return entityx;
-         }
-@@ -4985,6 +_,11 @@
+@@ -5206,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {

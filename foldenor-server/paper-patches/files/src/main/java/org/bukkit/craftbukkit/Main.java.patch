@@ -1,15 +1,15 @@
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -165,6 +_,12 @@
-                         .defaultsTo(new File[] {})
-                         .describedAs("Jar file");
- 
-+                acceptsAll(asList("foldenor", "foldenor-settings"), "File for foldenor settings")
+@@ -169,6 +_,12 @@
+                         .ofType(String.class)
+                         .defaultsTo("Unknown Server")
+                         .describedAs("Name");
++
++                this.acceptsAll(asList("foldenor", "foldenor-settings"), "File for foldenor settings")
 +                        .withRequiredArg()
 +                        .ofType(File.class)
 +                        .defaultsTo(new File("foldenor.yml"))
 +                        .describedAs("Yml file");
-+
-                 acceptsAll(asList("server-name"), "Name of the server")
-                         .withRequiredArg()
-                         .ofType(String.class)
+             }
+         };
+ 

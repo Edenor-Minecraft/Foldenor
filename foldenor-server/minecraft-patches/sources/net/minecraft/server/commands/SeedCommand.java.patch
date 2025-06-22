@@ -1,31 +1,24 @@
 --- a/net/minecraft/server/commands/SeedCommand.java
 +++ b/net/minecraft/server/commands/SeedCommand.java
-@@ -1,10 +_,14 @@
+@@ -1,6 +_,7 @@
  package net.minecraft.server.commands;
  
-+import net.edenor.foldenor.secureseed.Globals;
-+import net.minecraft.ChatFormatting;
  import com.mojang.brigadier.CommandDispatcher;
++import net.edenor.foldenor.secureseed.Globals;
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
-+import net.minecraft.network.chat.ClickEvent;
  import net.minecraft.network.chat.Component;
- import net.minecraft.network.chat.ComponentUtils;
-+import net.minecraft.network.chat.HoverEvent;
- 
- public class SeedCommand {
-     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean notIntegratedServer) {
 @@ -12,6 +_,14 @@
-             long seed = context.getSource().getLevel().getSeed();
+             long seed = commandContext.getSource().getLevel().getSeed();
              Component component = ComponentUtils.copyOnClickText(String.valueOf(seed));
-             context.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false);
+             commandContext.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false);
 +
 +            // Foldenor start - feature secure seed
-+            Globals.setupGlobals(context.getSource().getLevel());
++            Globals.setupGlobals(commandContext.getSource().getLevel());
 +            String seedStr = Globals.seedToString(Globals.worldSeed);
 +
 +            Component featureSeedComponent = ComponentUtils.copyOnClickText(seedStr);
-+            context.getSource().sendSuccess(() -> Component.translatable(("Feature seed: %s"), featureSeedComponent), false);
++            commandContext.getSource().sendSuccess(() -> Component.translatable(("Feature seed: %s"), featureSeedComponent), false);
 +            // Foldenor end
              return (int)seed;
          }));

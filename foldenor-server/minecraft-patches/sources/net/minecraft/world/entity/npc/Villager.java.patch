@@ -9,7 +9,15 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.GlobalPos;
  import net.minecraft.core.Holder;
-@@ -179,6 +_,8 @@
+@@ -87,6 +_,7 @@
+ import net.minecraft.world.item.trading.MerchantOffers;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.ServerLevelAccessor;
++import net.minecraft.world.level.portal.TeleportTransition;
+ import net.minecraft.world.level.storage.ValueInput;
+ import net.minecraft.world.level.storage.ValueOutput;
+ import net.minecraft.world.phys.AABB;
+@@ -180,6 +_,8 @@
          (villager, poiType) -> poiType.is(PoiTypes.MEETING)
      );
  
@@ -18,29 +26,29 @@
      public Villager(EntityType<? extends Villager> entityType, Level level) {
          this(entityType, level, VillagerType.PLAINS);
      }
-@@ -268,6 +_,21 @@
+@@ -269,6 +_,21 @@
          return this.assignProfessionWhenSpawned;
      }
  
 +    // Leaves start - fixes a memory leak when villagers get moved to another world
 +    @Override
-+    public Entity teleportCrossDimension(ServerLevel world, net.minecraft.world.level.portal.TeleportTransition transition) {
++    protected Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
 +        if (FoldenorConfig.villagersDontReleaseMemoryFix) {
 +            this.releaseAllPois();
 +            this.getBrain().eraseMemory(MemoryModuleType.HOME);
 +            this.getBrain().eraseMemory(MemoryModuleType.JOB_SITE);
 +            this.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
 +            this.getBrain().eraseMemory(MemoryModuleType.MEETING_POINT);
-+            this.refreshBrain(transition.newLevel());
++            this.refreshBrain(teleportTransition.newLevel());
 +        }
-+        return super.teleportCrossDimension(world, transition);
++        return super.teleportCrossDimension(oldLevel, newLevel, teleportTransition);
 +    }
 +    // Leaves end - fixes a memory leak when villagers get moved to another world
 +
      // Paper start - EAR 2
      @Override
      public void inactiveTick() {
-@@ -275,7 +_,7 @@
+@@ -276,7 +_,7 @@
          if (this.getUnhappyCounter() > 0) {
              this.setUnhappyCounter(this.getUnhappyCounter() - 1);
          }
@@ -49,7 +57,7 @@
              if (this.level().spigotConfig.tickInactiveVillagers) {
                  this.customServerAiStep(this.level().getMinecraftWorld());
              } else {
-@@ -287,6 +_,8 @@
+@@ -288,6 +_,8 @@
      }
      // Paper end - EAR 2
  
@@ -58,7 +66,7 @@
      @Override
      protected void customServerAiStep(ServerLevel level) {
          // Paper start - EAR 2
-@@ -296,7 +_,11 @@
+@@ -297,7 +_,11 @@
          // Paper end - EAR 2
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("villagerBrain");

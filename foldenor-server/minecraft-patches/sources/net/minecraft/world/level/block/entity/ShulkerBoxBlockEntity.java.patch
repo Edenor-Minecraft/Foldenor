@@ -42,14 +42,14 @@
 @@ -251,7 +_,10 @@
      }
  
-     public void loadFromTag(CompoundTag tag, HolderLookup.Provider levelRegistry) {
+     public void loadFromTag(ValueInput input) {
 -        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 +        // Pufferfish start - Improve container checking with a bitset
 +        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(CONTAINER_SIZE);
 +        this.itemStacks = this.optimizedItems.nonNullList;
 +        // Pufferfish end - Improve container checking with a bitset
-         if (!this.tryLoadLootTable(tag)) {
-             ContainerHelper.loadAllItems(tag, this.itemStacks, levelRegistry);
+         if (!this.tryLoadLootTable(input)) {
+             ContainerHelper.loadAllItems(input, this.itemStacks);
          }
 @@ -264,7 +_,10 @@
  

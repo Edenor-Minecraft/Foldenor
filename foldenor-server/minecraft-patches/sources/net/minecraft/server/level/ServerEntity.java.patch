@@ -9,7 +9,7 @@
  import net.minecraft.core.component.DataComponents;
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
-@@ -189,6 +_,9 @@
+@@ -193,6 +_,9 @@
                      packet = ClientboundEntityPositionSyncPacket.of(this.entity);
                      flag3 = true;
                      flag4 = true;
@@ -19,7 +19,7 @@
                  } else if ((!flag2 || !flag) && !(this.entity instanceof AbstractArrow)) {
                      if (flag2) {
                          packet = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short)l, (short)l1, (short)l2, this.entity.onGround());
-@@ -203,9 +_,10 @@
+@@ -207,9 +_,10 @@
                      flag4 = true;
                  }
  
@@ -32,7 +32,7 @@
                      if (d > 1.0E-7 || d > 0.0 && deltaMovement.lengthSqr() == 0.0) {
                          this.lastSentMovement = deltaMovement;
                          if (this.entity instanceof AbstractHurtingProjectile abstractHurtingProjectile) {
-@@ -223,6 +_,8 @@
+@@ -227,6 +_,8 @@
                          }
                      }
                  }
@@ -41,7 +41,7 @@
  
                  if (packet != null) {
                      this.broadcast.accept(packet);
-@@ -282,6 +_,25 @@
+@@ -286,6 +_,25 @@
              this.lastPassengers.stream().filter(entity -> !entities.contains(entity)),
              entities.stream().filter(entity -> !this.lastPassengers.contains(entity))
          );

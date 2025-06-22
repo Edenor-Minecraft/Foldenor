@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-@@ -41,6 +_,7 @@
+@@ -43,6 +_,7 @@
      private long keepAliveChallenge;
      private long closedListenerTime;
      private boolean closed = false;
@@ -8,7 +8,7 @@
      private int latency;
      private volatile boolean suspendFlushingOnServerThread = false;
      // CraftBukkit start
-@@ -130,6 +_,16 @@
+@@ -132,6 +_,16 @@
  
      @Override
      public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
@@ -25,7 +25,7 @@
          if (this.keepAlivePending && packet.getId() == this.keepAliveChallenge) {
              int i = (int)(Util.getMillis() - this.keepAliveTime);
              this.latency = (this.latency * 3 + i) / 4;
-@@ -148,6 +_,11 @@
+@@ -150,6 +_,11 @@
  
      @Override
      public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
@@ -37,7 +37,7 @@
          // Paper start
          if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.BrandPayload(String brand)) {
              this.player.clientBrandName = brand;
-@@ -201,6 +_,7 @@
+@@ -203,6 +_,7 @@
          final String channel = new String(data, from, length, java.nio.charset.StandardCharsets.US_ASCII);
          if (register) {
              this.getCraftPlayer().addChannel(channel);
@@ -45,7 +45,7 @@
          } else {
              this.getCraftPlayer().removeChannel(channel);
          }
-@@ -254,6 +_,21 @@
+@@ -262,6 +_,21 @@
          // Paper start - give clients a longer time to respond to pings as per pre 1.12.2 timings
          // This should effectively place the keepalive handling back to "as it was" before 1.12.2
          final long elapsedTime = millis - this.keepAliveTime;

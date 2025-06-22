@@ -8,7 +8,7 @@
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
- import net.minecraft.core.HolderLookup;
+ import net.minecraft.core.NonNullList;
 @@ -29,6 +_,18 @@
  import net.minecraft.world.phys.AABB;
  
@@ -39,15 +39,15 @@
      }
  
      @Override
-     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-         super.loadAdditional(tag, registries);
+     protected void loadAdditional(ValueInput input) {
+         super.loadAdditional(input);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 +        // Pufferfish start - Improve container checking with a bitset
 +        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
 +        this.items = this.optimizedItems.nonNullList;
 +        // Pufferfish end - Improve container checking with a bitset
-         if (!this.tryLoadLootTable(tag)) {
-             ContainerHelper.loadAllItems(tag, this.items, registries);
+         if (!this.tryLoadLootTable(input)) {
+             ContainerHelper.loadAllItems(input, this.items);
          }
 @@ -161,6 +_,14 @@
      private static int getFullState(final HopperBlockEntity hopper) {

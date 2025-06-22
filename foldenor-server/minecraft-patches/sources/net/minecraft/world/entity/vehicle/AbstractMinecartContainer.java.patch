@@ -1,14 +1,14 @@
 --- a/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
 +++ b/net/minecraft/world/entity/vehicle/AbstractMinecartContainer.java
-@@ -5,6 +_,7 @@
- import net.minecraft.nbt.CompoundTag;
+@@ -4,6 +_,7 @@
+ import net.minecraft.core.NonNullList;
  import net.minecraft.resources.ResourceKey;
  import net.minecraft.server.level.ServerLevel;
 +import net.minecraft.world.Container;
  import net.minecraft.world.Containers;
  import net.minecraft.world.InteractionHand;
  import net.minecraft.world.InteractionResult;
-@@ -22,6 +_,18 @@
+@@ -23,6 +_,18 @@
  
  public abstract class AbstractMinecartContainer extends AbstractMinecart implements ContainerEntity {
      private NonNullList<ItemStack> itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
@@ -27,7 +27,7 @@
      @Nullable
      public ResourceKey<LootTable> lootTable;
      public long lootTableSeed;
-@@ -29,6 +_,10 @@
+@@ -30,6 +_,10 @@
  
      protected AbstractMinecartContainer(EntityType<?> entityType, Level level) {
          super(entityType, level);
@@ -38,7 +38,7 @@
      }
  
      @Override
-@@ -163,7 +_,10 @@
+@@ -164,7 +_,10 @@
  
      @Override
      public void clearItemStacks() {

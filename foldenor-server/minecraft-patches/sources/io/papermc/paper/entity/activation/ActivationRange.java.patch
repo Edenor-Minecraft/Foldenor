@@ -7,15 +7,15 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.world.entity.Entity;
-@@ -32,6 +_,7 @@
- import net.minecraft.world.entity.schedule.Activity;
+@@ -36,6 +_,7 @@
+ import net.minecraft.world.entity.vehicle.AbstractMinecart;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.phys.AABB;
 +import net.minecraft.world.phys.Vec3;
  import org.spigotmc.SpigotWorldConfig;
- 
- public final class ActivationRange {
-@@ -138,6 +_,8 @@
+ import java.util.List;
+ import java.util.Set;
+@@ -144,6 +_,8 @@
          maxRange = Math.min((world.spigotConfig.simulationDistance << 4) - 8, maxRange);
  
          for (final Player player : world.getLocalPlayers()) { // Folia - region threading
@@ -24,7 +24,7 @@
              player.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick(); // Folia - region threading
              if (world.spigotConfig.ignoreSpectatorActivation && player.isSpectator()) {
                  continue;
-@@ -168,6 +_,24 @@
+@@ -174,6 +_,24 @@
                  }
  
                  ActivationRange.activateEntity(entity, bbByType); // Folia - threaded regions
@@ -49,7 +49,7 @@
              }
          }
      }
-@@ -178,13 +_,13 @@
+@@ -184,13 +_,13 @@
       * @param entity
       */
      private static void activateEntity(final Entity entity, final AABB[] bbByType) { // Folia - threaded regions
@@ -66,7 +66,7 @@
              }
          }
      }
-@@ -225,7 +_,7 @@
+@@ -231,7 +_,7 @@
          }
          // special cases.
          if (entity instanceof final LivingEntity living) {

@@ -1,15 +1,15 @@
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -208,7 +_,7 @@
+@@ -219,7 +_,7 @@
      private static final boolean DEFAULT_SPAWN_EXTRA_PARTICLES_ON_FALL = false;
      public ServerGamePacketListenerImpl connection;
-     public final MinecraftServer server;
+     private final MinecraftServer server;
 -    public final ServerPlayerGameMode gameMode;
 +    public ServerPlayerGameMode gameMode;
      private final PlayerAdvancements advancements;
      private final ServerStatsCounter stats;
      private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
-@@ -1061,9 +_,10 @@
+@@ -1074,9 +_,10 @@
              }
              // CraftBukkit end
          } catch (Throwable var4) {

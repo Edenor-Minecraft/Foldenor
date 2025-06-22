@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/chunk/ChunkAccess.java
 +++ b/net/minecraft/world/level/chunk/ChunkAccess.java
-@@ -191,6 +_,18 @@
+@@ -192,6 +_,18 @@
          return GameEventListenerRegistry.NOOP;
      }
  

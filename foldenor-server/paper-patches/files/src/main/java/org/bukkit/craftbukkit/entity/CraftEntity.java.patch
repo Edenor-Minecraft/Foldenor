@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftEntity.java
-@@ -13,6 +_,8 @@
+@@ -14,6 +_,8 @@
  import java.util.UUID;
  import io.papermc.paper.entity.LookAnchor;
  import java.util.concurrent.CompletableFuture;
@@ -8,8 +8,8 @@
 +
  import net.kyori.adventure.util.TriState;
  import net.minecraft.nbt.CompoundTag;
- import net.minecraft.nbt.Tag;
-@@ -275,19 +_,41 @@
+ import net.minecraft.network.chat.Component;
+@@ -283,19 +_,41 @@
  
      @Override
      public boolean teleport(Location location) {
@@ -52,7 +52,7 @@
              throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
          }
          // Folia end - region threading
-@@ -346,11 +_,27 @@
+@@ -354,11 +_,27 @@
  
      @Override
      public boolean teleport(org.bukkit.entity.Entity destination) {

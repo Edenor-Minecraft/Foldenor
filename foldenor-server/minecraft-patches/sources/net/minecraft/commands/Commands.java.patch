@@ -1,17 +1,17 @@
 --- a/net/minecraft/commands/Commands.java
 +++ b/net/minecraft/commands/Commands.java
-@@ -162,8 +_,8 @@
+@@ -188,8 +_,8 @@
          ClearInventoryCommands.register(this.dispatcher, context);
          //CloneCommands.register(this.dispatcher, context); // Folia - region threading - TODO
          DamageCommand.register(this.dispatcher, context);
 -        //DataCommands.register(this.dispatcher); // Folia - region threading - TODO
--        //DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
+-        //DataPackCommand.register(this.dispatcher, context); // Folia - region threading - TODO
 +        DataCommands.register(this.dispatcher); // Folia - region threading - TODO
-+        DataPackCommand.register(this.dispatcher); // Folia - region threading - TODO
++        DataPackCommand.register(this.dispatcher, context); // Folia - region threading - TODO
          //DebugCommand.register(this.dispatcher); // Folia - region threading - TODO
          DefaultGameModeCommands.register(this.dispatcher);
-         DifficultyCommand.register(this.dispatcher);
-@@ -174,7 +_,7 @@
+         //DialogCommand.register(this.dispatcher, context); // Folia - region threading - TODO
+@@ -201,7 +_,7 @@
          FillCommand.register(this.dispatcher, context);
          FillBiomeCommand.register(this.dispatcher, context);
          ForceLoadCommand.register(this.dispatcher);
@@ -20,7 +20,7 @@
          GameModeCommand.register(this.dispatcher);
          GameRuleCommand.register(this.dispatcher, context);
          GiveCommand.register(this.dispatcher, context);
-@@ -193,20 +_,20 @@
+@@ -220,21 +_,21 @@
          //ReloadCommand.register(this.dispatcher); // Folia - region threading
          RecipeCommand.register(this.dispatcher);
          //ReturnCommand.register(this.dispatcher); // Folia - region threading - TODO later
@@ -32,6 +32,7 @@
 -        //ScoreboardCommand.register(this.dispatcher, context); // Folia - region threading
 +        ScoreboardCommand.register(this.dispatcher, context); // Folia - region threading
          SeedCommand.register(this.dispatcher, selection != Commands.CommandSelection.INTEGRATED);
+         VersionCommand.register(this.dispatcher, selection != Commands.CommandSelection.INTEGRATED);
          SetBlockCommand.register(this.dispatcher, context);
          SetSpawnCommand.register(this.dispatcher);
          SetWorldSpawnCommand.register(this.dispatcher);
