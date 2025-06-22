@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "1.21.5" ]
+    branches: [ "ver/1.21.5" ]
   workflow_dispatch:
   #workflow_run:
     #workflows: ["Automatically update Folia commit"]
