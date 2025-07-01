@@ -9,7 +9,7 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.GlobalPos;
  import net.minecraft.core.Holder;
-@@ -87,6 +_,7 @@
+@@ -86,6 +_,7 @@
  import net.minecraft.world.item.trading.MerchantOffers;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.ServerLevelAccessor;
@@ -17,7 +17,7 @@
  import net.minecraft.world.level.storage.ValueInput;
  import net.minecraft.world.level.storage.ValueOutput;
  import net.minecraft.world.phys.AABB;
-@@ -180,6 +_,8 @@
+@@ -179,6 +_,8 @@
          (villager, poiType) -> poiType.is(PoiTypes.MEETING)
      );
  
@@ -26,7 +26,7 @@
      public Villager(EntityType<? extends Villager> entityType, Level level) {
          this(entityType, level, VillagerType.PLAINS);
      }
-@@ -269,6 +_,21 @@
+@@ -268,6 +_,21 @@
          return this.assignProfessionWhenSpawned;
      }
  
@@ -48,7 +48,7 @@
      // Paper start - EAR 2
      @Override
      public void inactiveTick() {
-@@ -276,7 +_,7 @@
+@@ -275,7 +_,7 @@
          if (this.getUnhappyCounter() > 0) {
              this.setUnhappyCounter(this.getUnhappyCounter() - 1);
          }
@@ -57,7 +57,7 @@
              if (this.level().spigotConfig.tickInactiveVillagers) {
                  this.customServerAiStep(this.level().getMinecraftWorld());
              } else {
-@@ -288,6 +_,8 @@
+@@ -287,6 +_,8 @@
      }
      // Paper end - EAR 2
  
@@ -66,7 +66,7 @@
      @Override
      protected void customServerAiStep(ServerLevel level) {
          // Paper start - EAR 2
-@@ -297,7 +_,11 @@
+@@ -296,7 +_,11 @@
          // Paper end - EAR 2
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("villagerBrain");

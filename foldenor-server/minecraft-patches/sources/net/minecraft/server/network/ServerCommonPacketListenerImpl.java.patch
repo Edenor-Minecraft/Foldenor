@@ -20,12 +20,12 @@
      private boolean closed = false;
 +    private it.unimi.dsi.fastutil.longs.LongList keepAlives = new it.unimi.dsi.fastutil.longs.LongArrayList(); // Purpur - Alternative Keepalive Handling
      private volatile int latency; // Paper - improve keepalives - make volatile
+     private final io.papermc.paper.util.KeepAlive keepAlive; // Paper - improve keepalives
      private volatile boolean suspendFlushingOnServerThread = false;
-     // CraftBukkit start
-@@ -135,6 +_,18 @@
+@@ -111,6 +_,18 @@
          // Paper start - improve keepalives
          long now = System.nanoTime();
-         net.minecraft.server.level.ServerPlayer.PendingKeepAlive pending = this.player.pendingKeepAlives.peek();
+         io.papermc.paper.util.KeepAlive.PendingKeepAlive pending = this.keepAlive.pendingKeepAlives.peek();
 +        // Purpur start - Alternative Keepalive Handling
 +        if (FoldenorConfig.useAlternateKeepAlive) {
 +            if (this.keepAlivePending && !keepAlives.isEmpty() && keepAlives.contains(packet.getId())) {
@@ -39,29 +39,9 @@
 +        } else
 +            // Purpur end - Alternative Keepalive Handling
          if (pending != null && pending.challengeId() == packet.getId()) {
-             this.player.pendingKeepAlives.remove(pending);
+             this.keepAlive.pendingKeepAlives.remove(pending);
  
-@@ -178,6 +_,11 @@
- 
-     @Override
-     public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {
-+        // Leaves start - protocol
-+        if (packet.payload() instanceof org.leavesmc.leaves.protocol.core.LeavesCustomPayload<?> leavesPayload) {
-+            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePayload(player, leavesPayload);
-+        }
-+        // Leaves end - protocol
-         // Paper start
-         if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.BrandPayload(String brand)) {
-             this.player.clientBrandName = brand;
-@@ -231,6 +_,7 @@
-         final String channel = new String(data, from, length, java.nio.charset.StandardCharsets.US_ASCII);
-         if (register) {
-             this.getCraftPlayer().addChannel(channel);
-+            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleMinecraftRegister(channel, player); // Leaves - protocol
-         } else {
-             this.getCraftPlayer().removeChannel(channel);
-         }
-@@ -288,6 +_,23 @@
+@@ -196,6 +_,23 @@
          Profiler.get().push("keepAlive");
          long millis = Util.getMillis();
          // Paper start - improve keepalives
@@ -69,10 +49,10 @@
 +        if (FoldenorConfig.useAlternateKeepAlive) {
 +            if (this.checkIfClosed(millis) && !this.processedDisconnect) {
 +                long currTime = System.nanoTime();
-+                if ((currTime - this.player.lastKeepAliveTx) >= java.util.concurrent.TimeUnit.SECONDS.toNanos(1L)) { // 1 second
-+                    this.player.lastKeepAliveTx = currTime;
++                if ((currTime - this.keepAlive.lastKeepAliveTx) >= java.util.concurrent.TimeUnit.SECONDS.toNanos(1L)) { // 1 second
++                    this.keepAlive.lastKeepAliveTx = currTime;
 +                    if (this.keepAlivePending && !this.processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
-+                        this.disconnect(TIMEOUT_DISCONNECTION_MESSAGE, org.bukkit.event.player.PlayerKickEvent.Cause.TIMEOUT);
++                        this.disconnect(TIMEOUT_DISCONNECTION_MESSAGE, io.papermc.paper.connection.DisconnectionReason.TIMEOUT);
 +                    } else if (this.checkIfClosed(millis)) {
 +                        this.keepAlivePending = true;
 +                        this.keepAlives.add(millis); // currentTime is ID
