@@ -9,7 +9,7 @@
      private final PlayerAdvancements advancements;
      private final ServerStatsCounter stats;
      private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
-@@ -1074,9 +_,10 @@
+@@ -1138,9 +_,10 @@
              }
              // CraftBukkit end
          } catch (Throwable var4) {

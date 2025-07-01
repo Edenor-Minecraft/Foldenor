@@ -6,10 +6,10 @@
  import java.util.concurrent.CompletableFuture;
 +import java.util.concurrent.ExecutionException;
 +
+ import net.kyori.adventure.pointer.PointersSupplier;
  import net.kyori.adventure.util.TriState;
  import net.minecraft.nbt.CompoundTag;
- import net.minecraft.network.chat.Component;
-@@ -283,19 +_,41 @@
+@@ -288,19 +_,41 @@
  
      @Override
      public boolean teleport(Location location) {
@@ -52,7 +52,7 @@
              throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
          }
          // Folia end - region threading
-@@ -354,11 +_,27 @@
+@@ -359,11 +_,27 @@
  
      @Override
      public boolean teleport(org.bukkit.entity.Entity destination) {

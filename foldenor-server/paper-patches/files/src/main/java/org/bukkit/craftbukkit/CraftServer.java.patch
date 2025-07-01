@@ -18,7 +18,7 @@
      private YamlConfiguration configuration;
      private YamlConfiguration commandsConfiguration;
      private final Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
-@@ -337,6 +_,10 @@
+@@ -336,6 +_,10 @@
          return this.globalRegionScheduler;
      }
  
@@ -29,7 +29,7 @@
      @Override
      public final boolean isOwnedByCurrentRegion(World world, io.papermc.paper.math.Position position) {
          return ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(
-@@ -497,6 +_,7 @@
+@@ -496,6 +_,7 @@
          this.potionBrewer = new io.papermc.paper.potion.PaperPotionBrewer(console); // Paper - custom potion mixes
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
          this.spark = new io.papermc.paper.SparksFly(this); // Paper - spark
@@ -37,7 +37,7 @@
      }
  
      public boolean getCommandBlockOverride(String command) {
-@@ -1144,6 +_,7 @@
+@@ -1112,6 +_,7 @@
          this.spark.registerCommandBeforePlugins(this); // Paper - spark
          this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
          this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
@@ -45,7 +45,7 @@
  
          int pollCount = 0;
  
-@@ -1392,7 +_,7 @@
+@@ -1360,7 +_,7 @@
              registryAccess = levelDataAndDimensions.dimensions().dimensionsRegistryAccess();
          } else {
              LevelSettings levelSettings;
@@ -54,7 +54,7 @@
              WorldDimensions worldDimensions;
  
              DedicatedServerProperties.WorldDimensionData properties = new DedicatedServerProperties.WorldDimensionData(GsonHelper.parse((creator.generatorSettings().isEmpty()) ? "{}" : creator.generatorSettings()), creator.type().name().toLowerCase(Locale.ROOT));
-@@ -1526,6 +_,7 @@
+@@ -1494,6 +_,7 @@
              this.getLogger().log(Level.SEVERE, null, ex);
          }
  
@@ -62,7 +62,7 @@
          this.worlds.remove(world.getName().toLowerCase(Locale.ROOT));
          this.console.removeLevel(handle);
          return true;
-@@ -1544,6 +_,7 @@
+@@ -1512,6 +_,7 @@
  
      @Override
      public World getWorld(UUID uid) {
@@ -70,7 +70,7 @@
          for (World world : this.worlds.values()) {
              if (world.getUID().equals(uid)) {
                  return world;
-@@ -1565,6 +_,7 @@
+@@ -1533,6 +_,7 @@
              System.out.println("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");
              return;
          }

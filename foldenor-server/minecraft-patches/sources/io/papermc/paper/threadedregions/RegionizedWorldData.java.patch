@@ -1,6 +1,6 @@
 --- a/io/papermc/paper/threadedregions/RegionizedWorldData.java
 +++ b/io/papermc/paper/threadedregions/RegionizedWorldData.java
-@@ -361,8 +_,8 @@
+@@ -364,8 +_,8 @@
      private final LevelTicks<Fluid> fluidLevelTicks;
  
      // tile entity ticking

@@ -1,7 +1,7 @@
 --- a/net/minecraft/world/level/entity/EntitySectionStorage.java
 +++ b/net/minecraft/world/level/entity/EntitySectionStorage.java
-@@ -35,6 +_,8 @@
-     }
+@@ -45,6 +_,8 @@
+     // Paper end - support retrieving all entities, regardless of whether they are accessible
  
      public void forEachAccessibleNonEmptySection(AABB boundingBox, AbortableIterationConsumer<EntitySection<T>> consumer) {
 +        // Mizi start - lithium fast entity retrieval
@@ -9,7 +9,7 @@
          int sectionPosCoord = SectionPos.posToSectionCoord(boundingBox.minX - 2.0);
          int sectionPosCoord1 = SectionPos.posToSectionCoord(boundingBox.minY - 4.0);
          int sectionPosCoord2 = SectionPos.posToSectionCoord(boundingBox.minZ - 2.0);
-@@ -60,9 +_,55 @@
+@@ -70,9 +_,55 @@
                          return;
                      }
                  }
