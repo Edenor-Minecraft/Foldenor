@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/levelgen/WorldOptions.java
 +++ b/net/minecraft/world/level/levelgen/WorldOptions.java
-@@ -5,38 +_,51 @@
+@@ -5,38 +_,56 @@
  import com.mojang.serialization.codecs.RecordCodecBuilder;
  import java.util.Optional;
  import java.util.OptionalLong;
@@ -11,6 +11,7 @@
  import org.apache.commons.lang3.StringUtils;
  
  public class WorldOptions {
++    private static final com.google.gson.Gson gson = new com.google.gson.Gson();
      public static final MapCodec<WorldOptions> CODEC = RecordCodecBuilder.mapCodec(
 -        instance -> instance.group(
 -                Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed),
@@ -18,7 +19,7 @@
 -                Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
 -                Codec.STRING.lenientOptionalFieldOf("legacy_custom_options").stable().forGetter(worldOptions -> worldOptions.legacyCustomOptions)
 +            instance -> instance.group(Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed),
-+                 Codec.LONG_STREAM.fieldOf("feature_seed").stable().forGetter(WorldOptions::featureSeedStream),
++                 Codec.STRING.fieldOf("feature_seed").orElse(gson.toJson(Globals.createRandomWorldSeed())).stable().forGetter(WorldOptions::featureSeedSerialize),
 +                 Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldOptions::generateStructures),
 +                 Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
 +                 Codec.STRING.lenientOptionalFieldOf("legacy_custom_options").stable().forGetter(generatorOptions -> generatorOptions.legacyCustomOptions)
@@ -37,6 +38,10 @@
 -        this(seed, generateStructures, generateBonusChest, Optional.empty());
 +    public WorldOptions(long seed, boolean generateStructures, boolean bonusChest) {
 +        this(seed, Globals.worldSeed, generateStructures, bonusChest, Optional.empty());
++    }
++
++    private WorldOptions(long seed, String featureSeedJson, boolean generateStructures, boolean bonusChest, Optional<String> legacyCustomOptions) {
++        this(seed, gson.fromJson(featureSeedJson, long[].class), generateStructures, bonusChest, legacyCustomOptions);
 +    }
 +
 +    public WorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean bonusChest) {
@@ -92,7 +97,7 @@
 +        return this.featureSeed;
 +    }
 +
-+    public LongStream featureSeedStream() {
-+        return LongStream.of(this.featureSeed);
++    private String featureSeedSerialize() {
++        return gson.toJson(this.featureSeed);
      }
  }

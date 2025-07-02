@@ -19,6 +19,18 @@
              long l = worldgenRandom.setDecorationSeed(level.getSeed(), blockPos.getX(), blockPos.getZ());
              Set<Holder<Biome>> set = new ObjectArraySet<>();
              ChunkPos.rangeClosed(sectionPos.chunk(), 1).forEach(chunkPos -> {
+@@ -451,8 +_,9 @@
+             int x = chunk.getPos().x;
+             int z = chunk.getPos().z;
+             for (org.bukkit.generator.BlockPopulator populator : world.getPopulators()) {
+-                WorldgenRandom seededrandom = new WorldgenRandom(new net.minecraft.world.level.levelgen.LegacyRandomSource(level.getSeed()));
+-                seededrandom.setDecorationSeed(level.getSeed(), x, z);
++                //WorldgenRandom seededrandom = new WorldgenRandom(new net.minecraft.world.level.levelgen.LegacyRandomSource(level.getSeed()));
++                //seededrandom.setDecorationSeed(level.getSeed(), x, z);
++                WorldgenCryptoRandom seededrandom = new WorldgenCryptoRandom(x, z, Globals.Salt.UNDEFINED, 0);
+                 populator.populate(world, new org.bukkit.craftbukkit.util.RandomSourceWrapper.RandomWrapper(seededrandom), x, z, limitedRegion);
+             }
+             limitedRegion.saveEntities();
 @@ -551,8 +_,7 @@
                          } else {
                              ArrayList<StructureSet.StructureSelectionEntry> list1 = new ArrayList<>(list.size());

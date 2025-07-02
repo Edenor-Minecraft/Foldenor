@@ -1,0 +1,21 @@
+--- a/net/minecraft/world/level/levelgen/structure/pools/JigsawPlacement.java
++++ b/net/minecraft/world/level/levelgen/structure/pools/JigsawPlacement.java
+@@ -4,6 +_,9 @@
+ import com.mojang.logging.LogUtils;
+ import java.util.List;
+ import java.util.Optional;
++
++import net.edenor.foldenor.secureseed.Globals;
++import net.edenor.foldenor.secureseed.WorldgenCryptoRandom;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.Holder;
+@@ -64,7 +_,7 @@
+         ChunkGenerator chunkGenerator = context.chunkGenerator();
+         StructureTemplateManager structureTemplateManager = context.structureTemplateManager();
+         LevelHeightAccessor levelHeightAccessor = context.heightAccessor();
+-        WorldgenRandom worldgenRandom = context.random();
++        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(context.chunkPos().x, context.chunkPos().z, Globals.Salt.JIGSAW_PLACEMENT, 0);
+         Registry<StructureTemplatePool> registry = registryAccess.lookupOrThrow(Registries.TEMPLATE_POOL);
+         Rotation random = Rotation.getRandom(worldgenRandom);
+         StructureTemplatePool structureTemplatePool = startPool.unwrapKey()
