@@ -4,26 +4,6 @@ Date: Mon, 14 Jul 2025 15:10:07 +0400
 Subject: [PATCH] Let Me Despawn
 
 
-diff --git a/net/edenor/foldenor/config/FoldenorConfig.java b/net/edenor/foldenor/config/FoldenorConfig.java
-index 31f778650eb4849ca7bc5e7b2fa04d58f655bb83..aa822d1da746d83c7314e6b53853b866a8d85ec2 100644
---- a/net/edenor/foldenor/config/FoldenorConfig.java
-+++ b/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -46,6 +46,7 @@ public class FoldenorConfig {
-     public static boolean turtleEggSearch = true;
-     public static float turtleEggSearchPercentChance = 100;
-     public static boolean mobRePathFinding = true;
-+    public static boolean lmdEnabled = false;
-     public static Set<String> mobNames = new HashSet<>(List.of("corpse:corpse")); // Let Me Despawn
-     public static boolean cacheBiomeEnabled = false;
-     public static boolean cacheBiomeMobSpawn = false;
-@@ -159,6 +160,7 @@ public class FoldenorConfig {
-         turtleEggSearch = getBoolean("optimizations.turtle-egg-search.enabled", turtleEggSearch);
-         turtleEggSearchPercentChance = (float) getDouble("optimizations.turtle-egg-search.enabled", turtleEggSearchPercentChance);
-         mobRePathFinding = getBoolean("optimizations.mob-repathfinding", mobRePathFinding);
-+        lmdEnabled = getBoolean("optimizations.lmd.enabled", lmdEnabled);
-         mobNames = new HashSet<String>(getList("optimizations.lmd.mob-names", mobNames));
-         cacheBiomeEnabled = getBoolean("optimizations.cache-biome.enabled", cacheBiomeEnabled);
-         cacheBiomeMobSpawn = getBoolean("optimizations.cache-biome.mob-spawn", cacheBiomeMobSpawn);
 diff --git a/net/edenor/foldenor/util/FoldenorUtils.java b/net/edenor/foldenor/util/FoldenorUtils.java
 index fd5ed62da36a45043700f9cfc52298da3760c3f1..647904ecf014a13c71e1e1812693215862d4ffd4 100644
 --- a/net/edenor/foldenor/util/FoldenorUtils.java

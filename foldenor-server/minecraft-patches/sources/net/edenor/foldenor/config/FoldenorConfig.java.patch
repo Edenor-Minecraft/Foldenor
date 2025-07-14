@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -1,0 +_,290 @@
+@@ -1,0 +_,300 @@
 +package net.edenor.foldenor.config;
 +
 +import com.google.common.base.Throwables;
@@ -50,6 +50,7 @@
 +    public static boolean turtleEggSearch = true;
 +    public static float turtleEggSearchPercentChance = 100;
 +    public static boolean mobRePathFinding = true;
++    public static boolean lmdEnabled = false;
 +    public static Set<String> mobNames = new HashSet<>(List.of("corpse:corpse")); // Let Me Despawn
 +    public static boolean cacheBiomeEnabled = false;
 +    public static boolean cacheBiomeMobSpawn = false;
@@ -164,7 +165,8 @@
 +        turtleEggSearch = getBoolean("optimizations.turtle-egg-search.enabled", turtleEggSearch);
 +        turtleEggSearchPercentChance = (float) getDouble("optimizations.turtle-egg-search.enabled", turtleEggSearchPercentChance);
 +        mobRePathFinding = getBoolean("optimizations.mob-repathfinding", mobRePathFinding);
-+        mobNames = new HashSet<String>(getList("optimizations.lmd.mob-names", mobNames));
++        lmdEnabled = getBoolean("optimizations.lmd.enabled", lmdEnabled);
++        mobNames = getLMDMobList();
 +        cacheBiomeEnabled = getBoolean("optimizations.cache-biome.enabled", cacheBiomeEnabled);
 +        cacheBiomeMobSpawn = getBoolean("optimizations.cache-biome.mob-spawn", cacheBiomeMobSpawn);
 +        cacheBiomeAdvancement = getBoolean("optimizations.cache-biome.advancement", cacheBiomeAdvancement);
@@ -205,6 +207,14 @@
 +    protected static void set(String path, Object val) {
 +        config.addDefault(path, val);
 +        config.set(path, val);
++    }
++
++    protected static Set<String> getLMDMobList()
++    {
++        List<String> fromCfg = getList("optimizations.lmd.mob-names", new ArrayList<>());
++        if (!fromCfg.isEmpty())
++            mobNames = new HashSet<>(fromCfg);
++        return mobNames;
 +    }
 +
 +    protected static String getString(String path, String def, String... comment) {
