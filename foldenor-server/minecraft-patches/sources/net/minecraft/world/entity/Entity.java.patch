@@ -53,6 +53,15 @@
          final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
          // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
+@@ -1148,7 +_,7 @@
+             }
+             // Paper end
+ 
+-            movement = this.maybeBackOffFromEdge(movement, type);
++            if (!FoldenorConfig.optimizePlayerMovementProcessing) movement = this.maybeBackOffFromEdge(movement, type); // Leaf - Optimise player movement checks
+             Vec3 vec3 = this.collide(movement);
+             double d = vec3.lengthSqr();
+             if (d > 1.0E-7 || movement.lengthSqr() - d < 1.0E-7) {
 @@ -2116,10 +_,18 @@
  
      @Deprecated
@@ -94,7 +103,7 @@
          }
      }
  
-@@ -4809,7 +_,7 @@
+@@ -4808,7 +_,7 @@
          return this;
      }
  
@@ -103,7 +112,7 @@
          List<Entity> passengers = this.getPassengers();
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
-@@ -4836,13 +_,11 @@
+@@ -4835,13 +_,11 @@
              entityx.restoreFrom(this);
              this.removeAfterChangingDimensions();
              entityx.teleportSetPosition(PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
@@ -117,7 +126,7 @@
              teleportTransition.postTeleportTransition().onTransition(entityx);
              this.teleportSpectators(teleportTransition, oldLevel);
              profilerFiller.pop();
-@@ -5206,6 +_,11 @@
+@@ -5205,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {

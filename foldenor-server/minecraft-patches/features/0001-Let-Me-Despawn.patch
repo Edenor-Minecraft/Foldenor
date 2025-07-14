@@ -1,0 +1,137 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AltronMaxX <max06112004@gmail.com>
+Date: Mon, 14 Jul 2025 15:10:07 +0400
+Subject: [PATCH] Let Me Despawn
+
+
+diff --git a/net/edenor/foldenor/config/FoldenorConfig.java b/net/edenor/foldenor/config/FoldenorConfig.java
+index 31f778650eb4849ca7bc5e7b2fa04d58f655bb83..aa822d1da746d83c7314e6b53853b866a8d85ec2 100644
+--- a/net/edenor/foldenor/config/FoldenorConfig.java
++++ b/net/edenor/foldenor/config/FoldenorConfig.java
+@@ -46,6 +46,7 @@ public class FoldenorConfig {
+     public static boolean turtleEggSearch = true;
+     public static float turtleEggSearchPercentChance = 100;
+     public static boolean mobRePathFinding = true;
++    public static boolean lmdEnabled = false;
+     public static Set<String> mobNames = new HashSet<>(List.of("corpse:corpse")); // Let Me Despawn
+     public static boolean cacheBiomeEnabled = false;
+     public static boolean cacheBiomeMobSpawn = false;
+@@ -159,6 +160,7 @@ public class FoldenorConfig {
+         turtleEggSearch = getBoolean("optimizations.turtle-egg-search.enabled", turtleEggSearch);
+         turtleEggSearchPercentChance = (float) getDouble("optimizations.turtle-egg-search.enabled", turtleEggSearchPercentChance);
+         mobRePathFinding = getBoolean("optimizations.mob-repathfinding", mobRePathFinding);
++        lmdEnabled = getBoolean("optimizations.lmd.enabled", lmdEnabled);
+         mobNames = new HashSet<String>(getList("optimizations.lmd.mob-names", mobNames));
+         cacheBiomeEnabled = getBoolean("optimizations.cache-biome.enabled", cacheBiomeEnabled);
+         cacheBiomeMobSpawn = getBoolean("optimizations.cache-biome.mob-spawn", cacheBiomeMobSpawn);
+diff --git a/net/edenor/foldenor/util/FoldenorUtils.java b/net/edenor/foldenor/util/FoldenorUtils.java
+index fd5ed62da36a45043700f9cfc52298da3760c3f1..647904ecf014a13c71e1e1812693215862d4ffd4 100644
+--- a/net/edenor/foldenor/util/FoldenorUtils.java
++++ b/net/edenor/foldenor/util/FoldenorUtils.java
+@@ -1,9 +1,74 @@
+ package net.edenor.foldenor.util;
+ 
+ import io.netty.util.internal.ThreadLocalRandom;
++import net.edenor.foldenor.config.FoldenorConfig;
++import net.minecraft.core.component.DataComponents;
++import net.minecraft.core.registries.Registries;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.network.chat.Component;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.world.entity.EntityType;
++import net.minecraft.world.entity.EquipmentSlot;
++import net.minecraft.world.entity.LivingEntity;
++import net.minecraft.world.entity.Mob;
++import net.minecraft.world.item.Item;
++import net.minecraft.world.item.ItemStack;
++import net.minecraft.world.item.component.CustomData;
++import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
++import net.minecraft.world.item.enchantment.EnchantmentHelper;
++
++import java.util.Objects;
++import java.util.regex.Pattern;
+ 
+ public class FoldenorUtils {
++    public static Boolean pickedItems = false; //Let Me Despawn
++
+     public static boolean rollPercentChance(float percent) {
+         return percent != 0.0 && ThreadLocalRandom.current().nextFloat() <= (percent / 100.0);
+     }
++
++    //Let Me Despawn start
++    public static void setPersistence(Mob entity, EquipmentSlot slot) {
++        if (!FoldenorConfig.lmdEnabled) return;
++        ItemStack itemStack = entity.getItemBySlot(slot);
++        CustomData component = itemStack.get(DataComponents.CUSTOM_DATA);
++        CompoundTag nbt;
++        if (component != null) {
++            nbt = component.copyTag();
++        } else {
++            nbt = new CompoundTag();
++        }
++        nbt.putBoolean("picked", true);
++        itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt));
++        pickedItems = true;
++        entity.persistenceRequired = FoldenorConfig.mobNames.contains(Objects.requireNonNull(entity.level().registryAccess().lookupOrThrow(Registries.ENTITY_TYPE).getKey(entity.getType())).toString()) || !hasDespawnableName(entity);
++    }
++
++    public static boolean hasDespawnableName(Mob entity) {
++        if(entity.hasCustomName()) {
++            return matchesStackedName(entity.getCustomName().getString(), entity);
++        }
++        return true;
++    }
++
++    public static boolean matchesStackedName(String customName, Mob entity) {
++        return Pattern.compile(Pattern.quote(getLocalizedEntityName(entity.getType()).getString()) + " x\\d+").matcher(customName).find();
++    }
++
++    public static Component getLocalizedEntityName(EntityType<?> entityType) {
++        String translationKey = entityType.getDescriptionId();
++        return Component.translatable(translationKey);
++    }
++
++    public static void dropEquipmentOnDiscard(LivingEntity entity) {
++        if (!FoldenorConfig.lmdEnabled) return;
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
++            ItemStack itemStack = entity.getItemBySlot(equipmentSlot);
++            if (!itemStack.isEmpty() && itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).contains("picked") && !EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
++                entity.spawnAtLocation((ServerLevel) entity.level(), itemStack);
++                entity.setItemSlot(equipmentSlot, ItemStack.EMPTY);
++            }
++        }
++    }
++    //Let Me Despawn end
+ }
+\ No newline at end of file
+diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
+index a13c27ed857bd0de290acaae90b4f236b0ae9c54..e5a73fe81910ea8ad7d19537f9d339faf2a014ed 100644
+--- a/net/minecraft/world/entity/Mob.java
++++ b/net/minecraft/world/entity/Mob.java
+@@ -720,7 +720,7 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
+     public void checkDespawn() {
+         if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
+             // Let Me Despawn start
+-            if (FoldenorUtils.pickedItems)
++            if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
+                 FoldenorUtils.dropEquipmentOnDiscard(this);
+             // Let Me Despawn end
+             this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+@@ -738,7 +738,7 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
+                 // Despawn if hard/soft limit is exceeded
+                 if (despawnRangePair.hard().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy) && this.removeWhenFarAway(distanceSquared)) {
+                     // Let Me Despawn start
+-                    if (FoldenorUtils.pickedItems)
++                    if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
+                         FoldenorUtils.dropEquipmentOnDiscard(this);
+                     // Let Me Despawn end
+                     this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+@@ -747,7 +747,7 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
+                 if (despawnRangePair.soft().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy)) {
+                     if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && this.removeWhenFarAway(distanceSquared)) {
+                         // Let Me Despawn start
+-                        if (FoldenorUtils.pickedItems)
++                        if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
+                             FoldenorUtils.dropEquipmentOnDiscard(this);
+                         // Let Me Despawn end
+                         this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause

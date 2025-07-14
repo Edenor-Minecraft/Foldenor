@@ -25,6 +25,19 @@
  import net.minecraft.world.level.chunk.status.ChunkStatus;
  import net.minecraft.world.level.dimension.DimensionType;
  import net.minecraft.world.level.levelgen.Heightmap;
+@@ -57,6 +_,12 @@
+         return this.getBiomeManager().getBiome(pos);
+     }
+ 
++    // Leaf start - cache getBiome
++    default Holder<Biome> getBiomeCached(@Nullable net.minecraft.world.level.chunk.LevelChunk chunk, BlockPos pos) {
++        return this.getBiomeManager().getBiomeCached(chunk, pos);
++    }
++    // Leaf end - cache getBiome
++
+     default Stream<BlockState> getBlockStatesIfLoaded(AABB aabb) {
+         int floor = Mth.floor(aabb.minX);
+         int floor1 = Mth.floor(aabb.maxX);
 @@ -67,6 +_,18 @@
          return this.hasChunksAt(floor, floor2, floor4, floor1, floor3, floor5) ? this.getBlockStates(aabb) : Stream.empty();
      }

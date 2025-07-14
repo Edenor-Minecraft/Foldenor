@@ -9,6 +9,15 @@
      private final PlayerAdvancements advancements;
      private final ServerStatsCounter stats;
      private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
+@@ -434,6 +_,8 @@
+     private ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.PlayerChunkLoaderData chunkLoader;
+     private final ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.ViewDistanceHolder viewDistanceHolder = new ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.ViewDistanceHolder();
+ 
++    public net.minecraft.network.Connection internalConnection; // Leaves - protocol core
++
+     @Override
+     public final boolean moonrise$isRealPlayer() {
+         return this.isRealPlayer;
 @@ -1072,9 +_,10 @@
              }
              // CraftBukkit end

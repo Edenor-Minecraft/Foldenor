@@ -30,9 +30,6 @@ Building a Paperclip JAR for distribution:
 ## About Edenor
 [Website](https://edenor.ru/)
 
-## Communication with the developer
-[Telegram](https://t.me/AltronMaxX)
-
 ## License
 The PATCHES-LICENSE file describes the license for api & server patches,
 found in `./patches` and its subdirectories except when noted otherwise.

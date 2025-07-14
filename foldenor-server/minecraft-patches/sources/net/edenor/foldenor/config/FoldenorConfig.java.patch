@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/net/edenor/foldenor/config/FoldenorConfig.java
-@@ -1,0 +_,278 @@
+@@ -1,0 +_,290 @@
 +package net.edenor.foldenor.config;
 +
 +import com.google.common.base.Throwables;
@@ -16,9 +16,7 @@
 +
 +import java.io.File;
 +import java.io.IOException;
-+import java.util.Collections;
-+import java.util.List;
-+import java.util.Map;
++import java.util.*;
 +import java.util.logging.Level;
 +
 +public class FoldenorConfig {
@@ -27,6 +25,7 @@
 +    public static int version;
 +    public static boolean sendNullEntityPackets = false;
 +    public static boolean appleskinProtocol = false;
++    public static int appleskinSyncTickInterval = 20;
 +    public static boolean useAlternateKeepAlive = false;
 +    public static int piglinSpawnChancePersentInPortal = 100;
 +    public static boolean useVirtualThreadForAsyncScheduler = false;
@@ -41,6 +40,7 @@
 +    public static int startDistanceSquared;
 +    public static int maximumActivationPrio;
 +    public static int activationDistanceMod;
++    public static boolean dontEnableIfInWater = false;
 +    public static boolean skipAIForNonAwareMob = true;
 +    public static boolean throttleHopperWhenFullEnabled = false;
 +    public static int throttleHopperWhenFullSkipTicks = 0;
@@ -50,6 +50,11 @@
 +    public static boolean turtleEggSearch = true;
 +    public static float turtleEggSearchPercentChance = 100;
 +    public static boolean mobRePathFinding = true;
++    public static Set<String> mobNames = new HashSet<>(List.of("corpse:corpse")); // Let Me Despawn
++    public static boolean cacheBiomeEnabled = false;
++    public static boolean cacheBiomeMobSpawn = false;
++    public static boolean cacheBiomeAdvancement = false;
++    public static boolean optimizePlayerMovementProcessing = true;
 +    protected static File CONFIG_FILE;
 +    static boolean verbose;
 +
@@ -143,6 +148,7 @@
 +        sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);
 +        appleskinProtocol = getBoolean("network.appleskin-protocol", appleskinProtocol);
 +        useAlternateKeepAlive = getBoolean("network.use-alternate-keepalive", useAlternateKeepAlive);
++        appleskinSyncTickInterval = getInt("network.appleskin-sync-tick-interval", appleskinSyncTickInterval);
 +    }
 +
 +    private static void readOptimizationSettings() {
@@ -158,6 +164,11 @@
 +        turtleEggSearch = getBoolean("optimizations.turtle-egg-search.enabled", turtleEggSearch);
 +        turtleEggSearchPercentChance = (float) getDouble("optimizations.turtle-egg-search.enabled", turtleEggSearchPercentChance);
 +        mobRePathFinding = getBoolean("optimizations.mob-repathfinding", mobRePathFinding);
++        mobNames = new HashSet<String>(getList("optimizations.lmd.mob-names", mobNames));
++        cacheBiomeEnabled = getBoolean("optimizations.cache-biome.enabled", cacheBiomeEnabled);
++        cacheBiomeMobSpawn = getBoolean("optimizations.cache-biome.mob-spawn", cacheBiomeMobSpawn);
++        cacheBiomeAdvancement = getBoolean("optimizations.cache-biome.advancement", cacheBiomeAdvancement);
++        optimizePlayerMovementProcessing = getBoolean("optimizations.optimize-player-movement-processing", optimizePlayerMovementProcessing);
 +    }
 +
 +    private static void readMiscSettings() {
@@ -180,6 +191,7 @@
 +                "tick frequency. freq = (distanceToPlayer^2) / (2^value)",
 +                "If you want further away entities to tick less often, use 7.",
 +                "If you want further away entities to tick more often, try 9.");
++        dontEnableIfInWater = getBoolean("dab.dont-enable-if-in-water", dontEnableIfInWater);
 +
 +        for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
 +            entityType.dabEnabled = true; // reset all, before setting the ones to true

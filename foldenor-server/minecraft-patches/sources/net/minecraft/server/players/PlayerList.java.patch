@@ -23,10 +23,11 @@
  import org.slf4j.Logger;
  
  public abstract class PlayerList {
-@@ -421,6 +_,8 @@
+@@ -421,6 +_,9 @@
                  //return; // Folia - region threading - must still allow the player to connect, as we must add to chunk map before handling disconnect
              }
  
++            if (player.internalConnection == null) player.internalConnection = connection; // Leaf - Leaves - protocol
 +            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePlayerJoin(player); // Leaves - protocol
 +
              final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
@@ -40,3 +41,11 @@
          // Paper end - Fix kick event leave message not being sent
          ServerLevel serverLevel = player.level();
          player.awardStat(Stats.LEAVE_GAME);
+@@ -1505,6 +_,7 @@
+             serverPlayer.connection.send(clientboundUpdateRecipesPacket);
+             serverPlayer.getRecipeBook().sendInitialRecipeBook(serverPlayer);
+         }
++        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleDataPackReload(); // Leaves - protocol core
+     }
+ 
+     public boolean isAllowCommandsForAllPlayers() {

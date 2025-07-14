@@ -1,0 +1,16 @@
+--- a/src/main/java/org/bukkit/craftbukkit/util/DelegatedGeneratorAccess.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/DelegatedGeneratorAccess.java
+@@ -292,6 +_,13 @@
+         return this.delegate.getBiome(pos);
+     }
+ 
++    // Leaf start - cache getBiome
++    @Override
++    public Holder<Biome> getBiomeCached(@Nullable net.minecraft.world.level.chunk.LevelChunk chunk, BlockPos pos) {
++        return this.delegate.getBiomeCached(chunk, pos);
++    }
++    // Leaf end - cache getBiome
++
+     @Override
+     public Stream<BlockState> getBlockStatesIfLoaded(AABB box) {
+         return this.delegate.getBlockStatesIfLoaded(box);

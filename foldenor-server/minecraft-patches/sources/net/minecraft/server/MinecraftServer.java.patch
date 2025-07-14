@@ -13,11 +13,11 @@
          }
  
          return flag;
-@@ -1854,6 +_,7 @@
+@@ -1855,6 +_,7 @@
          }
  
          profilerFiller.popPush("server gui refresh");
-+        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleTick(); // Leaves - protocol
++        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleTick(region.getCurrentTick()); // Leaves - protocol
  
          if (false) for (int i = 0; i < this.tickables.size(); i++) { // Folia - region threading - TODO WTF is this?
              this.tickables.get(i).run();

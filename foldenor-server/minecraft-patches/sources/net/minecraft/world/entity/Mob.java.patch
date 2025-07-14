@@ -1,14 +1,24 @@
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -11,6 +_,8 @@
+@@ -11,6 +_,9 @@
  import java.util.Set;
  import java.util.function.Predicate;
  import javax.annotation.Nullable;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
++import net.edenor.foldenor.util.FoldenorUtils;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Holder;
  import net.minecraft.core.Vec3i;
+@@ -130,7 +_,7 @@
+     private final Sensing sensing;
+     private DropChances dropChances = DropChances.DEFAULT;
+     private boolean canPickUpLoot = false;
+-    private boolean persistenceRequired = false;
++    public boolean persistenceRequired = false; // Let Me Despawn - make public
+     private final Map<PathType, Float> pathfindingMalus = Maps.newEnumMap(PathType.class);
+     public Optional<ResourceKey<LootTable>> lootTable = Optional.empty();
+     public long lootTableSeed;
 @@ -210,10 +_,15 @@
      @Override
      public void inactiveTick() {
@@ -27,8 +37,22 @@
              this.targetSelector.tick();
          }
      }
-@@ -712,7 +_,7 @@
+@@ -605,6 +_,7 @@
+         this.setItemSlot(slot, stack);
+         this.setGuaranteedDrop(slot);
+         this.persistenceRequired = true;
++        FoldenorUtils.setPersistence(this, slot);
+     }
+ 
+     protected boolean canShearEquipment(Player player) {
+@@ -710,9 +_,13 @@
+     @Override
+     public void checkDespawn() {
          if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
++            // Let Me Despawn start
++            if (FoldenorUtils.pickedItems)
++                FoldenorUtils.dropEquipmentOnDiscard(this);
++            // Let Me Despawn end
              this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
          } else if (!this.isPersistenceRequired() && !this.requiresCustomPersistence()) {
 -            Entity nearestPlayer = this.level().findNearbyPlayer(this, -1.0, EntitySelector.PLAYER_AFFECTS_SPAWNING); // Paper - Affects Spawning API
@@ -36,6 +60,26 @@
              if (nearestPlayer != null) {
                  // Paper start - Configurable despawn distances
                  final io.papermc.paper.configuration.WorldConfiguration.Entities.Spawning.DespawnRangePair despawnRangePair = this.level().paperConfig().entities.spawning.despawnRanges.get(this.getType().getCategory());
+@@ -724,11 +_,19 @@
+                 final double distanceSquared = dxSqr + dzSqr + dySqr;
+                 // Despawn if hard/soft limit is exceeded
+                 if (despawnRangePair.hard().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy) && this.removeWhenFarAway(distanceSquared)) {
++                    // Let Me Despawn start
++                    if (FoldenorUtils.pickedItems)
++                        FoldenorUtils.dropEquipmentOnDiscard(this);
++                    // Let Me Despawn end
+                     this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                  }
+ 
+                 if (despawnRangePair.soft().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy)) {
+                     if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && this.removeWhenFarAway(distanceSquared)) {
++                        // Let Me Despawn start
++                        if (FoldenorUtils.pickedItems)
++                            FoldenorUtils.dropEquipmentOnDiscard(this);
++                        // Let Me Despawn end
+                         this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                     }
+                 } else {
 @@ -741,6 +_,19 @@
          }
      }

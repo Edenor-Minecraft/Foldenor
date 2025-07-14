@@ -24,21 +24,19 @@
              player.activatedTick = io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick(); // Folia - region threading
              if (world.spigotConfig.ignoreSpectatorActivation && player.isSpectator()) {
                  continue;
-@@ -174,6 +_,24 @@
+@@ -174,6 +_,22 @@
                  }
  
                  ActivationRange.activateEntity(entity, bbByType); // Folia - threaded regions
 +
 +                // Pufferfish start
-+                if (FoldenorConfig.dearEnabled && entity.getType().dabEnabled) {
++                if (FoldenorConfig.dearEnabled && entity.getType().dabEnabled &&
++                        (!FoldenorConfig.dontEnableIfInWater || entity.getType().is(net.minecraft.tags.EntityTypeTags.CAN_BREATHE_UNDER_WATER) || !entity.isInWater())) {
 +                    if (!entity.activatedPriorityReset) {
 +                        entity.activatedPriorityReset = true;
 +                        entity.activatedPriority = FoldenorConfig.maximumActivationPrio;
 +                    }
-+                    Vec3 playerVec = player.position();
-+                    Vec3 entityVec = entity.position();
-+                    double diffX = playerVec.x - entityVec.x, diffY = playerVec.y - entityVec.y, diffZ = playerVec.z - entityVec.z;
-+                    int squaredDistance = (int) (diffX * diffX + diffY * diffY + diffZ * diffZ);
++                    int squaredDistance = (int) player.distanceToSqr(entity);
 +                    entity.activatedPriority = squaredDistance > FoldenorConfig.startDistanceSquared ?
 +                            Math.max(1, Math.min(squaredDistance >> FoldenorConfig.activationDistanceMod, entity.activatedPriority)) :
 +                            1;

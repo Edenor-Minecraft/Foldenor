@@ -9,14 +9,19 @@
  import net.minecraft.util.profiling.Profiler;
  import net.minecraft.util.profiling.ProfilerFiller;
  
-@@ -36,7 +_,9 @@
+@@ -36,9 +_,13 @@
      }
  
      // Paper start - EAR 2
 -    public boolean inactiveTick() {
-+        public boolean inactiveTick(int tickRate, boolean inactive) { // Pufferfish start
-+                if (inactive && !FoldenorConfig.dearEnabled) tickRate = 4; // reset to Paper's
-+                tickRate = Math.min(tickRate, 3);
++    public boolean inactiveTick(int tickRate, boolean inactive) { // Pufferfish start
++        if (inactive && !FoldenorConfig.dearEnabled) tickRate = 4; // reset to Paper's
++        tickRate = Math.min(tickRate, 3);
          this.curRate++;
-         return this.curRate % 3 == 0; // TODO newGoalRate was already unused in 1.20.4, check if this is correct
+-        return this.curRate % 3 == 0; // TODO newGoalRate was already unused in 1.20.4, check if this is correct
++        //return this.curRate % 3 == 0; // TODO newGoalRate was already unused in 1.20.4, check if this is correct
++        return this.curRate % tickRate == 0;
++        // Pufferfish end
      }
+ 
+     public boolean hasTasks() {

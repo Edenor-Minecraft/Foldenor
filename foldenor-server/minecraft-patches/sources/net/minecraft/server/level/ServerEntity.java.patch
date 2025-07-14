@@ -9,19 +9,42 @@
  import net.minecraft.core.component.DataComponents;
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
-@@ -193,6 +_,9 @@
+@@ -193,23 +_,33 @@
                      packet = ClientboundEntityPositionSyncPacket.of(this.entity);
                      flag3 = true;
                      flag4 = true;
+-                } else if ((!flag2 || !flag) && !(this.entity instanceof AbstractArrow)) {
+-                    if (flag2) {
+-                        packet = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short)l, (short)l1, (short)l2, this.entity.onGround());
+-                        flag3 = true;
+-                    } else if (flag) {
+-                        packet = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), b, b1, this.entity.onGround());
+-                        flag4 = true;
 +                    if (!FoldenorConfig.sendNullEntityPackets && isNullMovePacket(packet)) {
 +                        packet = null;
+                     }
++                // Gale start - Airplane - better checking for useless move packets
+                 } else {
+-                    packet = new ClientboundMoveEntityPacket.PosRot(this.entity.getId(), (short)l, (short)l1, (short)l2, b, b1, this.entity.onGround());
+-                    flag3 = true;
+-                    flag4 = true;
++                    if (flag2 || flag || this.entity instanceof AbstractArrow) {
++                        if ((!flag2 || !flag) && !(this.entity instanceof AbstractArrow)) {
++                            if (flag2) {
++                                packet = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short) l, (short) l1, (short) l2, this.entity.onGround());
++                                flag3 = true;
++                            } else if (flag) {
++                                packet = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), b, b1, this.entity.onGround());
++                                flag4 = true;
++                            }
++                        } else {
++                            packet = new ClientboundMoveEntityPacket.PosRot(this.entity.getId(), (short) l, (short) l1, (short) l2, b, b1, this.entity.onGround());
++                            flag3 = true;
++                            flag4 = true;
++                        }
 +                    }
-                 } else if ((!flag2 || !flag) && !(this.entity instanceof AbstractArrow)) {
-                     if (flag2) {
-                         packet = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short)l, (short)l1, (short)l2, this.entity.onGround());
-@@ -207,9 +_,10 @@
-                     flag4 = true;
                  }
++                // Gale end - Airplane - better checking for useless move packets
  
 -                if (this.entity.hasImpulse || this.trackDelta || this.entity instanceof LivingEntity && ((LivingEntity)this.entity).isFallFlying()) {
 +                if (this.entity.hasImpulse || this.trackDelta || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying())  {
@@ -41,29 +64,21 @@
  
                  if (packet != null) {
                      this.broadcast.accept(packet);
-@@ -286,6 +_,25 @@
+@@ -286,6 +_,17 @@
              this.lastPassengers.stream().filter(entity -> !entities.contains(entity)),
              entities.stream().filter(entity -> !this.lastPassengers.contains(entity))
          );
 +    }
 +
 +    private boolean isNullMovePacket(Packet<?> packet) {
-+        if (packet instanceof ClientboundMoveEntityPacket move) {
-+            switch (packet) {
-+                case ClientboundMoveEntityPacket.Pos pos -> {
-+                    return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0;
-+                }
-+                case ClientboundMoveEntityPacket.PosRot posRot -> {
-+                    return move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0 && move.getYRot() == 0 && move.getXRot() == 0;
-+                }
-+                case ClientboundMoveEntityPacket.Rot rot -> {
-+                    return move.getYRot() == 0 && move.getXRot() == 0;
-+                }
-+                default -> {
-+                }
-+            }
-+        }
-+        return false;
++        if (!(packet instanceof ClientboundMoveEntityPacket move)) return false;
++        return switch (packet) {
++            case ClientboundMoveEntityPacket.Pos ignored -> move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0;
++            case ClientboundMoveEntityPacket.PosRot ignored ->
++                    move.getXa() == 0 && move.getYa() == 0 && move.getZa() == 0 && move.getYRot() == 0 && move.getXRot() == 0;
++            case ClientboundMoveEntityPacket.Rot ignored -> move.getYRot() == 0 && move.getXRot() == 0;
++            default -> false;
++        };
      }
  
      private void handleMinecartPosRot(NewMinecartBehavior behavior, byte yRot, byte xRot, boolean dirty) {

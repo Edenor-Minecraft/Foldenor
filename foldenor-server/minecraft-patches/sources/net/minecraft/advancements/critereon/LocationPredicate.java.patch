@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/critereon/LocationPredicate.java
++++ b/net/minecraft/advancements/critereon/LocationPredicate.java
+@@ -49,7 +_,7 @@
+         } else {
+             BlockPos blockPos = BlockPos.containing(x, y, z);
+             boolean isLoaded = level.isLoaded(blockPos);
+-            return (!this.biomes.isPresent() || isLoaded && this.biomes.get().contains(level.getBiome(blockPos)))
++            return (!this.biomes.isPresent() || isLoaded && this.biomes.get().contains(net.edenor.foldenor.config.FoldenorConfig.cacheBiomeAdvancement ? level.getBiomeCached(null, blockPos) : level.getBiome(blockPos))) // Leaf - cache getBiome
+                 && (!this.structures.isPresent() || isLoaded && level.structureManager().getStructureWithPieceAt(blockPos, this.structures.get()).isValid())
+                 && (!this.smokey.isPresent() || isLoaded && this.smokey.get() == CampfireBlock.isSmokeyPos(level, blockPos))
+                 && (!this.light.isPresent() || this.light.get().matches(level, blockPos))
