@@ -1,0 +1,119 @@
+--- a/net/minecraft/network/Connection.java
++++ b/net/minecraft/network/Connection.java
+@@ -372,6 +_,116 @@
+         }
+     }
+ 
++    // Luminol start - async protocol switcher
++    public <T extends PacketListener> void setupInboundProtocolAsync(ProtocolInfo<T> protocolInfo, T packetInfo, @Nullable Runnable callback, boolean releaseAutoRead) {
++        this.validateListener(protocolInfo, packetInfo);
++        if (protocolInfo.flow() != this.getReceiving()) {
++            throw new IllegalStateException("Invalid inbound protocol: " + protocolInfo.id());
++        } else {
++            this.packetListener = packetInfo;
++            this.disconnectListener = null;
++
++            UnconfiguredPipelineHandler.InboundConfigurationTask inboundConfigurationTask = UnconfiguredPipelineHandler.setupInboundProtocol(protocolInfo);
++            BundlerInfo bundlerInfo = protocolInfo.bundlerInfo();
++            if (bundlerInfo != null) {
++                PacketBundlePacker packetBundlePacker = new PacketBundlePacker(bundlerInfo);
++                inboundConfigurationTask = inboundConfigurationTask.andThen(context -> context.pipeline().addAfter("decoder", "bundler", packetBundlePacker));
++            }
++
++            // Here we could execute it in event loop async to prevent waiting io task on main
++            this.channel.config().setAutoRead(false); // stop reading new packets to prevent some packets came into pipeline too early
++            final UnconfiguredPipelineHandler.InboundConfigurationTask finalInboundConfigurationTask = inboundConfigurationTask;
++            Runnable writeTask = () -> {
++                final ChannelFuture future = this.channel.writeAndFlush(finalInboundConfigurationTask);
++
++                future.addListener(orginalFuture -> {
++                    try {
++                        if (orginalFuture.isSuccess()) {
++                            if (callback != null) callback.run(); // retire callback if there have one
++                            return;
++                        }
++
++                        final Throwable ex = orginalFuture.cause();
++
++                        // here we process our exceptions like that blocking one
++                        if (ex instanceof ClosedChannelException) {
++                            LOGGER.info("Connection closed during protocol change");
++                        } else {
++                            this.channel.pipeline().fireExceptionCaught(ex);
++                        }
++                    }finally {
++                        if (releaseAutoRead) {
++                            this.channel.config().setAutoRead(true);
++                            this.channel.read();
++                        }
++                    }
++                });
++            };
++
++            if (!this.channel.eventLoop().inEventLoop()) {
++                this.channel.eventLoop().execute(writeTask);
++                return;
++            }
++
++            writeTask.run();
++        }
++    }
++
++    public void setupOutboundProtocolAsync(ProtocolInfo<?> protocolInfo, @Nullable Runnable callback, boolean releaseAutoRead) {
++        if (protocolInfo.flow() != this.getSending()) {
++            throw new IllegalStateException("Invalid outbound protocol: " + protocolInfo.id());
++        } else {
++            UnconfiguredPipelineHandler.OutboundConfigurationTask outboundConfigurationTask = UnconfiguredPipelineHandler.setupOutboundProtocol(protocolInfo);
++            BundlerInfo bundlerInfo = protocolInfo.bundlerInfo();
++            if (bundlerInfo != null) {
++                PacketBundleUnpacker packetBundleUnpacker = new PacketBundleUnpacker(bundlerInfo);
++                outboundConfigurationTask = outboundConfigurationTask.andThen(
++                        context -> context.pipeline().addAfter("encoder", "unbundler", packetBundleUnpacker)
++                );
++            }
++
++            boolean flag = protocolInfo.id() == ConnectionProtocol.LOGIN;
++
++            // Here we could execute it in event loop async to prevent waiting io task on main
++            this.channel.config().setAutoRead(false); // stop reading new packets to prevent some packets came into pipeline too early
++            final UnconfiguredPipelineHandler.OutboundConfigurationTask finalOutboundConfigurationTask = outboundConfigurationTask;
++            final Runnable writeTask = () -> {
++                final ChannelFuture future = this.channel.writeAndFlush(finalOutboundConfigurationTask.andThen(context -> this.sendLoginDisconnect = flag));
++
++                future.addListener(orginalFuture -> {
++                    try {
++                        if (orginalFuture.isSuccess()) {
++                            if (callback != null) callback.run(); // retire callback if there have one
++                            return;
++                        }
++
++                        final Throwable ex = orginalFuture.cause();
++
++                        // here we process our exceptions like that blocking one
++                        if (ex instanceof ClosedChannelException) {
++                            LOGGER.info("Connection closed during protocol change");
++                        } else {
++                            this.channel.pipeline().fireExceptionCaught(ex);
++                        }
++                    }finally {
++                        if (releaseAutoRead) {
++                            this.channel.config().setAutoRead(true);
++                            this.channel.read(); // read once
++                        }
++                    }
++                });
++            };
++
++            if (!this.channel.eventLoop().inEventLoop()) {
++                this.channel.eventLoop().execute(writeTask);
++                return;
++            }
++
++            writeTask.run();
++        }
++    }
++    // Luminol end
++
+     public <T extends PacketListener> void setupInboundProtocol(ProtocolInfo<T> protocolInfo, T packetInfo) {
+         this.validateListener(protocolInfo, packetInfo);
+         if (protocolInfo.flow() != this.getReceiving()) {

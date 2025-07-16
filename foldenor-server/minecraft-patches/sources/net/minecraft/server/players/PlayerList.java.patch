@@ -23,6 +23,23 @@
  import org.slf4j.Logger;
  
  public abstract class PlayerList {
+@@ -342,10 +_,12 @@
+             // only after setting the connection listener to game type, add the connection to this regions list
+             serverLevel.getCurrentWorldData().connections.add(connection);
+             // Folia end - rewrite login process
+-            connection.setupInboundProtocol(
+-                GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
+-                serverGamePacketListenerImpl
+-            );
++            if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) { // Luminol - Async protocol switch // we will run async switch once these main thread logics became done
++                connection.setupInboundProtocol(
++                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
++                    serverGamePacketListenerImpl
++                );
++            } // Luminol - Async protocol switch
+             GameRules gameRules = serverLevel.getGameRules();
+             boolean _boolean = gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN);
+             boolean _boolean1 = gameRules.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO);
 @@ -421,6 +_,9 @@
                  //return; // Folia - region threading - must still allow the player to connect, as we must add to chunk map before handling disconnect
              }
@@ -33,6 +50,24 @@
              final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
  
              if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
+@@ -497,6 +_,17 @@
+                 );
+             }
+             // Paper end - Send empty chunk
++            // Luminol start - Async protocol switch
++            if (net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) {
++                // auto read will be enabled once the async switch is done
++                connection.setupInboundProtocolAsync(
++                        GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
++                        serverGamePacketListenerImpl,
++                        null, // we don't need do anything more
++                        true // start auto read which we have disabled in configuration handler
++                );
++            }
++            // Luminol end
+         }
+     }
+ 
 @@ -592,6 +_,7 @@
          return this.remove(player, net.kyori.adventure.text.Component.translatable("multiplayer.player.left", net.kyori.adventure.text.format.NamedTextColor.YELLOW, io.papermc.paper.configuration.GlobalConfiguration.get().messages.useDisplayNameInQuitMessage ? player.getBukkitEntity().displayName() : io.papermc.paper.adventure.PaperAdventure.asAdventure(player.getDisplayName())));
      }

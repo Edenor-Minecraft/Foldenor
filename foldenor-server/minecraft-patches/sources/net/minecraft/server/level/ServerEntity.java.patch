@@ -64,12 +64,10 @@
  
                  if (packet != null) {
                      this.broadcast.accept(packet);
-@@ -286,6 +_,17 @@
-             this.lastPassengers.stream().filter(entity -> !entities.contains(entity)),
-             entities.stream().filter(entity -> !this.lastPassengers.contains(entity))
+@@ -288,6 +_,17 @@
          );
-+    }
-+
+     }
+ 
 +    private boolean isNullMovePacket(Packet<?> packet) {
 +        if (!(packet instanceof ClientboundMoveEntityPacket move)) return false;
 +        return switch (packet) {
@@ -79,6 +77,17 @@
 +            case ClientboundMoveEntityPacket.Rot ignored -> move.getYRot() == 0 && move.getXRot() == 0;
 +            default -> false;
 +        };
-     }
- 
++    }
++
      private void handleMinecartPosRot(NewMinecartBehavior behavior, byte yRot, byte xRot, boolean dirty) {
+         this.sendDirtyEntityData();
+         if (behavior.lerpSteps.isEmpty()) {
+@@ -370,7 +_,7 @@
+             if (!list.isEmpty()) {
+                 consumer.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), list, true)); // Paper - data sanitization
+             }
+-            ((LivingEntity) this.entity).detectEquipmentUpdates(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending
++            if (this.entity.totalEntityAge == 0) ((LivingEntity) this.entity).detectEquipmentUpdates(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending // Leaves - fix chunk reload detector (#492)
+         }
+ 
+         if (!this.entity.getPassengers().isEmpty()) {

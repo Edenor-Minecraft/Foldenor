@@ -1,5 +1,29 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -2783,7 +_,7 @@
+         // removed from the world
+         // Folia end - rewrite login process - fix bad ordering of this field write - move after removed from world
+         try { // Folia - rewrite login process - move connection ownership to global region
+-            this.hackSwitchingConfig = true; // Folia - rewrite login process - avoid adding logout ticket here
++            this.hackSwitchingConfig = true; // Folia - rewrite login process - avoid adding logout ticket here and retiring scheduler
+         this.removePlayerFromWorld();
+         } finally { // Folia start - rewrite login process - move connection ownership to global region
+             io.papermc.paper.threadedregions.RegionizedWorldData worldData = this.player.level().getCurrentWorldData();
+@@ -2792,7 +_,13 @@
+         } // Folia end - rewrite login process - move connection ownership to global region
+         this.waitingForSwitchToConfig = true; // Folia - rewrite login process - fix bad ordering of this field write - moved down
+         this.send(ClientboundStartConfigurationPacket.INSTANCE);
+-        this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND);
++        if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) { // Luminol - Async protocol switch
++            this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND);
++        // Luminol start - Async protcol switch
++        } else {
++            this.connection.setupOutboundProtocolAsync(ConfigurationProtocols.CLIENTBOUND, null, true);
++        }
++        // Luminol end
+     }
+ 
+     @Override
 @@ -3001,7 +_,7 @@
          if (this.player.isImmobile()) return; // CraftBukkit
          this.player.resetLastActionTime();
@@ -9,6 +33,37 @@
              if (false/*this.player.isSpectator()*/) { // CraftBukkit
                  this.player.containerMenu.sendAllDataToRemote();
              } else if (!this.player.containerMenu.stillValid(this.player)) {
+@@ -3627,12 +_,25 @@
+             throw new IllegalStateException("Client acknowledged config, but none was requested");
+         } else {
+             final ServerConfigurationPacketListenerImpl listener = new ServerConfigurationPacketListenerImpl(this.server, this.connection, this.createCookie(this.player.clientInformation())); // Paper
+-            this.connection
+-                .setupInboundProtocol(
+-                    ConfigurationProtocols.SERVERBOUND,
+-                    listener // Paper
++            if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) { // Luminol - Async protocol switch
++                this.connection
++                    .setupInboundProtocol(
++                        ConfigurationProtocols.SERVERBOUND,
++                        listener // Paper
++                    );
++                    new io.papermc.paper.event.connection.configuration.PlayerConnectionReconfigureEvent(listener.paperConnection).callEvent(); }// Paper // Luminol - Async protocol switch - add "{"
++            // Luminol start - Async protocol switch - move up
++            else
++                this.connection.setupInboundProtocolAsync(
++                        ConfigurationProtocols.SERVERBOUND,
++                        listener,
++                        () -> {
++                            new io.papermc.paper.event.connection.configuration.PlayerConnectionReconfigureEvent(listener.paperConnection).callEvent(); // Paper
++                        },
++                        true
+                 );
+-            new io.papermc.paper.event.connection.configuration.PlayerConnectionReconfigureEvent(listener.paperConnection).callEvent(); // Paper
++            // Luminol end
++            // new io.papermc.paper.event.connection.configuration.PlayerConnectionReconfigureEvent(listener.paperConnection).callEvent(); // Paper // Luminol - Async protocol switch - move up
+         }
+     }
+ 
 @@ -3669,6 +_,17 @@
  
      @Override

@@ -1,0 +1,23 @@
+package org.dreeam.leaf.async;
+
+import net.edenor.foldenor.config.FoldenorConfig;
+import net.minecraft.Util;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+
+public class AsyncPlayerDataSaving {
+
+    private AsyncPlayerDataSaving() {
+    }
+
+    public static void saveAsync(Runnable runnable) {
+        if (!FoldenorConfig.asyncPlayerDataSaveEnabled) {
+            runnable.run();
+            return;
+        }
+
+        ExecutorService ioExecutor = Util.backgroundExecutor().service();
+        CompletableFuture.runAsync(runnable, ioExecutor);
+    }
+}

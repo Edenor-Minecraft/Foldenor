@@ -1,0 +1,66 @@
+package net.edenor.foldenor.commands;
+
+import net.edenor.foldenor.config.FoldenorConfig;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.minecraft.server.MinecraftServer;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class FoldenorCommand extends Command {
+
+    protected FoldenorCommand() {
+        super("foldenor");
+        this.description = "Foldenor related commands";
+        this.usageMessage = "/foldenor [reload | version]";
+        this.setPermission("bukkit.command.foldenor");
+    }
+
+    public static void init() {
+        MinecraftServer.getServer().server.getCommandMap().register("foldenor", "Foldenor", new FoldenorCommand());
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (args.length == 1) {
+            return Stream.of("reload", "version")
+                    .filter(arg -> arg.startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+        if (!testPermission(sender)) return true;
+        Component prefix = Component.text("Foldenor » ", TextColor.fromHexString("#12fff6"), TextDecoration.BOLD);
+
+        if (args.length != 1) {
+            sender.sendMessage(prefix.append(Component.text("Usage: " + usageMessage).color(TextColor.fromHexString("#e8f9f9"))));
+            args = new String[]{"version"};
+        }
+
+        if (args[0].equalsIgnoreCase("reload")) {
+            MinecraftServer console = MinecraftServer.getServer();
+            FoldenorConfig.init(new File("foldenor.yml"));
+            console.server.reloadCount++;
+
+            Command.broadcastCommandMessage(sender, prefix.append(Component.text("Foldenor configuration has been reloaded.").color(TextColor.fromHexString("#e8f9f9"))));
+        } else if (args[0].equalsIgnoreCase("version")) {
+            Command.broadcastCommandMessage(sender, prefix.append(Component.text("This server is running " + Bukkit.getName() + " version " +
+                    Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")").color(TextColor.fromHexString("#e8f9f9"))));
+        }
+
+        return true;
+    }
+}

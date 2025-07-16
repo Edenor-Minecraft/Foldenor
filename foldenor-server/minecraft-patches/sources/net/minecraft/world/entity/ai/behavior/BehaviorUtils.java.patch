@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
++++ b/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
+@@ -69,6 +_,11 @@
+     }
+ 
+     public static void setWalkAndLookTargetMemories(LivingEntity entity, PositionTracker positionTracker, float speedModifier, int closeEnoughDist) {
++        // Luminol - Do not set walk target if target position is out of current tick region
++        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity.level(), positionTracker.currentBlockPosition())) {
++            return;
++        }
++        // Luminol end
+         WalkTarget walkTarget = new WalkTarget(positionTracker, speedModifier, closeEnoughDist);
+         entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, positionTracker);
+         entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, walkTarget);

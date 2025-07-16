@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/entity/animal/allay/AllayAi.java
++++ b/net/minecraft/world/entity/animal/allay/AllayAi.java
+@@ -114,6 +_,17 @@
+         Optional<GlobalPos> memory = brain.getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
+         if (memory.isPresent()) {
+             GlobalPos globalPos = memory.get();
++            // Luminol start - Do not like item if they were out of current tickregion
++            final Level targetLevel = entity.level().getServer().getLevel(globalPos.dimension());
++            final BlockPos targetPos = globalPos.pos();
++
++            // thread checks
++            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(targetLevel, targetPos)) {
++                brain.eraseMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION); // The memory value is not being belong to current tick region anymore
++                return Optional.empty();
++            }
++            // Luminol end
++
+             if (shouldDepositItemsAtLikedNoteblock(entity, brain, globalPos)) {
+                 return Optional.of(new BlockPosTracker(globalPos.pos().above()));
+             }

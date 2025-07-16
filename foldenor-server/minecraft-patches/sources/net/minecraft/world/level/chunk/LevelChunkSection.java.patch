@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/chunk/LevelChunkSection.java
 +++ b/net/minecraft/world/level/chunk/LevelChunkSection.java
-@@ -18,11 +_,12 @@
+@@ -18,11 +_,14 @@
      public static final int SECTION_HEIGHT = 16;
      public static final int SECTION_SIZE = 4096;
      public static final int BIOME_CONTAINER_BITS = 2;
@@ -10,13 +10,64 @@
 +    public short nonEmptyBlockCount; // Paper - package private // Canvas - package-private -> public
 +    public short tickingBlockCount; // Canvas - private -> public
 +    public short tickingFluidCount; // Canvas - private -> public
++    private boolean isRandomlyTickingBlocksStatus; // Leaf - Cache random tick block status
      public final PalettedContainer<BlockState> states;
      private PalettedContainer<Holder<Biome>> biomes; // CraftBukkit - read/write
 +    private static final int sliceSize = 4; // Canvas
++    private boolean modified = false; // Leaf - Optimize chunkUnload
  
      // Paper start - block counting
      private static final it.unimi.dsi.fastutil.shorts.ShortArrayList FULL_LIST = new it.unimi.dsi.fastutil.shorts.ShortArrayList(16*16*16);
-@@ -312,13 +_,15 @@
+@@ -54,6 +_,7 @@
+         this.tickingFluidCount = section.tickingFluidCount;
+         this.states = section.states.copy();
+         this.biomes = section.biomes.copy();
++        this.isRandomlyTickingBlocksStatus = this.tickingBlockCount > 0; // Leaf - Cache random tick block status
+     }
+ 
+     public LevelChunkSection(PalettedContainer<BlockState> states, PalettedContainer<Holder<Biome>> biomes) { // CraftBukkit - read/write
+@@ -133,6 +_,7 @@
+     // Paper end - block counting
+ 
+     public BlockState setBlockState(int x, int y, int z, BlockState state, boolean useLocks) {
++        this.modified = true; // Leaf - Optimize chunkUnload
+         BlockState blockState;
+         if (useLocks) {
+             blockState = this.states.getAndSet(x, y, z, state);
+@@ -165,6 +_,7 @@
+         }
+ 
+         this.updateBlockCallback(x, y, z, state, blockState); // Paper - block counting
++        this.isRandomlyTickingBlocksStatus = this.tickingBlockCount > 0; // Leaf - Cache random tick block status
+ 
+         return blockState;
+     }
+@@ -178,7 +_,7 @@
+     }
+ 
+     public boolean isRandomlyTickingBlocks() {
+-        return this.tickingBlockCount > 0;
++        return isRandomlyTickingBlocksStatus; // Leaf - Cache random tick block status
+     }
+ 
+     public boolean isRandomlyTickingFluids() {
+@@ -193,6 +_,7 @@
+         this.tickingFluidCount = (short)0;
+         this.specialCollidingBlocks = (short)0;
+         this.tickingBlocks.clear();
++        this.isRandomlyTickingBlocksStatus = false; // Leaf - Cache random tick block status
+ 
+         if (this.maybeHas((final BlockState state) -> !state.isAir())) {
+             final PalettedContainer.Data<BlockState> data = this.states.data;
+@@ -226,6 +_,7 @@
+                 this.nonEmptyBlockCount += (short)paletteCount;
+                 if (state.isRandomlyTicking()) {
+                     this.tickingBlockCount += (short)paletteCount;
++                    this.isRandomlyTickingBlocksStatus = this.tickingBlockCount > 0; // Leaf - Cache random tick block status
+                     final short[] raw = coordinates.elements();
+                     final int rawLen = raw.length;
+ 
+@@ -312,18 +_,45 @@
          PalettedContainer<Holder<Biome>> palettedContainer = this.biomes.recreate();
          int i = 4;
  
@@ -36,3 +87,33 @@
  
          this.biomes = palettedContainer;
      }
++
++    // Leaf start - Optimize chunkUnload
++    private LevelChunkSection(short nonEmptyBlockCount, short tickingBlockCount, short tickingFluidCount,
++                              PalettedContainer<BlockState> states, PalettedContainer<Holder<Biome>> biomes) {
++        this.nonEmptyBlockCount = nonEmptyBlockCount;
++        this.tickingBlockCount = tickingBlockCount;
++        this.tickingFluidCount = tickingFluidCount;
++        this.states = states;
++        this.biomes = biomes;
++        this.isRandomlyTickingBlocksStatus = this.tickingBlockCount > 0; // Leaf - Cache random tick block status
++    }
++    // Leaf end - Optimize chunkUnload
+ 
+     public LevelChunkSection copy() {
++        // Leaf - Optimize chunkUnload
++        // If the section hasn't been modified and no random ticking blocks/fluids,
++        // return a lightweight copy that shares palette data
++        if (!this.modified && this.tickingBlockCount == 0 && this.tickingFluidCount == 0) {
++            return new LevelChunkSection(
++                    this.nonEmptyBlockCount,
++                    this.tickingBlockCount,
++                    this.tickingFluidCount,
++                    this.states, // Share reference instead of copying
++                    this.biomes  // Share reference instead of copying
++            );
++        }
++        // Leaf end - Optimize chunkUnload{
+         return new LevelChunkSection(this);
+     }
+ }

@@ -1,18 +1,32 @@
-# Ignore Gradle project-specific cache directory
-.gradle
+# Mac filesystem dust
+.DS_Store/
+.DS_Store
 
-# Ignore Gradle build output directory
+# Linux temp files
+*~
+
+# vim
+.*.sw[a-p]
+
+# IntelliJ
+*.iml
+.idea
+!.idea/icon.svg
+
+# Gradle
+!gradle/wrapper/gradle-wrapper.jar
+.gradle
 build
 
-/run
+build-data/dev-imports.txt
+run
 
-/folia-server
-/foldenor-server/build.gradle.kts
-/foldenor-server/src/minecraft
-/paper-server
-/folia-api
-/foldenor-api/build.gradle.kts
-/paper-api
-/paper-api-generator
+foldenor-api/build.gradle.kts
+foldenor-server/build.gradle.kts
+foldenor-server/src/minecraft
 
-.idea/
+folia-api
+folia-server
+
+paper-api
+paper-server

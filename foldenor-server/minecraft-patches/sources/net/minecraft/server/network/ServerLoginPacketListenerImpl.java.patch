@@ -1,0 +1,38 @@
+--- a/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -413,14 +_,34 @@
+     public void handleLoginAcknowledgement(ServerboundLoginAcknowledgedPacket packet) {
+         net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread(packet, this, this.server); // CraftBukkit
+         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.PROTOCOL_SWITCHING, "Unexpected login acknowledgement packet");
+-        this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND);
++        /*this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND); // Luminol - Async protocol switch - Rewrite
+         CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(Objects.requireNonNull(this.authenticatedProfile), this.transferred);
+         ServerConfigurationPacketListenerImpl serverConfigurationPacketListenerImpl = new ServerConfigurationPacketListenerImpl(
+             this.server, this.connection, commonListenerCookie
+         );
+         this.connection.setupInboundProtocol(ConfigurationProtocols.SERVERBOUND, serverConfigurationPacketListenerImpl);
+         serverConfigurationPacketListenerImpl.startConfiguration();
++        this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;*/ // Luminol - Async protocol switch - Rewrite
++        // Luminol start - Async protocol switch
+         this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;
++        final CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(Objects.requireNonNull(this.authenticatedProfile), this.transferred);
++        final ServerConfigurationPacketListenerImpl serverConfigurationPacketListenerImpl = new ServerConfigurationPacketListenerImpl(
++                this.server, this.connection, commonListenerCookie
++        );
++
++        Runnable afterSwitch = () -> io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTask(serverConfigurationPacketListenerImpl::startConfiguration); // push back to main thread
++
++        if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) {
++            this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND);
++            this.connection.setupInboundProtocol(ConfigurationProtocols.SERVERBOUND, serverConfigurationPacketListenerImpl);
++            afterSwitch.run();
++            return;
++        }
++
++        this.connection.setupInboundProtocolAsync(ConfigurationProtocols.SERVERBOUND, serverConfigurationPacketListenerImpl, () -> {
++            this.connection.setupOutboundProtocolAsync(ConfigurationProtocols.CLIENTBOUND, afterSwitch, true); // start auto read when everything is ready
++        }, false);
++        // Luminol end
+     }
+ 
+     @Override
