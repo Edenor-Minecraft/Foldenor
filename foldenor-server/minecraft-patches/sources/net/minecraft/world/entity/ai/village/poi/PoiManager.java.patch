@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/entity/ai/village/poi/PoiManager.java
++++ b/net/minecraft/world/entity/ai/village/poi/PoiManager.java
+@@ -16,6 +_,8 @@
+ import java.util.function.Predicate;
+ import java.util.stream.IntStream;
+ import java.util.stream.Stream;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+@@ -212,7 +_,7 @@
+ 
+     public Stream<PoiRecord> getInSquare(Predicate<Holder<PoiType>> typePredicate, BlockPos pos, int distance, PoiManager.Occupancy status) {
+         int i = Math.floorDiv(distance, 16) + 1;
+-        return ChunkPos.rangeClosed(new ChunkPos(pos), i).flatMap(chunkPos -> this.getInChunk(typePredicate, chunkPos, status)).filter(poiRecord -> {
++        return ChunkPos.rangeClosed(new ChunkPos(pos), i).filter(cpos -> FoldenorConfig.foliaPOIAccessOffRegionFix ? ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this.world,cpos) : true).flatMap(chunkPos -> this.getInChunk(typePredicate, chunkPos, status)).filter(poiRecord -> { // Luminol - Fix off region POI access
+             BlockPos pos1 = poiRecord.getPos();
+             return Math.abs(pos1.getX() - pos.getX()) <= distance && Math.abs(pos1.getZ() - pos.getZ()) <= distance;
+         });

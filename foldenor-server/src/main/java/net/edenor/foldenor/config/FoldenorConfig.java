@@ -54,6 +54,9 @@ public class FoldenorConfig {
     public static boolean cacheBiomeAdvancement = false;
     public static boolean optimizePlayerMovementProcessing = true;
     public static boolean asyncProtocolChange = false;
+    public static boolean foliaPOIAccessOffRegionFix = false;
+    public static boolean forceCleanupEntityBrainMemoryForEntity = false;
+    public static boolean forceCleanupEntityBrainMemoryForBlockPos = false;
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -170,12 +173,15 @@ public class FoldenorConfig {
         cacheBiomeMobSpawn = getBoolean("optimizations.cache-biome.mob-spawn", cacheBiomeMobSpawn);
         cacheBiomeAdvancement = getBoolean("optimizations.cache-biome.advancement", cacheBiomeAdvancement);
         optimizePlayerMovementProcessing = getBoolean("optimizations.optimize-player-movement-processing", optimizePlayerMovementProcessing);
+        forceCleanupEntityBrainMemoryForEntity = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-entity", forceCleanupEntityBrainMemoryForEntity);
+        forceCleanupEntityBrainMemoryForBlockPos = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-block-pos", forceCleanupEntityBrainMemoryForBlockPos);
     }
 
     private static void readMiscSettings() {
         useVirtualThreadForAsyncScheduler = getBoolean("optimizations.use-virtual-thread-for-async-scheduler", useVirtualThreadForAsyncScheduler,
                 "Use the new Virtual Thread introduced in JDK 21 for CraftAsyncScheduler.");
         asyncPlayerDataSaveEnabled = getBoolean("misc.async-playerdata-save.enabled", asyncPlayerDataSaveEnabled);
+        foliaPOIAccessOffRegionFix = getBoolean("mist.folia-POI-access-off-region-fix", foliaPOIAccessOffRegionFix);
     }
 
     private static void dynamicActivationOfBrains() throws IOException {

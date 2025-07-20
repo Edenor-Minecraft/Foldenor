@@ -52,3 +52,4 @@ If these excellent projects hadn't appeared, Foldenor wouldn't have become great
 - [SparklyPaper](https://github.com/SparklyPower/SparklyPaper)
 - [Mizi](https://github.com/Toffikk/Mizi)
 - [Canvas](https://github.com/CraftCanvasMC/Canvas)
+- [Luminol](https://github.com/LuminolMC/Luminol)

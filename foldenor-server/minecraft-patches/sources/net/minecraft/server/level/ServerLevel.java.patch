@@ -8,7 +8,14 @@
          boolean flag = server.forceSynchronousWrites();
          DataFixer fixerUpper = server.getFixerUpper();
          // Paper - rewrite chunk system
-@@ -812,6 +_,7 @@
+@@ -806,12 +_,14 @@
+             }
+ 
+             profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); try { // Folia - profiler
++            if (dev.kaiijumc.kaiiju.KaiijuEntityLimits.enabled) regionizedWorldData.entityThrottler.tickLimiterStart(); // Kaiiju
+             io.papermc.paper.entity.activation.ActivationRange.activateEntities(this); // Paper - EAR
+             } finally { profiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); } // Folia - profiler
+             profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); try { // Folia - profiler
              regionizedWorldData // Folia - regionised ticking
                  .forEachTickingEntity( // Folia - regionised ticking
                      entity -> {
@@ -16,9 +23,18 @@
                          if (!entity.isRemoved()) {
                              if (!tickRateManager.isEntityFrozen(entity)) {
                                  profilerFiller.push("checkDespawn");
-@@ -829,7 +_,21 @@
+@@ -828,14 +_,37 @@
+                                         entity.stopRiding();
                                      }
  
++                                    // Kaiiju start
++                                    if (dev.kaiijumc.kaiiju.KaiijuEntityLimits.enabled) {
++                                        dev.kaiijumc.kaiiju.KaiijuEntityThrottler.EntityThrottlerReturn throttle = regionizedWorldData.entityThrottler.tickLimiterShouldSkip(entity);
++                                        if (throttle.remove && !entity.hasCustomName()) entity.remove(Entity.RemovalReason.DISCARDED);
++                                        if (throttle.skip) return;
++                                    }
++                                    // Kaiiju end
++
                                      profilerFiller.push("tick");
 -                                    this.guardEntityTick(this::tickNonPassenger, entity);
 +                                    // this.guardEntityTick(this::tickNonPassenger, entity);
@@ -39,6 +55,13 @@
                                      profilerFiller.pop();
                                  }
                              }
+                         }
+                     }
+                 );
++                if (dev.kaiijumc.kaiiju.KaiijuEntityLimits.enabled) regionizedWorldData.entityThrottler.tickLimiterFinish(regionizedWorldData); // Kaiiju
+             } finally { profiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); } // Folia - profiler
+             profilerFiller.pop();
+             profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.TILE_ENTITY); try { // Folia - profiler
 @@ -1012,7 +_,7 @@
          int minBlockZ = pos.getMinBlockZ();
          ProfilerFiller profilerFiller = Profiler.get();

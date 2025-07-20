@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/entity/ai/Brain.java
 +++ b/net/minecraft/world/entity/ai/Brain.java
+@@ -25,6 +_,8 @@
+ import java.util.function.Supplier;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.registries.BuiltInRegistries;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.util.VisibleForDebug;
 @@ -70,13 +_,22 @@
              (new MapCodec<Brain<E>>() {
                      @Override
@@ -70,3 +79,44 @@
  
      public boolean hasMemoryValue(MemoryModuleType<?> type) {
          return this.checkMemory(type, MemoryStatus.VALUE_PRESENT);
+@@ -408,7 +_,7 @@
+     }
+ 
+     public void tick(ServerLevel level, E entity) {
+-        this.forgetOutdatedMemories();
++        this.forgetOutdatedMemories(entity); // Luminol - Add config to force clean entity memory that don't belong to current tick region
+         this.tickSensors(level, entity);
+         this.startEachNonRunningBehavior(level, entity);
+         this.tickEachRunningBehavior(level, entity);
+@@ -420,10 +_,30 @@
+         }
+     }
+ 
+-    private void forgetOutdatedMemories() {
++    private void forgetOutdatedMemories(E owner) { // Luminol - Add config to force clean entity memory that don't belong to current tick region
+         for (Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : this.memories.entrySet()) {
+             if (entry.getValue().isPresent()) {
+                 ExpirableValue<?> expirableValue = (ExpirableValue<?>)entry.getValue().get();
++                // Luminol start - Add config to force clean entity memory that don't belong to current tick region
++                final Object value = expirableValue.getValue();
++                final net.minecraft.world.level.Level ownerLevel = owner.level();
++
++                // type: entity
++                if (FoldenorConfig.forceCleanupEntityBrainMemoryForEntity && value instanceof LivingEntity entity) {
++                    if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity)) {
++                        this.eraseMemory(entry.getKey());
++                        continue;
++                    }
++                }
++
++                // type: block_pos
++                if (FoldenorConfig.forceCleanupEntityBrainMemoryForBlockPos && value instanceof net.minecraft.core.BlockPos blockPos) {
++                    if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(ownerLevel, blockPos)) {
++                        this.eraseMemory(entry.getKey());
++                        continue;
++                    }
++                }
++                // Luminol end
+                 if (expirableValue.hasExpired()) {
+                     this.eraseMemory(entry.getKey());
+                 }
