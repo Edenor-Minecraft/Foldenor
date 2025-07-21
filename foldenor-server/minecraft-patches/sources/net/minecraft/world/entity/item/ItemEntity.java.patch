@@ -1,0 +1,63 @@
+--- a/net/minecraft/world/entity/item/ItemEntity.java
++++ b/net/minecraft/world/entity/item/ItemEntity.java
+@@ -3,6 +_,8 @@
+ import java.util.Objects;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.UUIDUtil;
+ import net.minecraft.network.chat.Component;
+@@ -148,7 +_,13 @@
+             }
+             // CraftBukkit end
+             this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+-        }
++            return; // Gale - EMC - reduce hopper item checks
++        }
++        // Gale start - EMC - reduce hopper item checks
++        if (FoldenorConfig.checkTemporaryImmunityCheckForMinecartNearItemWhileInactive) {
++            this.markNearbyHopperCartsAsImmune();
++        }
++        // Gale end - EMC - reduce hopper item checks
+     }
+     // Paper end - EAR 2
+ 
+@@ -232,9 +_,33 @@
+                 }
+                 // CraftBukkit end
+                 this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+-            }
+-        }
+-    }
++                return; // Gale - EMC - reduce hopper item checks
++            }
++            this.markNearbyHopperCartsAsImmune(); // Gale - EMC - reduce hopper item checks
++        }
++    }
++
++    // Gale start - EMC - reduce hopper item checks
++    private void markNearbyHopperCartsAsImmune() {
++        // No need to mark hopper minecarts as immune if they can pull every tick anyway
++        if (FoldenorConfig.checkNearbyItemMinecartHopperInterval <= 1) {
++            return;
++        }
++
++        if (FoldenorConfig.checkTemporaryImmunityDuration > 0 && this.isAlive() && this.onGround
++                && !this.isRemoved() && (FoldenorConfig.checkTemporaryImmunityItemMaxAge == -1 || this.age <= FoldenorConfig.checkTemporaryImmunityItemMaxAge)
++                && this.age % Math.max(1, FoldenorConfig.checkTemporaryImmunityCheckForMinecartNearItemInterval) == 0
++                && FoldenorConfig.checkTemporaryImmunityMaxItemHorizontalDist >= 0
++                && FoldenorConfig.checkTemporaryImmunityMaxItemVerticalDist >= 0) {
++            net.minecraft.world.phys.AABB aabb = this.getBoundingBox().inflate(FoldenorConfig.checkTemporaryImmunityMaxItemHorizontalDist, FoldenorConfig.checkTemporaryImmunityMaxItemVerticalDist, FoldenorConfig.checkTemporaryImmunityMaxItemHorizontalDist);
++            for (Entity entity : this.level().getEntities(this, aabb)) {
++                if (entity instanceof net.minecraft.world.entity.vehicle.MinecartHopper hopper) {
++                    hopper.pickupImmunity = this.tickCount  + FoldenorConfig.checkTemporaryImmunityDuration;
++                }
++            }
++        }
++    }
++    // Gale end - EMC - reduce hopper item checks
+ 
+     @Override
+     public BlockPos getBlockPosBelowThatAffectsMyMovement() {

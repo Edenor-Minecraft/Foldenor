@@ -3,6 +3,7 @@ package net.edenor.foldenor.config;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.triassic.linearpaper.region.RegionFileFormat;
+import dev.kaiijumc.kaiiju.KaiijuEntityLimits;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EntityType;
@@ -57,6 +58,15 @@ public class FoldenorConfig {
     public static boolean foliaPOIAccessOffRegionFix = false;
     public static boolean forceCleanupEntityBrainMemoryForEntity = false;
     public static boolean forceCleanupEntityBrainMemoryForBlockPos = false;
+    public static int checkNearbyItemHopperInterval = 1;
+    public static int checkNearbyItemMinecartHopperInterval = 1;
+    public static int checkTemporaryImmunityDuration = 100;
+    public static int checkTemporaryImmunityItemMaxAge = 1200;
+    public static int checkTemporaryImmunityCheckForMinecartNearItemInterval = 20;
+    public static boolean checkTemporaryImmunityCheckForMinecartNearItemWhileActive = false;
+    public static boolean checkTemporaryImmunityCheckForMinecartNearItemWhileInactive = true;
+    public static float checkTemporaryImmunityMaxItemHorizontalDist = 24.0f;
+    public static float checkTemporaryImmunityMaxItemVerticalDist = 24.0f;
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -108,6 +118,8 @@ public class FoldenorConfig {
         readMiscSettings();
 
         readLinearRegion();
+
+        KaiijuEntityLimits.init();
 
         try {
             dynamicActivationOfBrains();
@@ -175,13 +187,22 @@ public class FoldenorConfig {
         optimizePlayerMovementProcessing = getBoolean("optimizations.optimize-player-movement-processing", optimizePlayerMovementProcessing);
         forceCleanupEntityBrainMemoryForEntity = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-entity", forceCleanupEntityBrainMemoryForEntity);
         forceCleanupEntityBrainMemoryForBlockPos = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-block-pos", forceCleanupEntityBrainMemoryForBlockPos);
+        checkNearbyItemHopperInterval = getInt("optimizations.check-nearby-item.hopper.interval", checkNearbyItemHopperInterval);
+        checkNearbyItemMinecartHopperInterval = getInt("optimizations.check-nearby-item.minecart.interval", checkNearbyItemMinecartHopperInterval);
+        checkTemporaryImmunityDuration = getInt("optimizations.check-nearby-item.minecart.immunity.duration", checkTemporaryImmunityDuration);
+        checkTemporaryImmunityItemMaxAge = getInt("optimizations.check-nearby-item.minecart.immunity.item-max-age", checkTemporaryImmunityItemMaxAge);
+        checkTemporaryImmunityCheckForMinecartNearItemInterval = getInt("optimizations.check-nearby-item.minecart.immunity.check-for-minecart-near-item-interval", checkTemporaryImmunityCheckForMinecartNearItemInterval);
+        checkTemporaryImmunityCheckForMinecartNearItemWhileActive = getBoolean("optimizations.check-nearby-item.minecart.immunity.check-for-minecart-near-item-while-active", checkTemporaryImmunityCheckForMinecartNearItemWhileActive);
+        checkTemporaryImmunityCheckForMinecartNearItemWhileInactive = getBoolean("optimizations.check-nearby-item.minecart.immunity.check-for-minecart-near-item-while-inactive", checkTemporaryImmunityCheckForMinecartNearItemWhileInactive);
+        checkTemporaryImmunityMaxItemHorizontalDist = (float) getDouble("optimizations.check-nearby-item.minecart.immunity.max-item-horizontal-distance", checkTemporaryImmunityMaxItemHorizontalDist);
+        checkTemporaryImmunityMaxItemVerticalDist = (float) getDouble("optimizations.check-nearby-item.minecart.immunity.max-item-vertical-distance", checkTemporaryImmunityMaxItemVerticalDist);
     }
 
     private static void readMiscSettings() {
         useVirtualThreadForAsyncScheduler = getBoolean("optimizations.use-virtual-thread-for-async-scheduler", useVirtualThreadForAsyncScheduler,
                 "Use the new Virtual Thread introduced in JDK 21 for CraftAsyncScheduler.");
         asyncPlayerDataSaveEnabled = getBoolean("misc.async-playerdata-save.enabled", asyncPlayerDataSaveEnabled);
-        foliaPOIAccessOffRegionFix = getBoolean("mist.folia-POI-access-off-region-fix", foliaPOIAccessOffRegionFix);
+        foliaPOIAccessOffRegionFix = getBoolean("misc.folia-POI-access-off-region-fix", foliaPOIAccessOffRegionFix);
     }
 
     private static void dynamicActivationOfBrains() throws IOException {

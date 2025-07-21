@@ -1,0 +1,24 @@
+--- a/net/minecraft/world/entity/vehicle/MinecartHopper.java
++++ b/net/minecraft/world/entity/vehicle/MinecartHopper.java
+@@ -23,6 +_,7 @@
+     private static final boolean DEFAULT_ENABLED = true;
+     private boolean enabled = true;
+     private boolean consumedItemThisFrame = false;
++    public int pickupImmunity = 0; // Gale - EMC - reduce hopper item checks
+ 
+     public MinecartHopper(EntityType<? extends MinecartHopper> entityType, Level level) {
+         super(entityType, level);
+@@ -150,5 +_,13 @@
+         this.activatedImmunityTick = Math.max(this.activatedImmunityTick, io.papermc.paper.threadedregions.RegionizedServer.getCurrentTick() + 20);
+     }
+     // Paper end
++
++    // Gale start - EMC - reduce hopper item checks
++    private long tickAttempts = 0;
++    @Override
++    public long getAndIncrementAttemptCounter() {
++        return tickAttempts++;
++    }
++    // Gale end EMC - - reduce hopper item checks
+ 
+ }

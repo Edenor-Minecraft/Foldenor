@@ -48,7 +48,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -211,6 +_,13 @@
+@@ -211,6 +_,19 @@
      // Spark
      implementation("me.lucko:spark-api:0.1-20240720.200737-2")
      implementation("me.lucko:spark-paper:1.10.133-20250413.112336-1")
@@ -59,6 +59,12 @@
 +    // LinearPaper end
 +
 +    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
++    implementation("io.github.classgraph:classgraph:4.8.158")
++
++    //Idk why plugins wont work without this
++    runtimeOnly("org.apache.maven:maven-resolver-provider:3.9.6")
++    runtimeOnly("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.18")
++    runtimeOnly("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
  }
  
  tasks.jar {

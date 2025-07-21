@@ -49,6 +49,17 @@
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
+@@ -143,9 +_,7 @@
+         if (!blockEntity.isOnCooldown()) {
+             blockEntity.setCooldown(0);
+             // Spigot start
+-            boolean result = tryMoveItems(level, pos, state, blockEntity, () -> {
+-                return suckInItems(level, blockEntity);
+-            });
++            boolean result = tryMoveItems(level, pos, state, blockEntity, () -> suckInItems(level, blockEntity));
+             if (!result && blockEntity.level.spigotConfig.hopperCheck > 1) {
+                 blockEntity.setCooldown(blockEntity.level.spigotConfig.hopperCheck);
+             }
 @@ -161,6 +_,14 @@
      private static int getFullState(final HopperBlockEntity hopper) {
          hopper.unpackLootTable(null);
@@ -84,6 +95,50 @@
          int[] slots = getSlots(container, direction);
  
          for (int i : slots) {
+@@ -557,7 +_,7 @@
+             return false;
+         } else {
+             boolean flag = hopper.isGridAligned() && blockState.isCollisionShapeFullBlock(level, blockPos) && !blockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
+-            if (!flag) {
++            if (!flag && shouldSuckIn(level, hopper)) { // Gale - EMC - reduce hopper item checks
+                 for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
+                     if (addItem(hopper, itemEntity)) {
+                         return true;
+@@ -833,6 +_,34 @@
+         return stack1.getCount() < stack1.getMaxStackSize() && ItemStack.isSameItemSameComponents(stack1, stack2); // Paper - Perf: Optimize Hoppers; used to return true for full itemstacks?!
+     }
+ 
++    // Gale start - EMC - reduce hopper item checks
++    private long tickAttempts = 0;
++    @Override
++    public long getAndIncrementAttemptCounter() {
++        return tickAttempts++;
++    }
++    private static boolean shouldSuckIn(Level level, Hopper hopper) {
++        int suckInterval;
++        if (hopper instanceof net.minecraft.world.entity.vehicle.MinecartHopper minecartHopper) {
++            if (minecartHopper.pickupImmunity > level.getRedstoneGameTime()) {
++                return true;
++            }
++
++            suckInterval = FoldenorConfig.checkNearbyItemMinecartHopperInterval;
++        } else {
++            suckInterval = FoldenorConfig.checkNearbyItemHopperInterval;
++        }
++
++        if (suckInterval <= 1) {
++            return true;
++        }
++
++        final int hopperId = (int) hopper.getLevelX() + (int) hopper.getLevelY() + (int) hopper.getLevelZ();
++
++        return (hopper.getAndIncrementAttemptCounter() + hopperId) % suckInterval == 0;
++    }
++    // Gale end - EMC - reduce hopper item checks
++
+     @Override
+     public double getLevelX() {
+         return this.worldPosition.getX() + 0.5;
 @@ -872,7 +_,10 @@
  
      @Override

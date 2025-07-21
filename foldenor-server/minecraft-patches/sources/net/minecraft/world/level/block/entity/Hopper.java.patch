@@ -1,0 +1,9 @@
+--- a/net/minecraft/world/level/block/entity/Hopper.java
++++ b/net/minecraft/world/level/block/entity/Hopper.java
+@@ -18,4 +_,6 @@
+     double getLevelZ();
+ 
+     boolean isGridAligned();
++
++    long getAndIncrementAttemptCounter(); // Gale - EMC - reduce hopper item checks
+ }
