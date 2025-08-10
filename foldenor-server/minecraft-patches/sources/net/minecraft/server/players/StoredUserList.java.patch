@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/players/StoredUserList.java
++++ b/net/minecraft/server/players/StoredUserList.java
+@@ -70,7 +_,7 @@
+     }
+ 
+     public String[] getUserList() {
+-        return this.map.keySet().toArray(new String[0]);
++        return this.map.keySet().toArray(me.titaniumtown.ArrayConstants.emptyStringArray); // Gale - JettPack - reduce array allocations
+     }
+ 
+     public boolean isEmpty() {

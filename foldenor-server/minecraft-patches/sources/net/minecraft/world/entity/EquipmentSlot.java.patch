@@ -1,0 +1,18 @@
+--- a/net/minecraft/world/entity/EquipmentSlot.java
++++ b/net/minecraft/world/entity/EquipmentSlot.java
+@@ -20,9 +_,12 @@
+     SADDLE(EquipmentSlot.Type.SADDLE, 0, 1, 7, "saddle");
+ 
+     public static final int NO_COUNT_LIMIT = 0;
+-    public static final List<EquipmentSlot> VALUES = List.of(values());
+-    public static final IntFunction<EquipmentSlot> BY_ID = ByIdMap.continuous(equipmentSlot -> equipmentSlot.id, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+-    public static final StringRepresentable.EnumCodec<EquipmentSlot> CODEC = StringRepresentable.fromEnum(EquipmentSlot::values);
++    // Gale start - JettPack - reduce array allocations
++    public static final EquipmentSlot[] VALUES_ARRAY = values();
++    public static final List<EquipmentSlot> VALUES = List.of(VALUES_ARRAY);
++    public static final IntFunction<EquipmentSlot> BY_ID = ByIdMap.continuous(equipmentSlot -> equipmentSlot.id, VALUES_ARRAY, ByIdMap.OutOfBoundsStrategy.ZERO);
++    public static final StringRepresentable.EnumCodec<EquipmentSlot> CODEC = StringRepresentable.fromEnum(() -> VALUES_ARRAY);
++    // Gale end - JettPack - reduce array allocations
+     public static final StreamCodec<ByteBuf, EquipmentSlot> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, equipmentSlot -> equipmentSlot.id);
+     private final EquipmentSlot.Type type;
+     private final int index;

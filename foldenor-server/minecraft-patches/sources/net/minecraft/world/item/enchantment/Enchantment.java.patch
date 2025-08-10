@@ -1,0 +1,28 @@
+--- a/net/minecraft/world/item/enchantment/Enchantment.java
++++ b/net/minecraft/world/item/enchantment/Enchantment.java
+@@ -109,7 +_,7 @@
+     public Map<EquipmentSlot, ItemStack> getSlotItems(LivingEntity entity) {
+         Map<EquipmentSlot, ItemStack> map = Maps.newEnumMap(EquipmentSlot.class);
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (this.matchingSlot(equipmentSlot)) {
+                 ItemStack itemBySlot = entity.getItemBySlot(equipmentSlot);
+                 if (!itemBySlot.isEmpty()) {
+@@ -126,7 +_,15 @@
+     }
+ 
+     public boolean matchingSlot(EquipmentSlot slot) {
+-        return this.definition.slots().stream().anyMatch(equipmentSlotGroup -> equipmentSlotGroup.test(slot));
++        // Leaf start - Remove stream in matchingSlot
++        for (EquipmentSlotGroup equipmentSlotGroup : this.definition.slots()) {
++            if (equipmentSlotGroup.test(slot)) {
++                return true;
++            }
++        }
++
++        return false;
++        // Leaf end - Remove stream in matchingSlot
+     }
+ 
+     public boolean isPrimaryItem(ItemStack stack) {

@@ -62,9 +62,13 @@ public class FoldenorUtils {
 
     public static void dropEquipmentOnDiscard(LivingEntity entity) {
         if (!FoldenorConfig.lmdEnabled) return;
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) {
             ItemStack itemStack = entity.getItemBySlot(equipmentSlot);
             if (!itemStack.isEmpty() && itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).contains("picked") && !EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
+                CustomData component = itemStack.get(DataComponents.CUSTOM_DATA);
+                var tag = component.copyTag();
+                tag.remove("picked");
+                itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
                 entity.spawnAtLocation((ServerLevel) entity.level(), itemStack);
                 entity.setItemSlot(equipmentSlot, ItemStack.EMPTY);
             }

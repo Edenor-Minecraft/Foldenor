@@ -1,0 +1,28 @@
+--- a/net/minecraft/world/level/block/state/BlockBehaviour.java
++++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
+@@ -1048,7 +_,7 @@
+             private static final Direction[] DIRECTIONS = Direction.values();
+             private static final int SUPPORT_TYPE_COUNT = SupportType.values().length;
+             protected final VoxelShape collisionShape;
+-            protected final boolean largeCollisionShape;
++            protected boolean largeCollisionShape;
+             private final boolean[] faceSturdy;
+             protected final boolean isCollisionShapeFullBlock;
+ 
+@@ -1064,8 +_,14 @@
+                         )
+                     );
+                 } else {
+-                    this.largeCollisionShape = Arrays.stream(Direction.Axis.values())
+-                        .anyMatch(dir -> this.collisionShape.min(dir) < 0.0 || this.collisionShape.max(dir) > 1.0);
++                    // Leaf start - Remove stream in BlockBehaviour cache blockstate
++                    for (Direction.Axis axis : Direction.Axis.values()) {
++                        if (this.collisionShape.min(axis) < 0.0 || this.collisionShape.max(axis) > 1.0) {
++                            this.largeCollisionShape = true;
++                            break;
++                        }
++                    }
++                    // Leaf end - Remove stream in BlockBehaviour cache blockstate
+                     this.faceSturdy = new boolean[DIRECTIONS.length * SUPPORT_TYPE_COUNT];
+ 
+                     for (Direction direction : DIRECTIONS) {

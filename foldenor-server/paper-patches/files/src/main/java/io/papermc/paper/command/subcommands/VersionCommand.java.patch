@@ -1,0 +1,11 @@
+--- a/src/main/java/io/papermc/paper/command/subcommands/VersionCommand.java
++++ b/src/main/java/io/papermc/paper/command/subcommands/VersionCommand.java
+@@ -14,7 +_,7 @@
+     public boolean execute(final CommandSender sender, final String subCommand, final String[] args) {
+         final @Nullable Command redirect = MinecraftServer.getServer().server.getCommandMap().getCommand("version");
+         if (redirect != null) {
+-            redirect.execute(sender, "paper", new String[0]);
++            redirect.execute(sender, "paper", me.titaniumtown.ArrayConstants.emptyStringArray); // Gale - JettPack - reduce array allocations
+         }
+         return true;
+     }

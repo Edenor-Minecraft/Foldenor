@@ -1,5 +1,26 @@
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -1027,12 +_,14 @@
+     }
+ 
+     private void updateSynchronizedMobEffectParticles() {
+-        List<ParticleOptions> list = this.activeEffects
+-            .values()
+-            .stream()
+-            .filter(MobEffectInstance::isVisible)
+-            .map(MobEffectInstance::getParticleOptions)
+-            .toList();
++        // Leaf start - Remove stream in entity visible effects filter
++        List<ParticleOptions> list = new java.util.ArrayList<>();
++        for (MobEffectInstance effect : this.activeEffects.values()) {
++            if (effect.isVisible()) {
++                list.add(effect.getParticleOptions());
++            }
++        }
++        // Leaf end - Remove stream in entity visible effects filter
+         this.entityData.set(DATA_EFFECT_PARTICLES, list);
+         this.entityData.set(DATA_EFFECT_AMBIENCE_ID, areAllEffectsAmbient(this.activeEffects.values()));
+     }
 @@ -1417,7 +_,8 @@
                  player.setRealHealth(health);
              }
@@ -36,6 +57,15 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
+@@ -3368,7 +_,7 @@
+         Map<org.bukkit.inventory.EquipmentSlot, io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange> equipmentChanges = null;
+         // Paper end - EntityEquipmentChangedEvent
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemStack = this.lastEquipmentItems.get(equipmentSlot);
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             if (this.equipmentHasChanged(itemStack, itemBySlot)) {
 @@ -3629,6 +_,7 @@
      protected void updateFallFlying() {
          this.checkFallDistanceAccumulation();
@@ -44,3 +74,12 @@
              if (!this.canGlide()) {
                  if (this.getSharedFlag(7) != false && !CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) // CraftBukkit
                  this.setSharedFlag(7, false);
+@@ -3654,7 +_,7 @@
+ 
+     protected boolean canGlide() {
+         if (!this.onGround() && !this.isPassenger() && !this.hasEffect(MobEffects.LEVITATION)) {
+-            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 if (canGlideUsing(this.getItemBySlot(equipmentSlot), equipmentSlot)) {
+                     return true;
+                 }

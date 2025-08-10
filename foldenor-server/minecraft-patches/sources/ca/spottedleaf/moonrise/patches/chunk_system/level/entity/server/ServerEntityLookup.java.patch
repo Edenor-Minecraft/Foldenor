@@ -1,0 +1,11 @@
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/server/ServerEntityLookup.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/server/ServerEntityLookup.java
+@@ -19,8 +_,6 @@
+ 
+ public final class ServerEntityLookup extends EntityLookup {
+ 
+-    private static final Entity[] EMPTY_ENTITY_ARRAY = new Entity[0];
+-
+     private final ServerLevel serverWorld;
+     // Folia - move to regionized world data
+ 

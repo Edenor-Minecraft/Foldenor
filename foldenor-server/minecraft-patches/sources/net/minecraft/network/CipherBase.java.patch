@@ -1,0 +1,13 @@
+--- a/net/minecraft/network/CipherBase.java
++++ b/net/minecraft/network/CipherBase.java
+@@ -7,8 +_,8 @@
+ 
+ public class CipherBase {
+     private final Cipher cipher;
+-    private byte[] heapIn = new byte[0];
+-    private byte[] heapOut = new byte[0];
++    private byte[] heapIn = me.titaniumtown.ArrayConstants.emptyByteArray; // Gale - JettPack - reduce array allocations
++    private byte[] heapOut = me.titaniumtown.ArrayConstants.emptyByteArray; // Gale - JettPack - reduce array allocations
+ 
+     protected CipherBase(Cipher cipher) {
+         this.cipher = cipher;

@@ -48,7 +48,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -211,6 +_,19 @@
+@@ -210,6 +_,19 @@
      // Spark
      implementation("me.lucko:spark-api:0.1-20240720.200737-2")
      implementation("me.lucko:spark-paper:1.10.133-20250413.112336-1")
@@ -68,7 +68,7 @@
  }
  
  tasks.jar {
-@@ -225,14 +_,14 @@
+@@ -224,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",

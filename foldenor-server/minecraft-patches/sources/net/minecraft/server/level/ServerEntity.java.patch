@@ -9,6 +9,27 @@
  import net.minecraft.core.component.DataComponents;
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
+@@ -118,7 +_,19 @@
+         // Paper end - optimise collisions
+         List<Entity> passengers = this.entity.getPassengers();
+         if (!passengers.equals(this.lastPassengers)) {
+-            List<UUID> list = this.mountedOrDismounted(passengers).map(Entity::getUUID).toList();
++            // Leaf start - Remove stream in entity mountedOrDismounted changes update
++            List<UUID> list = new ArrayList<>();
++            for (Entity entity : this.lastPassengers) {
++                if (!passengers.contains(entity)) {
++                    list.add(entity.getUUID());
++                }
++            }
++            for (Entity entity : passengers) {
++                if (!this.lastPassengers.contains(entity)) {
++                    list.add(entity.getUUID());
++                }
++            }
++            // Leaf end - Remove stream in entity mountedOrDismounted changes update
+             this.broadcastWithIgnore.accept(new ClientboundSetPassengersPacket(this.entity), list);
+             // Paper start - Allow riding players
+             if (this.entity instanceof ServerPlayer player) {
 @@ -193,23 +_,33 @@
                      packet = ClientboundEntityPositionSyncPacket.of(this.entity);
                      flag3 = true;

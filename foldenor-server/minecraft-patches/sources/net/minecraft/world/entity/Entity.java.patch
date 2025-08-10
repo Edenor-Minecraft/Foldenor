@@ -103,6 +103,15 @@
          }
      }
  
+@@ -3105,7 +_,7 @@
+     }
+ 
+     private boolean attemptToShearEquipment(Player player, InteractionHand hand, ItemStack stack, Mob mob) {
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
+             Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
+             if (equippable != null
 @@ -4808,7 +_,7 @@
          return this;
      }

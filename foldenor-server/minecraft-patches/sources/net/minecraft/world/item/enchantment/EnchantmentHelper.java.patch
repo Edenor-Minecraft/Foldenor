@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/item/enchantment/EnchantmentHelper.java
++++ b/net/minecraft/world/item/enchantment/EnchantmentHelper.java
+@@ -153,7 +_,7 @@
+     }
+ 
+     private static void runIterationOnEquipment(LivingEntity entity, EnchantmentHelper.EnchantmentInSlotVisitor visitor) {
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             runIterationOnItem(entity.getItemBySlot(equipmentSlot), equipmentSlot, entity, visitor);
+         }
+     }
+@@ -467,7 +_,7 @@
+     public static Optional<EnchantedItemInUse> getRandomItemWith(DataComponentType<?> componentType, LivingEntity entity, Predicate<ItemStack> filter) {
+         List<EnchantedItemInUse> list = new ArrayList<>();
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemBySlot = entity.getItemBySlot(equipmentSlot);
+             if (filter.test(itemBySlot)) {
+                 ItemEnchantments itemEnchantments = itemBySlot.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);

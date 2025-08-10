@@ -1,0 +1,11 @@
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -164,7 +_,7 @@
+ 
+     @Override
+     public Object[] toArray() {
+-        return this.toArray(new Object[0]);
++        return this.toArray(me.titaniumtown.ArrayConstants.emptyObjectArray); // Gale - JettPack - reduce array allocations
+     }
+ 
+     @Override

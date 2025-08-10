@@ -18,7 +18,7 @@
      @Override
      public final boolean moonrise$isRealPlayer() {
          return this.isRealPlayer;
-@@ -1072,9 +_,10 @@
+@@ -1076,9 +_,10 @@
              }
              // CraftBukkit end
          } catch (Throwable var4) {
@@ -30,3 +30,12 @@
              throw new ReportedException(crashReport);
          }
      }
+@@ -1280,7 +_,7 @@
+                     this.getInventory().getNonEquipmentItems().set(i, net.minecraft.world.item.ItemStack.EMPTY);
+                 }
+             }
+-            for (final EquipmentSlot value : EquipmentSlot.VALUES) {
++            for (final EquipmentSlot value : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 if (this.getInventory().equipment.has(value) && !shouldKeepDeathEventItem(event, this.getInventory().equipment.get(value))) {
+                     this.getInventory().equipment.set(value, net.minecraft.world.item.ItemStack.EMPTY);
+                 }

@@ -1,0 +1,11 @@
+--- a/net/minecraft/nbt/LongArrayTag.java
++++ b/net/minecraft/nbt/LongArrayTag.java
+@@ -150,7 +_,7 @@
+ 
+     @Override
+     public void clear() {
+-        this.data = new long[0];
++        this.data = me.titaniumtown.ArrayConstants.emptyLongArray; // Gale - JettPack - reduce array allocations
+     }
+ 
+     @Override

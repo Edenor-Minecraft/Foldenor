@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
-@@ -958,15 +_,18 @@
+@@ -958,10 +_,7 @@
          for (int i = 0, len = entities.size(); i < len; ++i) {
              Entity entity = entities.get(i);
  
@@ -12,14 +12,34 @@
  
              // !entity1.isRemoved() && entity1.blocksBuilding && (entity == null || !entity1.isPassengerOfSameVehicle(entity))
              // elide the last check since vanilla calls with entity = null
-             // only we care about the source for the canSee check
+@@ -969,6 +_,12 @@
              if (entity.isRemoved() || !entity.blocksBuilding) {
-+                continue;
-+            }
+                 continue;
+             }
 +            // Leaf end
 +
 +            if (checkCanSee && source instanceof net.minecraft.server.level.ServerPlayer && entity instanceof net.minecraft.server.level.ServerPlayer
 +                    && !((net.minecraft.server.level.ServerPlayer) source).getBukkitEntity().canSee(((net.minecraft.server.level.ServerPlayer) entity).getBukkitEntity())) {
-                 continue;
++                continue;
++            }
+ 
+             if (net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty(collisionShape, net.minecraft.world.phys.shapes.Shapes.create(entity.getBoundingBox()), net.minecraft.world.phys.shapes.BooleanOp.AND)) {
+                 return false;
+@@ -1884,7 +_,7 @@
+     public org.bukkit.entity.Entity[] getChunkEntities(int chunkX, int chunkZ) {
+         ca.spottedleaf.moonrise.patches.chunk_system.level.entity.ChunkEntitySlices slices = ((ServerLevel)this).moonrise$getEntityLookup().getChunk(chunkX, chunkZ);
+         if (slices == null) {
+-            return new org.bukkit.entity.Entity[0];
++            return me.titaniumtown.ArrayConstants.emptyBukkitEntityArray; // Gale - JettPack - reduce array allocations
+         }
+ 
+         List<org.bukkit.entity.Entity> ret = new java.util.ArrayList<>();
+@@ -1895,7 +_,7 @@
              }
+         }
+ 
+-        return ret.toArray(new org.bukkit.entity.Entity[0]);
++        return ret.toArray(me.titaniumtown.ArrayConstants.emptyBukkitEntityArray); // Gale - JettPack - reduce array allocations
+     }
+     // Paper end - rewrite chunk system
  

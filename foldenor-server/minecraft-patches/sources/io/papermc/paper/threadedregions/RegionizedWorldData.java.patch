@@ -1,11 +1,28 @@
 --- a/io/papermc/paper/threadedregions/RegionizedWorldData.java
 +++ b/io/papermc/paper/threadedregions/RegionizedWorldData.java
-@@ -356,7 +_,8 @@
+@@ -68,8 +_,6 @@
+ 
+     private static final Logger LOGGER = LogUtils.getLogger();
+ 
+-    private static final Entity[] EMPTY_ENTITY_ARRAY = new Entity[0];
+-
+     public static final RegionizedData.RegioniserCallback<RegionizedWorldData> REGION_CALLBACK = new RegionizedData.RegioniserCallback<>() {
+         @Override
+         public void merge(final RegionizedWorldData from, final RegionizedWorldData into, final long fromTickOffset) {
+@@ -351,12 +_,13 @@
+     private final List<ServerPlayer> localPlayers = new ArrayList<>();
+     private final NearbyPlayers nearbyPlayers;
+     public final io.papermc.paper.threadedregions.EntityScheduler.EntitySchedulerTickList entitySchedulerTickList = new io.papermc.paper.threadedregions.EntityScheduler.EntitySchedulerTickList();
+-    private final ReferenceList<Entity> allEntities = new ReferenceList<>(EMPTY_ENTITY_ARRAY);
+-    private final ReferenceList<Entity> loadedEntities = new ReferenceList<>(EMPTY_ENTITY_ARRAY);
++    private final ReferenceList<Entity> allEntities = new ReferenceList<>(me.titaniumtown.ArrayConstants.emptyEntityArray); // Gale - JettPack - reduce array allocations
++    private final ReferenceList<Entity> loadedEntities = new ReferenceList<>(me.titaniumtown.ArrayConstants.emptyEntityArray); // Gale - JettPack - reduce array allocations
      private final IteratorSafeOrderedReferenceSet<Entity> entityTickList = new IteratorSafeOrderedReferenceSet<>();
      private final IteratorSafeOrderedReferenceSet<Mob> navigatingMobs = new IteratorSafeOrderedReferenceSet<>();
-     public final ReferenceList<Entity> trackerEntities = new ReferenceList<>(EMPTY_ENTITY_ARRAY); // Moonrise - entity tracker
+-    public final ReferenceList<Entity> trackerEntities = new ReferenceList<>(EMPTY_ENTITY_ARRAY); // Moonrise - entity tracker
 -    public final ReferenceList<Entity> trackerUnloadedEntities = new ReferenceList<>(EMPTY_ENTITY_ARRAY); // Moonrise - entity tracker
-+    public final ReferenceList<Entity> trackerUnloadedEntities = new ReferenceList<>(EMPTY_ENTITY_ARRAY); // Moonrise - entity tracker\
++    public final ReferenceList<Entity> trackerEntities = new ReferenceList<>(me.titaniumtown.ArrayConstants.emptyEntityArray); // Moonrise - entity tracker // Gale - JettPack - reduce array allocations
++    public final ReferenceList<Entity> trackerUnloadedEntities = new ReferenceList<>(me.titaniumtown.ArrayConstants.emptyEntityArray); // Moonrise - entity tracker // Gale - JettPack - reduce array allocations
 +    public final dev.kaiijumc.kaiiju.KaiijuEntityThrottler entityThrottler = new dev.kaiijumc.kaiiju.KaiijuEntityThrottler(); // Kaiiju
  
      // block ticking

@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -413,7 +_,7 @@
+     }
+ 
+     private boolean isEquipped(Item item) {
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
+             if (itemBySlot.is(item) && equippable != null && equippable.slot() == equipmentSlot) {

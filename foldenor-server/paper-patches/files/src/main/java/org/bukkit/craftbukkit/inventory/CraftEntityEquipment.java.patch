@@ -1,0 +1,11 @@
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftEntityEquipment.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftEntityEquipment.java
+@@ -165,7 +_,7 @@
+ 
+     @Override
+     public void clear() {
+-        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
++        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             this.setEquipment(slot, null, false);
+         }
+     }

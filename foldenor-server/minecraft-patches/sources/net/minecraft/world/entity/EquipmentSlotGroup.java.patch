@@ -1,0 +1,10 @@
+--- a/net/minecraft/world/entity/EquipmentSlotGroup.java
++++ b/net/minecraft/world/entity/EquipmentSlotGroup.java
+@@ -24,6 +_,7 @@
+     BODY(9, "body", EquipmentSlot.BODY),
+     SADDLE(10, "saddle", EquipmentSlot.SADDLE);
+ 
++    public static final EquipmentSlotGroup[] VALUES_ARRAY = EquipmentSlotGroup.values(); // Gale - JettPack - reduce array allocations
+     public static final IntFunction<EquipmentSlotGroup> BY_ID = ByIdMap.continuous(
+         equipmentSlotGroup -> equipmentSlotGroup.id, values(), ByIdMap.OutOfBoundsStrategy.ZERO
+     );

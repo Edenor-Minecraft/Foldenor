@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
+@@ -44,7 +_,7 @@
+     protected static final int SLOT_FUEL = 1;
+     protected static final int SLOT_RESULT = 2;
+     public static final int DATA_LIT_TIME = 0;
+-    private static final int[] SLOTS_FOR_UP = new int[]{0};
++    private static final int[] SLOTS_FOR_UP = me.titaniumtown.ArrayConstants.zeroSingletonIntArray; // Gale - JettPack - reduce array allocations
+     private static final int[] SLOTS_FOR_DOWN = new int[]{2, 1};
+     private static final int[] SLOTS_FOR_SIDES = new int[]{1};
+     public static final int DATA_LIT_DURATION = 1;

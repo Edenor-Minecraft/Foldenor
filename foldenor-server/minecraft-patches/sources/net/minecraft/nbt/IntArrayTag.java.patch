@@ -1,0 +1,11 @@
+--- a/net/minecraft/nbt/IntArrayTag.java
++++ b/net/minecraft/nbt/IntArrayTag.java
+@@ -151,7 +_,7 @@
+ 
+     @Override
+     public void clear() {
+-        this.data = new int[0];
++        this.data = me.titaniumtown.ArrayConstants.emptyIntArray; // Gale - JettPack - reduce array allocations
+     }
+ 
+     @Override

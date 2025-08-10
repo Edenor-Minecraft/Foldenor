@@ -14,3 +14,12 @@
      }
  
      public static MapCodec<ItemStack> lenientOptionalFieldOf(String fieldName) {
+@@ -1150,7 +_,7 @@
+ 
+     private void addAttributeTooltips(Consumer<Component> tooltipAdder, TooltipDisplay tooltipDisplay, @Nullable Player player) {
+         if (tooltipDisplay.shows(DataComponents.ATTRIBUTE_MODIFIERS)) {
+-            for (EquipmentSlotGroup equipmentSlotGroup : EquipmentSlotGroup.values()) {
++            for (EquipmentSlotGroup equipmentSlotGroup : EquipmentSlotGroup.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 MutableBoolean mutableBoolean = new MutableBoolean(true);
+                 this.forEachModifier(
+                     equipmentSlotGroup,

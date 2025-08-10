@@ -76,7 +76,7 @@
          // Paper end - Fix kick event leave message not being sent
          ServerLevel serverLevel = player.level();
          player.awardStat(Stats.LEAVE_GAME);
-@@ -1505,6 +_,7 @@
+@@ -1503,6 +_,7 @@
              serverPlayer.connection.send(clientboundUpdateRecipesPacket);
              serverPlayer.getRecipeBook().sendInitialRecipeBook(serverPlayer);
          }

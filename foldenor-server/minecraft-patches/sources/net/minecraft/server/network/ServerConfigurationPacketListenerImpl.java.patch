@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
-@@ -157,8 +_,9 @@
+@@ -158,8 +_,9 @@
      public void handleConfigurationFinished(ServerboundFinishConfigurationPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.server);
          this.finishCurrentTask(JoinWorldTask.TYPE);
@@ -11,7 +11,7 @@
          try {
              PlayerList playerList = this.server.getPlayerList();
              if (playerList.getPlayer(this.gameProfile.getId()) != null) {
-@@ -246,6 +_,18 @@
+@@ -247,6 +_,18 @@
              this.connection.send(new ClientboundDisconnectPacket(DISCONNECT_REASON_INVALID_DATA));
              this.connection.disconnect(DISCONNECT_REASON_INVALID_DATA);
          }

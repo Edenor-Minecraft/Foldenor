@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/ConversionType.java
++++ b/net/minecraft/world/entity/ConversionType.java
+@@ -37,7 +_,7 @@
+             }
+ 
+             if (conversionParams.keepEquipment()) {
+-                for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++                for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                     ItemStack itemBySlot = oldMob.getItemBySlot(equipmentSlot);
+                     if (!itemBySlot.isEmpty()) {
+                         newMob.setItemSlot(equipmentSlot, itemBySlot.copyAndClear());

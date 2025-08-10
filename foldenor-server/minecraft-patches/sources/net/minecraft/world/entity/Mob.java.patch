@@ -19,7 +19,7 @@
      private final Map<PathType, Float> pathfindingMalus = Maps.newEnumMap(PathType.class);
      public Optional<ResourceKey<LootTable>> lootTable = Optional.empty();
      public long lootTableSeed;
-@@ -210,10 +_,15 @@
+@@ -211,10 +_,15 @@
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -37,7 +37,16 @@
              this.targetSelector.tick();
          }
      }
-@@ -605,6 +_,7 @@
+@@ -357,7 +_,7 @@
+         if (this.xpReward > 0) {
+             int i = this.xpReward;
+ 
+-            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 if (equipmentSlot.canIncreaseExperience()) {
+                     ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+                     if (!itemBySlot.isEmpty() && this.dropChances.byEquipment(equipmentSlot) <= 1.0F) {
+@@ -612,6 +_,7 @@
          this.setItemSlot(slot, stack);
          this.setGuaranteedDrop(slot);
          this.persistenceRequired = true;
@@ -45,12 +54,12 @@
      }
  
      protected boolean canShearEquipment(Player player) {
-@@ -710,9 +_,13 @@
+@@ -723,9 +_,13 @@
      @Override
      public void checkDespawn() {
-         if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
+         if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldActuallyDespawnInPeaceful()) { //Paper - allow changing despawnInPeaceful
 +            // Let Me Despawn start
-+            if (FoldenorUtils.pickedItems)
++            if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
 +                FoldenorUtils.dropEquipmentOnDiscard(this);
 +            // Let Me Despawn end
              this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
@@ -60,12 +69,12 @@
              if (nearestPlayer != null) {
                  // Paper start - Configurable despawn distances
                  final io.papermc.paper.configuration.WorldConfiguration.Entities.Spawning.DespawnRangePair despawnRangePair = this.level().paperConfig().entities.spawning.despawnRanges.get(this.getType().getCategory());
-@@ -724,11 +_,19 @@
+@@ -737,11 +_,19 @@
                  final double distanceSquared = dxSqr + dzSqr + dySqr;
                  // Despawn if hard/soft limit is exceeded
                  if (despawnRangePair.hard().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy) && this.removeWhenFarAway(distanceSquared)) {
 +                    // Let Me Despawn start
-+                    if (FoldenorUtils.pickedItems)
++                    if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
 +                        FoldenorUtils.dropEquipmentOnDiscard(this);
 +                    // Let Me Despawn end
                      this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
@@ -74,13 +83,13 @@
                  if (despawnRangePair.soft().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy)) {
                      if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && this.removeWhenFarAway(distanceSquared)) {
 +                        // Let Me Despawn start
-+                        if (FoldenorUtils.pickedItems)
++                        if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
 +                            FoldenorUtils.dropEquipmentOnDiscard(this);
 +                        // Let Me Despawn end
                          this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
                      }
                  } else {
-@@ -741,6 +_,19 @@
+@@ -754,6 +_,19 @@
          }
      }
  
@@ -100,7 +109,7 @@
      @Override
      protected final void serverAiStep() {
          this.noActionTime++;
-@@ -760,16 +_,20 @@
+@@ -773,16 +_,20 @@
          int i = this.tickCount + this.getId();
          if (i % 2 != 0 && this.tickCount > 1) {
              profilerFiller.push("targetSelector");
@@ -121,7 +130,34 @@
              this.goalSelector.tick();
              profilerFiller.pop();
          }
-@@ -1543,17 +_,28 @@
+@@ -1006,7 +_,7 @@
+     protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
+         super.dropCustomDeathLoot(level, damageSource, recentlyHit);
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (this.shouldSkipLoot(equipmentSlot)) continue; // Paper
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             float f = this.dropChances.byEquipment(equipmentSlot);
+@@ -1050,7 +_,7 @@
+     public Set<EquipmentSlot> dropPreservedEquipment(ServerLevel level, Predicate<ItemStack> filter) {
+         Set<EquipmentSlot> set = new HashSet<>();
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             if (!itemBySlot.isEmpty()) {
+                 if (!filter.test(itemBySlot)) {
+@@ -1178,7 +_,7 @@
+     protected void populateDefaultEquipmentEnchantments(ServerLevelAccessor level, RandomSource random, DifficultyInstance difficulty) {
+         this.enchantSpawnedWeapon(level, random, difficulty);
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                 this.enchantSpawnedArmor(level, random, equipmentSlot, difficulty);
+             }
+@@ -1556,17 +_,28 @@
      protected void playAttackSound() {
      }
  
@@ -158,3 +194,21 @@
          }
  
          return false;
+@@ -1595,7 +_,7 @@
+     @Override
+     protected void postRemoveAfterChangingDimensions() {
+         super.postRemoveAfterChangingDimensions();
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             if (!itemBySlot.isEmpty()) {
+                 itemBySlot.setCount(0);
+@@ -1608,7 +_,7 @@
+     protected void removeAfterChangingDimensions() {
+         super.removeAfterChangingDimensions();
+         // Folia start - region threading - move inventory clearing until after the dimension change - move into postRemoveAfterChangingDimensions
+-//        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++//        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+ //            ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+ //            if (!itemBySlot.isEmpty()) {
+ //                itemBySlot.setCount(0);

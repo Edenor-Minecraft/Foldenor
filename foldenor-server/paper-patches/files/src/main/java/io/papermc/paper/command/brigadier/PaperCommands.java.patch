@@ -1,0 +1,11 @@
+--- a/src/main/java/io/papermc/paper/command/brigadier/PaperCommands.java
++++ b/src/main/java/io/papermc/paper/command/brigadier/PaperCommands.java
+@@ -178,7 +_,7 @@
+                     })
+             )
+             .executes((stack) -> {
+-                basicCommand.execute(stack.getSource(), new String[0]);
++                basicCommand.execute(stack.getSource(), me.titaniumtown.ArrayConstants.emptyStringArray); // Gale - JettPack - reduce array allocations
+                 return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+             });
+ 

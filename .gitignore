@@ -30,3 +30,5 @@ folia-server
 
 paper-api
 paper-server
+/foldenor-server/logs
+/logs

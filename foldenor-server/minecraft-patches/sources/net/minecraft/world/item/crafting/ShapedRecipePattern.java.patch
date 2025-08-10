@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/item/crafting/ShapedRecipePattern.java
++++ b/net/minecraft/world/item/crafting/ShapedRecipePattern.java
+@@ -121,7 +_,7 @@
+         }
+ 
+         if (pattern.size() == i3) {
+-            return new String[0];
++            return me.titaniumtown.ArrayConstants.emptyStringArray; // Gale - JettPack - reduce array allocations
+         } else {
+             String[] strings = new String[pattern.size() - i3 - i2];
+ 

@@ -1,0 +1,29 @@
+--- a/net/minecraft/world/level/block/ComposterBlock.java
++++ b/net/minecraft/world/level/block/ComposterBlock.java
+@@ -419,7 +_,7 @@
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return new int[0];
++            return me.titaniumtown.ArrayConstants.emptyIntArray; // Gale - JettPack - reduce array allocations
+         }
+ 
+         @Override
+@@ -454,7 +_,7 @@
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.UP ? new int[]{0} : new int[0];
++            return side == Direction.UP ? me.titaniumtown.ArrayConstants.zeroSingletonIntArray : me.titaniumtown.ArrayConstants.emptyIntArray; // Gale - JettPack - reduce array allocations
+         }
+ 
+         @Override
+@@ -505,7 +_,7 @@
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.DOWN ? new int[]{0} : new int[0];
++            return side == Direction.DOWN ? me.titaniumtown.ArrayConstants.zeroSingletonIntArray : me.titaniumtown.ArrayConstants.emptyIntArray; // Gale - JettPack - reduce array allocations
+         }
+ 
+         @Override
