@@ -37,7 +37,8 @@
  
      @Override
      public boolean teleport(Location location, TeleportCause cause, io.papermc.paper.entity.TeleportFlag... flags) {
-+        if (true) {
+-        // Folia start - region threading
+         if (true) {
 +            this.server.getLogger().warning("Trying to teleport entity using redirection from teleport to teleportAsync. Please use teleportAsync instead of teleport!");
 +            try {
 +                this.teleportAsync(location, cause, flags).get();
@@ -46,8 +47,7 @@
 +                throw new RuntimeException(e);
 +            }
 +        }
-         // Folia start - region threading
--        if (true) {
++        // Folia start - region threading
 +        if (false) {
              throw new UnsupportedOperationException("Must use teleportAsync while in region threading");
          }
@@ -80,3 +80,11 @@
          return this.teleport(destination.getLocation(), cause);
      }
  
+@@ -1131,6 +_,7 @@
+ 
+         // Folia start - region threading
+         java.util.concurrent.CompletableFuture<Boolean> ret = new java.util.concurrent.CompletableFuture<>();
++        if (location.getWorld() == null) { ret.complete(false); return ret; } // Canvas - don't crash the server if a plugin provides a null world
+         java.util.function.Consumer<Entity> run = (Entity nmsEntity) -> {
+             boolean success = nmsEntity.teleportAsync(
+                 ((CraftWorld)locationClone.getWorld()).getHandle(),

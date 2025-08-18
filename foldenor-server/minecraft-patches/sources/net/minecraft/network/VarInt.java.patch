@@ -1,0 +1,58 @@
+--- a/net/minecraft/network/VarInt.java
++++ b/net/minecraft/network/VarInt.java
+@@ -51,6 +_,41 @@
+     }
+ 
+     public static ByteBuf write(ByteBuf buffer, int value) {
++        // Gale start - Velocity - optimized VarInt#write
++        if ((value & 0xFFFFFF80) == 0) {
++            buffer.writeByte(value);
++        } else if ((value & 0xFFFFC000) == 0) {
++            int w = (value & 0x7F) << 8
++                    | (value >>> 7)
++                    | 0x00008000;
++            buffer.writeShort(w);
++        } else if ((value & 0xFFE00000) == 0) {
++            int w = (value & 0x7F) << 16
++                    | (value & 0x3F80) << 1
++                    | (value >>> 14)
++                    | 0x00808000;
++            buffer.writeMedium(w);
++        } else if ((value & 0xF0000000) == 0) {
++            int w = (value & 0x7F) << 24
++                    | ((value & 0x3F80) << 9)
++                    | (value & 0x1FC000) >> 6
++                    | (value >>> 21)
++                    | 0x80808000;
++            buffer.writeInt(w);
++        } else {
++            int w = (value & 0x7F) << 24
++                    | (value & 0x3F80) << 9
++                    | (value & 0x1FC000) >> 6
++                    | ((value >>> 21) & 0x7F)
++                    | 0x80808080;
++            buffer.writeInt(w);
++            buffer.writeByte(value >>> 28);
++        }
++        return buffer;
++    }
++
++    static ByteBuf writeOld(ByteBuf buffer, int value) { // public -> package-private
++        // Gale end - Velocity - optimized VarInt#write
+      // Paper start - Optimize VarInts
+         // Peel the one and two byte count cases explicitly as they are the most common VarInt sizes
+         // that the proxy will write, to improve inlining.
+@@ -60,11 +_,11 @@
+             int w = (value & 0x7F | 0x80) << 8 | (value >>> 7);
+             buffer.writeShort(w);
+         } else {
+-            writeOld(buffer, value);
++            writeOld2(buffer, value);
+         }
+         return buffer;
+     }
+-    public static ByteBuf writeOld(ByteBuf buffer, int value) {
++    public static ByteBuf writeOld2(ByteBuf buffer, int value) {
+     // Paper end - Optimize VarInts
+         while ((value & -128) != 0) {
+             buffer.writeByte(value & 127 | 128);

@@ -8,7 +8,7 @@ plugins {
 }
 
 paperweight {
-    upstreams.register("Folia") {
+    upstreams.register("folia") {
         repo = github("PaperMC", "Folia")
         ref = providers.gradleProperty("foliaRef")
 

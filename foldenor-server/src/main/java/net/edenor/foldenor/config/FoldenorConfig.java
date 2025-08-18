@@ -4,6 +4,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.triassic.linearpaper.region.RegionFileFormat;
 import dev.kaiijumc.kaiiju.KaiijuEntityLimits;
+import io.canvasmc.canvas.simd.SIMDDetection;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EntityType;
@@ -18,6 +20,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 public class FoldenorConfig {
+    public static ComponentLogger LOGGER = ComponentLogger.logger("Foldenor");
     protected static final String HEADER = "This is the main configuration file for Foldenor.";
     public static YamlConfiguration config;
     public static int version;
@@ -85,7 +88,7 @@ public class FoldenorConfig {
             try {
                 config.load(CONFIG_FILE);
             } catch (InvalidConfigurationException ex) {
-                Bukkit.getLogger().log(Level.SEVERE, "Could not load foldenor.yml, please correct your syntax errors", ex);
+                LOGGER.error("Could not load foldenor.yml, please correct your syntax errors", ex);
                 throw Throwables.propagate(ex);
             } catch (IOException ignore) {
             }
@@ -98,16 +101,6 @@ public class FoldenorConfig {
         set("config-version", 1);
 
         readConfig();
-    }
-
-    protected static void log(String s) {
-        if (verbose) {
-            log(Level.INFO, s);
-        }
-    }
-
-    protected static void log(Level level, String s) {
-        Bukkit.getLogger().log(level, s);
     }
 
     static void readConfig() {
@@ -127,10 +120,29 @@ public class FoldenorConfig {
             throw new RuntimeException(e);
         }
 
+        // SIMD
+
+
+        try {
+            SIMDDetection.isEnabled = SIMDDetection.canEnable(LOGGER);
+        } catch (NoClassDefFoundError | Exception ignored) {
+            ignored.printStackTrace();
+        }
+
+
+        if (SIMDDetection.isEnabled) {
+            LOGGER.info("SIMD operations detected as functional. Will replace some operations with faster versions.");
+        } else {
+            LOGGER.warn("SIMD operations are available for your server, but are not configured!");
+            LOGGER.warn("To enable additional optimizations, add \"--add-modules=jdk.incubator.vector\" to your startup flags, BEFORE the \"-jar\".");
+            LOGGER.warn("If you have already added this flag, then SIMD operations are not supported on your JVM or CPU.");
+            LOGGER.warn("Debug: Java: {}, test run: {}", System.getProperty("java.version"), SIMDDetection.testRun);
+        }
+
         try {
             config.save(CONFIG_FILE);
         } catch (IOException ex) {
-            Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
+            LOGGER.error("Could not save {}", CONFIG_FILE, ex);
         }
     }
 
@@ -145,15 +157,15 @@ public class FoldenorConfig {
 
         regionFormat = RegionFileFormat.fromString(getString("region-format.type", regionFormat.name()));
         if (regionFormat.equals(RegionFileFormat.INVALID)) {
-            log(Level.SEVERE, "Unknown region format in linear.yml: " + regionFormat);
-            log(Level.SEVERE, "Falling back to ANVIL region file format.");
+            LOGGER.error("Unknown region format in linear.yml: {}", regionFormat);
+            LOGGER.error("Falling back to ANVIL region file format.");
             regionFormat = RegionFileFormat.ANVIL;
         }
 
         linearCompressionLevel = getInt("region-format.linear.compression-level", linearCompressionLevel);
         if (linearCompressionLevel > 23 || linearCompressionLevel < 1) {
-            log(Level.SEVERE, "Linear region compression level should be between 1 and 22 in linear.yml: " + linearCompressionLevel);
-            log(Level.SEVERE, "Falling back to compression level 1.");
+            LOGGER.error("Linear region compression level should be between 1 and 22 in linear.yml: {}", linearCompressionLevel);
+            LOGGER.error("Falling back to compression level 1.");
             linearCompressionLevel = 1;
         }
     }

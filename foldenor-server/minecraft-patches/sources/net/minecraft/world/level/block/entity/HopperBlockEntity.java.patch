@@ -28,7 +28,7 @@
      public static final int MOVE_ITEM_SPEED = 8;
      public static final int HOPPER_CONTAINER_SIZE = 5;
      private static final int[][] CACHED_SLOTS = new int[54][];
-@@ -85,12 +_,19 @@
+@@ -85,15 +_,23 @@
      public HopperBlockEntity(BlockPos pos, BlockState blockState) {
          super(BlockEntityType.HOPPER, pos, blockState);
          this.facing = blockState.getValue(HopperBlock.FACING);
@@ -49,6 +49,10 @@
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
++        recomputeFullState(this); // Canvas - optimize hoppers
+ 
+         this.cooldownTime = input.getIntOr("TransferCooldown", -1);
+     }
 @@ -143,9 +_,7 @@
          if (!blockEntity.isOnCooldown()) {
              blockEntity.setCooldown(0);
@@ -60,21 +64,71 @@
              if (!result && blockEntity.level.spigotConfig.hopperCheck > 1) {
                  blockEntity.setCooldown(blockEntity.level.spigotConfig.hopperCheck);
              }
-@@ -161,6 +_,14 @@
-     private static int getFullState(final HopperBlockEntity hopper) {
+@@ -158,9 +_,29 @@
+     private static final int HOPPER_HAS_ITEMS = 1;
+     private static final int HOPPER_IS_FULL = 2;
+ 
+-    private static int getFullState(final HopperBlockEntity hopper) {
++    // Canvas start - optimize hoppers
++    private int fullState = -1;
++
++    @Override
++    public void setChanged() {
++        super.setChanged();
++        recomputeFullState(this);
++    }
++
++    private static void recomputeFullState(final HopperBlockEntity hopper) {
++        // Canvas end - optimize hoppers
          hopper.unpackLootTable(null);
  
 +        // Puffrefish start - Improve container checking with a bitset; use bitsets
 +        if (hopper.optimizedItems.isCompletelyEmpty()) {
-+            return HOPPER_EMPTY;
++            hopper.fullState = HOPPER_EMPTY;
++            return;
 +        } else if (!hopper.optimizedItems.isSlotFilled()) {
-+            return HOPPER_HAS_ITEMS;
++            hopper.fullState = HOPPER_HAS_ITEMS;
++            return;
 +        }
 +        // Pufferfish end - Improve container checking with a bitset
 +
          final List<ItemStack> hopperItems = hopper.items;
  
          boolean empty = true;
+@@ -175,18 +_,20 @@
+ 
+             if (!full) {
+                 // can't be full
+-                return HOPPER_HAS_ITEMS;
++                hopper.fullState = HOPPER_HAS_ITEMS; // Canvas - optimize hoppers
++                return; // Canvas - optimize hoppers
+             }
+ 
+             empty = false;
+ 
+             if (stack.getCount() != stack.getMaxStackSize()) {
+                 // can't be full or empty
+-                return HOPPER_HAS_ITEMS;
++                hopper.fullState = HOPPER_HAS_ITEMS; // Canvas - optimize hoppers
++                return; // Canvas - optimize hoppers
+             }
+         }
+ 
+-        return empty ? HOPPER_EMPTY : (full ? HOPPER_IS_FULL : HOPPER_HAS_ITEMS);
++        hopper.fullState = empty ? HOPPER_EMPTY : (full ? HOPPER_IS_FULL : HOPPER_HAS_ITEMS); // Canvas - optimize hoppers
+     }
+     // Paper end - Perf: Optimize Hoppers
+ 
+@@ -196,7 +_,8 @@
+         } else {
+             if (!blockEntity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
+                 boolean flag = false;
+-                final int fullState = getFullState(blockEntity); // Paper - Perf: Optimize Hoppers
++                if (blockEntity.fullState == -1) recomputeFullState(blockEntity); // Canvas - optimize hoppers
++                final int fullState = blockEntity.fullState; // Paper - Perf: Optimize Hoppers // Canvas - optimize hoppers
+                 if (fullState != HOPPER_EMPTY) { // Paper - Perf: Optimize Hoppers
+                     flag = ejectItems(level, pos, blockEntity);
+                 }
 @@ -435,6 +_,11 @@
          } else {
              Direction opposite = blockEntity.facing.getOpposite();
@@ -104,6 +158,24 @@
                  for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
                      if (addItem(hopper, itemEntity)) {
                          return true;
+@@ -796,7 +_,7 @@
+     @Nullable
+     private static Container getContainerAt(Level level, BlockPos pos, BlockState state, double x, double y, double z, final boolean optimizeEntities) {
+         // Paper end - Perf: Optimize Hoppers
+-        Container blockContainer = getBlockContainer(level, pos, state);
++        Container blockContainer = state.hasBlockEntity() || state.getBlock() instanceof WorldlyContainerHolder ? getBlockContainer(level, pos, state) : null; // Canvas - optimize hoppers - if the block has no block entity, why check it
+         if (blockContainer == null && (!optimizeEntities || !level.paperConfig().hopper.ignoreOccludingBlocks || !state.getBukkitMaterial().isOccluding())) { // Paper - Perf: Optimize Hoppers
+             blockContainer = getEntityContainer(level, x, y, z);
+         }
+@@ -812,7 +_,7 @@
+             return ((WorldlyContainerHolder)block).getContainer(state, level, pos);
+         } else if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof Container container) {
+             if (container instanceof ChestBlockEntity && block instanceof ChestBlock) {
+-                container = ChestBlock.getContainer((ChestBlock)block, state, level, pos, true);
++                container = ChestBlock.getContainerForHoppers((ChestBlock)block, state, level, pos, true, container); // Canvas - optimize hoppers
+             }
+ 
+             return container;
 @@ -833,6 +_,34 @@
          return stack1.getCount() < stack1.getMaxStackSize() && ItemStack.isSameItemSameComponents(stack1, stack2); // Paper - Perf: Optimize Hoppers; used to return true for full itemstacks?!
      }
@@ -139,7 +211,7 @@
      @Override
      public double getLevelX() {
          return this.worldPosition.getX() + 0.5;
-@@ -872,7 +_,10 @@
+@@ -872,7 +_,11 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {
@@ -147,6 +219,7 @@
 +        // Pufferfish start - Improve container checking with a bitset
 +        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(items);
 +        this.items = this.optimizedItems.nonNullList;
++        recomputeFullState(this); // Canvas - optimize hoppers
 +        // Pufferfish end - Improve container checking with a bitset
      }
  

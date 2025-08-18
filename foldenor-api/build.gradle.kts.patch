@@ -93,6 +93,18 @@
  tasks.jar {
      from(generateApiVersioningFile.map { it.outputs.files.singleFile }) {
          into("META-INF/maven/${project.group}/${project.name}")
+@@ -170,6 +_,11 @@
+     }
+ }
+ 
++tasks.withType<JavaCompile> {
++    val compilerArgs = options.compilerArgs
++    compilerArgs.add("--add-modules=jdk.incubator.vector")
++}
++
+ abstract class Services {
+     @get:Inject
+     abstract val fileSystemOperations: FileSystemOperations
 @@ -182,8 +_,8 @@
      options.use()
      options.isDocFilesSubDirs = true

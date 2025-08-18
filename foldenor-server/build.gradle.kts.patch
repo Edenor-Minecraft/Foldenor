@@ -88,3 +88,11 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
+@@ -331,6 +_,7 @@
+         vendor.set(JvmVendorSpec.JETBRAINS)
+     })
+     jvmArgs("-XX:+AllowEnhancedClassRedefinition")
++    jvmArgs("--add-modules=jdk.incubator.vector")
+ 
+     if (rootProject.childProjects["test-plugin"] != null) {
+         val testPluginJar = rootProject.project(":test-plugin").tasks.jar.flatMap { it.archiveFile }
