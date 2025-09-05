@@ -158,7 +158,7 @@
                  for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
                      if (addItem(hopper, itemEntity)) {
                          return true;
-@@ -796,7 +_,7 @@
+@@ -798,7 +_,7 @@
      @Nullable
      private static Container getContainerAt(Level level, BlockPos pos, BlockState state, double x, double y, double z, final boolean optimizeEntities) {
          // Paper end - Perf: Optimize Hoppers
@@ -167,7 +167,7 @@
          if (blockContainer == null && (!optimizeEntities || !level.paperConfig().hopper.ignoreOccludingBlocks || !state.getBukkitMaterial().isOccluding())) { // Paper - Perf: Optimize Hoppers
              blockContainer = getEntityContainer(level, x, y, z);
          }
-@@ -812,7 +_,7 @@
+@@ -814,7 +_,7 @@
              return ((WorldlyContainerHolder)block).getContainer(state, level, pos);
          } else if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof Container container) {
              if (container instanceof ChestBlockEntity && block instanceof ChestBlock) {
@@ -176,7 +176,7 @@
              }
  
              return container;
-@@ -833,6 +_,34 @@
+@@ -835,6 +_,34 @@
          return stack1.getCount() < stack1.getMaxStackSize() && ItemStack.isSameItemSameComponents(stack1, stack2); // Paper - Perf: Optimize Hoppers; used to return true for full itemstacks?!
      }
  
@@ -211,7 +211,7 @@
      @Override
      public double getLevelX() {
          return this.worldPosition.getX() + 0.5;
-@@ -872,7 +_,11 @@
+@@ -874,7 +_,11 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {
