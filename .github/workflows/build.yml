@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "ver/1.21.8" ]
+    branches: [ "ver/1.21.11" ]
   workflow_dispatch:
   #workflow_run:
     #workflows: ["Automatically update Folia commit"]
@@ -43,8 +43,8 @@ jobs:
       - name: Make release
         uses: marvinpinto/action-automatic-releases@master
         with:
-          title: "Foldenor 1.21.8 release"
-          automatic_release_tag: "latest_1.21.8"
+          title: "Foldenor 1.21.11 release"
+          automatic_release_tag: "latest_1.21.11"
           files: foldenor-server/build/libs/*-paperclip-*-mojmap.jar
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
