@@ -1,8 +1,8 @@
 --- a/folia-api/build.gradle.kts
 +++ b/folia-api/build.gradle.kts
-@@ -13,8 +_,8 @@
- // Keep in sync with paper-server adventure-text-serializer-ansi dep
- val adventureVersion = "4.24.0"
+@@ -14,8 +_,8 @@
+ val annotationsVersion = "26.0.2"
+ val adventureVersion = "4.25.0"
  val bungeeCordChatVersion = "1.21-R0.2-deprecated+build.21"
 -val slf4jVersion = "2.0.16"
 -val log4jVersion = "2.24.1"
@@ -11,7 +11,7 @@
  
  val apiAndDocs: Configuration by configurations.creating {
      attributes {
-@@ -41,9 +_,9 @@
+@@ -42,9 +_,9 @@
  
  dependencies {
      // api dependencies are listed transitively to API consumers
@@ -24,7 +24,7 @@
      api("org.joml:joml:1.10.8") {
          isTransitive = false // https://github.com/JOML-CI/JOML/issues/352
      }
-@@ -65,9 +_,9 @@
+@@ -66,9 +_,9 @@
      apiAndDocs("net.kyori:adventure-text-serializer-plain")
      apiAndDocs("net.kyori:adventure-text-logger-slf4j")
  
@@ -37,7 +37,7 @@
  
      // Annotations - Slowly migrate to jspecify
      val annotations = "org.jetbrains:annotations:$annotationsVersion"
-@@ -83,11 +_,15 @@
+@@ -84,11 +_,15 @@
      // Test dependencies
      testImplementation("org.apache.commons:commons-lang3:3.17.0")
      testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
@@ -56,7 +56,7 @@
  }
  
  val generatedDir: java.nio.file.Path = rootProject.layout.projectDirectory.dir("paper-api/src/generated/java").asFile.toPath()
-@@ -101,17 +_,21 @@
+@@ -102,17 +_,21 @@
          java {
              srcDir(generatedDir)
              srcDir(file("../paper-api/src/main/java"))
@@ -78,8 +78,8 @@
          }
      }
  }
-@@ -159,6 +_,14 @@
-     }
+@@ -178,6 +_,14 @@
+     apiVersion.set(rootProject.providers.gradleProperty("apiVersion"))
  }
  
 +tasks.withType<JavaCompile> {
@@ -91,9 +91,9 @@
 +}
 +
  tasks.jar {
-     from(generateApiVersioningFile.map { it.outputs.files.singleFile }) {
-         into("META-INF/maven/${project.group}/${project.name}")
-@@ -170,6 +_,11 @@
+     from(generateApiVersioningFile.flatMap { it.outputFile })
+     manifest {
+@@ -187,6 +_,11 @@
      }
  }
  
@@ -105,27 +105,27 @@
  abstract class Services {
      @get:Inject
      abstract val fileSystemOperations: FileSystemOperations
-@@ -182,8 +_,8 @@
+@@ -199,8 +_,8 @@
      options.use()
      options.isDocFilesSubDirs = true
      options.links(
 -        "https://guava.dev/releases/33.3.1-jre/api/docs/",
--        "https://javadoc.io/doc/org.yaml/snakeyaml/2.2/",
+-        "https://www.javadocs.dev/org.yaml/snakeyaml/2.2/",
 +        "https://guava.dev/releases/33.4.0-jre/api/docs/",
 +        "https://javadoc.io/doc/org.yaml/snakeyaml/2.3/",
-         "https://javadoc.io/doc/org.jetbrains/annotations/$annotationsVersion/",
-         "https://javadoc.io/doc/org.joml/joml/1.10.8/",
-         "https://www.javadoc.io/doc/com.google.code.gson/gson/2.11.0",
-@@ -197,7 +_,7 @@
+         "https://www.javadocs.dev/org.jetbrains/annotations/$annotationsVersion/",
+         "https://www.javadocs.dev/org.joml/joml/1.10.8/",
+         "https://www.javadocs.dev/com.google.code.gson/gson/2.11.0",
+@@ -214,7 +_,7 @@
          "https://jd.advntr.dev/text-logger-slf4j/$adventureVersion/",
-         "https://javadoc.io/doc/org.slf4j/slf4j-api/$slf4jVersion/",
+         "https://www.javadocs.dev/org.slf4j/slf4j-api/$slf4jVersion/",
          "https://logging.apache.org/log4j/2.x/javadoc/log4j-api/",
--        "https://javadoc.io/doc/org.apache.maven.resolver/maven-resolver-api/1.7.3",
+-        "https://www.javadocs.dev/org.apache.maven.resolver/maven-resolver-api/1.7.3",
 +        "https://javadoc.io/doc/org.apache.maven.resolver/maven-resolver-api/1.9.22",
      )
      options.tags("apiNote:a:API Note:")
  
-@@ -221,6 +_,8 @@
+@@ -238,6 +_,8 @@
              into("build/docs/javadoc")
          }
      }

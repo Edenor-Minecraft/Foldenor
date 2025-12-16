@@ -1,6 +1,15 @@
 --- a/folia-server/build.gradle.kts
 +++ b/folia-server/build.gradle.kts
-@@ -35,7 +_,22 @@
+@@ -21,7 +_,7 @@
+ paperweight {
+     minecraftVersion = providers.gradleProperty("mcVersion")
+     gitFilePatches = false
+-    
++
+     val fork = forks.register("folia") {
+         upstream.patchDir("paperServer") {
+             upstreamPath = "paper-server"
+@@ -31,7 +_,22 @@
          }
      }
  
@@ -24,7 +33,23 @@
  
  
      spigot {
-@@ -123,10 +_,14 @@
+@@ -70,7 +_,7 @@
+ }
+ val services = objects.newInstance<Services>()
+ 
+-if (project.providers.gradleProperty("publishDevBundle").isPresent) {
++/*if (project.providers.gradleProperty("publishDevBundle").isPresent) {
+     val devBundleComponent = publishing.softwareComponentFactory.adhoc("devBundle")
+     components.add(devBundleComponent)
+ 
+@@ -114,16 +_,20 @@
+             from(devBundleComponent)
+         }
+     }
+-}
++}*/
+ 
+ sourceSets {
      main {
          java { srcDir("../paper-server/src/main/java"); srcDir("../paper-server/src/generated/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -39,19 +64,19 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -153,7 +_,7 @@
+@@ -151,7 +_,7 @@
  }
  
  dependencies {
 -    implementation(project(":folia-api"))
 +    implementation(project(":foldenor-api"))
-     implementation("ca.spottedleaf:concurrentutil:0.0.3")
+     implementation("ca.spottedleaf:concurrentutil:0.0.7")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -210,6 +_,19 @@
+@@ -208,6 +_,19 @@
      // Spark
      implementation("me.lucko:spark-api:0.1-20240720.200737-2")
-     implementation("me.lucko:spark-paper:1.10.133-20250413.112336-1")
+     implementation("me.lucko:spark-paper:1.10.152")
 +
 +    // LinearPaper start
 +    implementation("com.github.luben:zstd-jni:1.5.6-6")
@@ -68,7 +93,7 @@
  }
  
  tasks.jar {
-@@ -224,14 +_,14 @@
+@@ -222,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
@@ -88,7 +113,7 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
-@@ -331,6 +_,7 @@
+@@ -317,6 +_,7 @@
          vendor.set(JvmVendorSpec.JETBRAINS)
      })
      jvmArgs("-XX:+AllowEnhancedClassRedefinition")
