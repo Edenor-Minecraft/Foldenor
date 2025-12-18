@@ -1,8 +1,8 @@
 --- a/ca/spottedleaf/moonrise/patches/starlight/light/SWMRNibbleArray.java
 +++ b/ca/spottedleaf/moonrise/patches/starlight/light/SWMRNibbleArray.java
-@@ -22,12 +_,24 @@
-     protected static final int INIT_STATE_INIT   = 2; // initialised
-     protected static final int INIT_STATE_HIDDEN = 3; // initialised, but conversion to Vanilla data should be treated as if NULL
+@@ -25,12 +_,24 @@
+     private static final int INIT_STATE_INIT   = 2; // initialised
+     private static final int INIT_STATE_HIDDEN = 3; // initialised, but conversion to Vanilla data should be treated as if NULL
  
 +    // Leaf start - Optimize chunkUnload
 +    private volatile boolean cachedIsAllZero = false;
@@ -12,7 +12,7 @@
 +
      public static final int ARRAY_SIZE = 16 * 16 * 16 / (8/4); // blocks / bytes per block
      // this allows us to maintain only 1 byte array when we're not updating
--    static final ThreadLocal<ArrayDeque<byte[]>> WORKING_BYTES_POOL = ThreadLocal.withInitial(ArrayDeque::new);
+-    private static final ThreadLocal<ArrayDeque<byte[]>> WORKING_BYTES_POOL = ThreadLocal.withInitial(ArrayDeque::new);
 +    static final ThreadLocal<ArrayDeque<byte[]>> WORKING_BYTES_POOL = ThreadLocal.withInitial(() -> {
 +        return new ArrayDeque<>(8); // Limit pool size to avoid memory leaks
 +    });
@@ -27,7 +27,7 @@
          if (inPool != null) {
              return inPool;
          }
-@@ -36,7 +_,12 @@
+@@ -39,7 +_,12 @@
      }
  
      private static void freeBytes(final byte[] bytes) {
@@ -41,7 +41,7 @@
      }
  
      public static SWMRNibbleArray fromVanilla(final DataLayer nibble) {
-@@ -131,15 +_,44 @@
+@@ -134,15 +_,44 @@
      public SaveState getSaveState() {
          synchronized (this) {
              final int state = this.stateVisible;
@@ -90,21 +90,11 @@
                  return state == INIT_STATE_INIT ? new SaveState(null, INIT_STATE_UNINIT) : null;
              } else {
                  return new SaveState(data.clone(), state);
-@@ -148,17 +_,28 @@
-     }
+@@ -153,13 +_,28 @@
+     private static final VarHandle LONG_VIEW = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.nativeOrder());
  
-     protected static boolean isAllZero(final byte[] data) {
--        for (int i = 0; i < (ARRAY_SIZE >>> 4); ++i) {
--            byte whole = data[i << 4];
--
--            for (int k = 1; k < (1 << 4); ++k) {
--                whole |= data[(i << 4) | k];
--            }
--
--            if (whole != 0) {
--                return false;
--            }
--        }
+     private static boolean isAllZero(final byte[] data) {
+-        final int len = data.length / Long.BYTES; // assume divisible
 +        // Leaf start - Optimize chunkUnload
 +        // Check in 8-byte chunks
 +        final int longLength = ARRAY_SIZE >>> 3;
@@ -119,18 +109,20 @@
 +                return false;
 +            }
 +        }
-+
+ 
+-        for (int i = 0; i < len; ++i) {
+-            if (0L != (long)LONG_VIEW.get(data, i << 3)) {
 +        // Check remaining bytes
 +        for (int i = longLength << 3; i < ARRAY_SIZE; i++) {
 +            if (data[i] != 0) {
-+                return false;
-+            }
-+        }
+                 return false;
+             }
+         }
 +        // Leaf end - Optimize chunkUnload
  
          return true;
      }
-@@ -349,6 +_,7 @@
+@@ -350,6 +_,7 @@
              }
              this.updatingDirty = false;
              this.stateVisible = this.stateUpdating;
@@ -138,7 +130,7 @@
          }
  
          return true;
-@@ -424,7 +_,16 @@
+@@ -425,7 +_,16 @@
          final int shift = (index & 1) << 2;
          final int i = index >>> 1;
  

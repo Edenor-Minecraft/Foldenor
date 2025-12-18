@@ -1,25 +1,25 @@
 --- a/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BarrelBlockEntity.java
-@@ -56,6 +_,18 @@
+@@ -59,6 +_,18 @@
      }
      // CraftBukkit end
- 
+     private static final Component DEFAULT_NAME = Component.translatable("container.barrel");
 +    // Pufferfish start - Improve container checking with a bitset
 +    private gg.airplane.structs.ItemListWithBitset optimizedItems;
 +    @Override
 +    public Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +
 +    @Override
 +    public Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +    // Pufferfish end - Improve container checking with a bitset
      private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
      public final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
          @Override
-@@ -87,6 +_,10 @@
+@@ -90,6 +_,10 @@
  
      public BarrelBlockEntity(BlockPos pos, BlockState blockState) {
          super(BlockEntityType.BARREL, pos, blockState);
@@ -30,7 +30,7 @@
      }
  
      @Override
-@@ -100,7 +_,10 @@
+@@ -103,7 +_,10 @@
      @Override
      protected void loadAdditional(ValueInput input) {
          super.loadAdditional(input);
@@ -42,7 +42,7 @@
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
-@@ -118,7 +_,10 @@
+@@ -121,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

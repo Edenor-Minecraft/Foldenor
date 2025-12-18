@@ -1,8 +1,8 @@
 --- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
-@@ -158,8 +_,9 @@
+@@ -190,8 +_,9 @@
      public void handleConfigurationFinished(ServerboundFinishConfigurationPacket packet) {
-         PacketUtils.ensureRunningOnSameThread(packet, this, this.server);
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.server.packetProcessor());
          this.finishCurrentTask(JoinWorldTask.TYPE);
 -        this.connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess())));
 +        // this.connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()))); // Luminol - Async protocol switch - move down
@@ -10,12 +10,12 @@
 +        Runnable afterSwitch = () -> { // Luminol - Async protocol switch
          try {
              PlayerList playerList = this.server.getPlayerList();
-             if (playerList.getPlayer(this.gameProfile.getId()) != null) {
-@@ -247,6 +_,18 @@
-             this.connection.send(new ClientboundDisconnectPacket(DISCONNECT_REASON_INVALID_DATA));
-             this.connection.disconnect(DISCONNECT_REASON_INVALID_DATA);
+             if (playerList.getPlayer(this.gameProfile.id()) != null) {
+@@ -237,6 +_,18 @@
+             LOGGER.error("Couldn't place player in world", (Throwable)var4);
+             this.disconnect(DISCONNECT_REASON_INVALID_DATA);
          }
-+        // Luminol start - Async protocol switch
++            // Luminol start - Async protocol switch
 +        };
 +        if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) {
 +            this.connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess())));

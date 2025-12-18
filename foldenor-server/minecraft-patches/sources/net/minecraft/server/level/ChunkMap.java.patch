@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
-@@ -1294,7 +_,7 @@
+@@ -1366,7 +_,7 @@
                  }
                  // Folia end - region threading
                  // CraftBukkit start - respect vanish API

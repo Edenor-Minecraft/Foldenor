@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
-@@ -113,6 +_,7 @@
+@@ -92,6 +_,7 @@
  
      @Override
      public boolean isEmpty() {

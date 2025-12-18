@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/level/chunk/ChunkGenerator.java
 +++ b/net/minecraft/world/level/chunk/ChunkGenerator.java
-@@ -23,6 +_,9 @@
+@@ -22,6 +_,9 @@
+ import java.util.function.Predicate;
  import java.util.function.Supplier;
  import java.util.stream.Collectors;
- import javax.annotation.Nullable;
 +
 +import net.edenor.foldenor.secureseed.Globals;
 +import net.edenor.foldenor.secureseed.WorldgenCryptoRandom;
@@ -19,7 +19,7 @@
              long l = worldgenRandom.setDecorationSeed(level.getSeed(), blockPos.getX(), blockPos.getZ());
              Set<Holder<Biome>> set = new ObjectArraySet<>();
              ChunkPos.rangeClosed(sectionPos.chunk(), 1).forEach(chunkPos -> {
-@@ -451,8 +_,9 @@
+@@ -454,8 +_,9 @@
              int x = chunk.getPos().x;
              int z = chunk.getPos().z;
              for (org.bukkit.generator.BlockPopulator populator : world.getPopulators()) {
@@ -31,13 +31,13 @@
                  populator.populate(world, new org.bukkit.craftbukkit.util.RandomSourceWrapper.RandomWrapper(seededrandom), x, z, limitedRegion);
              }
              limitedRegion.saveEntities();
-@@ -551,8 +_,7 @@
-                         } else {
-                             ArrayList<StructureSet.StructureSelectionEntry> list1 = new ArrayList<>(list.size());
-                             list1.addAll(list);
--                            WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--                            worldgenRandom.setLargeFeatureSeed(structureState.getLevelSeed(), pos.x, pos.z);
-+                            WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(pos.x, pos.z, Globals.Salt.GENERATE_FEATURE, 0);
-                             int i = 0;
+@@ -557,8 +_,7 @@
+                             } else {
+                                 ArrayList<StructureSet.StructureSelectionEntry> list1 = new ArrayList<>(list.size());
+                                 list1.addAll(list);
+-                                WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
+-                                worldgenRandom.setLargeFeatureSeed(structureState.getLevelSeed(), pos.x, pos.z);
++                                WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(pos.x, pos.z, Globals.Salt.GENERATE_FEATURE, 0);
+                                 int i = 0;
  
-                             for (StructureSet.StructureSelectionEntry structureSelectionEntry1 : list1) {
+                                 for (StructureSet.StructureSelectionEntry structureSelectionEntry1 : list1) {

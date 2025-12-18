@@ -1,8 +1,8 @@
 --- a/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-@@ -413,14 +_,34 @@
+@@ -417,14 +_,33 @@
      public void handleLoginAcknowledgement(ServerboundLoginAcknowledgedPacket packet) {
-         net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread(packet, this, this.server); // CraftBukkit
+         net.minecraft.network.protocol.PacketUtils.ensureRunningOnSameThread(packet, this, this.server.packetProcessor()); // CraftBukkit
          Validate.validState(this.state == ServerLoginPacketListenerImpl.State.PROTOCOL_SWITCHING, "Unexpected login acknowledgement packet");
 -        this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND);
 +        /*this.connection.setupOutboundProtocol(ConfigurationProtocols.CLIENTBOUND); // Luminol - Async protocol switch - Rewrite
@@ -11,7 +11,7 @@
              this.server, this.connection, commonListenerCookie
          );
          this.connection.setupInboundProtocol(ConfigurationProtocols.SERVERBOUND, serverConfigurationPacketListenerImpl);
-         serverConfigurationPacketListenerImpl.startConfiguration();
+-        serverConfigurationPacketListenerImpl.startConfiguration();
 +        this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;*/ // Luminol - Async protocol switch - Rewrite
 +        // Luminol start - Async protocol switch
          this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;

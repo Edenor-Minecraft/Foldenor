@@ -8,7 +8,7 @@
  import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.server.MinecraftServer;
-@@ -1260,7 +_,7 @@
+@@ -1274,7 +_,7 @@
                  this.regionDataController.finishWrite(this.chunkX, this.chunkZ, writeData);
                  // Paper start - flush regionfiles on save
                  if (this.world.paperConfig().chunks.flushRegionsOnSave) {
@@ -17,7 +17,7 @@
                      if (regionFile != null) {
                          regionFile.flush();
                      } // else: evicted from cache, which should have called flush
-@@ -1470,7 +_,7 @@
+@@ -1490,7 +_,7 @@
  
          public static interface IORunnable {
  

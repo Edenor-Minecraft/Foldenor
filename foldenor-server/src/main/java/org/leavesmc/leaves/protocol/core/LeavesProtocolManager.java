@@ -5,7 +5,7 @@ import io.papermc.paper.connection.PluginMessageBridgeImpl;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import org.leavesmc.leaves.LeavesLogger;
 import org.leavesmc.leaves.protocol.core.invoker.BytebufReceiverInvokerHolder;
@@ -44,9 +44,9 @@ public class LeavesProtocolManager {
     private static final LeavesLogger LOGGER = LeavesLogger.LOGGER;
 
     private static final Map<Class<? extends LeavesCustomPayload>, PayloadReceiverInvokerHolder> PAYLOAD_RECEIVERS = new HashMap<>();
-    private static final Map<Class<? extends LeavesCustomPayload>, ResourceLocation> IDS = new HashMap<>();
+    private static final Map<Class<? extends LeavesCustomPayload>, Identifier> IDS = new HashMap<>();
     private static final Map<Class<? extends LeavesCustomPayload>, StreamCodec<? super RegistryFriendlyByteBuf, LeavesCustomPayload>> CODECS = new HashMap<>();
-    private static final Map<ResourceLocation, StreamCodec<? super RegistryFriendlyByteBuf, LeavesCustomPayload>> ID2CODEC = new HashMap<>();
+    private static final Map<Identifier, StreamCodec<? super RegistryFriendlyByteBuf, LeavesCustomPayload>> ID2CODEC = new HashMap<>();
 
     private static final Map<String, BytebufReceiverInvokerHolder> STRICT_BYTEBUF_RECEIVERS = new HashMap<>();
     private static final Map<String, BytebufReceiverInvokerHolder> NAMESPACED_BYTEBUF_RECEIVERS = new HashMap<>();
@@ -74,8 +74,8 @@ public class LeavesProtocolManager {
                     }
                     try {
                         final LeavesCustomPayload.ID id = field.getAnnotation(LeavesCustomPayload.ID.class);
-                        if (id != null && field.getType().equals(ResourceLocation.class)) {
-                            IDS.put((Class<? extends LeavesCustomPayload>) clazz, (ResourceLocation) field.get(null));
+                        if (id != null && field.getType().equals(Identifier.class)) {
+                            IDS.put((Class<? extends LeavesCustomPayload>) clazz, (Identifier) field.get(null));
                         }
                         final LeavesCustomPayload.Codec codec = field.getAnnotation(LeavesCustomPayload.Codec.class);
                         if (codec != null && field.getType().equals(StreamCodec.class)) {
@@ -220,7 +220,7 @@ public class LeavesProtocolManager {
         }
     }
 
-    public static LeavesCustomPayload decode(ResourceLocation location, FriendlyByteBuf buf) {
+    public static LeavesCustomPayload decode(Identifier location, FriendlyByteBuf buf) {
         var codec = ID2CODEC.get(location);
         if (codec == null) {
             return null;
@@ -234,7 +234,7 @@ public class LeavesProtocolManager {
         if (location == null || codec == null) {
             throw new IllegalArgumentException("Payload " + payload.getClass() + " is not configured correctly " + location + " " + codec);
         }
-        buf.writeResourceLocation(location);
+        buf.writeIdentifier(location);
         codec.encode(ProtocolUtils.decorate(buf), payload);
     }
 
@@ -245,7 +245,7 @@ public class LeavesProtocolManager {
         }
     }
 
-    public static boolean handleBytebuf(ServerPlayer player, ResourceLocation location, ByteBuf buf) {
+    public static boolean handleBytebuf(ServerPlayer player, Identifier location, ByteBuf buf) {
         RegistryFriendlyByteBuf buf1 = ProtocolUtils.decorate(buf);
         BytebufReceiverInvokerHolder holder;
         if ((holder = STRICT_BYTEBUF_RECEIVERS.get(location.toString())) != null) {
@@ -308,7 +308,7 @@ public class LeavesProtocolManager {
             return;
         }
 
-        ResourceLocation location = ResourceLocation.tryParse(channelId);
+        Identifier location = Identifier.tryParse(channelId);
         if (location == null) {
             return;
         }
@@ -333,7 +333,7 @@ public class LeavesProtocolManager {
         STRICT_BYTEBUF_RECEIVERS.forEach((key, holder) -> set.add(key));
         if (set.isEmpty()) return;
         // Leaf end - optimize leaves protocol manager
-        ProtocolUtils.sendBytebufPacket(player, ResourceLocation.fromNamespaceAndPath("minecraft", "register"), buf -> {
+        ProtocolUtils.sendBytebufPacket(player, Identifier.fromNamespaceAndPath("minecraft", "register"), buf -> {
             for (String channel : set) {
                 buf.writeBytes(channel.getBytes(StandardCharsets.US_ASCII));
                 buf.writeByte(0);

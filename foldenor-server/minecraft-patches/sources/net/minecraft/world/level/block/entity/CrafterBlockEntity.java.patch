@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/CrafterBlockEntity.java
-@@ -32,6 +_,18 @@
+@@ -33,6 +_,18 @@
      public static final int NUM_DATA = 10;
      private static final int DEFAULT_CRAFTING_TICKS_REMAINING = 0;
      private static final int DEFAULT_TRIGGERED = 0;
@@ -8,21 +8,21 @@
 +    private gg.airplane.structs.ItemListWithBitset optimizedItems;
 +    @Override
 +    public Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +
 +    @Override
 +    public Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +    // Pufferfish end - Improve container checking with a bitset
+     private static final Component DEFAULT_NAME = Component.translatable("container.crafter");
      private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
      public int craftingTicksRemaining = 0;
-     protected final ContainerData containerData = new ContainerData() {
-@@ -101,6 +_,10 @@
+@@ -103,6 +_,10 @@
  
-     public CrafterBlockEntity(BlockPos pos, BlockState state) {
-         super(BlockEntityType.CRAFTER, pos, state);
+     public CrafterBlockEntity(BlockPos pos, BlockState blockState) {
+         super(BlockEntityType.CRAFTER, pos, blockState);
 +        // Pufferfish start - Improve container checking with a bitset
 +        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
 +        this.items = this.optimizedItems.nonNullList;
@@ -30,7 +30,7 @@
      }
  
      @Override
-@@ -152,7 +_,10 @@
+@@ -154,7 +_,10 @@
      protected void loadAdditional(ValueInput input) {
          super.loadAdditional(input);
          this.craftingTicksRemaining = input.getIntOr("crafting_ticks_remaining", 0);
@@ -42,7 +42,7 @@
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
-@@ -225,7 +_,10 @@
+@@ -227,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

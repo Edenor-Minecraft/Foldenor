@@ -1,6 +1,6 @@
 --- a/net/minecraft/stats/ServerStatsCounter.java
 +++ b/net/minecraft/stats/ServerStatsCounter.java
-@@ -98,11 +_,15 @@
+@@ -109,11 +_,15 @@
          this.dirty.add(stat);
      }
  
@@ -14,9 +14,9 @@
 +    */
 +    // SparklyPaper end
  
-     public void parseLocal(DataFixer fixerUpper, String json) {
-         try {
-@@ -139,9 +_,11 @@
+     public void parse(DataFixer fixerUpper, JsonElement json) {
+         Dynamic<JsonElement> dynamic = new Dynamic<>(JsonOps.INSTANCE, json);
+@@ -140,9 +_,11 @@
      public void sendStats(ServerPlayer player) {
          Object2IntMap<Stat<?>> map = new Object2IntOpenHashMap<>();
  

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/ChestBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/ChestBlockEntity.java
-@@ -25,6 +_,18 @@
+@@ -26,6 +_,18 @@
  import net.minecraft.world.level.storage.ValueOutput;
  
  public class ChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
@@ -8,18 +8,18 @@
 +    private gg.airplane.structs.ItemListWithBitset optimizedItems;
 +    @Override
 +    public Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +
 +    @Override
 +    public Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +    // Pufferfish end - Improve container checking with a bitset
      private static final int EVENT_SET_OPEN_COUNT = 1;
+     public static final Component DEFAULT_NAME = Component.translatable("container.chest");
      private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
-     public final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
-@@ -92,6 +_,10 @@
+@@ -98,6 +_,10 @@
  
      protected ChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
          super(type, pos, blockState);
@@ -30,7 +30,7 @@
      }
  
      public ChestBlockEntity(BlockPos pos, BlockState blockState) {
-@@ -111,7 +_,10 @@
+@@ -117,7 +_,10 @@
      @Override
      protected void loadAdditional(ValueInput input) {
          super.loadAdditional(input);
@@ -42,7 +42,7 @@
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
-@@ -176,7 +_,10 @@
+@@ -188,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

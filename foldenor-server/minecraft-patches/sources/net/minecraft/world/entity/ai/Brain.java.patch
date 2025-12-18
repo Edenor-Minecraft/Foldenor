@@ -1,15 +1,14 @@
 --- a/net/minecraft/world/entity/ai/Brain.java
 +++ b/net/minecraft/world/entity/ai/Brain.java
-@@ -25,6 +_,8 @@
+@@ -25,6 +_,7 @@
  import java.util.function.Supplier;
  import java.util.stream.Stream;
- import javax.annotation.Nullable;
-+
-+import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.core.registries.BuiltInRegistries;
++import net.minecraft.resources.Identifier;
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.util.VisibleForDebug;
-@@ -70,13 +_,22 @@
+ import net.minecraft.world.attribute.EnvironmentAttribute;
+@@ -72,13 +_,22 @@
              (new MapCodec<Brain<E>>() {
                      @Override
                      public <T> Stream<T> keys(DynamicOps<T> ops) {
@@ -19,7 +18,7 @@
 -                                    .map(codec -> BuiltInRegistries.MEMORY_MODULE_TYPE.getKey((MemoryModuleType<?>)memoryModuleType))
 -                                    .stream()
 -                            )
--                            .map(resourceLocation -> ops.createString(resourceLocation.toString()));
+-                            .map(identifier -> ops.createString(identifier.toString()));
 +                        // Leaf start - Remove stream in Brain
 +                        List<T> results = new java.util.ArrayList<>();
 +
@@ -27,7 +26,7 @@
 +                            final Optional<?> codec = memoryType.getCodec();
 +
 +                            if (codec.isPresent()) {
-+                                final net.minecraft.resources.ResourceLocation id = BuiltInRegistries.MEMORY_MODULE_TYPE.getKey(memoryType);
++                                final Identifier id = BuiltInRegistries.MEMORY_MODULE_TYPE.getKey(memoryType);
 +                                final T ops1 = ops.createString(id.toString());
 +
 +                                results.add(ops1);
@@ -39,7 +38,7 @@
                      }
  
                      @Override
-@@ -111,7 +_,7 @@
+@@ -113,7 +_,7 @@
  
                      @Override
                      public <T> RecordBuilder<T> encode(Brain<E> input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
@@ -48,7 +47,7 @@
                          return prefix;
                      }
                  })
-@@ -153,8 +_,28 @@
+@@ -155,8 +_,28 @@
      }
  
      Stream<Brain.MemoryValue<?>> memories() {
@@ -79,7 +78,7 @@
  
      public boolean hasMemoryValue(MemoryModuleType<?> type) {
          return this.checkMemory(type, MemoryStatus.VALUE_PRESENT);
-@@ -408,7 +_,7 @@
+@@ -405,7 +_,7 @@
      }
  
      public void tick(ServerLevel level, E entity) {
@@ -88,7 +87,7 @@
          this.tickSensors(level, entity);
          this.startEachNonRunningBehavior(level, entity);
          this.tickEachRunningBehavior(level, entity);
-@@ -420,10 +_,30 @@
+@@ -417,10 +_,30 @@
          }
      }
  

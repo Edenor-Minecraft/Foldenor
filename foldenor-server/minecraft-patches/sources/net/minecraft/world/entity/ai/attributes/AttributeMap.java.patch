@@ -1,7 +1,20 @@
 --- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
 +++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
-@@ -14,13 +_,17 @@
- import net.minecraft.resources.ResourceLocation;
+@@ -3,24 +_,25 @@
+ import com.google.common.collect.Multimap;
+ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+-import java.util.ArrayList;
+-import java.util.Collection;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Set;
++
++import java.util.*;
+ import java.util.stream.Collectors;
+ import net.minecraft.core.Holder;
+ import net.minecraft.resources.Identifier;
+ import org.jspecify.annotations.Nullable;
  
  public class AttributeMap {
 -    private final Map<Holder<Attribute>, AttributeInstance> attributes = new Object2ObjectOpenHashMap<>();
@@ -17,14 +30,14 @@
  
      public AttributeMap(AttributeSupplier supplier) {
          this.supplier = supplier;
-+        this.createInstance = attributex -> this.supplier.createInstance(this::onAttributeModified, attributex); // Pufferfish
++        this.createInstance = attributex -> Objects.requireNonNull(this.supplier.createInstance(this::onAttributeModified, attributex)); // Pufferfish
      }
  
      private void onAttributeModified(AttributeInstance instance) {
-@@ -44,7 +_,7 @@
+@@ -43,7 +_,7 @@
+     }
  
-     @Nullable
-     public AttributeInstance getInstance(Holder<Attribute> attribute) {
+     public @Nullable AttributeInstance getInstance(Holder<Attribute> attribute) {
 -        return this.attributes.computeIfAbsent(attribute, holder -> this.supplier.createInstance(this::onAttributeModified, (Holder<Attribute>)holder));
 +        return this.attributes.computeIfAbsent(attribute, this.createInstance); // Pufferfish - cache lambda, as for some reason java allocates it anyways
      }

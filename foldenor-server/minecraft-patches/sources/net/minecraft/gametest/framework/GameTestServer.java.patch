@@ -1,20 +1,20 @@
 --- a/net/minecraft/gametest/framework/GameTestServer.java
 +++ b/net/minecraft/gametest/framework/GameTestServer.java
-@@ -16,6 +_,8 @@
+@@ -18,6 +_,8 @@
+ import java.util.function.BooleanSupplier;
  import java.util.stream.Stream;
  import java.util.stream.Stream.Builder;
- import javax.annotation.Nullable;
 +
 +import net.edenor.foldenor.secureseed.Globals;
  import net.minecraft.CrashReport;
  import net.minecraft.ReportType;
  import net.minecraft.SystemReport;
-@@ -71,7 +_,7 @@
+@@ -85,7 +_,7 @@
      private final boolean verify;
      private List<GameTestBatch> testBatches = new ArrayList<>();
      private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 -    private static final WorldOptions WORLD_OPTIONS = new WorldOptions(0L, false, false);
 +    private static final WorldOptions WORLD_OPTIONS = new WorldOptions(0L, Globals.worldSeed, false, false);
-     @Nullable
-     private MultipleTestTracker testTracker;
+     private @Nullable MultipleTestTracker testTracker;
  
+     public static GameTestServer create(

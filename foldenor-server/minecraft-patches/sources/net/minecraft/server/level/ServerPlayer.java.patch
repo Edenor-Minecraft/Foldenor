@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -219,7 +_,7 @@
+@@ -227,7 +_,7 @@
      private static final boolean DEFAULT_SPAWN_EXTRA_PARTICLES_ON_FALL = false;
      public ServerGamePacketListenerImpl connection;
      private final MinecraftServer server;
@@ -9,7 +9,7 @@
      private final PlayerAdvancements advancements;
      private final ServerStatsCounter stats;
      private float lastRecordedHealthAndAbsorption = Float.MIN_VALUE;
-@@ -434,6 +_,8 @@
+@@ -438,6 +_,8 @@
      private ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.PlayerChunkLoaderData chunkLoader;
      private final ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.ViewDistanceHolder viewDistanceHolder = new ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.ViewDistanceHolder();
  
@@ -18,7 +18,7 @@
      @Override
      public final boolean moonrise$isRealPlayer() {
          return this.isRealPlayer;
-@@ -1076,9 +_,10 @@
+@@ -1067,9 +_,10 @@
              }
              // CraftBukkit end
          } catch (Throwable var4) {
@@ -30,7 +30,7 @@
              throw new ReportedException(crashReport);
          }
      }
-@@ -1280,7 +_,7 @@
+@@ -1381,7 +_,7 @@
                      this.getInventory().getNonEquipmentItems().set(i, net.minecraft.world.item.ItemStack.EMPTY);
                  }
              }

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/raid/Raid.java
 +++ b/net/minecraft/world/entity/raid/Raid.java
-@@ -126,6 +_,7 @@
+@@ -127,6 +_,7 @@
      private Raid.RaidStatus status;
      private int celebrationTicks;
      private Optional<BlockPos> waveSpawnPos = Optional.empty();
@@ -8,7 +8,7 @@
  
      // Folia start - make raids thread-safe
      public boolean ownsRaid(ServerLevel world) {
-@@ -286,6 +_,12 @@
+@@ -287,6 +_,12 @@
  
      public void tick(ServerLevel level) {
          if (!this.isStopped()) {
@@ -21,7 +21,7 @@
              if (this.status == Raid.RaidStatus.ONGOING) {
                  boolean flag = this.active;
                  this.active = level.hasChunkAt(this.center);
-@@ -603,9 +_,15 @@
+@@ -624,9 +_,15 @@
          }
      }
  

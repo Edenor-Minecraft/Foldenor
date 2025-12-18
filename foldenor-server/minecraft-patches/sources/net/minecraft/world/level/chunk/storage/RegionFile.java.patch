@@ -1,15 +1,16 @@
 --- a/net/minecraft/world/level/chunk/storage/RegionFile.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFile.java
-@@ -16,13 +_,15 @@
+@@ -15,6 +_,8 @@
+ import java.nio.file.Path;
  import java.nio.file.StandardCopyOption;
  import java.nio.file.StandardOpenOption;
- import javax.annotation.Nullable;
 +
 +import com.triassic.linearpaper.region.AbstractRegionFile;
- import net.minecraft.Util;
- import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.resources.Identifier;
+ import net.minecraft.util.Util;
  import net.minecraft.util.profiling.jfr.JvmProfiler;
- import net.minecraft.world.level.ChunkPos;
+@@ -22,7 +_,7 @@
+ import org.jspecify.annotations.Nullable;
  import org.slf4j.Logger;
  
 -public class RegionFile implements AutoCloseable, ca.spottedleaf.moonrise.patches.chunk_system.storage.ChunkSystemRegionFile { // Paper - rewrite chunk system
@@ -26,7 +27,7 @@
          if (!this.canRecalcHeader) {
              return false;
          }
-@@ -794,7 +_,7 @@
+@@ -791,7 +_,7 @@
          }
      }
  
@@ -35,7 +36,7 @@
          int offsetIndex = getOffsetIndex(chunkPos);
          int i = this.offsets.get(offsetIndex);
          int sectorNumber = getSectorNumber(i);
-@@ -912,7 +_,7 @@
+@@ -909,7 +_,7 @@
          }
  
          @Override
@@ -44,7 +45,7 @@
              regionFile.write(this.pos, ByteBuffer.wrap(this.buf, 0, this.count));
          }
          // Paper end - rewrite chunk system
-@@ -978,11 +_,11 @@
+@@ -975,11 +_,11 @@
          return (x & 31) + (z & 31) * 32;
      }
  
@@ -58,7 +59,7 @@
          final int offset = getChunkIndex(x, z);
          boolean previous = this.oversized[offset] == 1;
          this.oversized[offset] = (byte) (oversized ? 1 : 0);
-@@ -1021,7 +_,7 @@
+@@ -1018,7 +_,7 @@
          return this.path.getParent().resolve(this.path.getFileName().toString().replaceAll("\\.mca$", "") + "_oversized_" + x + "_" + z + ".nbt");
      }
  

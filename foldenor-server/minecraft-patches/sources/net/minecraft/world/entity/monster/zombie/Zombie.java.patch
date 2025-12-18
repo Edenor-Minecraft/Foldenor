@@ -1,6 +1,6 @@
---- a/net/minecraft/world/entity/monster/Zombie.java
-+++ b/net/minecraft/world/entity/monster/Zombie.java
-@@ -352,6 +_,11 @@
+--- a/net/minecraft/world/entity/monster/zombie/Zombie.java
++++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
+@@ -325,6 +_,11 @@
                      int i2 = floor1 + Mth.nextInt(this.random, 7, 40) * Mth.nextInt(this.random, -1, 1);
                      int i3 = floor2 + Mth.nextInt(this.random, 7, 40) * Mth.nextInt(this.random, -1, 1);
                      BlockPos blockPos = new BlockPos(i1, i2, i3);

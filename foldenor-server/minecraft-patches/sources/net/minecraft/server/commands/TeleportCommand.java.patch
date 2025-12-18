@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/commands/TeleportCommand.java
 +++ b/net/minecraft/server/commands/TeleportCommand.java
-@@ -20,6 +_,7 @@
+@@ -19,6 +_,7 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.network.chat.Component;
  import net.minecraft.server.level.ServerLevel;
@@ -52,17 +52,13 @@
              if (vec2 == null) {
                  performTeleport(source, entity, level, position1.x, position1.y, position1.z, relatives, entity.getYRot(), entity.getXRot(), lookAt);
              } else {
-@@ -286,6 +_,13 @@
-                 Float yawFinal = Float.valueOf(f);
-                 Float pitchFinal = Float.valueOf(f1);
+@@ -259,6 +_,9 @@
+                 Float yawFinal = Float.valueOf(f2);
+                 Float pitchFinal = Float.valueOf(f3);
                  target.getBukkitEntity().taskScheduler.schedule((Entity nmsEntity) -> {
-+                    if (nmsEntity instanceof ServerPlayer player){
-+                        if (player.isSpectator()){
-+                            if (player.isSpectator() && player.getCamera() != player){
-+                                player.setCamera(player);
-+                            }
-+                        }
++                    if (nmsEntity instanceof ServerPlayer player && player.isSpectator() && player.getCamera() != player){
++                        player.setCamera(player);
 +                    }
-                     nmsEntity.unRide();
+                     nmsEntity.stopRiding();
                      nmsEntity.teleportAsync(
                              worldFinal, posFinal, yawFinal, pitchFinal, Vec3.ZERO,

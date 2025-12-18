@@ -31,10 +31,10 @@
          if (list.isEmpty()) {
              return Optional.empty();
          } else {
-@@ -203,16 +_,29 @@
- 
-     @Nullable
-     private static Entity selectEntityToSpawnItemAbove(List<Player> player, Set<UUID> currentMobs, TrialSpawner spawner, BlockPos pos, ServerLevel level) {
+@@ -204,16 +_,29 @@
+     private static @Nullable Entity selectEntityToSpawnItemAbove(
+         List<Player> player, Set<UUID> currentMobs, TrialSpawner spawner, BlockPos pos, ServerLevel level
+     ) {
 -        Stream<Entity> stream = currentMobs.stream()
 -            .map(level::getEntity)
 -            .filter(Objects::nonNull)

@@ -1,11 +1,28 @@
 --- a/net/minecraft/world/level/biome/Biome.java
 +++ b/net/minecraft/world/level/biome/Biome.java
-@@ -68,7 +_,7 @@
-     private final BiomeGenerationSettings generationSettings;
+@@ -14,6 +_,7 @@
+ import net.minecraft.resources.RegistryFileCodec;
+ import net.minecraft.util.Mth;
+ import net.minecraft.util.StringRepresentable;
++import net.minecraft.util.Util;
+ import net.minecraft.world.attribute.EnvironmentAttribute;
+ import net.minecraft.world.attribute.EnvironmentAttributeMap;
+ import net.minecraft.world.attribute.modifier.AttributeModifier;
+@@ -70,7 +_,7 @@
      private final MobSpawnSettings mobSettings;
+     private final EnvironmentAttributeMap attributes;
      private final BiomeSpecialEffects specialEffects;
--    private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
+-    private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> {
 +    private final static ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
          Long2FloatLinkedOpenHashMap map = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
              @Override
              protected void rehash(int newSize) {
+@@ -78,7 +_,7 @@
+         };
+         map.defaultReturnValue(Float.NaN);
+         return map;
+-    });
++    }));
+ 
+     Biome(
+         Biome.ClimateSettings climateSettings,

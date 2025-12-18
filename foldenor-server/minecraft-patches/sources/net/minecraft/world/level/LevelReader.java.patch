@@ -5,9 +5,9 @@
  
 +import java.util.concurrent.CompletableFuture;
  import java.util.stream.Stream;
- import javax.annotation.Nullable;
  import net.minecraft.core.BlockPos;
-@@ -10,6 +_,9 @@
+ import net.minecraft.core.Holder;
+@@ -9,6 +_,9 @@
  import net.minecraft.core.RegistryAccess;
  import net.minecraft.core.SectionPos;
  import net.minecraft.resources.ResourceKey;
@@ -16,7 +16,7 @@
 +import net.minecraft.server.level.ServerLevel;
  import net.minecraft.tags.FluidTags;
  import net.minecraft.util.Mth;
- import net.minecraft.world.flag.FeatureFlagSet;
+ import net.minecraft.world.attribute.EnvironmentAttributeReader;
 @@ -17,6 +_,7 @@
  import net.minecraft.world.level.biome.BiomeManager;
  import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +25,7 @@
  import net.minecraft.world.level.chunk.status.ChunkStatus;
  import net.minecraft.world.level.dimension.DimensionType;
  import net.minecraft.world.level.levelgen.Heightmap;
-@@ -57,6 +_,12 @@
+@@ -55,6 +_,12 @@
          return this.getBiomeManager().getBiome(pos);
      }
  
@@ -38,7 +38,7 @@
      default Stream<BlockState> getBlockStatesIfLoaded(AABB aabb) {
          int floor = Mth.floor(aabb.minX);
          int floor1 = Mth.floor(aabb.maxX);
-@@ -67,6 +_,18 @@
+@@ -65,6 +_,18 @@
          return this.hasChunksAt(floor, floor2, floor4, floor1, floor3, floor5) ? this.getBlockStates(aabb) : Stream.empty();
      }
  
@@ -55,9 +55,9 @@
 +    // Leaf end - Optimize check nearby fire or lava on entity move
 +
      @Override
-     default int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
-         return colorResolver.getColor(this.getBiome(blockPos).value(), blockPos.getX(), blockPos.getZ());
-@@ -74,9 +_,26 @@
+     default int getBlockTint(BlockPos pos, ColorResolver colorResolver) {
+         return colorResolver.getColor(this.getBiome(pos).value(), pos.getX(), pos.getZ());
+@@ -72,9 +_,26 @@
  
      @Override
      default Holder<Biome> getNoiseBiome(int x, int y, int z) {

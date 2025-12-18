@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
-@@ -958,10 +_,7 @@
+@@ -911,10 +_,7 @@
          for (int i = 0, len = entities.size(); i < len; ++i) {
              Entity entity = entities.get(i);
  
@@ -12,7 +12,7 @@
  
              // !entity1.isRemoved() && entity1.blocksBuilding && (entity == null || !entity1.isPassengerOfSameVehicle(entity))
              // elide the last check since vanilla calls with entity = null
-@@ -969,6 +_,12 @@
+@@ -922,6 +_,12 @@
              if (entity.isRemoved() || !entity.blocksBuilding) {
                  continue;
              }
@@ -25,7 +25,7 @@
  
              if (net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty(collisionShape, net.minecraft.world.phys.shapes.Shapes.create(entity.getBoundingBox()), net.minecraft.world.phys.shapes.BooleanOp.AND)) {
                  return false;
-@@ -1884,7 +_,7 @@
+@@ -1831,7 +_,7 @@
      public org.bukkit.entity.Entity[] getChunkEntities(int chunkX, int chunkZ) {
          ca.spottedleaf.moonrise.patches.chunk_system.level.entity.ChunkEntitySlices slices = ((ServerLevel)this).moonrise$getEntityLookup().getChunk(chunkX, chunkZ);
          if (slices == null) {
@@ -34,7 +34,7 @@
          }
  
          List<org.bukkit.entity.Entity> ret = new java.util.ArrayList<>();
-@@ -1895,7 +_,7 @@
+@@ -1842,7 +_,7 @@
              }
          }
  

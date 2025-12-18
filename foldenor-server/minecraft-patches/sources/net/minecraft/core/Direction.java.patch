@@ -1,6 +1,6 @@
 --- a/net/minecraft/core/Direction.java
 +++ b/net/minecraft/core/Direction.java
-@@ -222,7 +_,7 @@
+@@ -225,7 +_,7 @@
      }
  
      public Direction getOpposite() {
@@ -9,7 +9,7 @@
      }
  
      public Direction getClockWise(Direction.Axis axis) {
-@@ -355,7 +_,7 @@
+@@ -357,7 +_,7 @@
      }
  
      public static Direction getRandom(RandomSource random) {

@@ -1,36 +1,15 @@
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
-@@ -14,6 +_,8 @@
+@@ -10,6 +_,8 @@
+ import java.util.Set;
  import java.util.function.Consumer;
- import java.util.stream.Stream;
- import javax.annotation.Nullable;
+ import java.util.function.Predicate;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.core.component.DataComponents;
  import net.minecraft.network.protocol.Packet;
  import net.minecraft.network.protocol.game.ClientGamePacketListener;
-@@ -118,7 +_,19 @@
-         // Paper end - optimise collisions
-         List<Entity> passengers = this.entity.getPassengers();
-         if (!passengers.equals(this.lastPassengers)) {
--            List<UUID> list = this.mountedOrDismounted(passengers).map(Entity::getUUID).toList();
-+            // Leaf start - Remove stream in entity mountedOrDismounted changes update
-+            List<UUID> list = new ArrayList<>();
-+            for (Entity entity : this.lastPassengers) {
-+                if (!passengers.contains(entity)) {
-+                    list.add(entity.getUUID());
-+                }
-+            }
-+            for (Entity entity : passengers) {
-+                if (!this.lastPassengers.contains(entity)) {
-+                    list.add(entity.getUUID());
-+                }
-+            }
-+            // Leaf end - Remove stream in entity mountedOrDismounted changes update
-             this.broadcastWithIgnore.accept(new ClientboundSetPassengersPacket(this.entity), list);
-             // Paper start - Allow riding players
-             if (this.entity instanceof ServerPlayer player) {
-@@ -193,23 +_,33 @@
+@@ -181,23 +_,33 @@
                      packet = ClientboundEntityPositionSyncPacket.of(this.entity);
                      flag3 = true;
                      flag4 = true;
@@ -44,7 +23,7 @@
 +                    if (!FoldenorConfig.sendNullEntityPackets && isNullMovePacket(packet)) {
 +                        packet = null;
                      }
-+                // Gale start - Airplane - better checking for useless move packets
++                    // Gale start - Airplane - better checking for useless move packets
                  } else {
 -                    packet = new ClientboundMoveEntityPacket.PosRot(this.entity.getId(), (short)l, (short)l1, (short)l2, b, b1, this.entity.onGround());
 -                    flag3 = true;
@@ -67,7 +46,7 @@
                  }
 +                // Gale end - Airplane - better checking for useless move packets
  
--                if (this.entity.hasImpulse || this.trackDelta || this.entity instanceof LivingEntity && ((LivingEntity)this.entity).isFallFlying()) {
+-                if (this.entity.needsSync || this.trackDelta || this.entity instanceof LivingEntity && ((LivingEntity)this.entity).isFallFlying()) {
 +                if (this.entity.hasImpulse || this.trackDelta || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying())  {
                      Vec3 deltaMovement = this.entity.getDeltaMovement();
 -                    double d = deltaMovement.distanceToSqr(this.lastSentMovement);
@@ -76,17 +55,16 @@
                      if (d > 1.0E-7 || d > 0.0 && deltaMovement.lengthSqr() == 0.0) {
                          this.lastSentMovement = deltaMovement;
                          if (this.entity instanceof AbstractHurtingProjectile abstractHurtingProjectile) {
-@@ -227,6 +_,8 @@
+@@ -215,6 +_,7 @@
                          }
                      }
                  }
 +                } // SparklyPaper end
-+
  
                  if (packet != null) {
-                     this.broadcast.accept(packet);
-@@ -288,6 +_,17 @@
-         );
+                     this.synchronizer.sendToTrackingPlayers(packet);
+@@ -269,6 +_,17 @@
+         }
      }
  
 +    private boolean isNullMovePacket(Packet<?> packet) {
@@ -103,7 +81,7 @@
      private void handleMinecartPosRot(NewMinecartBehavior behavior, byte yRot, byte xRot, boolean dirty) {
          this.sendDirtyEntityData();
          if (behavior.lerpSteps.isEmpty()) {
-@@ -370,7 +_,7 @@
+@@ -352,7 +_,7 @@
              if (!list.isEmpty()) {
                  consumer.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), list, true)); // Paper - data sanitization
              }

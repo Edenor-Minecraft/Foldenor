@@ -1,82 +1,59 @@
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -10,12 +_,7 @@
- import java.nio.file.Path;
- import java.text.SimpleDateFormat;
- import java.time.Instant;
--import java.util.EnumSet;
--import java.util.List;
--import java.util.Map;
--import java.util.Optional;
--import java.util.Set;
--import java.util.UUID;
-+import java.util.*;
- import java.util.function.Function;
- import java.util.function.Predicate;
- import javax.annotation.Nullable;
-@@ -98,6 +_,8 @@
- import net.minecraft.world.scores.Objective;
- import net.minecraft.world.scores.PlayerTeam;
- import net.minecraft.world.scores.Team;
-+import org.bukkit.Location;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
- import org.slf4j.Logger;
- 
- public abstract class PlayerList {
-@@ -342,10 +_,12 @@
-             // only after setting the connection listener to game type, add the connection to this regions list
-             serverLevel.getCurrentWorldData().connections.add(connection);
-             // Folia end - rewrite login process
--            connection.setupInboundProtocol(
--                GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
--                serverGamePacketListenerImpl
--            );
-+            if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) { // Luminol - Async protocol switch // we will run async switch once these main thread logics became done
-+                connection.setupInboundProtocol(
+@@ -235,10 +_,12 @@
+         // only after setting the connection listener to game type, add the connection to this regions list
+         serverLevel.getCurrentWorldData().connections.add(connection);
+         // Folia end - rewrite login process
+-        connection.setupInboundProtocol(
+-            GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
+-            serverGamePacketListenerImpl
+-        );
++        if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) { // Luminol - Async protocol switch // we will run async switch once these main thread logics became done
++            connection.setupInboundProtocol(
 +                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
 +                    serverGamePacketListenerImpl
-+                );
-+            } // Luminol - Async protocol switch
-             GameRules gameRules = serverLevel.getGameRules();
-             boolean _boolean = gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN);
-             boolean _boolean1 = gameRules.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO);
-@@ -421,6 +_,9 @@
-                 //return; // Folia - region threading - must still allow the player to connect, as we must add to chunk map before handling disconnect
-             }
- 
-+            if (player.internalConnection == null) player.internalConnection = connection; // Leaf - Leaves - protocol
-+            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePlayerJoin(player); // Leaves - protocol
-+
-             final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
- 
-             if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
-@@ -497,6 +_,17 @@
-                 );
-             }
-             // Paper end - Send empty chunk
-+            // Luminol start - Async protocol switch
-+            if (net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) {
-+                // auto read will be enabled once the async switch is done
-+                connection.setupInboundProtocolAsync(
-+                        GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
-+                        serverGamePacketListenerImpl,
-+                        null, // we don't need do anything more
-+                        true // start auto read which we have disabled in configuration handler
-+                );
-+            }
-+            // Luminol end
++            );
++        } // Luminol - Async protocol switch
+         serverGamePacketListenerImpl.suspendFlushing();
+         GameRules gameRules = serverLevel.getGameRules();
+         boolean flag = gameRules.get(GameRules.IMMEDIATE_RESPAWN);
+@@ -313,6 +_,9 @@
+             //return; // Folia - region threading - must still allow the player to connect, as we must add to chunk map before handling disconnect
          }
+ 
++        if (player.internalConnection == null) player.internalConnection = connection; // Leaf - Leaves - protocol
++        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePlayerJoin(player); // Leaves - protocol
++
+         final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
+ 
+         if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
+@@ -401,6 +_,17 @@
+             );
+         }
+         // Paper end - Send empty chunk
++        // Luminol start - Async protocol switch
++        if (net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) {
++            // auto read will be enabled once the async switch is done
++            connection.setupInboundProtocolAsync(
++                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
++                    serverGamePacketListenerImpl,
++                    null, // we don't need do anything more
++                    true // start auto read which we have disabled in configuration handler
++            );
++        }
++        // Luminol end
      }
  
-@@ -592,6 +_,7 @@
+     public void updateEntireScoreboard(ServerScoreboard scoreboard, ServerPlayer player) {
+@@ -498,6 +_,7 @@
          return this.remove(player, net.kyori.adventure.text.Component.translatable("multiplayer.player.left", net.kyori.adventure.text.format.NamedTextColor.YELLOW, io.papermc.paper.configuration.GlobalConfiguration.get().messages.useDisplayNameInQuitMessage ? player.getBukkitEntity().displayName() : io.papermc.paper.adventure.PaperAdventure.asAdventure(player.getDisplayName())));
      }
-     public @Nullable net.kyori.adventure.text.Component remove(ServerPlayer player, net.kyori.adventure.text.Component leaveMessage) {
+     public net.kyori.adventure.text.@Nullable Component remove(ServerPlayer player, net.kyori.adventure.text.Component leaveMessage) {
 +        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePlayerLeave(player); // Leaves - protocol
          // Paper end - Fix kick event leave message not being sent
          ServerLevel serverLevel = player.level();
          player.awardStat(Stats.LEAVE_GAME);
-@@ -1503,6 +_,7 @@
+@@ -1383,6 +_,7 @@
              serverPlayer.connection.send(clientboundUpdateRecipesPacket);
              serverPlayer.getRecipeBook().sendInitialRecipeBook(serverPlayer);
          }

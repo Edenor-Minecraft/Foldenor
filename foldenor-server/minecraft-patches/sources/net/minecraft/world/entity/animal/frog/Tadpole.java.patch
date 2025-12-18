@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/frog/Tadpole.java
 +++ b/net/minecraft/world/entity/animal/frog/Tadpole.java
-@@ -98,10 +_,12 @@
+@@ -97,10 +_,12 @@
          return SoundEvents.TADPOLE_FLOP;
      }
  

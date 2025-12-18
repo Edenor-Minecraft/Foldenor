@@ -1,15 +1,6 @@
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -29,6 +_,8 @@
- import java.util.function.Predicate;
- import java.util.stream.Stream;
- import javax.annotation.Nullable;
-+
-+import net.edenor.foldenor.config.FoldenorConfig;
- import net.minecraft.BlockUtil;
- import net.minecraft.CrashReport;
- import net.minecraft.CrashReportCategory;
-@@ -253,7 +_,7 @@
+@@ -256,7 +_,7 @@
      public double xo;
      public double yo;
      public double zo;
@@ -18,7 +9,7 @@
      private BlockPos blockPosition;
      private ChunkPos chunkPosition;
      private Vec3 deltaMovement = Vec3.ZERO;
-@@ -371,6 +_,9 @@
+@@ -373,6 +_,9 @@
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
@@ -28,10 +19,10 @@
  
      public void inactiveTick() {
      }
-@@ -905,7 +_,11 @@
+@@ -916,7 +_,11 @@
  
          this.checkBelowWorld();
-         if (!this.level().isClientSide) {
+         if (!this.level().isClientSide()) {
 -            this.setSharedFlagOnFire(this.remainingFireTicks > 0);
 +            if (this instanceof net.minecraft.world.entity.LivingEntity livingEntity) {
 +                this.setSharedFlagOnFire(this.remainingFireTicks > 0 && !livingEntity.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE));
@@ -41,7 +32,7 @@
          }
  
          this.firstTick = false;
-@@ -1108,6 +_,11 @@
+@@ -1128,6 +_,11 @@
      // Paper end - detailed watchdog information
  
      public void move(MoverType type, Vec3 movement) {
@@ -53,7 +44,7 @@
          final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
          // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
-@@ -1148,7 +_,7 @@
+@@ -1175,7 +_,7 @@
              }
              // Paper end
  
@@ -62,7 +53,7 @@
              Vec3 vec3 = this.collide(movement);
              double d = vec3.lengthSqr();
              if (d > 1.0E-7 || movement.lengthSqr() - d < 1.0E-7) {
-@@ -2116,10 +_,18 @@
+@@ -2195,10 +_,18 @@
  
      @Deprecated
      public float getLightLevelDependentMagicValue() {
@@ -85,7 +76,7 @@
  
      public void absSnapTo(double x, double y, double z, float yRot, float xRot) {
          this.absSnapTo(x, y, z);
-@@ -2238,8 +_,7 @@
+@@ -2310,8 +_,7 @@
      }
  
      public void push(Entity entity) {
@@ -95,7 +86,7 @@
                  if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
                  double d = entity.getX() - this.getX();
                  double d1 = entity.getZ() - this.getZ();
-@@ -2265,7 +_,6 @@
+@@ -2337,7 +_,6 @@
                          entity.push(d, 0.0, d1);
                      }
                  }
@@ -103,7 +94,7 @@
          }
      }
  
-@@ -3105,7 +_,7 @@
+@@ -3171,7 +_,7 @@
      }
  
      private boolean attemptToShearEquipment(Player player, InteractionHand hand, ItemStack stack, Mob mob) {
@@ -112,30 +103,32 @@
              ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
              Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
              if (equippable != null
-@@ -4808,7 +_,7 @@
+@@ -4894,7 +_,7 @@
          return this;
      }
  
--    private Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
-+    protected Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
+-    private @Nullable Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
++    protected @Nullable Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
          List<Entity> passengers = this.getPassengers();
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
-@@ -4835,13 +_,11 @@
+@@ -4921,13 +_,13 @@
              entityx.restoreFrom(this);
              this.removeAfterChangingDimensions();
-             entityx.teleportSetPosition(PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
+             entityx.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
 -            if (this.inWorld) newLevel.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
++            //if (this.inWorld) newLevel.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
  
              for (Entity entity2 : list) {
-                 entity2.startRiding(entityx, true);
+                 entity2.startRiding(entityx, true, false);
              }
  
 -            newLevel.resetEmptyTime();
++            //newLevel.resetEmptyTime();
              teleportTransition.postTeleportTransition().onTransition(entityx);
              this.teleportSpectators(teleportTransition, oldLevel);
              profilerFiller.pop();
-@@ -5205,6 +_,11 @@
+@@ -5272,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {

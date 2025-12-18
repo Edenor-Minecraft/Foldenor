@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/DispenserBlockEntity.java
+@@ -4,6 +_,7 @@
+ import net.minecraft.core.NonNullList;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.util.RandomSource;
++import net.minecraft.world.Container;
+ import net.minecraft.world.ContainerHelper;
+ import net.minecraft.world.entity.player.Inventory;
+ import net.minecraft.world.inventory.AbstractContainerMenu;
 @@ -14,6 +_,18 @@
  import net.minecraft.world.level.storage.ValueOutput;
  
@@ -7,19 +15,19 @@
 +    // Pufferfish start - Improve container checking with a bitset
 +    private gg.airplane.structs.ItemListWithBitset optimizedItems;
 +    @Override
-+    public net.minecraft.world.Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    public Container.OptionalState hasEmptySlot() {
++        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +
 +    @Override
-+    public net.minecraft.world.Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? net.minecraft.world.Container.OptionalState.TRUE : net.minecraft.world.Container.OptionalState.FALSE;
++    public Container.OptionalState isCompletelyEmpty() {
++        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +    // Pufferfish end - Improve container checking with a bitset
      public static final int CONTAINER_SIZE = 9;
+     private static final Component DEFAULT_NAME = Component.translatable("container.dispenser");
      private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
- 
-@@ -54,6 +_,10 @@
+@@ -55,6 +_,10 @@
  
      protected DispenserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
          super(type, pos, blockState);
@@ -30,7 +38,7 @@
      }
  
      public DispenserBlockEntity(BlockPos pos, BlockState blockState) {
-@@ -112,7 +_,10 @@
+@@ -113,7 +_,10 @@
      @Override
      protected void loadAdditional(ValueInput input) {
          super.loadAdditional(input);
@@ -42,7 +50,7 @@
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
-@@ -133,7 +_,10 @@
+@@ -134,7 +_,10 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

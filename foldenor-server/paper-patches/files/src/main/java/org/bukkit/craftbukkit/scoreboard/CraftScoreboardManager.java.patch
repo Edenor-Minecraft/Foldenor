@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftScoreboardManager.java
-@@ -39,7 +_,7 @@
+@@ -38,7 +_,7 @@
  
      @Override
      public CraftScoreboard getNewScoreboard() {
@@ -9,7 +9,7 @@
          org.spigotmc.AsyncCatcher.catchOp("scoreboard creation"); // Spigot
          CraftScoreboard scoreboard = new CraftScoreboard(new ServerScoreboard(this.server));
          if (io.papermc.paper.configuration.GlobalConfiguration.get().scoreboards.trackPluginScoreboards) {
-@@ -60,7 +_,7 @@
+@@ -59,7 +_,7 @@
      }
  
      public void setPlayerBoard(CraftPlayer player, CraftScoreboard scoreboard) {

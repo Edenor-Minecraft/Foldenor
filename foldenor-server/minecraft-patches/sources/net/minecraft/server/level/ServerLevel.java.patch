@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -567,6 +_,7 @@
+@@ -599,6 +_,7 @@
              chunkGenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkGenerator, gen);
          }
          // CraftBukkit end
@@ -8,7 +8,7 @@
          boolean flag = server.forceSynchronousWrites();
          DataFixer fixerUpper = server.getFixerUpper();
          // Paper - rewrite chunk system
-@@ -806,12 +_,14 @@
+@@ -844,12 +_,14 @@
              }
  
              profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); try { // Folia - profiler
@@ -23,7 +23,7 @@
                          if (!entity.isRemoved()) {
                              if (!tickRateManager.isEntityFrozen(entity)) {
                                  profilerFiller.push("checkDespawn");
-@@ -828,14 +_,37 @@
+@@ -866,14 +_,37 @@
                                          entity.stopRiding();
                                      }
  
@@ -60,9 +60,9 @@
                  );
 +                if (dev.kaiijumc.kaiiju.KaiijuEntityLimits.enabled) regionizedWorldData.entityThrottler.tickLimiterFinish(regionizedWorldData); // Kaiiju
              } finally { profiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); } // Folia - profiler
-             profilerFiller.pop();
+             profilerFiller.popPush("blockEntities");
              profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.TILE_ENTITY); try { // Folia - profiler
-@@ -1012,7 +_,7 @@
+@@ -1066,7 +_,7 @@
          int minBlockZ = pos.getMinBlockZ();
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("thunder");

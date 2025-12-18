@@ -1,34 +1,25 @@
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-@@ -3,6 +_,8 @@
- import java.util.List;
- import java.util.function.BooleanSupplier;
- import javax.annotation.Nullable;
-+
-+import net.edenor.foldenor.config.FoldenorConfig;
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.Direction;
- import net.minecraft.core.NonNullList;
 @@ -29,6 +_,18 @@
- import net.minecraft.world.phys.AABB;
+ import org.jspecify.annotations.Nullable;
  
  public class HopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
 +    // Pufferfish start - Improve container checking with a bitset
 +    private gg.airplane.structs.ItemListWithBitset optimizedItems;
 +    @Override
 +    public Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +
 +    @Override
 +    public Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? Container.OptionalState.TRUE : Container.OptionalState.FALSE;
++        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
 +    }
 +    // Pufferfish end - Improve container checking with a bitset
      public static final int MOVE_ITEM_SPEED = 8;
      public static final int HOPPER_CONTAINER_SIZE = 5;
      private static final int[][] CACHED_SLOTS = new int[54][];
-@@ -85,15 +_,23 @@
+@@ -86,15 +_,23 @@
      public HopperBlockEntity(BlockPos pos, BlockState blockState) {
          super(BlockEntityType.HOPPER, pos, blockState);
          this.facing = blockState.getValue(HopperBlock.FACING);
@@ -53,7 +44,7 @@
  
          this.cooldownTime = input.getIntOr("TransferCooldown", -1);
      }
-@@ -143,9 +_,7 @@
+@@ -144,9 +_,7 @@
          if (!blockEntity.isOnCooldown()) {
              blockEntity.setCooldown(0);
              // Spigot start
@@ -64,7 +55,7 @@
              if (!result && blockEntity.level.spigotConfig.hopperCheck > 1) {
                  blockEntity.setCooldown(blockEntity.level.spigotConfig.hopperCheck);
              }
-@@ -158,9 +_,29 @@
+@@ -159,9 +_,29 @@
      private static final int HOPPER_HAS_ITEMS = 1;
      private static final int HOPPER_IS_FULL = 2;
  
@@ -95,7 +86,7 @@
          final List<ItemStack> hopperItems = hopper.items;
  
          boolean empty = true;
-@@ -175,18 +_,20 @@
+@@ -176,18 +_,20 @@
  
              if (!full) {
                  // can't be full
@@ -119,7 +110,7 @@
      }
      // Paper end - Perf: Optimize Hoppers
  
-@@ -196,7 +_,8 @@
+@@ -197,7 +_,8 @@
          } else {
              if (!blockEntity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
                  boolean flag = false;
@@ -129,7 +120,7 @@
                  if (fullState != HOPPER_EMPTY) { // Paper - Perf: Optimize Hoppers
                      flag = ejectItems(level, pos, blockEntity);
                  }
-@@ -435,6 +_,11 @@
+@@ -436,6 +_,11 @@
          } else {
              Direction opposite = blockEntity.facing.getOpposite();
              if (isFullContainer(attachedContainer, opposite)) {
@@ -141,7 +132,7 @@
                  return false;
              } else {
                  // Paper start - Perf: Optimize Hoppers
-@@ -527,6 +_,7 @@
+@@ -528,6 +_,7 @@
      }
  
      private static boolean isFullContainer(Container container, Direction direction) {
@@ -149,7 +140,7 @@
          int[] slots = getSlots(container, direction);
  
          for (int i : slots) {
-@@ -557,7 +_,7 @@
+@@ -558,7 +_,7 @@
              return false;
          } else {
              boolean flag = hopper.isGridAligned() && blockState.isCollisionShapeFullBlock(level, blockPos) && !blockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
@@ -158,16 +149,16 @@
                  for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
                      if (addItem(hopper, itemEntity)) {
                          return true;
-@@ -798,7 +_,7 @@
-     @Nullable
-     private static Container getContainerAt(Level level, BlockPos pos, BlockState state, double x, double y, double z, final boolean optimizeEntities) {
+@@ -793,7 +_,7 @@
+     }
+     private static @Nullable Container getContainerAt(Level level, BlockPos pos, BlockState state, double x, double y, double z, final boolean optimizeEntities) {
          // Paper end - Perf: Optimize Hoppers
 -        Container blockContainer = getBlockContainer(level, pos, state);
 +        Container blockContainer = state.hasBlockEntity() || state.getBlock() instanceof WorldlyContainerHolder ? getBlockContainer(level, pos, state) : null; // Canvas - optimize hoppers - if the block has no block entity, why check it
          if (blockContainer == null && (!optimizeEntities || !level.paperConfig().hopper.ignoreOccludingBlocks || !state.getBukkitMaterial().isOccluding())) { // Paper - Perf: Optimize Hoppers
              blockContainer = getEntityContainer(level, x, y, z);
          }
-@@ -814,7 +_,7 @@
+@@ -808,7 +_,7 @@
              return ((WorldlyContainerHolder)block).getContainer(state, level, pos);
          } else if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof Container container) {
              if (container instanceof ChestBlockEntity && block instanceof ChestBlock) {
@@ -176,7 +167,7 @@
              }
  
              return container;
-@@ -835,6 +_,34 @@
+@@ -828,6 +_,34 @@
          return stack1.getCount() < stack1.getMaxStackSize() && ItemStack.isSameItemSameComponents(stack1, stack2); // Paper - Perf: Optimize Hoppers; used to return true for full itemstacks?!
      }
  
@@ -211,7 +202,7 @@
      @Override
      public double getLevelX() {
          return this.worldPosition.getX() + 0.5;
-@@ -874,7 +_,11 @@
+@@ -867,7 +_,11 @@
  
      @Override
      protected void setItems(NonNullList<ItemStack> items) {

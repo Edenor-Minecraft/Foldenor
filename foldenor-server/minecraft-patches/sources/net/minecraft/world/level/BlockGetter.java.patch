@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/BlockGetter.java
 +++ b/net/minecraft/world/level/BlockGetter.java
-@@ -54,6 +_,24 @@
+@@ -52,6 +_,24 @@
          return BlockPos.betweenClosedStream(area).map(this::getBlockState);
      }
  

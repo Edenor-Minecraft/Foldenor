@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/chunk/ChunkAccess.java
 +++ b/net/minecraft/world/level/chunk/ChunkAccess.java
-@@ -192,6 +_,18 @@
+@@ -186,6 +_,18 @@
          return GameEventListenerRegistry.NOOP;
      }
  
@@ -18,4 +18,4 @@
 +
      public abstract BlockState getBlockState(final int x, final int y, final int z); // Paper
  
-     @Nullable
+     public @Nullable BlockState setBlockState(BlockPos pos, BlockState state) {

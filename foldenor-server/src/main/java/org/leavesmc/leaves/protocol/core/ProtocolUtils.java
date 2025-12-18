@@ -8,7 +8,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.common.custom.DiscardedPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -24,11 +24,11 @@ public class ProtocolUtils {
         return protocol + "-leaves-" + ServerBuildInfo.buildInfo().asString(ServerBuildInfo.StringRepresentation.VERSION_SIMPLE);
     }
 
-    public static void sendEmptyPacket(ServerPlayer player, ResourceLocation id) {
+    public static void sendEmptyPacket(ServerPlayer player, Identifier id) {
         player.internalConnection.send(new ClientboundCustomPayloadPacket(new DiscardedPayload(id, null)));
     }
 
-    public static void sendBytebufPacket(@NotNull ServerPlayer player, ResourceLocation id, Consumer<? super RegistryFriendlyByteBuf> consumer) {
+    public static void sendBytebufPacket(@NotNull ServerPlayer player, Identifier id, Consumer<? super RegistryFriendlyByteBuf> consumer) {
         RegistryFriendlyByteBuf buf = decorate(Unpooled.buffer());
         consumer.accept(buf);
         player.internalConnection.send(new ClientboundCustomPayloadPacket(new DiscardedPayload(id, ByteBufUtil.getBytes(buf))));

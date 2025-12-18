@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/players/StoredUserList.java
 +++ b/net/minecraft/server/players/StoredUserList.java
-@@ -70,7 +_,7 @@
+@@ -96,7 +_,7 @@
      }
  
      public String[] getUserList() {

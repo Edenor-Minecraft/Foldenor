@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/monster/breeze/Breeze.java
 +++ b/net/minecraft/world/entity/monster/breeze/Breeze.java
-@@ -230,10 +_,12 @@
+@@ -232,10 +_,12 @@
          return pos.closerThan(center, 4.0, 10.0);
      }
  

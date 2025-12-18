@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/net/minecraft/world/entity/item/ItemEntity.java
-@@ -3,6 +_,8 @@
+@@ -2,6 +_,8 @@
+ 
  import java.util.Objects;
  import java.util.UUID;
- import javax.annotation.Nullable;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.UUIDUtil;
  import net.minecraft.network.chat.Component;
-@@ -148,7 +_,13 @@
+@@ -136,7 +_,13 @@
              }
              // CraftBukkit end
              this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
@@ -24,7 +24,7 @@
      }
      // Paper end - EAR 2
  
-@@ -232,9 +_,33 @@
+@@ -220,9 +_,33 @@
                  }
                  // CraftBukkit end
                  this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause

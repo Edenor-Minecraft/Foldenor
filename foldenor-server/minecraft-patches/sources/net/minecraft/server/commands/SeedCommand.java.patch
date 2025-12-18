@@ -8,18 +8,18 @@
  import net.minecraft.commands.CommandSourceStack;
  import net.minecraft.commands.Commands;
  import net.minecraft.network.chat.Component;
-@@ -12,6 +_,14 @@
-             long seed = commandContext.getSource().getLevel().getSeed();
-             Component component = ComponentUtils.copyOnClickText(String.valueOf(seed));
-             commandContext.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false);
+@@ -15,6 +_,14 @@
+                     long seed = commandContext.getSource().getLevel().getSeed();
+                     Component component = ComponentUtils.copyOnClickText(String.valueOf(seed));
+                     commandContext.getSource().sendSuccess(() -> Component.translatable("commands.seed.success", component), false);
 +
-+            // Foldenor start - feature secure seed
-+            Globals.setupGlobals(commandContext.getSource().getLevel());
-+            String seedStr = Globals.seedToString(Globals.worldSeed);
++                    // Foldenor start - feature secure seed
++                    Globals.setupGlobals(commandContext.getSource().getLevel());
++                    String seedStr = Globals.seedToString(Globals.worldSeed);
 +
-+            Component featureSeedComponent = ComponentUtils.copyOnClickText(seedStr);
-+            commandContext.getSource().sendSuccess(() -> Component.translatable(("Feature seed: %s"), featureSeedComponent), false);
-+            // Foldenor end
-             return (int)seed;
-         }));
-     }
++                    Component featureSeedComponent = ComponentUtils.copyOnClickText(seedStr);
++                    commandContext.getSource().sendSuccess(() -> Component.translatable(("Feature seed: %s"), featureSeedComponent), false);
++                    // Foldenor end
+                     return (int)seed;
+                 })
+         );

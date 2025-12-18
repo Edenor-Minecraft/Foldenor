@@ -7,14 +7,6 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.world.entity.Entity;
-@@ -36,6 +_,7 @@
- import net.minecraft.world.entity.vehicle.AbstractMinecart;
- import net.minecraft.world.level.Level;
- import net.minecraft.world.phys.AABB;
-+import net.minecraft.world.phys.Vec3;
- import org.spigotmc.SpigotWorldConfig;
- import java.util.List;
- import java.util.Set;
 @@ -144,6 +_,8 @@
          maxRange = Math.min((world.spigotConfig.simulationDistance << 4) - 8, maxRange);
  

@@ -18,7 +18,7 @@
      }
  
      @Override
-@@ -402,6 +_,11 @@
+@@ -400,6 +_,11 @@
  
      @Override
      public CompoundTag copy() {

@@ -1,14 +1,15 @@
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -19,6 +_,7 @@
- import java.util.Locale;
+@@ -25,6 +_,8 @@
  import java.util.Optional;
- import javax.annotation.Nullable;
+ import java.util.function.BooleanSupplier;
+ import java.util.stream.Stream;
++
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.DefaultUncaughtExceptionHandler;
  import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
  import net.minecraft.SharedConstants;
-@@ -184,6 +_,14 @@
+@@ -274,6 +_,14 @@
          this.server.spark.registerCommandBeforePlugins(this.server); // Paper - spark
          com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
@@ -21,5 +22,5 @@
 +        }
 +        net.edenor.foldenor.commands.FoldenorCommand.init(); // Foldenor
  
-         this.setPvpAllowed(properties.pvp);
-         this.setFlightAllowed(properties.allowFlight);
+         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
+         LOGGER.info("Default game type: {}", properties.gameMode.get());

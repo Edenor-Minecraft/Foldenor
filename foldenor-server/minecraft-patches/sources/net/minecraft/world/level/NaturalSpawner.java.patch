@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/NaturalSpawner.java
 +++ b/net/minecraft/world/level/NaturalSpawner.java
-@@ -412,7 +_,7 @@
+@@ -418,7 +_,7 @@
      private static Optional<MobSpawnSettings.SpawnerData> getRandomSpawnMobAt(
          ServerLevel level, StructureManager structureManager, ChunkGenerator generator, MobCategory category, RandomSource random, BlockPos pos
      ) {
@@ -9,12 +9,12 @@
          return category == MobCategory.WATER_AMBIENT && biome.is(BiomeTags.REDUCED_WATER_AMBIENT_SPAWNS) && random.nextFloat() < 0.98F
              ? Optional.empty()
              : mobsAt(level, structureManager, generator, category, pos, biome).getRandom(random);
-@@ -429,7 +_,7 @@
+@@ -435,7 +_,7 @@
      ) {
-         return isInNetherFortressBounds(pos, level, cetagory, structureManager)
+         return isInNetherFortressBounds(pos, level, category, structureManager)
              ? NetherFortressStructure.FORTRESS_ENEMIES
--            : generator.getMobsAt(biome != null ? biome : level.getBiome(pos), structureManager, cetagory, pos);
-+            : generator.getMobsAt(biome != null ? biome : (net.edenor.foldenor.config.FoldenorConfig.cacheBiomeMobSpawn ? level.getBiomeCached(null, pos) : level.getBiome(pos)), structureManager, cetagory, pos); // Leaf - cache getBiome
+-            : generator.getMobsAt(biome != null ? biome : level.getBiome(pos), structureManager, category, pos);
++                : generator.getMobsAt(biome != null ? biome : (net.edenor.foldenor.config.FoldenorConfig.cacheBiomeMobSpawn ? level.getBiomeCached(null, pos) : level.getBiome(pos)), structureManager, category, pos); // Leaf - cache getBiome
      }
  
      public static boolean isInNetherFortressBounds(BlockPos pos, ServerLevel level, MobCategory category, StructureManager structureManager) {

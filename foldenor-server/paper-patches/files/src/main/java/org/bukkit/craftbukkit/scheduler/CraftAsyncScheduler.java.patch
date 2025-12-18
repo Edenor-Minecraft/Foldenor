@@ -13,7 +13,7 @@
  public class CraftAsyncScheduler extends CraftScheduler {
  
 -    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
--            4, Integer.MAX_VALUE,30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+-            4, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
 -            new ThreadFactoryBuilder().setNameFormat("Craft Scheduler Thread - %1$d").build());
 +    private final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger(getClass().getName()); // Leaf - Class logger
 +    private final Executor executor; // Leaf - use super class

@@ -9,8 +9,8 @@
              runIterationOnItem(entity.getItemBySlot(equipmentSlot), equipmentSlot, entity, visitor);
          }
      }
-@@ -467,7 +_,7 @@
-     public static Optional<EnchantedItemInUse> getRandomItemWith(DataComponentType<?> componentType, LivingEntity entity, Predicate<ItemStack> filter) {
+@@ -477,7 +_,7 @@
+     public static Optional<EnchantedItemInUse> getRandomItemWith(DataComponentType<?> component, LivingEntity entity, Predicate<ItemStack> filter) {
          List<EnchantedItemInUse> list = new ArrayList<>();
  
 -        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {

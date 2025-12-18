@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/ai/behavior/YieldJobSite.java
 +++ b/net/minecraft/world/entity/ai/behavior/YieldJobSite.java
-@@ -44,23 +_,26 @@
+@@ -43,23 +_,27 @@
                              if (type.isEmpty()) {
                                  return true;
                              } else {
@@ -18,7 +18,7 @@
 -                                        if (nearVillager.getBrain().getMemory(MemoryModuleType.JOB_SITE).isEmpty()) {
 -                                            BehaviorUtils.setWalkAndLookTargetMemories(nearVillager, blockPos, speedModifier, 1);
 -                                            nearVillager.getBrain().setMemory(MemoryModuleType.POTENTIAL_JOB_SITE, GlobalPos.of(level.dimension(), blockPos));
--                                            DebugPackets.sendPoiTicketCountPacket(level, blockPos);
+-                                            level.debugSynchronizers().updatePoi(blockPos);
 +                                // Leaf start - Remove stream in YieldJobSite
 +                                List<LivingEntity> mobsList = instance.get(nearestLivingEntities);
 +                                for (LivingEntity nearEntity : mobsList) {
@@ -31,12 +31,13 @@
 +                                            if (nearVillager.getBrain().getMemory(MemoryModuleType.JOB_SITE).isEmpty()) {
 +                                                BehaviorUtils.setWalkAndLookTargetMemories(nearVillager, blockPos, speedModifier, 1);
 +                                                nearVillager.getBrain().setMemory(MemoryModuleType.POTENTIAL_JOB_SITE, GlobalPos.of(level.dimension(), blockPos));
-+                                                DebugPackets.sendPoiTicketCountPacket(level, blockPos);
++                                                level.debugSynchronizers().updatePoi(blockPos);
 +                                            }
 +
 +                                            break;
                                          }
 -                                    });
++
 +                                    }
 +                                }
 +                                // Leaf end - Remove stream in YieldJobSite

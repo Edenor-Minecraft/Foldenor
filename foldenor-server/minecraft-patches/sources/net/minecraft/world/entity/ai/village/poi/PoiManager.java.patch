@@ -6,10 +6,10 @@
  import java.util.stream.Stream;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
- import net.minecraft.Util;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Holder;
-@@ -212,7 +_,7 @@
+ import net.minecraft.core.RegistryAccess;
+@@ -214,7 +_,7 @@
  
      public Stream<PoiRecord> getInSquare(Predicate<Holder<PoiType>> typePredicate, BlockPos pos, int distance, PoiManager.Occupancy status) {
          int i = Math.floorDiv(distance, 16) + 1;

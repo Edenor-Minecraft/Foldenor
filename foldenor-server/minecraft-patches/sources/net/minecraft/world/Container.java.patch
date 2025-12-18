@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/Container.java
 +++ b/net/minecraft/world/Container.java
-@@ -12,6 +_,28 @@
- import net.minecraft.world.level.block.entity.BlockEntity;
+@@ -17,6 +_,28 @@
+ import org.jspecify.annotations.Nullable;
  
- public interface Container extends Clearable, Iterable<ItemStack> {
+ public interface Container extends Clearable, SlotProvider, Iterable<ItemStack> {
 +    // Pufferfish start - Improve container checking with a bitset; allow the inventory to override and optimize these frequent calls
 +    enum OptionalState {
 +        TRUE,

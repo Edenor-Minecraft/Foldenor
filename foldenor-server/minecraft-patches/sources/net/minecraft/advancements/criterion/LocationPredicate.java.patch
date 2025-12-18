@@ -1,5 +1,5 @@
---- a/net/minecraft/advancements/critereon/LocationPredicate.java
-+++ b/net/minecraft/advancements/critereon/LocationPredicate.java
+--- a/net/minecraft/advancements/criterion/LocationPredicate.java
++++ b/net/minecraft/advancements/criterion/LocationPredicate.java
 @@ -49,7 +_,7 @@
          } else {
              BlockPos blockPos = BlockPos.containing(x, y, z);

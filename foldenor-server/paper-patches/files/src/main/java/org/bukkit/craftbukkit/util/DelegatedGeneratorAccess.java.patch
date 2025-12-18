@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/util/DelegatedGeneratorAccess.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/DelegatedGeneratorAccess.java
-@@ -292,6 +_,13 @@
+@@ -273,6 +_,13 @@
          return this.delegate.getBiome(pos);
      }
  

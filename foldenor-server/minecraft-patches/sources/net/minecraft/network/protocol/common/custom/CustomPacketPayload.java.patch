@@ -15,11 +15,11 @@
  
              @Override
              public CustomPacketPayload decode(B buffer) {
-                 ResourceLocation resourceLocation = buffer.readResourceLocation();
--                return (CustomPacketPayload)this.findCodec(resourceLocation).decode(buffer);
+                 Identifier identifier = buffer.readIdentifier();
+-                return (CustomPacketPayload)this.findCodec(identifier).decode(buffer);
 +                // Leaves start - protocol core
-+                var payload = org.leavesmc.leaves.protocol.core.LeavesProtocolManager.decode(resourceLocation, buffer);
-+                return java.util.Objects.requireNonNullElseGet(payload, () -> this.findCodec(resourceLocation).decode(buffer));
++                var payload = org.leavesmc.leaves.protocol.core.LeavesProtocolManager.decode(identifier, buffer);
++                return java.util.Objects.requireNonNullElseGet(payload, () -> this.findCodec(identifier).decode(buffer));
 +                // Leaves end - protocol core
              }
          };

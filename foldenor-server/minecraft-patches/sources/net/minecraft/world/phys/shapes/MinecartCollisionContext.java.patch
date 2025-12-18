@@ -1,14 +1,14 @@
 --- a/net/minecraft/world/phys/shapes/MinecartCollisionContext.java
 +++ b/net/minecraft/world/phys/shapes/MinecartCollisionContext.java
-@@ -7,6 +_,7 @@
+@@ -6,6 +_,7 @@
  import net.minecraft.world.level.block.BaseRailBlock;
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.block.state.properties.RailShape;
 +import org.bukkit.Bukkit;
+ import org.jspecify.annotations.Nullable;
  
  public class MinecartCollisionContext extends EntityCollisionContext {
-     @Nullable
-@@ -20,22 +_,24 @@
+@@ -18,22 +_,24 @@
      }
  
      private void setupContext(AbstractMinecart minecart) {

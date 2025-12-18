@@ -1,6 +1,6 @@
 --- a/io/papermc/paper/threadedregions/commands/CommandServerHealth.java
 +++ b/io/papermc/paper/threadedregions/commands/CommandServerHealth.java
-@@ -16,6 +_,7 @@
+@@ -15,6 +_,7 @@
  import net.kyori.adventure.text.format.TextColor;
  import net.kyori.adventure.text.format.TextDecoration;
  import net.minecraft.server.level.ServerLevel;
@@ -8,7 +8,7 @@
  import net.minecraft.world.level.ChunkPos;
  import org.bukkit.Bukkit;
  import org.bukkit.World;
-@@ -24,6 +_,8 @@
+@@ -23,6 +_,8 @@
  import org.bukkit.craftbukkit.CraftWorld;
  import org.bukkit.entity.Entity;
  import org.bukkit.entity.Player;
@@ -17,7 +17,7 @@
  import java.text.DecimalFormat;
  import java.util.ArrayList;
  import java.util.Arrays;
-@@ -79,6 +_,34 @@
+@@ -78,6 +_,34 @@
              .build();
      }
  
@@ -52,7 +52,7 @@
      private static boolean executeRegion(final CommandSender sender, final String commandLabel, final String[] args) {
          final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region =
              TickRegionScheduler.getCurrentRegion();
-@@ -120,7 +_,7 @@
+@@ -119,7 +_,7 @@
                  formatRegionInfo("1m: ", util1m, mspt1m, tps1m, true)
              )
              .append(

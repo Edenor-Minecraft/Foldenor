@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 +++ b/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-@@ -259,7 +_,7 @@
+@@ -261,7 +_,7 @@
      }
  
      private static boolean hasMapInvisibilityItemEquipped(Player player) {

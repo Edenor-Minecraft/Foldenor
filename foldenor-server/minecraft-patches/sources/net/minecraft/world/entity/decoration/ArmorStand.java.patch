@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/net/minecraft/world/entity/decoration/ArmorStand.java
-@@ -456,7 +_,7 @@
+@@ -457,7 +_,7 @@
          this.playBrokenSound();
          // this.dropAllDeathLoot(level, damageSource); // CraftBukkit - moved down
  
@@ -9,7 +9,7 @@
              ItemStack itemStack = this.equipment.get(equipmentSlot); // Paper - move equipment removal past event call
              if (!itemStack.isEmpty()) {
                  this.drops.add(new DefaultDrop(itemStack, stack -> Block.popResource(this.level(), this.blockPosition().above(), stack))); // CraftBukkit - add to drops // Paper - Restore vanilla drops behavior; mirror so we can destroy it later - though this call site was safe & spawn drops correctly}
-@@ -465,7 +_,7 @@
+@@ -466,7 +_,7 @@
          // Paper start - move equipment removal past event call
          org.bukkit.event.entity.EntityDeathEvent event = this.dropAllDeathLoot(level, damageSource);
          if (!event.isCancelled()) {

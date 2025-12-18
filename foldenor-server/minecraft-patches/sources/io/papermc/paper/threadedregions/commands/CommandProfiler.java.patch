@@ -1,6 +1,6 @@
 --- a/io/papermc/paper/threadedregions/commands/CommandProfiler.java
 +++ b/io/papermc/paper/threadedregions/commands/CommandProfiler.java
-@@ -52,7 +_,7 @@
+@@ -53,7 +_,7 @@
          super("profiler");
          this.setUsage("/<command> <world> <block x> <block z> <time in s> [radius, default 100 blocks]");
          this.setDescription("Reports information about server health.");

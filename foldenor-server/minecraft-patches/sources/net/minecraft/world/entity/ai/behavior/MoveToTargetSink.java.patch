@@ -6,8 +6,8 @@
 +import ca.spottedleaf.moonrise.common.util.TickThread;
  import com.google.common.collect.ImmutableMap;
  import java.util.Optional;
- import javax.annotation.Nullable;
-@@ -119,7 +_,10 @@
+ import net.minecraft.core.BlockPos;
+@@ -117,7 +_,10 @@
  
      private boolean tryComputePath(Mob mob, WalkTarget target, long time) {
          BlockPos blockPos = target.getTarget().currentBlockPosition();

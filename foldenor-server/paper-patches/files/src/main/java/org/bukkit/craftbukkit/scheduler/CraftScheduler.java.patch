@@ -28,14 +28,15 @@
  import org.bukkit.plugin.IllegalPluginAccessException;
  import org.bukkit.plugin.Plugin;
  import org.bukkit.scheduler.BukkitRunnable;
-@@ -115,6 +_,7 @@
+@@ -115,6 +_,8 @@
          RECENT_TICKS = 30;
      }
  
 +    private static final Map<Integer, ScheduledTask> taskMap = new HashMap<>();
- 
++
      // Paper start
      private final CraftScheduler asyncScheduler;
+     private final boolean isAsyncScheduler;
 @@ -266,7 +_,10 @@
          }
          // Paper start

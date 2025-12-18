@@ -1,16 +1,15 @@
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -11,6 +_,9 @@
+@@ -11,6 +_,8 @@
+ import java.util.Optional;
  import java.util.Set;
  import java.util.function.Predicate;
- import javax.annotation.Nullable;
-+
 +import net.edenor.foldenor.config.FoldenorConfig;
 +import net.edenor.foldenor.util.FoldenorUtils;
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Holder;
  import net.minecraft.core.Vec3i;
-@@ -130,7 +_,7 @@
+@@ -141,7 +_,7 @@
      private final Sensing sensing;
      private DropChances dropChances = DropChances.DEFAULT;
      private boolean canPickUpLoot = false;
@@ -19,7 +18,7 @@
      private final Map<PathType, Float> pathfindingMalus = Maps.newEnumMap(PathType.class);
      public Optional<ResourceKey<LootTable>> lootTable = Optional.empty();
      public long lootTableSeed;
-@@ -211,10 +_,15 @@
+@@ -221,10 +_,15 @@
      @Override
      public void inactiveTick() {
          super.inactiveTick();
@@ -37,7 +36,7 @@
              this.targetSelector.tick();
          }
      }
-@@ -357,7 +_,7 @@
+@@ -364,7 +_,7 @@
          if (this.xpReward > 0) {
              int i = this.xpReward;
  
@@ -46,119 +45,8 @@
                  if (equipmentSlot.canIncreaseExperience()) {
                      ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
                      if (!itemBySlot.isEmpty() && this.dropChances.byEquipment(equipmentSlot) <= 1.0F) {
-@@ -612,6 +_,7 @@
-         this.setItemSlot(slot, stack);
-         this.setGuaranteedDrop(slot);
-         this.persistenceRequired = true;
-+        FoldenorUtils.setPersistence(this, slot);
-     }
- 
-     protected boolean canShearEquipment(Player player) {
-@@ -723,9 +_,13 @@
-     @Override
-     public void checkDespawn() {
-         if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldActuallyDespawnInPeaceful()) { //Paper - allow changing despawnInPeaceful
-+            // Let Me Despawn start
-+            if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
-+                FoldenorUtils.dropEquipmentOnDiscard(this);
-+            // Let Me Despawn end
-             this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
-         } else if (!this.isPersistenceRequired() && !this.requiresCustomPersistence()) {
--            Entity nearestPlayer = this.level().findNearbyPlayer(this, -1.0, EntitySelector.PLAYER_AFFECTS_SPAWNING); // Paper - Affects Spawning API
-+            Entity nearestPlayer = this.canvas$optimizeNearbyPlayerLookups(this.level(), this, -1.0); // Paper - Affects Spawning API // Canvas - faster player lookups
-             if (nearestPlayer != null) {
-                 // Paper start - Configurable despawn distances
-                 final io.papermc.paper.configuration.WorldConfiguration.Entities.Spawning.DespawnRangePair despawnRangePair = this.level().paperConfig().entities.spawning.despawnRanges.get(this.getType().getCategory());
-@@ -737,11 +_,19 @@
-                 final double distanceSquared = dxSqr + dzSqr + dySqr;
-                 // Despawn if hard/soft limit is exceeded
-                 if (despawnRangePair.hard().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy) && this.removeWhenFarAway(distanceSquared)) {
-+                    // Let Me Despawn start
-+                    if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
-+                        FoldenorUtils.dropEquipmentOnDiscard(this);
-+                    // Let Me Despawn end
-                     this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
-                  }
- 
-                 if (despawnRangePair.soft().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy)) {
-                     if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && this.removeWhenFarAway(distanceSquared)) {
-+                        // Let Me Despawn start
-+                        if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
-+                            FoldenorUtils.dropEquipmentOnDiscard(this);
-+                        // Let Me Despawn end
-                         this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
-                     }
-                 } else {
-@@ -754,6 +_,19 @@
+@@ -587,17 +_,28 @@
          }
-     }
- 
-+    // Canvas start - optimize nearby player lookups
-+    private Player canvas$optimizeNearbyPlayerLookups(Level instance, Entity entity, double maxDistance) {
-+        final Player closestPlayer = instance.getNearestPlayer(entity, this.getType().getCategory().getDespawnDistance());
-+        if (closestPlayer != null) {
-+            return closestPlayer;
-+        } else {
-+            final List<? extends Player> players = this.level().players();
-+            if (players.isEmpty()) return null;
-+            return players.get(0);
-+        }
-+    }
-+    // Canvas end
-+
-     @Override
-     protected final void serverAiStep() {
-         this.noActionTime++;
-@@ -773,16 +_,20 @@
-         int i = this.tickCount + this.getId();
-         if (i % 2 != 0 && this.tickCount > 1) {
-             profilerFiller.push("targetSelector");
-+            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
-             this.targetSelector.tickRunningGoals(false);
-             profilerFiller.pop();
-             profilerFiller.push("goalSelector");
-+            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
-             this.goalSelector.tickRunningGoals(false);
-             profilerFiller.pop();
-         } else {
-             profilerFiller.push("targetSelector");
-+            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
-             this.targetSelector.tick();
-             profilerFiller.pop();
-             profilerFiller.push("goalSelector");
-+            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
-             this.goalSelector.tick();
-             profilerFiller.pop();
-         }
-@@ -1006,7 +_,7 @@
-     protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
-         super.dropCustomDeathLoot(level, damageSource, recentlyHit);
- 
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             if (this.shouldSkipLoot(equipmentSlot)) continue; // Paper
-             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-             float f = this.dropChances.byEquipment(equipmentSlot);
-@@ -1050,7 +_,7 @@
-     public Set<EquipmentSlot> dropPreservedEquipment(ServerLevel level, Predicate<ItemStack> filter) {
-         Set<EquipmentSlot> set = new HashSet<>();
- 
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-             if (!itemBySlot.isEmpty()) {
-                 if (!filter.test(itemBySlot)) {
-@@ -1178,7 +_,7 @@
-     protected void populateDefaultEquipmentEnchantments(ServerLevelAccessor level, RandomSource random, DifficultyInstance difficulty) {
-         this.enchantSpawnedWeapon(level, random, difficulty);
- 
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                 this.enchantSpawnedArmor(level, random, equipmentSlot, difficulty);
-             }
-@@ -1556,17 +_,28 @@
-     protected void playAttackSound() {
      }
  
 +    // Gale start - JettPack - optimize sun burn tick - cache eye blockpos
@@ -167,7 +55,7 @@
 +    // Gale end - JettPack - optimize sun burn tick - cache eye blockpos
 +
      public boolean isSunBurnTick() {
-         if (this.level().isBrightOutside() && !this.level().isClientSide) {
+         if (!this.level().isClientSide() && this.level().environmentAttributes().getValue(EnvironmentAttributes.MONSTERS_BURN, this.position())) {
 -            float lightLevelDependentMagicValue = this.getLightLevelDependentMagicValue();
 -            BlockPos blockPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
 +            // Gale start - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
@@ -194,7 +82,118 @@
          }
  
          return false;
-@@ -1595,7 +_,7 @@
+@@ -666,6 +_,7 @@
+         this.setItemSlot(slot, stack);
+         this.setGuaranteedDrop(slot);
+         this.persistenceRequired = true;
++        FoldenorUtils.setPersistence(this, slot);
+     }
+ 
+     protected boolean canShearEquipment(Player player) {
+@@ -772,9 +_,13 @@
+     @Override
+     public void checkDespawn() {
+         if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) { // Paper - allow changing despawnInPeaceful
++            // Let Me Despawn start
++            if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
++                FoldenorUtils.dropEquipmentOnDiscard(this);
++            // Let Me Despawn end
+             this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+         } else if (!this.isPersistenceRequired() && !this.requiresCustomPersistence()) {
+-            Entity nearestPlayer = this.level().findNearbyPlayer(this, -1.0, EntitySelector.PLAYER_AFFECTS_SPAWNING); // Paper - Affects Spawning API
++            Entity nearestPlayer = this.canvas$optimizeNearbyPlayerLookups(this.level(), this, -1.0); // Paper - Affects Spawning API // Canvas - faster player lookups
+             if (nearestPlayer != null) {
+                 // Paper start - Configurable despawn distances
+                 final io.papermc.paper.configuration.WorldConfiguration.Entities.Spawning.DespawnRangePair despawnRangePair = this.level().paperConfig().entities.spawning.despawnRanges.get(this.getType().getCategory());
+@@ -786,11 +_,19 @@
+                 final double distanceSquared = dxSqr + dzSqr + dySqr;
+                 // Despawn if hard/soft limit is exceeded
+                 if (despawnRangePair.hard().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy) && this.removeWhenFarAway(distanceSquared)) {
++                    // Let Me Despawn start
++                    if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
++                        FoldenorUtils.dropEquipmentOnDiscard(this);
++                    // Let Me Despawn end
+                     this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                  }
+ 
+                 if (despawnRangePair.soft().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy)) {
+                     if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && this.removeWhenFarAway(distanceSquared)) {
++                        // Let Me Despawn start
++                        if (FoldenorConfig.lmdEnabled && FoldenorUtils.pickedItems)
++                            FoldenorUtils.dropEquipmentOnDiscard(this);
++                        // Let Me Despawn end
+                         this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                     }
+                 } else {
+@@ -803,6 +_,19 @@
+         }
+     }
+ 
++    // Canvas start - optimize nearby player lookups
++    private Player canvas$optimizeNearbyPlayerLookups(Level instance, Entity entity, double maxDistance) {
++        final Player closestPlayer = instance.getNearestPlayer(entity, this.getType().getCategory().getDespawnDistance());
++        if (closestPlayer != null) {
++            return closestPlayer;
++        } else {
++            final List<? extends Player> players = this.level().players();
++            if (players.isEmpty()) return null;
++            return players.get(0);
++        }
++    }
++    // Canvas end
++
+     @Override
+     protected final void serverAiStep() {
+         this.noActionTime++;
+@@ -822,16 +_,20 @@
+         int i = this.tickCount + this.getId();
+         if (i % 2 != 0 && this.tickCount > 1) {
+             profilerFiller.push("targetSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.targetSelector.tickRunningGoals(false);
+             profilerFiller.pop();
+             profilerFiller.push("goalSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.goalSelector.tickRunningGoals(false);
+             profilerFiller.pop();
+         } else {
+             profilerFiller.push("targetSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.targetSelector.tick();
+             profilerFiller.pop();
+             profilerFiller.push("goalSelector");
++            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
+             this.goalSelector.tick();
+             profilerFiller.pop();
+         }
+@@ -1050,7 +_,7 @@
+     protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
+         super.dropCustomDeathLoot(level, damageSource, recentlyHit);
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (this.shouldSkipLoot(equipmentSlot)) continue; // Paper
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             float f = this.dropChances.byEquipment(equipmentSlot);
+@@ -1094,7 +_,7 @@
+     public Set<EquipmentSlot> dropPreservedEquipment(ServerLevel level, Predicate<ItemStack> filter) {
+         Set<EquipmentSlot> set = new HashSet<>();
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
+             if (!itemBySlot.isEmpty()) {
+                 if (!filter.test(itemBySlot)) {
+@@ -1224,7 +_,7 @@
+     protected void populateDefaultEquipmentEnchantments(ServerLevelAccessor level, RandomSource random, DifficultyInstance difficulty) {
+         this.enchantSpawnedWeapon(level, random, difficulty);
+ 
+-        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                 this.enchantSpawnedArmor(level, random, equipmentSlot, difficulty);
+             }
+@@ -1635,7 +_,7 @@
      @Override
      protected void postRemoveAfterChangingDimensions() {
          super.postRemoveAfterChangingDimensions();
@@ -203,7 +202,7 @@
              ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
              if (!itemBySlot.isEmpty()) {
                  itemBySlot.setCount(0);
-@@ -1608,7 +_,7 @@
+@@ -1648,7 +_,7 @@
      protected void removeAfterChangingDimensions() {
          super.removeAfterChangingDimensions();
          // Folia start - region threading - move inventory clearing until after the dimension change - move into postRemoveAfterChangingDimensions

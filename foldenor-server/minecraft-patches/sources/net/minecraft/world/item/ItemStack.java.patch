@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -865,11 +_,11 @@
+@@ -871,7 +_,7 @@
      }
  
      public static boolean isSameItem(ItemStack stack, ItemStack other) {
@@ -9,12 +9,7 @@
      }
  
      public static boolean isSameItemSameComponents(ItemStack stack, ItemStack other) {
--        return stack.is(other.getItem()) && (stack.isEmpty() && other.isEmpty() || Objects.equals(stack.components, other.components));
-+        return stack == other || (stack.is(other.getItem()) && (stack.isEmpty() && other.isEmpty() || Objects.equals(stack.components, other.components))); // Gale - optimize identical item checks
-     }
- 
-     public static MapCodec<ItemStack> lenientOptionalFieldOf(String fieldName) {
-@@ -1150,7 +_,7 @@
+@@ -1192,7 +_,7 @@
  
      private void addAttributeTooltips(Consumer<Component> tooltipAdder, TooltipDisplay tooltipDisplay, @Nullable Player player) {
          if (tooltipDisplay.shows(DataComponents.ATTRIBUTE_MODIFIERS)) {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/core/BlockPos.java
 +++ b/net/minecraft/core/BlockPos.java
-@@ -341,7 +_,18 @@
+@@ -334,7 +_,18 @@
          };
      }
  

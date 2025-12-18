@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
-@@ -413,7 +_,7 @@
+@@ -350,7 +_,7 @@
      }
  
      private boolean isEquipped(Item item) {
