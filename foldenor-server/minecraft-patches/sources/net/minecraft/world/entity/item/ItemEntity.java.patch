@@ -51,7 +51,7 @@
 +                && FoldenorConfig.checkTemporaryImmunityMaxItemVerticalDist >= 0) {
 +            net.minecraft.world.phys.AABB aabb = this.getBoundingBox().inflate(FoldenorConfig.checkTemporaryImmunityMaxItemHorizontalDist, FoldenorConfig.checkTemporaryImmunityMaxItemVerticalDist, FoldenorConfig.checkTemporaryImmunityMaxItemHorizontalDist);
 +            for (Entity entity : this.level().getEntities(this, aabb)) {
-+                if (entity instanceof net.minecraft.world.entity.vehicle.MinecartHopper hopper) {
++                if (entity instanceof net.minecraft.world.entity.vehicle.minecart.MinecartHopper hopper) {
 +                    hopper.pickupImmunity = this.tickCount  + FoldenorConfig.checkTemporaryImmunityDuration;
 +                }
 +            }

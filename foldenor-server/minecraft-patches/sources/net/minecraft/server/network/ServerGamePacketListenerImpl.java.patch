@@ -82,7 +82,7 @@
 +            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePayload(player, leavesPayload);
 +            return;
 +        }
-+        if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.DiscardedPayload(net.minecraft.resources.ResourceLocation id, byte[] data)) {
++        if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.DiscardedPayload(Identifier id, byte[] data)) {
 +            if (org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleBytebuf(player, id, io.netty.buffer.Unpooled.wrappedBuffer(data))) {
 +                return;
 +            }

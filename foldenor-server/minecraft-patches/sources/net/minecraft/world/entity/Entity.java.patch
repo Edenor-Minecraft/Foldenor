@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
+@@ -28,6 +_,8 @@
+ import java.util.function.BiConsumer;
+ import java.util.function.Predicate;
+ import java.util.stream.Stream;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+ import net.minecraft.ReportedException;
 @@ -256,7 +_,7 @@
      public double xo;
      public double yo;

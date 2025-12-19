@@ -107,12 +107,13 @@
          return this.getRegionFile(chunkcoordintpair, false);
      }
      // Paper end - rewrite chunk system
-@@ -275,7 +_,7 @@
+@@ -275,7 +_,8 @@
          this.isChunkData = isChunkDataFolder(this.folder); // Paper - recalculate region file headers
      }
  
 -    @org.jetbrains.annotations.Contract("_, false -> !null") @Nullable private RegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit
-+    @org.jetbrains.annotations.Contract("_, false -> !null") @Nullable public com.triassic.linearpaper.region.AbstractRegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit // Paper - public // LinearPaper
++    @org.jetbrains.annotations.Contract("_, false -> !null")
++    public com.triassic.linearpaper.region.AbstractRegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit // Paper - public // LinearPaper
          // Paper start - rewrite chunk system
          if (existingOnly) {
              return this.moonrise$getRegionFileIfExists(chunkPos.x, chunkPos.z);

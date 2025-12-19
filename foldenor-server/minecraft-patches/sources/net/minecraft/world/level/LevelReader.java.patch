@@ -30,7 +30,7 @@
      }
  
 +    // Leaf start - cache getBiome
-+    default Holder<Biome> getBiomeCached(@Nullable net.minecraft.world.level.chunk.LevelChunk chunk, BlockPos pos) {
++    default Holder<Biome> getBiomeCached(net.minecraft.world.level.chunk.LevelChunk chunk, BlockPos pos) {
 +        return this.getBiomeManager().getBiomeCached(chunk, pos);
 +    }
 +    // Leaf end - cache getBiome

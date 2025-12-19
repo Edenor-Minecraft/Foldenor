@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -2,6 +_,8 @@
+ 
+ import java.util.List;
+ import java.util.function.BooleanSupplier;
++
++import net.edenor.foldenor.config.FoldenorConfig;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.NonNullList;
 @@ -29,6 +_,18 @@
  import org.jspecify.annotations.Nullable;
  
@@ -179,7 +188,7 @@
 +    }
 +    private static boolean shouldSuckIn(Level level, Hopper hopper) {
 +        int suckInterval;
-+        if (hopper instanceof net.minecraft.world.entity.vehicle.MinecartHopper minecartHopper) {
++        if (hopper instanceof net.minecraft.world.entity.vehicle.minecart.MinecartHopper minecartHopper) {
 +            if (minecartHopper.pickupImmunity > level.getRedstoneGameTime()) {
 +                return true;
 +            }

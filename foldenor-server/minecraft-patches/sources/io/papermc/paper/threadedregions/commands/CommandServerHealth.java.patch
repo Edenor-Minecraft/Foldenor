@@ -38,7 +38,7 @@
 +        @NotNull TextComponent builder = Component.text("Region Player List: ");
 +        for (final ServerPlayer player : players) {
 +            builder = builder.append(Component.text("\n")).
-+                    append(Component.text(player.gameProfile.getName()))
++                    append(Component.text(player.gameProfile.name()))
 +                    .append(Component.text(" | In "))
 +                    .append(Component.text(player.getOnPos().getX()))
 +                    .append(Component.text(", "))
