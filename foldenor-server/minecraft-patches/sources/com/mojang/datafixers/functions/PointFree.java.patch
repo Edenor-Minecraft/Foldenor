@@ -1,0 +1,16 @@
+--- a/com/mojang/datafixers/functions/PointFree.java
++++ b/com/mojang/datafixers/functions/PointFree.java
+@@ -19,12 +_,11 @@
+         if (!initialized) {
+             synchronized (this) {
+                 if (!initialized) {
+-                    value = eval();
+                     initialized = true;
+                 }
+             }
+         }
+-        return value;
++        return eval(); // Paper - Saturn: Avoid unnecessary object creation
+     }
+ 
+     public abstract Type<T> type();

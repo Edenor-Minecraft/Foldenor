@@ -1,0 +1,37 @@
+--- a/net/minecraft/network/Utf8String.java
++++ b/net/minecraft/network/Utf8String.java
+@@ -31,24 +_,19 @@
+     }
+ 
+     public static void write(ByteBuf buffer, CharSequence string, int maxLength) {
++        // Paper start - optimize string encoding (from krypton)
++        // Mojang _almost_ gets it right, but stumbles at the finish line...
+         if (string.length() > maxLength) {
+             throw new EncoderException("String too big (was " + string.length() + " characters, max " + maxLength + ")");
++        }
++        int utf8Bytes = ByteBufUtil.utf8Bytes(string);
++        int maxBytesPermitted = ByteBufUtil.utf8MaxBytes(string);
++        if (utf8Bytes > maxBytesPermitted) {
++            throw new EncoderException("String too big (was " + utf8Bytes + " bytes encoded, max " + maxBytesPermitted + ")");
+         } else {
+-            int i = ByteBufUtil.utf8MaxBytes(string);
+-            ByteBuf byteBuf = buffer.alloc().buffer(i);
+-
+-            try {
+-                int i1 = ByteBufUtil.writeUtf8(byteBuf, string);
+-                int i2 = ByteBufUtil.utf8MaxBytes(maxLength);
+-                if (i1 > i2) {
+-                    throw new EncoderException("String too big (was " + i1 + " bytes encoded, max " + i2 + ")");
+-                }
+-
+-                VarInt.write(buffer, i1);
+-                buffer.writeBytes(byteBuf);
+-            } finally {
+-                byteBuf.release();
+-            }
++            VarInt.write(buffer, utf8Bytes);
++            buffer.writeCharSequence(string, StandardCharsets.UTF_8);
+         }
++        // Paper end
+     }
+ }
