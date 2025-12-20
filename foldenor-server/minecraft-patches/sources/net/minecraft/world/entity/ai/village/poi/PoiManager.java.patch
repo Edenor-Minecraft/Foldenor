@@ -9,6 +9,15 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Holder;
  import net.minecraft.core.RegistryAccess;
+@@ -44,7 +_,7 @@
+     public static final int MAX_VILLAGE_DISTANCE = 6;
+     public static final int VILLAGE_SECTION_SIZE = 1;
+     private final PoiManager.DistanceTracker distanceTracker;
+-    private final LongSet loadedChunks = new LongOpenHashSet();
++    public final LongSet loadedChunks = new LongOpenHashSet();
+ 
+     // Paper start - rewrite chunk system
+     private final net.minecraft.server.level.ServerLevel world;
 @@ -214,7 +_,7 @@
  
      public Stream<PoiRecord> getInSquare(Predicate<Holder<PoiType>> typePredicate, BlockPos pos, int distance, PoiManager.Occupancy status) {

@@ -53,3 +53,4 @@ If these excellent projects hadn't appeared, Foldenor wouldn't have become great
 - [Mizi](https://github.com/Toffikk/Mizi)
 - [Canvas](https://github.com/CraftCanvasMC/Canvas)
 - [Luminol](https://github.com/LuminolMC/Luminol)
+- [Sepals](https://modrinth.com/mod/sepals)
