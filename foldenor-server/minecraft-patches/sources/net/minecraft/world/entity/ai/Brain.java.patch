@@ -141,59 +141,15 @@
      }
  
      public boolean isActive(Activity activity) {
-@@ -405,10 +_,48 @@
+@@ -405,7 +_,7 @@
      }
  
      public void tick(ServerLevel level, E entity) {
 -        this.forgetOutdatedMemories();
--        this.tickSensors(level, entity);
--        this.startEachNonRunningBehavior(level, entity);
--        this.tickEachRunningBehavior(level, entity);
-+        if (FoldenorConfig.enableSepalsBrain) {
-+            getMemoriesCatheter().each(entry -> {
-+                Optional<? extends ExpirableValue<?>> memOp = entry.getValue();
-+                if (memOp.isPresent()) {
-+                    ExpirableValue<?> memory = memOp.get();
-+
-+                    if (memory.hasExpired()) {
-+                        eraseMemory(entry.getKey());
-+                    }
-+
-+                    memory.tick();
-+                }
-+            });
-+            this.tickSensors(level, entity);
-+            long time = entity.level().getRedstoneGameTime();
-+
-+            Catheter<BehaviorControl<? super E>> running = getTasks().filterTo(task -> {
-+                if (SepalsTaskStatus.isStopped(task.getStatus())) {
-+                    return task.tryStart(level, entity, time);
-+                }
-+                return true;
-+            });
-+
-+            if (this.runningTasks != null) {
-+                this.runningTasks.merge(running);
-+            } else {
-+                this.runningTasks = running;
-+            }
-+
-+            sepals$getRunningTasks().filter(task -> {
-+                boolean is_running = SepalsTaskStatus.isRunning(task.getStatus());
-+                if (is_running) {
-+                    task.tickOrStop(level, entity, time);
-+                }
-+                return is_running;
-+            });
-+        } else {
-+            this.forgetOutdatedMemories(entity); // Luminol - Add config to force clean entity memory that don't belong to current tick region
-+            this.tickSensors(level, entity);
-+            this.startEachNonRunningBehavior(level, entity);
-+            this.tickEachRunningBehavior(level, entity);
-+        }
-     }
- 
-     private void tickSensors(ServerLevel level, E brainHolder) {
++        this.forgetOutdatedMemories(entity); // Luminol - Add config to force clean entity memory that don't belong to current tick region
+         this.tickSensors(level, entity);
+         this.startEachNonRunningBehavior(level, entity);
+         this.tickEachRunningBehavior(level, entity);
 @@ -417,10 +_,30 @@
          }
      }
