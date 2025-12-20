@@ -30,7 +30,7 @@
  
      public AttributeMap(AttributeSupplier supplier) {
          this.supplier = supplier;
-+        this.createInstance = attributex -> Objects.requireNonNull(this.supplier.createInstance(this::onAttributeModified, attributex)); // Pufferfish
++        this.createInstance = attributex -> this.supplier.createInstance(this::onAttributeModified, attributex); // Pufferfish
      }
  
      private void onAttributeModified(AttributeInstance instance) {
