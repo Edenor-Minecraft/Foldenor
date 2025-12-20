@@ -1,0 +1,19 @@
+--- a/net/minecraft/world/entity/ai/sensing/FrogAttackablesSensor.java
++++ b/net/minecraft/world/entity/ai/sensing/FrogAttackablesSensor.java
+@@ -13,11 +_,11 @@
+ 
+     @Override
+     protected boolean isMatchingEntity(ServerLevel level, LivingEntity entity, LivingEntity target) {
+-        return !entity.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)
+-            && Sensor.isEntityAttackable(level, entity, target)
+-            && Frog.canEat(target)
+-            && !this.isUnreachableAttackTarget(entity, target)
+-            && target.closerThan(entity, 10.0);
++        return Frog.canEat(target)
++                && !entity.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)
++                && target.closerThan(entity, 10.0)
++                && Sensor.isEntityAttackable(level, entity, target)
++                && !this.isUnreachableAttackTarget(entity, target); // Sepals - Rearrange the attackable conditions;
+     }
+ 
+     private boolean isUnreachableAttackTarget(LivingEntity attacker, LivingEntity target) {

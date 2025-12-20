@@ -70,6 +70,10 @@ public class FoldenorConfig {
     public static boolean checkTemporaryImmunityCheckForMinecartNearItemWhileInactive = true;
     public static float checkTemporaryImmunityMaxItemHorizontalDist = 24.0f;
     public static float checkTemporaryImmunityMaxItemVerticalDist = 24.0f;
+    public static boolean enableSepalsLivingTargetCache = false;
+    public static boolean enableSepalsLivingTargetCacheQuickSort = false;
+    public static boolean enableSepalsQuickCanBePushByEntityPredicate = false;
+    public static boolean enableSepalsVillagers = false;
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -208,6 +212,10 @@ public class FoldenorConfig {
         checkTemporaryImmunityCheckForMinecartNearItemWhileInactive = getBoolean("optimizations.check-nearby-item.minecart.immunity.check-for-minecart-near-item-while-inactive", checkTemporaryImmunityCheckForMinecartNearItemWhileInactive);
         checkTemporaryImmunityMaxItemHorizontalDist = (float) getDouble("optimizations.check-nearby-item.minecart.immunity.max-item-horizontal-distance", checkTemporaryImmunityMaxItemHorizontalDist);
         checkTemporaryImmunityMaxItemVerticalDist = (float) getDouble("optimizations.check-nearby-item.minecart.immunity.max-item-vertical-distance", checkTemporaryImmunityMaxItemVerticalDist);
+        enableSepalsLivingTargetCache = getBoolean("optimizations.sepals.enableSepalsLivingTargetCache", false);
+        enableSepalsLivingTargetCacheQuickSort = getBoolean("optimizations.sepals.enableSepalsLivingTargetCacheQuickSort", false);
+        enableSepalsQuickCanBePushByEntityPredicate = getBoolean("optimizations.sepals.enableSepalsQuickCanBePushByEntityPredicate", false);
+        enableSepalsVillagers = getBoolean("optimizations.sepals.enableSepalsVillagers", false);
     }
 
     private static void readMiscSettings() {
