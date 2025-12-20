@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/ai/village/poi/PoiRecord.java
++++ b/net/minecraft/world/entity/ai/village/poi/PoiRecord.java
+@@ -36,7 +_,7 @@
+         return this.freeTickets;
+     }
+ 
+-    protected boolean acquireTicket() {
++    public boolean acquireTicket() {
+         if (this.freeTickets <= 0) {
+             return false;
+         } else {

@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/entity/ai/Brain.java
 +++ b/net/minecraft/world/entity/ai/Brain.java
+@@ -1,5 +_,7 @@
+ package net.minecraft.world.entity.ai;
+ 
++import com.github.cao.awa.catheter.Catheter;
++import com.github.cao.awa.sepals.entity.ai.task.composite.SepalsTaskStatus;
+ import com.google.common.annotations.VisibleForTesting;
+ import com.google.common.collect.ImmutableList;
+ import com.google.common.collect.ImmutableSet;
 @@ -24,7 +_,10 @@
  import java.util.Map.Entry;
  import java.util.function.Supplier;
@@ -11,6 +19,17 @@
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.util.VisibleForDebug;
  import net.minecraft.world.attribute.EnvironmentAttribute;
+@@ -58,6 +_,10 @@
+     private Activity defaultActivity = Activity.IDLE;
+     private long lastScheduleUpdate = -9999L;
+ 
++    private Catheter<BehaviorControl<? super E>> taskCatheter;
++    private Catheter<BehaviorControl<? super E>> runningTasks;
++    private Catheter<Map.Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>>> memoriesCatheter;
++
+     public static <E extends LivingEntity> Brain.Provider<E> provider(
+         Collection<? extends MemoryModuleType<?>> memoryTypes, Collection<? extends SensorType<? extends Sensor<? super E>>> sensorTypes
+     ) {
 @@ -72,13 +_,22 @@
              (new MapCodec<Brain<E>>() {
                      @Override
@@ -50,6 +69,16 @@
                          return prefix;
                      }
                  })
+@@ -148,6 +_,9 @@
+         for (Brain.MemoryValue<?> memoryValue : memoryValues) {
+             memoryValue.setMemoryInternal(this);
+         }
++
++        constructTasks();
++        constructMemories();
+     }
+ 
+     public <T> DataResult<T> serializeStart(DynamicOps<T> ops) {
 @@ -155,8 +_,28 @@
      }
  
@@ -81,6 +110,37 @@
  
      public boolean hasMemoryValue(MemoryModuleType<?> type) {
          return this.checkMemory(type, MemoryStatus.VALUE_PRESENT);
+@@ -188,6 +_,7 @@
+                 this.eraseMemory(memoryType);
+             } else {
+                 this.memories.put(memoryType, memory);
++                constructMemories();
+             }
+         }
+     }
+@@ -291,6 +_,7 @@
+             this.activeActivities.clear();
+             this.activeActivities.addAll(this.coreActivities);
+             this.activeActivities.add(activity);
++            constructTasks();
+         }
+     }
+ 
+@@ -380,11 +_,14 @@
+                 .computeIfAbsent(activity, activity1 -> Sets.newLinkedHashSet())
+                 .add((BehaviorControl<? super E>)pair.getSecond());
+         }
++        constructTasks();
+     }
+ 
+     @VisibleForTesting
+     public void removeAllBehaviors() {
+         this.availableBehaviorsByPriority.clear();
++        this.taskCatheter = null;
++        this.runningTasks = null;
+     }
+ 
+     public boolean isActive(Activity activity) {
 @@ -405,7 +_,7 @@
      }
  
@@ -122,3 +182,61 @@
                  if (expirableValue.hasExpired()) {
                      this.eraseMemory(entry.getKey());
                  }
+@@ -431,6 +_,14 @@
+     }
+ 
+     public void stopAll(ServerLevel level, E owner) {
++        if (true) {
++            long time = owner.level().getRedstoneGameTime();
++
++            sepals$getRunningTasks().each(task -> task.doStop(level, owner, time));
++
++            this.runningTasks = null;
++            return;
++        }
+         // Folia start - region threading
+         List<BehaviorControl<? super E>> behaviors = this.getRunningBehaviors();
+         if (behaviors.isEmpty()) {
+@@ -506,6 +_,42 @@
+ 
+     public boolean isBrainDead() {
+         return this.memories.isEmpty() && this.sensors.isEmpty() && this.availableBehaviorsByPriority.isEmpty();
++    }
++
++    private Catheter<BehaviorControl<? super E>> sepals$getRunningTasks() {
++        if (this.runningTasks == null) {
++            constructRunningTasks();
++        }
++        return this.runningTasks;
++    }
++
++    private void constructRunningTasks() {
++        this.runningTasks = getTasks().filterTo(SepalsTaskStatus::isRunning, BehaviorControl::getStatus);
++    }
++
++    private void constructTasks() {
++        this.taskCatheter = Catheter.of(this.availableBehaviorsByPriority.values())
++                .collectionFlatTo(Map::entrySet)
++                .filter(this::isActive, Map.Entry::getKey)
++                .collectionFlatTo(Map.Entry::getValue);
++    }
++
++    private Catheter<BehaviorControl<? super E>> getTasks() {
++        if (this.taskCatheter == null) {
++            constructTasks();
++        }
++        return this.taskCatheter;
++    }
++
++    private void constructMemories() {
++        this.memoriesCatheter = Catheter.of(this.memories.entrySet());
++    }
++
++    private Catheter<Map.Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>>> getMemoriesCatheter() {
++        if (this.memoriesCatheter == null) {
++            constructMemories();
++        }
++        return this.memoriesCatheter;
+     }
+ 
+     static final class MemoryValue<U> {
