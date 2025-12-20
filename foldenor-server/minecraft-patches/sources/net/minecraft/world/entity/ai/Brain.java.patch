@@ -182,11 +182,17 @@
                  if (expirableValue.hasExpired()) {
                      this.eraseMemory(entry.getKey());
                  }
-@@ -431,6 +_,14 @@
+@@ -431,6 +_,20 @@
      }
  
      public void stopAll(ServerLevel level, E owner) {
 +        if (true) {
++            Catheter<BehaviorControl<? super E>> behaviors = sepals$getRunningTasks();
++            if (behaviors.isEmpty()) {
++                // avoid calling getGameTime, as this may be called while portalling an entity - which will cause
++                // the world data retrieval to fail
++                return;
++            }
 +            long time = owner.level().getRedstoneGameTime();
 +
 +            sepals$getRunningTasks().each(task -> task.doStop(level, owner, time));
