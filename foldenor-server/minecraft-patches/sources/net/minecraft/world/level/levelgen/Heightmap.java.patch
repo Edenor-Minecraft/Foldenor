@@ -1,0 +1,24 @@
+--- a/net/minecraft/world/level/levelgen/Heightmap.java
++++ b/net/minecraft/world/level/levelgen/Heightmap.java
+@@ -40,6 +_,12 @@
+         this.data = new SimpleBitStorage(i, 256);
+     }
+ 
++    // Leaf start - Lithium - combined heightmap update
++    public final Predicate<BlockState> isOpaque() {
++        return this.isOpaque;
++    }
++    // Leaf end - Lithium - combined heightmap update
++
+     public static void primeHeightmaps(ChunkAccess chunk, Set<Heightmap.Types> types) {
+         if (!types.isEmpty()) {
+             int size = types.size();
+@@ -119,7 +_,7 @@
+         return this.data.get(index) + this.chunk.getMinY();
+     }
+ 
+-    private void setHeight(int x, int z, int value) {
++    public void setHeight(int x, int z, int value) { // Leaf - Lithium - combined heightmap update - private -> public
+         this.data.set(getIndex(x, z), value - this.chunk.getMinY());
+     }
+ 

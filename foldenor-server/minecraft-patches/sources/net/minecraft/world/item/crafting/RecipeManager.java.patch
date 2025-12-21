@@ -1,0 +1,25 @@
+--- a/net/minecraft/world/item/crafting/RecipeManager.java
++++ b/net/minecraft/world/item/crafting/RecipeManager.java
+@@ -167,8 +_,20 @@
+ 
+     public <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> getRecipeFor(RecipeType<T> recipeType, I input, Level level) {
+         // CraftBukkit start
+-        List<RecipeHolder<T>> list = this.recipes.getRecipesFor(recipeType, input, level).toList();
+-        return (list.isEmpty()) ? Optional.empty() : Optional.of(list.getLast()); // CraftBukkit - SPIGOT-4638: last recipe gets priority
++        // Leaf start - Carpet-Fixes - Use optimized RecipeManager - Remove streams to be faster
++        if (input.isEmpty()) {
++            return Optional.empty();
++        }
++
++        RecipeHolder<T> lastRecipe = null;
++        for (RecipeHolder<T> recipeHolder : this.recipes.byType(recipeType)) {
++            if (recipeHolder.value().matches(input, level)) {
++                lastRecipe = recipeHolder;
++            }
++        }
++
++        return lastRecipe != null ? Optional.of(lastRecipe) : Optional.empty();
++        // Leaf end - Carpet-Fixes - Use optimized RecipeManager - Remove streams to be faster
+         // CraftBukkit end
+     }
+ 

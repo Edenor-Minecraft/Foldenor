@@ -1,0 +1,25 @@
+--- a/net/minecraft/world/entity/schedule/Activity.java
++++ b/net/minecraft/world/entity/schedule/Activity.java
+@@ -32,10 +_,12 @@
+     public static final Activity DIG = register("dig");
+     private final String name;
+     private final int hashCode;
++    public final int id; // Leaf
+ 
+-    private Activity(String name) {
++    private Activity(String name, int id) { // Leaf
+         this.name = name;
+         this.hashCode = name.hashCode();
++        this.id = id; // Leaf
+     }
+ 
+     public String getName() {
+@@ -43,7 +_,7 @@
+     }
+ 
+     private static Activity register(String key) {
+-        return Registry.register(BuiltInRegistries.ACTIVITY, key, new Activity(key));
++        return Registry.register(BuiltInRegistries.ACTIVITY, key, new Activity(key, BuiltInRegistries.ACTIVITY.size())); // Leaf
+     }
+ 
+     @Override

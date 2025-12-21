@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/structure/structures/OceanMonumentPieces.java
++++ b/net/minecraft/world/level/levelgen/structure/structures/OceanMonumentPieces.java
+@@ -244,7 +_,7 @@
+                     for (int i2 = 0; i2 < 3; i2++) {
+                         int roomIndex = getRoomIndex(i, i2, i1);
+                         if (roomDefinitions[roomIndex] != null) {
+-                            for (Direction direction : Direction.values()) {
++                            for (Direction direction : Direction.VALUES) {
+                                 int i3 = i + direction.getStepX();
+                                 int i4 = i2 + direction.getStepY();
+                                 int i5 = i1 + direction.getStepZ();

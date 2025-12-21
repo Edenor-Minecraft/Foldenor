@@ -71,3 +71,19 @@
              BlockPos blockPos = this.findLightningTargetAround(this.getBlockRandomPos(minBlockX, 0, minBlockZ, 15));
              if (this.isRainingAt(blockPos)) {
                  DifficultyInstance currentDifficultyAt = this.getCurrentDifficultyAt(blockPos);
+@@ -1437,6 +_,7 @@
+         }
+         // Folia end - region threading
+         } else {entity.inactiveTick();} // Paper - EAR 2
++        entity.updateLastTick(); // Leaf - Rewrite entity despawn time
+         profilerFiller.pop();
+         } finally { profiler.stopTimer(timerId); } // Folia - profiler
+ 
+@@ -1487,6 +_,7 @@
+             }
+             // Paper end - EAR 2
+             profilerFiller.pop();
++            passengerEntity.updateLastTick(); // Leaf - Rewrite entity despawn time
+ 
+             for (Entity entity : passengerEntity.getPassengers()) {
+                 this.tickPassenger(passengerEntity, entity, isActive); // Paper - EAR 2

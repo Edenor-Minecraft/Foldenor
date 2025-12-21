@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/structure/structures/BuriedTreasurePieces.java
++++ b/net/minecraft/world/level/levelgen/structure/structures/BuriedTreasurePieces.java
+@@ -55,7 +_,7 @@
+                     || blockState1 == Blocks.DIORITE.defaultBlockState()) {
+                     BlockState blockState2 = !blockState.isAir() && !this.isLiquid(blockState) ? blockState : Blocks.SAND.defaultBlockState();
+ 
+-                    for (Direction direction : Direction.values()) {
++                    for (Direction direction : Direction.VALUES) {
+                         BlockPos blockPos = mutableBlockPos.relative(direction);
+                         BlockState blockState3 = level.getBlockState(blockPos);
+                         if (blockState3.isAir() || this.isLiquid(blockState3)) {

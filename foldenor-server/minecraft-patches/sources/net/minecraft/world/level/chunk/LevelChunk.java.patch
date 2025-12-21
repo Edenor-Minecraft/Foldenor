@@ -26,3 +26,21 @@
      }
  
      public LevelChunk(ServerLevel level, ProtoChunk chunk, LevelChunk.@Nullable PostLoadProcessor postLoad) {
+@@ -383,10 +_,13 @@
+                 return null;
+             } else {
+                 Block block = state.getBlock();
+-                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(i, y, i2, state);
+-                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES).update(i, y, i2, state);
+-                this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR).update(i, y, i2, state);
+-                this.heightmaps.get(Heightmap.Types.WORLD_SURFACE).update(i, y, i2, state);
++                // Leaf start - Lithium - combined heightmap update
++                Heightmap heightmap0 = this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING);
++                Heightmap heightmap1 = this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
++                Heightmap heightmap2 = this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR);
++                Heightmap heightmap3 = this.heightmaps.get(Heightmap.Types.WORLD_SURFACE);
++                net.caffeinemc.mods.lithium.common.world.chunk.heightmap.CombinedHeightmapUpdate.updateHeightmaps(heightmap0, heightmap1, heightmap2, heightmap3, this, i, y, i2, state);
++                // Leaf end - Lithium - combined heightmap update
+                 boolean hasOnlyAir1 = section.hasOnlyAir();
+                 if (hasOnlyAir != hasOnlyAir1) {
+                     this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, hasOnlyAir1);

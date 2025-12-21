@@ -1,0 +1,50 @@
+--- a/net/minecraft/core/component/PatchedDataComponentMap.java
++++ b/net/minecraft/core/component/PatchedDataComponentMap.java
+@@ -14,10 +_,11 @@
+ import java.util.stream.Collectors;
+ import org.jspecify.annotations.Nullable;
+ 
+-public final class PatchedDataComponentMap implements DataComponentMap {
++public final class PatchedDataComponentMap implements DataComponentMap, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangePublisher<PatchedDataComponentMap> { // Leaf - Lithium - equipment tracking
+     private final DataComponentMap prototype;
+     private Reference2ObjectMap<DataComponentType<?>, Optional<?>> patch;
+     private boolean copyOnWrite;
++    private net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> subscriber; // Leaf - Lithium - equipment tracking
+ 
+     public PatchedDataComponentMap(DataComponentMap prototype) {
+         this(prototype, Reference2ObjectMaps.emptyMap(), true);
+@@ -136,6 +_,11 @@
+     }
+ 
+     private void ensureMapOwnership() {
++        // Leaf start - Lithium - equipment tracking
++        if (this.subscriber != null) {
++            this.subscriber.lithium$notify(this, 0);
++        }
++        // Leaf end - Lithium - equipment tracking
+         if (this.copyOnWrite) {
+             this.patch = new Reference2ObjectArrayMap<>(this.patch);
+             this.copyOnWrite = false;
+@@ -221,6 +_,22 @@
+     public DataComponentMap toImmutableMap() {
+         return (DataComponentMap)(this.patch.isEmpty() ? this.prototype : this.copy());
+     }
++
++    // Leaf start - Lithium - equipment tracking
++    @Override
++    public void lithium$subscribe(net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> subscriber, int subscriberData) {
++        if (subscriberData != 0) {
++            throw new UnsupportedOperationException("ComponentMapImpl does not support subscriber data");
++        }
++        this.subscriber = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.combine(this.subscriber, 0, subscriber, 0);
++    }
++
++    @Override
++    public int lithium$unsubscribe(net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> subscriber) {
++        this.subscriber = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.without(this.subscriber, subscriber);
++        return 0;
++    }
++    // Leaf end - Lithium - equipment tracking
+ 
+     @Override
+     public boolean equals(Object other) {

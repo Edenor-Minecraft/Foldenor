@@ -1,0 +1,13 @@
+--- a/net/minecraft/world/level/block/state/pattern/BlockPattern.java
++++ b/net/minecraft/world/level/block/state/pattern/BlockPattern.java
+@@ -76,8 +_,8 @@
+         int max = Math.max(Math.max(this.width, this.height), this.depth);
+ 
+         for (BlockPos blockPos : BlockPos.betweenClosed(pos, pos.offset(max - 1, max - 1, max - 1))) {
+-            for (Direction direction : Direction.values()) {
+-                for (Direction direction1 : Direction.values()) {
++            for (Direction direction : Direction.VALUES) {
++                for (Direction direction1 : Direction.VALUES) {
+                     if (direction1 != direction && direction1 != direction.getOpposite()) {
+                         BlockPattern.BlockPatternMatch blockPatternMatch = this.matches(blockPos, direction, direction1, loadingCache);
+                         if (blockPatternMatch != null) {

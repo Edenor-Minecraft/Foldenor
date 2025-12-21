@@ -25,6 +25,28 @@
  
              if (net.minecraft.world.phys.shapes.Shapes.joinIsNotEmpty(collisionShape, net.minecraft.world.phys.shapes.Shapes.create(entity.getBoundingBox()), net.minecraft.world.phys.shapes.BooleanOp.AND)) {
                  return false;
+@@ -1009,13 +_,17 @@
+             }
+         }
+         // CraftBukkit end
+-        if (this.isOutsideBuildHeight(pos)) {
++        // Leaf start - optimize get chunk
++        int x = pos.getX();
++        int y = pos.getY();
++        int z = pos.getZ();
++        if (this.isOutsideBuildHeight(y)) {
+             return Blocks.VOID_AIR.defaultBlockState();
+         } else {
+-            ChunkAccess chunk = this.getChunkIfLoadedImmediately(pos.getX() >> 4, pos.getZ() >> 4);
+-
+-            return chunk == null ? null : chunk.getBlockState(pos);
++            ChunkAccess chunk = this.getChunk(x >> 4, z >> 4, ChunkStatus.FULL, true); // Paper - manually inline to reduce hops and avoid unnecessary null check to reduce total byte code size, this should never return null and if it does we will see it the next line but the real stack trace will matter in the chunk engine
++            return chunk.getBlockState(x, y, z);
+         }
++        // Leaf end - optimize get chunk
+     }
+ 
+     @Override
 @@ -1831,7 +_,7 @@
      public org.bukkit.entity.Entity[] getChunkEntities(int chunkX, int chunkZ) {
          ca.spottedleaf.moonrise.patches.chunk_system.level.entity.ChunkEntitySlices slices = ((ServerLevel)this).moonrise$getEntityLookup().getChunk(chunkX, chunkZ);

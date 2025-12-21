@@ -117,3 +117,17 @@
      public <T extends PacketListener> void setupInboundProtocol(ProtocolInfo<T> protocolInfo, T packetInfo) {
          this.validateListener(protocolInfo, packetInfo);
          if (protocolInfo.flow() != this.getReceiving()) {
+@@ -632,13 +_,7 @@
+         if (this.packetListener instanceof TickablePacketListener tickablePacketListener) {
+             // Paper start - Buffer joins to world
+             if (true) { // Folia - region threading
+-            // Paper start - detailed watchdog information
+-            net.minecraft.network.PacketProcessor.packetProcessing.push(this.packetListener);
+-            try {
+             tickablePacketListener.tick();
+-            } finally {
+-                net.minecraft.network.PacketProcessor.packetProcessing.pop();
+-            } // Paper end - detailed watchdog information
+             } // Paper end - Buffer joins to world
+         }
+ 

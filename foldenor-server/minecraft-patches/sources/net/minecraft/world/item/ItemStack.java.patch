@@ -1,5 +1,25 @@
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
+@@ -102,7 +_,7 @@
+ import org.jspecify.annotations.Nullable;
+ import org.slf4j.Logger;
+ 
+-public final class ItemStack implements DataComponentHolder {
++public final class ItemStack implements DataComponentHolder, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangePublisher<ItemStack>, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> { // Leaf - Lithium - equipment tracking
+     private static final List<Component> OP_NBT_WARNING = List.of(
+         Component.translatable("item.op_warning.line1").withStyle(ChatFormatting.RED, ChatFormatting.BOLD),
+         Component.translatable("item.op_warning.line2").withStyle(ChatFormatting.RED),
+@@ -172,6 +_,10 @@
+     private @Nullable Item item;
+     PatchedDataComponentMap components;
+     private @Nullable Entity entityRepresentation;
++    // Leaf start - Lithium - equipment tracking
++    private net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<ItemStack> subscriber;
++    private int subscriberData;
++    // Leaf end - Lithium - equipment tracking
+ 
+     public static DataResult<ItemStack> validateStrict(ItemStack stack) {
+         DataResult<Unit> dataResult = validateComponents(stack.getComponents());
 @@ -871,7 +_,7 @@
      }
  
@@ -18,3 +38,113 @@
                  MutableBoolean mutableBoolean = new MutableBoolean(true);
                  this.forEachModifier(
                      equipmentSlotGroup,
+@@ -1339,6 +_,21 @@
+     }
+ 
+     public void setCount(int count) {
++        // Leaf start - Lithium - equipment tracking
++        if (count != this.count) {
++            if (this.subscriber instanceof net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.CountChangeSubscriber<ItemStack> countChangeSubscriber) {
++                countChangeSubscriber.lithium$notifyCount(this, this.subscriberData, count);
++            }
++            if (count == 0) {
++                this.components.lithium$unsubscribe(this);
++                if (this.subscriber != null) {
++                    this.subscriber.lithium$forceUnsubscribe(this, this.subscriberData);
++                    this.subscriber = null;
++                    this.subscriberData = 0;
++                }
++            }
++        }
++        // Leaf end - Lithium - equipment tracking
+         this.count = count;
+     }
+ 
+@@ -1407,4 +_,87 @@
+             .or(() -> Optional.ofNullable(this.getItem().getItemDamageSource(attacker)))
+             .orElseGet(fallback);
+     }
++
++    // Leaf start - Lithium - equipment tracking
++    @Override
++    public void lithium$subscribe(net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
++        if (this.isEmpty()) {
++            throw new IllegalStateException("Cannot subscribe to an empty ItemStack!");
++        }
++
++        if (this.subscriber == null) {
++            this.startTrackingChanges();
++        }
++        this.subscriber = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.combine(this.subscriber, this.subscriberData, subscriber, subscriberData);
++        if (this.subscriber instanceof net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.Multi<?>) {
++            this.subscriberData = 0;
++        } else {
++            this.subscriberData = subscriberData;
++        }
++    }
++
++    @Override
++    public int lithium$unsubscribe(net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<ItemStack> subscriber) {
++        if (this.isEmpty()) {
++            throw new IllegalStateException("Cannot unsubscribe from an empty ItemStack!");
++        }
++
++        int retval = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.dataOf(this.subscriber, subscriber, this.subscriberData);
++        this.subscriberData = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
++        this.subscriber = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.without(this.subscriber, subscriber);
++
++        if (this.subscriber == null) {
++            this.components.lithium$unsubscribe(this);
++        }
++        return retval;
++    }
++
++    @Override
++    public void lithium$unsubscribeWithData(net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
++        if (this.isEmpty()) {
++            throw new IllegalStateException("Cannot unsubscribe from an empty ItemStack!");
++        }
++
++        this.subscriberData = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData, subscriberData, true);
++        this.subscriber = net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.without(this.subscriber, subscriber, subscriberData, true);
++
++        if (this.subscriber == null) {
++            this.components.lithium$unsubscribe(this);
++        }
++    }
++
++    @Override
++    public boolean lithium$isSubscribedWithData(net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
++        if (this.isEmpty()) {
++            throw new IllegalStateException("Cannot be subscribed to an empty ItemStack!");
++        }
++
++        return net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.containsSubscriber(this.subscriber, this.subscriberData, subscriber, subscriberData);
++    }
++
++    @Override
++    public void lithium$forceUnsubscribe(PatchedDataComponentMap publisher, int subscriberData) {
++        if (publisher != this.components) {
++            throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);
++        }
++        this.subscriber.lithium$forceUnsubscribe(this, this.subscriberData);
++        this.subscriber = null;
++        this.subscriberData = 0;
++    }
++
++    @Override
++    public void lithium$notify(PatchedDataComponentMap publisher, int subscriberData) {
++        if (publisher != this.components) {
++            throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);
++        }
++
++        if (this.subscriber != null) {
++            this.subscriber.lithium$notify(this, this.subscriberData);
++        }
++    }
++
++    private void startTrackingChanges() {
++        this.components.lithium$subscribe(this, 0);
++    }
++    // Leaf end - Lithium - equipment tracking
+ }

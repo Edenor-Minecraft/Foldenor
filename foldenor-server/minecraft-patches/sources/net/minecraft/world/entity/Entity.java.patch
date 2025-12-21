@@ -18,7 +18,14 @@
      private BlockPos blockPosition;
      private ChunkPos chunkPosition;
      private Vec3 deltaMovement = Vec3.ZERO;
-@@ -373,6 +_,9 @@
+@@ -367,12 +_,16 @@
+     public boolean fixedPose = false; // Paper - Expand Pose API
+     private final int despawnTime; // Paper - entity despawn time limit
+     public int totalEntityAge; // Paper - age-like counter for all entities
++    private int lastTickTicks; // Leaf - Rewrite entity despawn time
+     public final io.papermc.paper.entity.activation.ActivationType activationType = io.papermc.paper.entity.activation.ActivationType.activationTypeFor(this); // Paper - EAR 2/tracking ranges
+     // Paper start - EAR 2
+     public final boolean defaultActivationState;
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
@@ -28,6 +35,73 @@
  
      public void inactiveTick() {
      }
+@@ -392,6 +_,7 @@
+     private int sectionY = Integer.MIN_VALUE;
+     private int sectionZ = Integer.MIN_VALUE;
+     private boolean updatingSectionStatus;
++    private final boolean shouldSkipBaseDespawnCheck = this instanceof net.minecraft.world.entity.projectile.ThrowableProjectile; // Leaf - Rewrite entity despawn time
+ 
+     @Override
+     public final boolean moonrise$isHardColliding() {
+@@ -580,6 +_,7 @@
+         this.setPos(0.0, 0.0, 0.0);
+         this.eyeHeight = this.dimensions.eyeHeight();
+         this.despawnTime = level == null || type == EntityType.PLAYER ? -1 : level.paperConfig().entities.spawning.despawnTime.getOrDefault(type, io.papermc.paper.configuration.type.number.IntOr.Disabled.DISABLED).or(-1); // Paper - entity despawn time limit
++        this.updateLastTick(); // Leaf - Rewrite entity despawn time
+     }
+ 
+     public boolean isColliding(BlockPos pos, BlockState state) {
+@@ -848,15 +_,50 @@
+     }
+ 
+     public void tick() {
++        // Leaf start - Rewrite entity despawn time
++        if (!this.shouldSkipBaseDespawnCheck && this.detectDespawnTime()) {
++            return;
++        }
++        /*
+         // Paper start - entity despawn time limit
+         if (this.despawnTime >= 0 && this.totalEntityAge >= this.despawnTime) {
+             this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN);
+             return;
+         }
+         // Paper end - entity despawn time limit
++        */
++        // Leaf end - Rewrite entity despawn time
+         this.baseTick();
+     }
+ 
++    // Leaf start - Rewrite entity despawn time
++    protected final boolean detectDespawnTime() {
++        if (this.despawnTime >= 0) {
++            int missedTicks = this.calculateMissedTicks();
++            if (missedTicks > 1) {
++                if ((this.totalEntityAge += missedTicks) >= this.despawnTime) {
++                    this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN);
++                    return true;
++                }
++            } else {
++                if (this.totalEntityAge >= this.despawnTime) {
++                    this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN);
++                    return true;
++                }
++            }
++        }
++        return false;
++    }
++
++    private int calculateMissedTicks() {
++        return Math.toIntExact(this.level().getRedstoneGameTime() - this.lastTickTicks);
++    }
++
++    public void updateLastTick() {
++        this.lastTickTicks = Math.toIntExact(this.level().getRedstoneGameTime());
++    }
++    // Leaf end - Rewrite entity despawn time
++
+     // CraftBukkit start
+     public void postTick() {
+         // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
 @@ -916,7 +_,11 @@
  
          this.checkBelowWorld();
@@ -41,9 +115,20 @@
          }
  
          this.firstTick = false;
-@@ -1128,6 +_,11 @@
-     // Paper end - detailed watchdog information
+@@ -1117,28 +_,15 @@
+         return this.onGround;
+     }
  
+-    // Paper start - detailed watchdog information
+-    public final Object posLock = new Object(); // Paper - log detailed entity tick information
+-
+-    @Nullable
+-    private Vec3 moveVector;
+-    private double moveStartX;
+-    private double moveStartY;
+-    private double moveStartZ;
+-    // Paper end - detailed watchdog information
+-
      public void move(MoverType type, Vec3 movement) {
 +        // Gale start - VMP - skip entity move if movement is zero
 +        if (!this.boundingBoxChanged && movement.equals(Vec3.ZERO)) {
@@ -51,8 +136,19 @@
 +        }
 +        // Gale end - VMP - skip entity move if movement is zero
          final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
-         // Paper start - detailed watchdog information
+-        // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
+-        synchronized (this.posLock) {
+-            this.moveStartX = this.getX();
+-            this.moveStartY = this.getY();
+-            this.moveStartZ = this.getZ();
+-            this.moveVector = movement;
+-        }
+         try {
+-        // Paper end - detailed watchdog information
+         if (this.noPhysics) {
+             this.setPos(this.getX() + movement.x, this.getY() + movement.y, this.getZ() + movement.z);
+             this.horizontalCollision = false;
 @@ -1175,7 +_,7 @@
              }
              // Paper end
@@ -103,6 +199,19 @@
          }
      }
  
+@@ -2597,6 +_,12 @@
+             if (this.maxAirTicks != this.getDefaultMaxAirSupply()) {
+                 output.putInt("Bukkit.MaxAirSupply", this.getMaxAirSupply());
+             }
++            // Leaf start - Rewrite entity despawn time
++            int missedTicks = this.calculateMissedTicks();
++            if (missedTicks > 1) {
++                this.totalEntityAge += missedTicks;
++            }
++            // Leaf end - Rewrite entity despawn time
+             output.putInt("Spigot.ticksLived", this.totalEntityAge); // Paper
+             // CraftBukkit end
+             output.storeNullable("CustomName", ComponentSerialization.CODEC, this.getCustomName());
 @@ -3171,7 +_,7 @@
      }
  
@@ -149,3 +258,23 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
+@@ -5761,9 +_,7 @@
+ 
+     public void setDeltaMovement(Vec3 deltaMovement) {
+         if (deltaMovement.isFinite()) {
+-            synchronized (this.posLock) { // Paper - detailed watchdog information
+             this.deltaMovement = deltaMovement;
+-            } // Paper - detailed watchdog information
+         }
+     }
+ 
+@@ -5865,9 +_,7 @@
+         // Paper end - Block invalid positions and bounding box
+         boolean posChanged = this.position.x != x || this.position.y != y || this.position.z != z;
+         if (posChanged) { // Folia - region threading
+-            synchronized (this.posLock) { // Paper - detailed watchdog information
+             this.position = new Vec3(x, y, z);
+-            } // Paper - detailed watchdog information
+             int floor = Mth.floor(x);
+             int floor1 = Mth.floor(y);
+             int floor2 = Mth.floor(z);

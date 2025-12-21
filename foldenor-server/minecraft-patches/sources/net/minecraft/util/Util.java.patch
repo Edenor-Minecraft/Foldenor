@@ -1,0 +1,30 @@
+--- a/net/minecraft/util/Util.java
++++ b/net/minecraft/util/Util.java
+@@ -99,7 +_,7 @@
+     private static final TracingExecutor IO_POOL = makeIoExecutor("IO-Worker-", false);
+     public static final TracingExecutor DIMENSION_DATA_IO_POOL = makeExtraIoExecutor("Dimension-Data-IO-Worker-"); // Paper - Separate dimension data IO pool
+     // Paper start - Limit download pool size
+-    private static final TracingExecutor DOWNLOAD_POOL = new TracingExecutor(Executors.newFixedThreadPool(4, new java.util.concurrent.ThreadFactory() {
++    /*private static final TracingExecutor DOWNLOAD_POOL = new TracingExecutor(Executors.newFixedThreadPool(4, new java.util.concurrent.ThreadFactory() {
+         private final AtomicInteger count = new AtomicInteger();
+ 
+         @Override
+@@ -112,7 +_,7 @@
+             });
+             return ret;
+         }
+-    }));
++    }));*/ // Leaf - paw optimization - Remove client-only code
+     // Paper end - Limit download pool size
+     private static final DateTimeFormatter FILENAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss", Locale.ROOT);
+     public static final int LINEAR_LOOKUP_THRESHOLD = 8;
+@@ -247,7 +_,8 @@
+     }
+ 
+     public static TracingExecutor nonCriticalIoPool() {
+-        return DOWNLOAD_POOL;
++        //return DOWNLOAD_POOL; // Leaf - paw optimization - Remove client-only code
++        return null;
+     }
+ 
+     public static void shutdownExecutors() {

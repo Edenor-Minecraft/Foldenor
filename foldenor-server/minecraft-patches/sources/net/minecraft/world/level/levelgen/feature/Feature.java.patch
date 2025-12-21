@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/feature/Feature.java
++++ b/net/minecraft/world/level/levelgen/feature/Feature.java
+@@ -207,7 +_,7 @@
+     public static boolean checkNeighbors(Function<BlockPos, BlockState> adjacentStateAccessor, BlockPos pos, Predicate<BlockState> filter) {
+         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+ 
+-        for (Direction direction : Direction.values()) {
++        for (Direction direction : Direction.VALUES) {
+             mutableBlockPos.setWithOffset(pos, direction);
+             if (filter.test(adjacentStateAccessor.apply(mutableBlockPos))) {
+                 return true;

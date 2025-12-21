@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/BaseCoralPlantTypeBlock.java
++++ b/net/minecraft/world/level/block/BaseCoralPlantTypeBlock.java
+@@ -42,7 +_,7 @@
+         if (state.getValue(WATERLOGGED)) {
+             return true;
+         } else {
+-            for (Direction direction : Direction.values()) {
++            for (Direction direction : Direction.VALUES) { // Leaf - paw optimization - cache direction values
+                 if (level.getFluidState(pos.relative(direction)).is(FluidTags.WATER)) {
+                     return true;
+                 }

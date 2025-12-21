@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/BaseFireBlock.java
++++ b/net/minecraft/world/level/block/BaseFireBlock.java
+@@ -207,7 +_,7 @@
+             BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
+             boolean flag = false;
+ 
+-            for (Direction direction1 : Direction.values()) {
++            for (Direction direction1 : Direction.VALUES) {
+                 if (level.getBlockState(mutableBlockPos.set(pos).move(direction1)).is(Blocks.OBSIDIAN)) {
+                     flag = true;
+                     break;

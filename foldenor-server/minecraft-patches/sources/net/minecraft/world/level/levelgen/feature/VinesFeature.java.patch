@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/feature/VinesFeature.java
++++ b/net/minecraft/world/level/levelgen/feature/VinesFeature.java
+@@ -22,7 +_,7 @@
+         if (!worldGenLevel.isEmptyBlock(blockPos)) {
+             return false;
+         } else {
+-            for (Direction direction : Direction.values()) {
++            for (Direction direction : Direction.VALUES) {
+                 if (direction != Direction.DOWN && VineBlock.isAcceptableNeighbour(worldGenLevel, blockPos.relative(direction), direction)) {
+                     worldGenLevel.setBlock(
+                         blockPos, Blocks.VINE.defaultBlockState().setValue(VineBlock.getPropertyForFace(direction), true), Block.UPDATE_CLIENTS

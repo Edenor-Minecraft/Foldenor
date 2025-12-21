@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/structure/structures/MineshaftPieces.java
++++ b/net/minecraft/world/level/levelgen/structure/structures/MineshaftPieces.java
+@@ -560,7 +_,7 @@
+             BlockPos.MutableBlockPos worldPos = this.getWorldPos(x, y, z);
+             int i = 0;
+ 
+-            for (Direction direction : Direction.values()) {
++            for (Direction direction : Direction.VALUES) {
+                 worldPos.move(direction);
+                 if (box.isInside(worldPos) && level.getBlockState(worldPos).isFaceSturdy(level, worldPos, direction.getOpposite())) {
+                     if (++i >= required) {

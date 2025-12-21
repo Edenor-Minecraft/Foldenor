@@ -8,6 +8,15 @@
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.commands.arguments.EntityAnchorArgument;
  import net.minecraft.core.BlockPos;
+@@ -451,7 +_,7 @@
+             this.getSleepingPos().ifPresent(this::setPosToBed);
+         }
+ 
+-        if (this.level() instanceof ServerLevel serverLevel) {
++        if ((this instanceof Player || this.equipment.lithium$shouldTickEnchantments()) && this.level() instanceof ServerLevel serverLevel) { // Leaf - Lithium - equipment tracking
+             EnchantmentHelper.tickEffects(serverLevel, this);
+         }
+ 
 @@ -1037,12 +_,14 @@
      }
  
@@ -57,6 +66,15 @@
      public boolean onClimbable() {
          if (this.isSpectator()) {
              return false;
+@@ -2215,7 +_,7 @@
+ 
+     @Override
+     public boolean isAlive() {
+-        return !this.isRemoved() && this.getHealth() > 0.0F && !this.dead; // Paper - Check this.dead
++        return !this.dead && !this.isRemoved() && this.getHealth() > 0.0F; // Paper - Check this.dead // Leaf - Optimise getEntities - check the cheapest first
+     }
+ 
+     public boolean isLookingAtMe(LivingEntity entity, double tolerance, boolean scaleByDistance, boolean visual, double... yValues) {
 @@ -2784,6 +_,7 @@
      }
  
@@ -65,6 +83,25 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
+@@ -3501,6 +_,7 @@
+     public void detectEquipmentUpdates() {
+         Map<EquipmentSlot, ItemStack> map = this.collectEquipmentChanges();
+         if (map != null) {
++            if (!(this instanceof net.minecraft.world.entity.player.Player)) this.equipment.lithium$onEquipmentChangesSent(); // Leaf - Lithium - equipment tracking
+             this.handleHandSwap(map);
+             if (!map.isEmpty()) {
+                 this.handleEquipmentChanges(map);
+@@ -3509,6 +_,10 @@
+     }
+ 
+     private @Nullable Map<EquipmentSlot, ItemStack> collectEquipmentChanges() {
++        // Leaf start - Lithium - equipment tracking
++        final boolean isArmorStandUpdateNoTick = this instanceof net.minecraft.world.entity.decoration.ArmorStand stand && !stand.canTick && stand.noTickEquipmentDirty;
++        if (!isArmorStandUpdateNoTick && !this.equipment.lithium$hasUnsentEquipmentChanges()) return null;
++        // Leaf end - Lithium - equipment tracking
+         Map<EquipmentSlot, ItemStack> map = null;
+         // Paper start - EntityEquipmentChangedEvent
+         record EquipmentChangeImpl(org.bukkit.inventory.ItemStack oldItem, org.bukkit.inventory.ItemStack newItem) implements io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange {
 @@ -3525,7 +_,7 @@
          Map<org.bukkit.inventory.EquipmentSlot, io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange> equipmentChanges = null;
          // Paper end - EntityEquipmentChangedEvent

@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/level/block/FrostedIceBlock.java
++++ b/net/minecraft/world/level/block/FrostedIceBlock.java
+@@ -49,7 +_,7 @@
+             if (i > 11 - state.getValue(AGE) - state.getLightBlock() && this.slightlyMelt(state, level, pos)) {
+                 BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+ 
+-                for (Direction direction : Direction.values()) {
++                for (Direction direction : Direction.VALUES) {
+                     mutableBlockPos.setWithOffset(pos, direction);
+                     BlockState blockState = level.getBlockState(mutableBlockPos);
+                     if (blockState.is(this) && !this.slightlyMelt(blockState, level, mutableBlockPos)) {
+@@ -88,7 +_,7 @@
+         int i = 0;
+         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+ 
+-        for (Direction direction : Direction.values()) {
++        for (Direction direction : Direction.VALUES) {
+             mutableBlockPos.setWithOffset(pos, direction);
+             if (level.getBlockState(mutableBlockPos).is(this)) {
+                 if (++i >= neighborsRequired) {

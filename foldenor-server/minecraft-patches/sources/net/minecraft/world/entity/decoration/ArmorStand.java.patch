@@ -18,3 +18,14 @@
                  this.equipment.set(equipmentSlot, ItemStack.EMPTY);
              }
          }
+@@ -524,8 +_,9 @@
+     public void tick() {
+         if (!this.canTick) {
+             if (this.noTickEquipmentDirty) {
+-                this.noTickEquipmentDirty = false;
++                //this.noTickEquipmentDirty = false; // Leaf - Lithium - equipment tracking - move down
+                 this.detectEquipmentUpdates();
++                this.noTickEquipmentDirty = false;  // Leaf - Lithium - equipment tracking
+             }
+ 
+             return;

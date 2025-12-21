@@ -1,5 +1,19 @@
 --- a/net/minecraft/world/level/block/state/BlockBehaviour.java
 +++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
+@@ -615,6 +_,13 @@
+                 this.emptyConstantCollisionShape = this.constantCollisionShape != null && this.constantCollisionShape.isEmpty();
+                 // init caches
+                 initCaches(collisionShape, true);
++                // Leaf start - optimize collision shape
++                switch (getBlock()) {
++                    case net.minecraft.world.level.block.FireBlock fireBlock -> {}
++                    case net.minecraft.world.level.block.LiquidBlock liquidBlock -> {}
++                    default -> this.constantCollisionShape = collisionShape;
++                }
++                // Leaf end - optimize collision shape
+                 if (this.constantCollisionShape != null) {
+                     initCaches(this.constantCollisionShape, true);
+                 }
 @@ -1048,7 +_,7 @@
              private static final Direction[] DIRECTIONS = Direction.values();
              private static final int SUPPORT_TYPE_COUNT = SupportType.values().length;

@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/pathfinder/AmphibiousNodeEvaluator.java
++++ b/net/minecraft/world/level/pathfinder/AmphibiousNodeEvaluator.java
+@@ -97,7 +_,7 @@
+         if (pathTypeFromState == PathType.WATER) {
+             BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+ 
+-            for (Direction direction : Direction.values()) {
++            for (Direction direction : Direction.VALUES) {
+                 mutableBlockPos.set(x, y, z).move(direction);
+                 PathType pathTypeFromState1 = context.getPathTypeFromState(mutableBlockPos.getX(), mutableBlockPos.getY(), mutableBlockPos.getZ());
+                 if (pathTypeFromState1 == PathType.BLOCKED) {

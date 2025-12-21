@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/projectile/ThrowableProjectile.java
++++ b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
+@@ -49,6 +_,11 @@
+             return;
+         }
+         // Folia end - region threading - make sure entities do not move into regions they do not own
++        // Leaf start - Rewrite entity despawn time - Check earlier for projectiles
++        if (this.detectDespawnTime()) {
++            return;
++        }
++        // Leaf end - Rewrite entity despawn time - Check earlier for projectiles
+         this.handleFirstTickBubbleColumn();
+         this.applyGravity();
+         this.applyInertia();
