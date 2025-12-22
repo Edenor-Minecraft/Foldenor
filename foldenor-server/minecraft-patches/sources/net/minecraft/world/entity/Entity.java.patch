@@ -51,7 +51,7 @@
      }
  
      public boolean isColliding(BlockPos pos, BlockState state) {
-@@ -848,15 +_,50 @@
+@@ -848,15 +_,57 @@
      }
  
      public void tick() {
@@ -91,11 +91,18 @@
 +    }
 +
 +    private int calculateMissedTicks() {
-+        return Math.toIntExact(this.level().getRedstoneGameTime() - this.lastTickTicks);
++        var level = this.level();
++        if (level != null) {
++            return Math.toIntExact(level.getRedstoneGameTime() - this.lastTickTicks);
++        }
++        return 0;
 +    }
 +
 +    public void updateLastTick() {
-+        this.lastTickTicks = Math.toIntExact(this.level().getRedstoneGameTime());
++        var level = this.level();
++        if (level != null) {
++            this.lastTickTicks = Math.toIntExact(level.getRedstoneGameTime());
++        }
 +    }
 +    // Leaf end - Rewrite entity despawn time
 +
