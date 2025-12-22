@@ -33,23 +33,7 @@
  
  
      spigot {
-@@ -70,7 +_,7 @@
- }
- val services = objects.newInstance<Services>()
- 
--if (project.providers.gradleProperty("publishDevBundle").isPresent) {
-+/*if (project.providers.gradleProperty("publishDevBundle").isPresent) {
-     val devBundleComponent = publishing.softwareComponentFactory.adhoc("devBundle")
-     components.add(devBundleComponent)
- 
-@@ -114,16 +_,20 @@
-             from(devBundleComponent)
-         }
-     }
--}
-+}*/
- 
- sourceSets {
+@@ -120,10 +_,14 @@
      main {
          java { srcDir("../paper-server/src/main/java"); srcDir("../paper-server/src/generated/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -70,7 +54,7 @@
  dependencies {
 -    implementation(project(":folia-api"))
 +    implementation(project(":foldenor-api"))
-     implementation("ca.spottedleaf:concurrentutil:0.0.7")
+     implementation("ca.spottedleaf:concurrentutil:0.0.8")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
 @@ -208,6 +_,18 @@

@@ -222,7 +222,7 @@
              output.putInt("Spigot.ticksLived", this.totalEntityAge); // Paper
              // CraftBukkit end
              output.storeNullable("CustomName", ComponentSerialization.CODEC, this.getCustomName());
-@@ -3171,7 +_,7 @@
+@@ -3173,7 +_,7 @@
      }
  
      private boolean attemptToShearEquipment(Player player, InteractionHand hand, ItemStack stack, Mob mob) {
@@ -231,7 +231,7 @@
              ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
              Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
              if (equippable != null
-@@ -4894,7 +_,7 @@
+@@ -4896,7 +_,7 @@
          return this;
      }
  
@@ -240,7 +240,7 @@
          List<Entity> passengers = this.getPassengers();
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
-@@ -4921,13 +_,13 @@
+@@ -4923,13 +_,13 @@
              entityx.restoreFrom(this);
              this.removeAfterChangingDimensions();
              entityx.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
@@ -256,7 +256,7 @@
              teleportTransition.postTeleportTransition().onTransition(entityx);
              this.teleportSpectators(teleportTransition, oldLevel);
              profilerFiller.pop();
-@@ -5272,6 +_,11 @@
+@@ -5274,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {
@@ -268,7 +268,7 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
-@@ -5761,9 +_,7 @@
+@@ -5763,9 +_,7 @@
  
      public void setDeltaMovement(Vec3 deltaMovement) {
          if (deltaMovement.isFinite()) {
@@ -278,7 +278,7 @@
          }
      }
  
-@@ -5865,9 +_,7 @@
+@@ -5867,9 +_,7 @@
          // Paper end - Block invalid positions and bounding box
          boolean posChanged = this.position.x != x || this.position.y != y || this.position.z != z;
          if (posChanged) { // Folia - region threading
