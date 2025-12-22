@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/net/minecraft/world/entity/decoration/ArmorStand.java
+@@ -90,7 +_,7 @@
+     // Paper start - Allow ArmorStands not to tick
+     public boolean canTick = true;
+     public boolean canTickSetByAPI = false;
+-    private boolean noTickEquipmentDirty = false;
++    public boolean noTickEquipmentDirty = false;
+     // Paper end - Allow ArmorStands not to tick
+ 
+     public ArmorStand(EntityType<? extends ArmorStand> type, Level level) {
 @@ -457,7 +_,7 @@
          this.playBrokenSound();
          // this.dropAllDeathLoot(level, damageSource); // CraftBukkit - moved down

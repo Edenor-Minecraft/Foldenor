@@ -158,6 +158,16 @@
              Vec3 vec3 = this.collide(movement);
              double d = vec3.lengthSqr();
              if (d > 1.0E-7 || movement.lengthSqr() - d < 1.0E-7) {
+@@ -1268,9 +_,6 @@
+         }
+         // Paper start - detailed watchdog information
+         } finally {
+-            synchronized (this.posLock) { // Paper
+-                this.moveVector = null;
+-            } // Paper
+         }
+         // Paper end - detailed watchdog information
+     }
 @@ -2195,10 +_,18 @@
  
      @Deprecated
