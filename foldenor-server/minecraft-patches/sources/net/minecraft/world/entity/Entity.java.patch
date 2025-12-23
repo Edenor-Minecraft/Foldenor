@@ -92,7 +92,7 @@
 +
 +    private int calculateMissedTicks() {
 +        var level = this.level();
-+        if (level != null) {
++        if (level.getCurrentWorldData() != null) {
 +            return Math.toIntExact(level.getRedstoneGameTime() - this.lastTickTicks);
 +        }
 +        return 0;
@@ -100,7 +100,7 @@
 +
 +    public void updateLastTick() {
 +        var level = this.level();
-+        if (level != null) {
++        if (level.getCurrentWorldData() != null) {
 +            this.lastTickTicks = Math.toIntExact(level.getRedstoneGameTime());
 +        }
 +    }
