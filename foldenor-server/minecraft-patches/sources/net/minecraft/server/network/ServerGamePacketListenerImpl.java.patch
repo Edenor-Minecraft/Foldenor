@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -2823,7 +_,7 @@
+@@ -2843,7 +_,7 @@
          // removed from the world
          // Folia end - rewrite login process - fix bad ordering of this field write - move after removed from world
          try { // Folia - rewrite login process - move connection ownership to global region
@@ -9,7 +9,7 @@
          this.removePlayerFromWorld();
          } finally { // Folia start - rewrite login process - move connection ownership to global region
              io.papermc.paper.threadedregions.RegionizedWorldData worldData = this.player.level().getCurrentWorldData();
-@@ -2832,7 +_,13 @@
+@@ -2852,7 +_,13 @@
          } // Folia end - rewrite login process - move connection ownership to global region
          this.waitingForSwitchToConfig = true; // Folia - rewrite login process - fix bad ordering of this field write - moved down
          this.send(ClientboundStartConfigurationPacket.INSTANCE);
@@ -24,7 +24,7 @@
      }
  
      @Override
-@@ -2892,7 +_,7 @@
+@@ -2921,7 +_,7 @@
                                          // SPIGOT-7136 - Allays
                                          if (target instanceof net.minecraft.world.entity.animal.allay.Allay || target instanceof net.minecraft.world.entity.animal.equine.AbstractHorse) { // Paper - Fix horse armor desync
                                              ServerGamePacketListenerImpl.this.send(new net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket(
@@ -33,7 +33,7 @@
                                                  .map((slot) -> com.mojang.datafixers.util.Pair.of(slot, ((LivingEntity) target).getItemBySlot(slot).copy()))
                                                  .collect(Collectors.toList()), true)); // Paper - sanitize
                                              player.containerMenu.sendAllDataToRemote();
-@@ -3046,7 +_,7 @@
+@@ -3075,7 +_,7 @@
          if (this.player.isImmobile()) return; // CraftBukkit
          this.player.resetLastActionTime();
          if (this.player.containerMenu.containerId == packet.containerId() && this.player.containerMenu.stillValid(this.player)) { // CraftBukkit
@@ -42,7 +42,7 @@
              if (false/*this.player.isSpectator()*/) { // CraftBukkit
                  this.player.containerMenu.sendAllDataToRemote();
              } else if (!this.player.containerMenu.stillValid(this.player)) {
-@@ -3682,12 +_,25 @@
+@@ -3711,12 +_,25 @@
              throw new IllegalStateException("Client acknowledged config, but none was requested");
          } else {
              final ServerConfigurationPacketListenerImpl listener = new ServerConfigurationPacketListenerImpl(this.server, this.connection, this.createCookie(this.player.clientInformation())); // Paper
@@ -73,7 +73,7 @@
          }
      }
  
-@@ -3724,6 +_,17 @@
+@@ -3753,6 +_,17 @@
  
      @Override
      public void handleCustomPayload(ServerboundCustomPayloadPacket packet) {

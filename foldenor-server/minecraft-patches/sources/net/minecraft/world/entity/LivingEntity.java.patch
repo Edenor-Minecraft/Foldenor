@@ -38,7 +38,7 @@
          this.entityData.set(DATA_EFFECT_PARTICLES, list);
          this.entityData.set(DATA_EFFECT_AMBIENCE_ID, areAllEffectsAmbient(this.activeEffects.values()));
      }
-@@ -1423,7 +_,8 @@
+@@ -1435,7 +_,8 @@
                  player.setRealHealth(health);
              }
  
@@ -48,7 +48,7 @@
              return;
          }
          // CraftBukkit end
-@@ -2184,6 +_,17 @@
+@@ -2196,6 +_,17 @@
          return this.lastClimbablePos;
      }
  
@@ -66,7 +66,7 @@
      public boolean onClimbable() {
          if (this.isSpectator()) {
              return false;
-@@ -2215,7 +_,7 @@
+@@ -2227,7 +_,7 @@
  
      @Override
      public boolean isAlive() {
@@ -75,7 +75,7 @@
      }
  
      public boolean isLookingAtMe(LivingEntity entity, double tolerance, boolean scaleByDistance, boolean visual, double... yValues) {
-@@ -2784,6 +_,7 @@
+@@ -2796,6 +_,7 @@
      }
  
      protected void updateSwingTime() {
@@ -83,7 +83,7 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
-@@ -3501,6 +_,7 @@
+@@ -3513,6 +_,7 @@
      public void detectEquipmentUpdates() {
          Map<EquipmentSlot, ItemStack> map = this.collectEquipmentChanges();
          if (map != null) {
@@ -91,7 +91,7 @@
              this.handleHandSwap(map);
              if (!map.isEmpty()) {
                  this.handleEquipmentChanges(map);
-@@ -3509,6 +_,10 @@
+@@ -3521,6 +_,10 @@
      }
  
      private @Nullable Map<EquipmentSlot, ItemStack> collectEquipmentChanges() {
@@ -102,7 +102,7 @@
          Map<EquipmentSlot, ItemStack> map = null;
          // Paper start - EntityEquipmentChangedEvent
          record EquipmentChangeImpl(org.bukkit.inventory.ItemStack oldItem, org.bukkit.inventory.ItemStack newItem) implements io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange {
-@@ -3525,7 +_,7 @@
+@@ -3537,7 +_,7 @@
          Map<org.bukkit.inventory.EquipmentSlot, io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange> equipmentChanges = null;
          // Paper end - EntityEquipmentChangedEvent
  
@@ -111,15 +111,15 @@
              ItemStack itemStack = this.lastEquipmentItems.get(equipmentSlot);
              ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
              if (this.equipmentHasChanged(itemStack, itemBySlot)) {
-@@ -3786,6 +_,7 @@
+@@ -3798,6 +_,7 @@
      protected void updateFallFlying() {
          this.checkFallDistanceAccumulation();
          if (!this.level().isClientSide()) {
 +            if (!this.isFallFlying() && this.fallFlyTicks == 0) return; // DivineMC - lithium: entity.fast_elytra_check
              if (!this.canGlide()) {
-                 if (this.getSharedFlag(7) != false && !CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) // CraftBukkit
+                 if (this.getSharedFlag(Entity.FLAG_FALL_FLYING) && !CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) // CraftBukkit
                  this.setSharedFlag(Entity.FLAG_FALL_FLYING, false);
-@@ -3811,7 +_,7 @@
+@@ -3823,7 +_,7 @@
  
      protected boolean canGlide() {
          if (!this.onGround() && !this.isPassenger() && !this.hasEffect(MobEffects.LEVITATION)) {
