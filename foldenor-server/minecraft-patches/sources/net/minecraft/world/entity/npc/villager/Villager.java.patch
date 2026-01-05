@@ -26,6 +26,16 @@
      public Villager(EntityType<? extends Villager> type, Level level) {
          this(type, level, VillagerType.PLAINS);
      }
+@@ -250,7 +_,8 @@
+         villagerBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
+         villagerBrain.setDefaultActivity(Activity.IDLE);
+         villagerBrain.setActiveActivityIfPossible(Activity.IDLE);
+-        villagerBrain.updateActivityFromSchedule(this.level().environmentAttributes(), this.level().getLevelData().getGameTime(), this.position()); // Folia - region threading - not in the world yet
++        if (ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this))
++            villagerBrain.updateActivityFromSchedule(this.level().environmentAttributes(), this.level().getLevelData().getGameTime(), this.position()); // Folia - region threading - not in the world yet
+     }
+ 
+     @Override
 @@ -269,6 +_,21 @@
          return this.assignProfessionWhenSpawned;
      }

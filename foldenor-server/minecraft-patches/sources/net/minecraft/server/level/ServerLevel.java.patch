@@ -8,6 +8,15 @@
          boolean flag = server.forceSynchronousWrites();
          DataFixer fixerUpper = server.getFixerUpper();
          // Paper - rewrite chunk system
+@@ -649,7 +_,7 @@
+         this.sleepStatus = new SleepStatus();
+         this.gameEventDispatcher = new GameEventDispatcher(this);
+         this.randomSequences = Objects.requireNonNullElseGet(randomSequences, () -> this.getDataStorage().computeIfAbsent(RandomSequences.TYPE));
+-        this.waypointManager = new ServerWaypointManager();
++        this.waypointManager = new io.canvasmc.canvas.waypoints.RegionThreadingWaypointManager(this); // Canvas - region threading
+         this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
+         //this.updateSkyBrightness(); // Folia - region threading - delay until first tick
+         // Paper start - rewrite chunk system
 @@ -844,12 +_,14 @@
              }
  

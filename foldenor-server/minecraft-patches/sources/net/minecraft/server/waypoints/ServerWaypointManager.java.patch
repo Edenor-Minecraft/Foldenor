@@ -1,0 +1,62 @@
+--- a/net/minecraft/server/waypoints/ServerWaypointManager.java
++++ b/net/minecraft/server/waypoints/ServerWaypointManager.java
+@@ -27,6 +_,8 @@
+ 
+     @Override
+     public void updateWaypoint(WaypointTransmitter waypoint) {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         if (this.waypoints.contains(waypoint)) {
+             Map<ServerPlayer, WaypointTransmitter.Connection> map = Tables.transpose(this.connections).row(waypoint);
+             SetView<ServerPlayer> set = Sets.difference(this.players, map.keySet());
+@@ -43,6 +_,8 @@
+ 
+     @Override
+     public void untrackWaypoint(WaypointTransmitter waypoint) {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         this.connections.column(waypoint).forEach((serverPlayer, connection) -> connection.disconnect());
+         Tables.transpose(this.connections).row(waypoint).clear();
+         this.waypoints.remove(waypoint);
+@@ -61,17 +_,23 @@
+     }
+ 
+     public void breakAllConnections() {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         this.connections.values().forEach(WaypointTransmitter.Connection::disconnect);
+         this.connections.clear();
+     }
+ 
+     public void remakeConnections(WaypointTransmitter waypoint) {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         for (ServerPlayer serverPlayer : this.players) {
+             this.createConnection(serverPlayer, waypoint);
+         }
+     }
+ 
+     public Set<WaypointTransmitter> transmitters() {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         return this.waypoints;
+     }
+ 
+@@ -80,6 +_,8 @@
+     }
+ 
+     private void createConnection(ServerPlayer player, WaypointTransmitter waypoint) {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         if (player != waypoint) {
+             if (isLocatorBarEnabledFor(player)) {
+                 waypoint.makeWaypointConnectionWith(player).ifPresentOrElse(connection -> {
+@@ -96,6 +_,8 @@
+     }
+ 
+     private void updateConnection(ServerPlayer player, WaypointTransmitter waypoint, WaypointTransmitter.Connection connection) {
++        if (true)
++            throw new UnsupportedOperationException("Unsupported in region threading");
+         if (player != waypoint) {
+             if (isLocatorBarEnabledFor(player)) {
+                 if (!connection.isBroken()) {

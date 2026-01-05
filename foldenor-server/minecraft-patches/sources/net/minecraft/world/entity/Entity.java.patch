@@ -144,7 +144,34 @@
              ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
              Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
              if (equippable != null
-@@ -4896,7 +_,7 @@
+@@ -4353,6 +_,16 @@
+         return copy;
+     }
+ 
++    public void scheduleToOrRun(Runnable task) {
++        if (ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this)) {
++            task.run();
++            return;
++        }
++        this.getBukkitEntity().taskScheduler.schedule(
++                (entity) -> task.run(), null, 1L
++        );
++    }
++
+     public final boolean teleportAsync(TeleportTransition teleportTarget, long teleportFlags,
+                                        java.util.function.Consumer<Entity> teleportComplete) {
+         PositionMoveRotation move = PositionMoveRotation.calculateAbsolute(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
+@@ -4415,7 +_,9 @@
+             }
+ 
+             for (EntityTreeNode entity : passengerTree.getFullTree()) {
++                if (entity.root instanceof ServerPlayer player) destination.getWaypointManager().untrackWaypoint(player); // Canvas - region threading
+                 entity.root.teleportSyncSameRegion(pos, yaw, pitch, velocity);
++                if (entity.root instanceof ServerPlayer player) destination.getWaypointManager().trackWaypoint(player);
+             }
+ 
+             if (hasPassengers) {
+@@ -4889,7 +_,7 @@
          return this;
      }
  
@@ -153,7 +180,7 @@
          List<Entity> passengers = this.getPassengers();
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
-@@ -4923,13 +_,13 @@
+@@ -4916,13 +_,13 @@
              entityx.restoreFrom(this);
              this.removeAfterChangingDimensions();
              entityx.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
@@ -169,7 +196,7 @@
              teleportTransition.postTeleportTransition().onTransition(entityx);
              this.teleportSpectators(teleportTransition, oldLevel);
              profilerFiller.pop();
-@@ -5274,6 +_,11 @@
+@@ -5267,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {
@@ -181,7 +208,7 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
-@@ -5763,9 +_,7 @@
+@@ -5756,9 +_,7 @@
  
      public void setDeltaMovement(Vec3 deltaMovement) {
          if (deltaMovement.isFinite()) {
@@ -191,7 +218,7 @@
          }
      }
  
-@@ -5867,9 +_,7 @@
+@@ -5860,9 +_,7 @@
          // Paper end - Block invalid positions and bounding box
          boolean posChanged = this.position.x != x || this.position.y != y || this.position.z != z;
          if (posChanged) { // Folia - region threading

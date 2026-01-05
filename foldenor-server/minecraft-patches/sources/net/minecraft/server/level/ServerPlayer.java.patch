@@ -1,7 +1,10 @@
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -227,7 +_,7 @@
+@@ -225,9 +_,10 @@
+     );
+     private static final boolean DEFAULT_SEEN_CREDITS = false;
      private static final boolean DEFAULT_SPAWN_EXTRA_PARTICLES_ON_FALL = false;
++    public final it.unimi.dsi.fastutil.objects.Object2ObjectMap<net.minecraft.world.waypoints.WaypointTransmitter, net.minecraft.world.waypoints.WaypointTransmitter.Connection> canvas$activeWaypoints = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<>(); // Canvas - region threading
      public ServerGamePacketListenerImpl connection;
      private final MinecraftServer server;
 -    public final ServerPlayerGameMode gameMode;

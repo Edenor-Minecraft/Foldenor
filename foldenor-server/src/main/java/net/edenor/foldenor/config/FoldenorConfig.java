@@ -74,6 +74,7 @@ public class FoldenorConfig {
     public static boolean enableSepalsLivingTargetCacheQuickSort = false;
     public static boolean enableSepalsQuickCanBePushByEntityPredicate = false;
     public static boolean enableSepalsVillagers = false;
+    public static double waypointUpdateScale = 4000.0D;
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -223,6 +224,7 @@ public class FoldenorConfig {
                 "Use the new Virtual Thread introduced in JDK 21 for CraftAsyncScheduler.");
         asyncPlayerDataSaveEnabled = getBoolean("misc.async-playerdata-save.enabled", asyncPlayerDataSaveEnabled);
         foliaPOIAccessOffRegionFix = getBoolean("misc.folia-POI-access-off-region-fix", foliaPOIAccessOffRegionFix);
+        waypointUpdateScale = getDouble("misc.waypointUpdateScale", waypointUpdateScale);
     }
 
     private static void dynamicActivationOfBrains() throws IOException {
