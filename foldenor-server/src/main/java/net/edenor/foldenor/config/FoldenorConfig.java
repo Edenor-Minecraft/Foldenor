@@ -75,6 +75,7 @@ public class FoldenorConfig {
     public static boolean enableSepalsQuickCanBePushByEntityPredicate = false;
     public static boolean enableSepalsVillagers = false;
     public static double waypointUpdateScale = 4000.0D;
+    public static boolean forceCleanupEntityBrainMemoryForPositionTracker = false;
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -204,6 +205,7 @@ public class FoldenorConfig {
         optimizePlayerMovementProcessing = getBoolean("optimizations.optimize-player-movement-processing", optimizePlayerMovementProcessing);
         forceCleanupEntityBrainMemoryForEntity = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-entity", forceCleanupEntityBrainMemoryForEntity);
         forceCleanupEntityBrainMemoryForBlockPos = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-block-pos", forceCleanupEntityBrainMemoryForBlockPos);
+        forceCleanupEntityBrainMemoryForPositionTracker = getBoolean("optimizations.force-cleanup-entity-brain-memory.for-position-tracker", forceCleanupEntityBrainMemoryForPositionTracker);
         checkNearbyItemHopperInterval = getInt("optimizations.check-nearby-item.hopper.interval", checkNearbyItemHopperInterval);
         checkNearbyItemMinecartHopperInterval = getInt("optimizations.check-nearby-item.minecart.interval", checkNearbyItemMinecartHopperInterval);
         checkTemporaryImmunityDuration = getInt("optimizations.check-nearby-item.minecart.immunity.duration", checkTemporaryImmunityDuration);

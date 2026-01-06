@@ -1,0 +1,9 @@
+--- a/net/minecraft/world/entity/ai/behavior/PositionTracker.java
++++ b/net/minecraft/world/entity/ai/behavior/PositionTracker.java
+@@ -10,4 +_,6 @@
+     BlockPos currentBlockPosition();
+ 
+     boolean isVisibleBy(LivingEntity entity);
++
++    boolean checkThread(net.minecraft.world.level.Level currOwnedByLevel); // Luminol - Fix a series issue around entity memory typed GlobalPos and WalkTarget
+ }

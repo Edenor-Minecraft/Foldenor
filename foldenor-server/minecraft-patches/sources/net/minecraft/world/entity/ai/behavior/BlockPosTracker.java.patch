@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/ai/behavior/BlockPosTracker.java
++++ b/net/minecraft/world/entity/ai/behavior/BlockPosTracker.java
+@@ -37,4 +_,11 @@
+     public String toString() {
+         return "BlockPosTracker{blockPos=" + this.blockPos + ", centerPosition=" + this.centerPosition + "}";
+     }
++
++    // Luminol start - Fix a series issue around entity memory typed GlobalPos and WalkTarget
++    @Override
++    public boolean checkThread(net.minecraft.world.level.Level currOwnedByLevel) {
++        return ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(currOwnedByLevel, this.blockPos);
++    }
++    // Luminol end
+ }

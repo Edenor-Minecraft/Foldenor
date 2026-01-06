@@ -175,7 +175,7 @@
          this.tickSensors(level, entity);
          this.startEachNonRunningBehavior(level, entity);
          this.tickEachRunningBehavior(level, entity);
-@@ -417,17 +_,50 @@
+@@ -417,17 +_,68 @@
          }
      }
  
@@ -219,6 +219,24 @@
 +                // type: block_pos
 +                if (FoldenorConfig.forceCleanupEntityBrainMemoryForBlockPos && value instanceof net.minecraft.core.BlockPos blockPos) {
 +                    if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(ownerLevel, blockPos)) {
++                        this.eraseMemory(entry.getKey());
++                        continue;
++                    }
++                }
++
++                //type: position_tracker and walk_target
++                if (FoldenorConfig.forceCleanupEntityBrainMemoryForPositionTracker) {
++                    net.minecraft.world.entity.ai.behavior.PositionTracker tracker = null;
++
++                    if (value instanceof net.minecraft.world.entity.ai.behavior.PositionTracker positionTracker) {
++                        tracker = positionTracker;
++                    }
++
++                    if (value instanceof net.minecraft.world.entity.ai.memory.WalkTarget walkTarget) {
++                        tracker = walkTarget.getTarget();
++                    }
++
++                    if (tracker != null && !tracker.checkThread(owner.level())) {
 +                        this.eraseMemory(entry.getKey());
 +                        continue;
 +                    }

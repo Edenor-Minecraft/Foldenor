@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/ai/behavior/EntityTracker.java
++++ b/net/minecraft/world/entity/ai/behavior/EntityTracker.java
+@@ -55,4 +_,11 @@
+     public String toString() {
+         return "EntityTracker for " + this.entity;
+     }
++
++    // Luminol start - Fix a series issue around entity memory typed GlobalPos and WalkTarget
++    @Override
++    public boolean checkThread(net.minecraft.world.level.Level currOwnedByLevel) {
++        return ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this.entity);
++    }
++    // Luminol end
+ }

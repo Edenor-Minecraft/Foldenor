@@ -1,0 +1,31 @@
+--- a/net/minecraft/world/entity/Leashable.java
++++ b/net/minecraft/world/entity/Leashable.java
+@@ -94,10 +_,28 @@
+             if (optional.isPresent()) {
+                 Entity entity1 = serverLevel.getEntity(optional.get());
+                 if (entity1 != null) {
++                    // Luminol start - Fix off region leashing
++                    if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity1)) {
++                        entity.forceDrops = true;
++                        entity.spawnAtLocation(serverLevel, Items.LEAD);
++                        entity.forceDrops = false;
++                        entity.setLeashData(null);
++                        return;
++                    }
++                    // Luminol end
+                     setLeashedTo(entity, entity1, true);
+                     return;
+                 }
+             } else if (optional1.isPresent()) {
++                // Luminol start - Fix off region leashing
++                if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(serverLevel, optional1.get())) {
++                    entity.forceDrops = true;
++                    entity.spawnAtLocation(serverLevel, Items.LEAD);
++                    entity.forceDrops = false;
++                    entity.setLeashData(null);
++                    return;
++                }
++                // Luminol end
+                 setLeashedTo(entity, LeashFenceKnotEntity.getOrCreateKnot(serverLevel, optional1.get()), true);
+                 return;
+             }

@@ -7,14 +7,14 @@
 -            && this.getExploredPositions().noneMatch(globalPos -> GlobalPos.of(this.level().dimension(), pos).equals(globalPos))
 +                && this.getExploredPositions().noneMatch(globalPos -> { // Luminol start - Do not pathfind out of tickregion
 +                    // thread checks
-+                    final Level targetLevel = net.minecraft.server.MinecraftServer.getServer().getLevel(globalPos.dimension());
-+                    final BlockPos targetPos = globalPos.pos();
++            final Level targetLevel = net.minecraft.server.MinecraftServer.getServer().getLevel(globalPos.dimension());
++            final BlockPos targetPos = globalPos.pos();
 +
-+                    if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(targetLevel, targetPos)) {
-+                        return false;
-+                    }
++            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(targetLevel, targetPos)) {
++                return false;
++            }
 +
-+                    return GlobalPos.of(this.level().dimension(), pos).equals(globalPos); // Original logic
++            return GlobalPos.of(this.level().dimension(), pos).equals(globalPos); // Original logic
 +                }) // Luminol end
              && Optional.ofNullable(this.getNavigation().createPath(pos, 1)).map(Path::canReach).orElse(false);
      }

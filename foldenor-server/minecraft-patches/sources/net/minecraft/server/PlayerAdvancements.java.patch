@@ -1,0 +1,14 @@
+--- a/net/minecraft/server/PlayerAdvancements.java
++++ b/net/minecraft/server/PlayerAdvancements.java
+@@ -204,6 +_,11 @@
+             this.markForVisibilityUpdate(advancement);
+         }
+ 
++        // Foldenor start always save advancements on change/award
++        if (true)
++            this.save();
++        // Foldenor end always save advancements on change/award
++
+         return flag;
+     }
+ 

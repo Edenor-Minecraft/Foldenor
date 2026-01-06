@@ -5,7 +5,7 @@
  
      public static void setWalkAndLookTargetMemories(LivingEntity entity, PositionTracker positionTracker, float speedModifier, int closeEnoughDist) {
 +        // Luminol - Do not set walk target if target position is out of current tick region
-+        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity.level(), positionTracker.currentBlockPosition())) {
++        if (!positionTracker.checkThread(entity.level())) {
 +            return;
 +        }
 +        // Luminol end
