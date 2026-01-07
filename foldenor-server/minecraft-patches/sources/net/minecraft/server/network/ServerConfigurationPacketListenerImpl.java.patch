@@ -30,3 +30,20 @@
      }
  
      @Override
+@@ -290,13 +_,14 @@
+     // Paper start
+     @Override
+     public void disconnectAsync(final net.minecraft.network.DisconnectionDetails disconnectionInfo) {
+-        if (this.cserver.isPrimaryThread()) {
++        if (io.papermc.paper.threadedregions.RegionizedServer.isGlobalTickThread()) { // Luminol - Fix unpatched task returning of ServerConfigurationPacketListenerImpl#disconnectAsync
+             this.disconnect(disconnectionInfo);
+             return;
+         }
+ 
+         this.connection.setReadOnly();
+-        this.server.scheduleOnMain(() -> {
++        // this.server.scheduleOnMain(() -> { // Luminol - Fix unpatched task returning of ServerConfigurationPacketListenerImpl#disconnectAsync
++        io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTask(() -> { // Luminol - Fix unpatched task returning of ServerConfigurationPacketListenerImpl#disconnectAsync
+             this.disconnect(disconnectionInfo); // Currently you cannot cancel disconnect during the config stage
+         });
+     }

@@ -1,0 +1,15 @@
+--- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
++++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
+@@ -999,4 +_,12 @@
+         return flag ? i : 0;
+     }
+     // CraftBukkit end
++
++    // Luminol start - Sync dragon part when teleportation or firstly created
++    public void syncDragonPartsAfterTeleportTransform() {
++        for (EnderDragonPart part : this.subEntities) {
++            this.tickPart(part, 0.0, 0.0, 0.0); // offset -> 0.0
++        }
++    }
++    // Luminol end
+ }

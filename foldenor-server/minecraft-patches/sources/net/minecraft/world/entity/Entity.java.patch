@@ -18,13 +18,14 @@
      private BlockPos blockPosition;
      private ChunkPos chunkPosition;
      private Vec3 deltaMovement = Vec3.ZERO;
-@@ -373,6 +_,9 @@
+@@ -373,6 +_,10 @@
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
 +    public boolean activatedPriorityReset = false; // Pufferfish - DAB
 +    public int activatedPriority = FoldenorConfig.maximumActivationPrio; // Pufferfish - DAB (golf score)
 +    private boolean boundingBoxChanged = false; // Gale - VMP - skip entity move if movement is zero
++    public int teleportTickType = 0;// Luminol - Entity portal-teleport speed fix
  
      public void inactiveTick() {
      }
@@ -144,6 +145,22 @@
              ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
              Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
              if (equippable != null
+@@ -3504,6 +_,7 @@
+         } else {
+             if (this.portalProcess == null || !this.portalProcess.isSamePortal(portal)) {
+                 this.portalProcess = new PortalProcessor(portal, pos.immutable());
++                this.teleportTickType = 1; // Luminol - Entity portal-teleport speed fix
+             } else if (!this.portalProcess.isInsidePortalThisTick()) {
+                 this.portalProcess.updateEntryPosition(pos.immutable());
+                 this.portalProcess.setAsInsidePortalThisTick(true);
+@@ -4346,6 +_,7 @@
+         Entity copy = this.getType().create(destination, EntitySpawnReason.DIMENSION_TRAVEL);
+         copy.restoreFrom(this);
+         copy.transform(pos, yaw, pitch, velocity);
++        if (copy instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) dragon.syncDragonPartsAfterTeleportTransform(); // Luminol - Sync dragon part when teleportation or firstly created
+         // vanilla code used to call remove _after_ copying, and some stuff is required to be after copy - so add hook here
+         // for example, clearing of inventory after switching dimensions
+         this.postRemoveAfterChangingDimensions();
 @@ -4353,6 +_,16 @@
          return copy;
      }
@@ -161,6 +178,33 @@
      public final boolean teleportAsync(TeleportTransition teleportTarget, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
          PositionMoveRotation move = PositionMoveRotation.calculateAbsolute(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
+@@ -4363,11 +_,26 @@
+         );
+     }
+ 
++    // Luminol start - Prevent teleprotAsync calls in move events
++    public boolean blockTeleportAsync = false;
++    // Luminol end
++
+     public final boolean teleportAsync(ServerLevel destination, Vec3 pos, Float yaw, Float pitch, Vec3 velocity,
+                                        org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause, long teleportFlags,
+                                        java.util.function.Consumer<Entity> teleportComplete) {
+         ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot teleport entity async");
+ 
++        // Luminol start - Prevent teleprotAsync calls in move events
++        if (this.blockTeleportAsync && FoldenorConfig.preventIncorrectTeleportAsync) {
++            if (FoldenorConfig.preventIncorrectTeleportAsyncThrow) {
++                throw new IllegalStateException("Call teleportAsync during move events!");
++            }
++
++            LOGGER.error("Calling teleportAsync during move events!", new Throwable());
++            return false;
++        }
++        // Luminol end
++
+         if (!ServerLevel.isInSpawnableBounds(new BlockPos(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockX(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockY(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockZ(pos)))) {
+             return false;
+         }
 @@ -4415,7 +_,9 @@
              }
  

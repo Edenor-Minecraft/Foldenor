@@ -76,6 +76,8 @@ public class FoldenorConfig {
     public static boolean enableSepalsVillagers = false;
     public static double waypointUpdateScale = 4000.0D;
     public static boolean forceCleanupEntityBrainMemoryForPositionTracker = false;
+    public static boolean preventIncorrectTeleportAsync = false;
+    public static boolean preventIncorrectTeleportAsyncThrow = false;
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -227,6 +229,8 @@ public class FoldenorConfig {
         asyncPlayerDataSaveEnabled = getBoolean("misc.async-playerdata-save.enabled", asyncPlayerDataSaveEnabled);
         foliaPOIAccessOffRegionFix = getBoolean("misc.folia-POI-access-off-region-fix", foliaPOIAccessOffRegionFix);
         waypointUpdateScale = getDouble("misc.waypointUpdateScale", waypointUpdateScale);
+        preventIncorrectTeleportAsync = getBoolean("misc.prevent-incorrect-teleport-async.enable", preventIncorrectTeleportAsync);
+        preventIncorrectTeleportAsyncThrow = getBoolean("misc.prevent-incorrect-teleport-async.throw-when-caught", preventIncorrectTeleportAsyncThrow);
     }
 
     private static void dynamicActivationOfBrains() throws IOException {

@@ -1,0 +1,12 @@
+--- a/net/minecraft/world/entity/vehicle/boat/AbstractBoat.java
++++ b/net/minecraft/world/entity/vehicle/boat/AbstractBoat.java
+@@ -282,7 +_,9 @@
+ 
+         if (this.lastLocation != null && !this.lastLocation.equals(to)) {
+             org.bukkit.event.vehicle.VehicleMoveEvent event = new org.bukkit.event.vehicle.VehicleMoveEvent(vehicle, this.lastLocation, to);
++            this.blockTeleportAsync = true; // Luminol - Prevent teleprotAsync calls during move events
+             event.callEvent();
++            this.blockTeleportAsync = false; // Luminol - Prevent teleprotAsync calls during move events
+         }
+         this.lastLocation = vehicle.getLocation();
+         // CraftBukkit end

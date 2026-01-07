@@ -1,0 +1,12 @@
+--- a/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
++++ b/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
+@@ -307,7 +_,9 @@
+         new org.bukkit.event.vehicle.VehicleUpdateEvent(vehicle).callEvent();
+ 
+         if (!from.equals(to)) {
++            this.blockTeleportAsync = true; // Luminol - Prevent teleprotAsync calls during move events
+             new org.bukkit.event.vehicle.VehicleMoveEvent(vehicle, from, to).callEvent();
++            this.blockTeleportAsync = false; // Luminol - Prevent teleprotAsync calls during move events
+         }
+         // CraftBukkit end
+         this.updateInWaterStateAndDoFluidPushing();

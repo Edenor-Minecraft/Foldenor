@@ -9,3 +9,11 @@
      private final ServerLevel serverWorld;
      // Folia - move to regionized world data
  
+@@ -97,6 +_,7 @@
+         if (entity instanceof ThrownEnderpearl enderpearl) {
+             this.addEnderPearl(CoordinateUtils.getChunkKey(enderpearl.chunkPosition()), enderpearl.getId()); // Folia - region threading
+         }
++        if (entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) dragon.syncDragonPartsAfterTeleportTransform(); // Luminol - Sync dragon part when teleportation or firstly created
+         entity.registerScheduler(); // Paper - optimise Folia entity scheduler
+     }
+ 

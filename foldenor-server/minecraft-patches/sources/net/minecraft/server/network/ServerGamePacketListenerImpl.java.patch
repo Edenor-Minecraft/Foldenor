@@ -1,5 +1,25 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -717,7 +_,9 @@
+ 
+                     Location oldTo = to.clone();
+                     PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
++                    this.player.blockTeleportAsync = true; // Luminol - Prevent teleprotAsync calls during move events
+                     this.cserver.getPluginManager().callEvent(event);
++                    this.player.blockTeleportAsync = false; // Luminol - Prevent teleprotAsync calls during move events
+ 
+                     // If the event is cancelled we move the player back to their old location.
+                     if (event.isCancelled()) {
+@@ -1710,7 +_,9 @@
+ 
+                                         Location oldTo = to.clone();
+                                         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
++                                        this.player.blockTeleportAsync = true; // Luminol - Prevent teleprotAsync calls during move events
+                                         this.cserver.getPluginManager().callEvent(event);
++                                        this.player.blockTeleportAsync = false; // Luminol - Prevent teleprotAsync calls during move events
+ 
+                                         // If the event is cancelled we move the player back to their old location.
+                                         if (event.isCancelled()) {
 @@ -2843,7 +_,7 @@
          // removed from the world
          // Folia end - rewrite login process - fix bad ordering of this field write - move after removed from world

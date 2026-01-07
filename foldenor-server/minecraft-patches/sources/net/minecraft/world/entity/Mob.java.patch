@@ -36,6 +36,18 @@
              this.targetSelector.tick();
          }
      }
+@@ -282,6 +_,11 @@
+         if (this.getTargetRaw() == target) { // Folia - region threading
+             return false;
+         }
++        // Luminol start - Fix off-region targeting
++        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(target)) {
++            return false;
++        }
++        // Luminol end
+         if (reason != null) {
+             if (reason == EntityTargetEvent.TargetReason.UNKNOWN && this.getTarget() != null && target == null) {
+                 reason = this.getTarget().isAlive() ? EntityTargetEvent.TargetReason.FORGOT_TARGET : EntityTargetEvent.TargetReason.TARGET_DIED;
 @@ -364,7 +_,7 @@
          if (this.xpReward > 0) {
              int i = this.xpReward;

@@ -1,0 +1,12 @@
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
+@@ -257,7 +_,8 @@
+             int sectionPosZ = SectionPos.blockToSectionCoord(this.position().z());
+             Entity entity = this.owner != null ? findOwnerIncludingDeadPlayer(serverLevel, this.owner.getUUID()) : null;
+             if (entity instanceof ServerPlayer serverPlayer
+-                && !entity.isAlive()
++                // && !entity.isAlive() // Luminol - Fix misbehaved ender pearls when player switched dimension
++                && (entity.getBukkitEntity().taskScheduler.isRetired() || serverPlayer.getHealth() <= 0.0D) // Luminol - Fix misbehaved ender pearls when player switched dimension
+                 && !serverPlayer.wonGame
+                 && serverPlayer.level().getGameRules().get(GameRules.ENDER_PEARLS_VANISH_ON_DEATH)) {
+                 this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
