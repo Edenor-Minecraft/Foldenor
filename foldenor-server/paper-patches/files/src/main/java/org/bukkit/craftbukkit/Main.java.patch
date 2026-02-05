@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -169,6 +_,12 @@
+@@ -174,6 +_,12 @@
                          .ofType(String.class)
                          .defaultsTo("Unknown Server")
                          .describedAs("Name");

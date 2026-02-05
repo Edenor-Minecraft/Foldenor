@@ -21,19 +21,15 @@
      @Override
      public final boolean moonrise$isRealPlayer() {
          return this.isRealPlayer;
-@@ -1067,9 +_,10 @@
-             }
-             // CraftBukkit end
-         } catch (Throwable var4) {
--            CrashReport crashReport = CrashReport.forThrowable(var4, "Ticking player");
-+           CrashReport crashReport = CrashReport.forThrowable(var4, "Ticking player");
+@@ -1068,6 +_,7 @@
+             CrashReport crashReport = CrashReport.forThrowable(var4, "Ticking player");
              CrashReportCategory crashReportCategory = crashReport.addCategory("Player being ticked");
              this.fillCrashReportCategory(crashReportCategory);
 +            MinecraftServer.LOGGER.error(var4.getMessage(), var4); // Foldenor - more info
              throw new ReportedException(crashReport);
          }
      }
-@@ -1381,7 +_,7 @@
+@@ -1379,7 +_,7 @@
                      this.getInventory().getNonEquipmentItems().set(i, net.minecraft.world.item.ItemStack.EMPTY);
                  }
              }

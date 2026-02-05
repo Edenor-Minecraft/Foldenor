@@ -136,7 +136,7 @@
          }
      }
  
-@@ -3173,7 +_,7 @@
+@@ -3172,7 +_,7 @@
      }
  
      private boolean attemptToShearEquipment(Player player, InteractionHand hand, ItemStack stack, Mob mob) {
@@ -145,7 +145,7 @@
              ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
              Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
              if (equippable != null
-@@ -3504,6 +_,7 @@
+@@ -3503,6 +_,7 @@
          } else {
              if (this.portalProcess == null || !this.portalProcess.isSamePortal(portal)) {
                  this.portalProcess = new PortalProcessor(portal, pos.immutable());
@@ -153,7 +153,7 @@
              } else if (!this.portalProcess.isInsidePortalThisTick()) {
                  this.portalProcess.updateEntryPosition(pos.immutable());
                  this.portalProcess.setAsInsidePortalThisTick(true);
-@@ -4346,6 +_,7 @@
+@@ -4345,6 +_,7 @@
          Entity copy = this.getType().create(destination, EntitySpawnReason.DIMENSION_TRAVEL);
          copy.restoreFrom(this);
          copy.transform(pos, yaw, pitch, velocity);
@@ -161,7 +161,7 @@
          // vanilla code used to call remove _after_ copying, and some stuff is required to be after copy - so add hook here
          // for example, clearing of inventory after switching dimensions
          this.postRemoveAfterChangingDimensions();
-@@ -4353,6 +_,16 @@
+@@ -4352,6 +_,16 @@
          return copy;
      }
  
@@ -178,7 +178,7 @@
      public final boolean teleportAsync(TeleportTransition teleportTarget, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
          PositionMoveRotation move = PositionMoveRotation.calculateAbsolute(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
-@@ -4363,11 +_,26 @@
+@@ -4362,11 +_,26 @@
          );
      }
  
@@ -205,7 +205,7 @@
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockX(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockY(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
          }
-@@ -4415,7 +_,9 @@
+@@ -4414,7 +_,9 @@
              }
  
              for (EntityTreeNode entity : passengerTree.getFullTree()) {
@@ -215,7 +215,7 @@
              }
  
              if (hasPassengers) {
-@@ -4889,7 +_,7 @@
+@@ -4888,7 +_,7 @@
          return this;
      }
  
@@ -224,7 +224,7 @@
          List<Entity> passengers = this.getPassengers();
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
-@@ -4916,13 +_,13 @@
+@@ -4915,13 +_,13 @@
              entityx.restoreFrom(this);
              this.removeAfterChangingDimensions();
              entityx.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
@@ -240,7 +240,7 @@
              teleportTransition.postTeleportTransition().onTransition(entityx);
              this.teleportSpectators(teleportTransition, oldLevel);
              profilerFiller.pop();
-@@ -5267,6 +_,11 @@
+@@ -5266,6 +_,11 @@
      }
  
      public final void setBoundingBox(AABB bb) {
@@ -252,7 +252,7 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
-@@ -5756,9 +_,7 @@
+@@ -5755,9 +_,7 @@
  
      public void setDeltaMovement(Vec3 deltaMovement) {
          if (deltaMovement.isFinite()) {
@@ -262,7 +262,7 @@
          }
      }
  
-@@ -5860,9 +_,7 @@
+@@ -5859,9 +_,7 @@
          // Paper end - Block invalid positions and bounding box
          boolean posChanged = this.position.x != x || this.position.y != y || this.position.z != z;
          if (posChanged) { // Folia - region threading

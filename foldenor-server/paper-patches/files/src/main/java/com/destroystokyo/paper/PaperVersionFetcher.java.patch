@@ -1,36 +1,29 @@
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-@@ -35,7 +_,7 @@
-     private static final Logger LOGGER = LogUtils.getClassLogger();
+@@ -40,8 +_,8 @@
+     private static final ComponentLogger COMPONENT_LOGGER = ComponentLogger.logger(LogManager.getRootLogger().getName());
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
--    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads/paper";
-+    private static final String DOWNLOAD_PAGE = "https://github.com/Edenor-Minecraft/Foldenor";
- 
-     @Override
-     public long getCacheTime() {
-@@ -49,7 +_,7 @@
-         if (build.buildNumber().isEmpty() && build.gitCommit().isEmpty()) {
-             updateMessage = text("You are running a development version without access to version information", color(0xFF5300));
-         } else {
--            updateMessage = getUpdateStatusMessage("PaperMC/Folia", build); // Folia
-+            updateMessage = getUpdateStatusMessage("Edenor-Minecraft/Foldenor", build); // Foldenor
-         }
-         final @Nullable Component history = this.getHistory();
- 
-@@ -60,15 +_,15 @@
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads/folia"; // Folia
+-    private static final String REPOSITORY = "PaperMC/Folia"; // Folia
++    private static final String DOWNLOAD_PAGE = "https://github.com/Edenor-Minecraft/Foldenor"; // Folia
++    private static final String REPOSITORY = "Edenor-Minecraft/Foldenor"; // Folia
+     private static final ServerBuildInfo BUILD_INFO = ServerBuildInfo.buildInfo();
+     private static final String USER_AGENT = BUILD_INFO.brandName() + "/" + BUILD_INFO.asString(VERSION_SIMPLE) + " (https://papermc.io)";
+     private static final Gson GSON = new Gson();
+@@ -110,15 +_,15 @@
          int distance = DISTANCE_ERROR;
  
-         final OptionalInt buildNumber = build.buildNumber();
+         final OptionalInt buildNumber = PaperVersionFetcher.BUILD_INFO.buildNumber();
 -        if (buildNumber.isPresent()) {
 +        /*if (buildNumber.isPresent()) {
-             distance = fetchDistanceFromSiteApi(build, buildNumber.getAsInt());
+             distance = fetchDistanceFromSiteApi(buildNumber.getAsInt());
 -        } else {
 +        } else {*/
-             final Optional<String> gitBranch = build.gitBranch();
-             final Optional<String> gitCommit = build.gitCommit();
+             final Optional<String> gitBranch = PaperVersionFetcher.BUILD_INFO.gitBranch();
+             final Optional<String> gitCommit = PaperVersionFetcher.BUILD_INFO.gitCommit();
              if (gitBranch.isPresent() && gitCommit.isPresent()) {
-                 distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
+                 distance = fetchDistanceFromGitHub(gitBranch.get(), gitCommit.get());
              }
 -        }
 +        //}

@@ -17,7 +17,7 @@
          this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
          //this.updateSkyBrightness(); // Folia - region threading - delay until first tick
          // Paper start - rewrite chunk system
-@@ -844,12 +_,14 @@
+@@ -860,12 +_,14 @@
              }
  
              profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); try { // Folia - profiler
@@ -32,7 +32,7 @@
                          if (!entity.isRemoved()) {
                              if (!tickRateManager.isEntityFrozen(entity)) {
                                  profilerFiller.push("checkDespawn");
-@@ -866,14 +_,37 @@
+@@ -882,14 +_,37 @@
                                          entity.stopRiding();
                                      }
  
@@ -71,7 +71,7 @@
              } finally { profiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); } // Folia - profiler
              profilerFiller.popPush("blockEntities");
              profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.TILE_ENTITY); try { // Folia - profiler
-@@ -1066,7 +_,7 @@
+@@ -1082,7 +_,7 @@
          int minBlockZ = pos.getMinBlockZ();
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("thunder");
@@ -80,7 +80,7 @@
              BlockPos blockPos = this.findLightningTargetAround(this.getBlockRandomPos(minBlockX, 0, minBlockZ, 15));
              if (this.isRainingAt(blockPos)) {
                  DifficultyInstance currentDifficultyAt = this.getCurrentDifficultyAt(blockPos);
-@@ -1424,7 +_,27 @@
+@@ -1440,7 +_,27 @@
          profiler.startTimer(timerId);
          try {
          // Folia end - profiler
@@ -108,7 +108,7 @@
          entity.tick();
          // Folia start - region threading
          if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity)) {
-@@ -1435,6 +_,8 @@
+@@ -1451,6 +_,8 @@
              // portalled
              return;
          }

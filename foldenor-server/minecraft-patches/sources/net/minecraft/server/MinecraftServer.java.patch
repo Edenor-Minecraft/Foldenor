@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -995,10 +_,10 @@
+@@ -993,10 +_,10 @@
          // CraftBukkit end
          if (flush) {
              for (ServerLevel serverLevel : this.getAllLevels()) {
@@ -13,7 +13,7 @@
          }
  
          return flag;
-@@ -1952,6 +_,7 @@
+@@ -1955,6 +_,7 @@
          }
  
          profilerFiller.popPush("server gui refresh");
