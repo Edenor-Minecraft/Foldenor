@@ -4,41 +4,45 @@ on:
   push:
     branches: [ "ver/1.21.11" ]
   workflow_dispatch:
-  #workflow_run:
-    #workflows: ["Automatically update Folia commit"]
-    #types:
-      #- completed
 
 jobs:
-  compile_1_21_11_core_jar:
-    runs-on: windows-latest
+  build:
+    runs-on: ubuntu-latest
     
     permissions:
-       contents: write
-       actions: write
+      contents: write
+      actions: write
        
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v4
         
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Set up GraalVM JDK 21
+        uses: graalvm/setup-graalvm@v1
         with:
-          distribution: zulu
-          java-version: 25
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'gradle'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        
+      - name: Cache Paperweight
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches/paperweight
+          key: ${{ runner.os }}-paperweight-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-paperweight-
+
       - name: Configure Git User Details
         run: |
-          git config --global user.email "actions@github.com" && git config --global user.name "Github Actions"
+          git config --global user.email "actions@github.com"
+          git config --global user.name "Github Actions"
 
       - name: Apply Patches
-        run: ./gradlew --refresh-dependencies applyAllPatches
-   
+        run: ./gradlew applyAllPatches --no-daemon --parallel
+
       - name: Build MojmapPaperclip
-        run: ./gradlew --refresh-dependencies createMojmapPaperclipJar
+        run: ./gradlew createMojmapPaperclipJar --no-daemon --parallel
            
       - name: Make release
         uses: marvinpinto/action-automatic-releases@master
