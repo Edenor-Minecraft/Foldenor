@@ -5,28 +5,25 @@
      final Reference2FloatMap<ResourceKey<Level>> progressMap = Reference2FloatMaps.synchronize(new Reference2FloatOpenHashMap<>());
      volatile Component status = Component.translatable("optimizeWorld.stage.counting");
 -    static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca$");
-+    static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.(linear | mca)$"); // LinearPaper
++    static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\\\"+ net.minecraft.world.level.chunk.storage.RegionFileStorage.getExtensionName() +"$"); // Luminol - Configurable region file format
      final DimensionDataStorage overworldDataStorage;
  
      public WorldUpgrader(
-@@ -270,7 +_,9 @@
+@@ -270,7 +_,7 @@
          }
  
          private static List<WorldUpgrader.FileToUpgrade> getAllChunkPositions(RegionStorageInfo regionStorageInfo, Path path) {
 -            File[] files = path.toFile().listFiles((directory, filename) -> filename.endsWith(".mca"));
-+            File[] files = path.toFile().listFiles((directory, filename) -> {
-+                return filename.endsWith(".linear") || filename.endsWith(".mca"); // LinearPaper
-+            });
++            File[] files = path.toFile().listFiles((directory, filename) -> filename.endsWith(net.minecraft.world.level.chunk.storage.RegionFileStorage.getExtensionName())); // Luminol - Configurable region file format
              if (files == null) {
                  return List.of();
              } else {
-@@ -283,7 +_,8 @@
+@@ -283,7 +_,7 @@
                          int i1 = Integer.parseInt(matcher.group(2)) << 5;
                          List<ChunkPos> list1 = Lists.newArrayList();
  
 -                        try (RegionFile regionFile = new RegionFile(regionStorageInfo, file.toPath(), path, true)) {
-+                        try (com.triassic.linearpaper.region.AbstractRegionFile regionFile =
-+                                     com.triassic.linearpaper.region.AbstractRegionFileFactory.getAbstractRegionFile(regionStorageInfo, file.toPath(), path, true)) { // LinearPaper
++                        try (abomination.IRegionFile regionFile = net.minecraft.world.level.chunk.storage.RegionFileStorage.createNew(regionStorageInfo, file.toPath(), path, true)) {  // Luminol - Configurable region file format
                              for (int i2 = 0; i2 < 32; i2++) {
                                  for (int i3 = 0; i3 < 32; i3++) {
                                      ChunkPos chunkPos = new ChunkPos(i2 + i, i3 + i1);
@@ -35,7 +32,7 @@
          protected abstract boolean tryProcessOnePosition(SimpleRegionStorage regionStorage, ChunkPos chunkPos, ResourceKey<Level> dimension);
  
 -        private void onFileFinished(RegionFile regionFile) {
-+        private void onFileFinished(com.triassic.linearpaper.region.AbstractRegionFile regionFile) { // LinearPaper
++        private void onFileFinished(abomination.IRegionFile regionFile) { // Luminol - Configurable region file format
              if (WorldUpgrader.this.recreateRegionFiles) {
                  if (this.previousWriteFuture != null) {
                      this.previousWriteFuture.join();
@@ -44,7 +41,7 @@
      }
  
 -    record FileToUpgrade(RegionFile file, List<ChunkPos> chunksToUpgrade) {
-+    record FileToUpgrade(com.triassic.linearpaper.region.AbstractRegionFile file, List<ChunkPos> chunksToUpgrade) { // LinearPaper
++    record FileToUpgrade(abomination.IRegionFile file, List<ChunkPos> chunksToUpgrade) { // Luminol - Configurable region file format
      }
  
      class PoiUpgrader extends WorldUpgrader.SimpleRegionStorageUpgrader {

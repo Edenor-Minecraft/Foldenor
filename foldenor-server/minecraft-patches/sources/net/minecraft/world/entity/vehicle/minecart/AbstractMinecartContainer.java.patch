@@ -8,22 +8,11 @@
  import net.minecraft.world.Containers;
  import net.minecraft.world.InteractionHand;
  import net.minecraft.world.InteractionResult;
-@@ -24,6 +_,18 @@
+@@ -30,6 +_,7 @@
  
- public abstract class AbstractMinecartContainer extends AbstractMinecart implements ContainerEntity {
-     private NonNullList<ItemStack> itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
-+    // Pufferfish start - Improve container checking with a bitset
-+    private gg.airplane.structs.ItemListWithBitset optimizedItems;
-+    @Override
-+    public Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
-+    }
-+
-+    @Override
-+    public Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
-+    }
-+    // Pufferfish end - Improve container checking with a bitset
-     public @Nullable ResourceKey<LootTable> lootTable;
-     public long lootTableSeed;
-     private final com.destroystokyo.paper.loottable.PaperLootableInventoryData lootableData = new com.destroystokyo.paper.loottable.PaperLootableInventoryData(); // Paper - LootTable API
+     protected AbstractMinecartContainer(EntityType<?> type, Level level) {
+         super(type, level);
++        this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
+     }
+ 
+     @Override

@@ -1,11 +1,6 @@
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-@@ -1,10 +_,13 @@
- package net.minecraft.world.level.chunk.storage;
- 
-+import com.triassic.linearpaper.region.AbstractRegionFile;
- import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
- import java.io.DataInputStream;
+@@ -5,6 +_,8 @@
  import java.io.DataOutputStream;
  import java.io.IOException;
  import java.nio.file.Path;
@@ -19,37 +14,67 @@
      public static final String ANVIL_EXTENSION = ".mca";
      private static final int MAX_CACHE_SIZE = 256;
 -    public final Long2ObjectLinkedOpenHashMap<RegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();
-+    public final Long2ObjectLinkedOpenHashMap<com.triassic.linearpaper.region.AbstractRegionFile> regionCache = new Long2ObjectLinkedOpenHashMap(); // LinearPaper
++    public final Long2ObjectLinkedOpenHashMap<abomination.IRegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();  // Luminol - Configurable region file format
      private final RegionStorageInfo info;
      private final Path folder;
      private final boolean sync;
-@@ -58,7 +_,10 @@
+@@ -34,7 +_,7 @@
+     @Nullable
+     public static ChunkPos getRegionFileCoordinates(Path file) {
+         String fileName = file.getFileName().toString();
+-        if (!fileName.startsWith("r.") || !fileName.endsWith(".mca")) {
++        if (!fileName.startsWith("r.") || !fileName.endsWith(getExtensionName())) { // Luminol - Configurable region file format
+             return null;
+         }
+ 
+@@ -58,9 +_,29 @@
      private static final int REGION_SHIFT = 5;
      private static final int MAX_NON_EXISTING_CACHE = 1024 * 4;
      private final it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet nonExistingRegionFiles = new it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet();
 +    // LinearPaper start - Linear region format
      private static String getRegionFileName(final int chunkX, final int chunkZ) {
-+        if (FoldenorConfig.regionFormat.equals(com.triassic.linearpaper.region.RegionFileFormat.LINEAR))
-+            return "r." + (chunkX >> REGION_SHIFT) + "." + (chunkZ >> REGION_SHIFT) + ".linear";
-         return "r." + (chunkX >> REGION_SHIFT) + "." + (chunkZ >> REGION_SHIFT) + ".mca";
-     }
+-        return "r." + (chunkX >> REGION_SHIFT) + "." + (chunkZ >> REGION_SHIFT) + ".mca";
+-    }
++        return "r." + (chunkX >> REGION_SHIFT) + "." + (chunkZ >> REGION_SHIFT) + getExtensionName(); // Luminol - Configurable region file format
++    }
++    // Luminol start - Configurable region file format
++    public static abomination.IRegionFile createNew(RegionStorageInfo info, Path filePath, Path folder, boolean sync) throws IOException{
++        final me.earthme.luminol.enums.EnumRegionFormat regionFormat = net.edenor.foldenor.config.FoldenorConfig.regionFormat;
++        final String fullFileName = filePath.getFileName().toString();
++        final String[] fullNameSplit = fullFileName.split("\\.");
++        final String extensionName = fullNameSplit[fullNameSplit.length - 1];
++
++        if (!regionFormat.getArgument().equalsIgnoreCase(extensionName)) {
++            net.minecraft.server.MinecraftServer.setFatalException(new RuntimeException("Invalid region file format: " + extensionName + " expected " + regionFormat.getArgument()));
++            throw new IOException("Invalid region file format: " + extensionName + " expected " + regionFormat.getArgument());
++        }
++
++        return regionFormat.getCreator().create(new me.earthme.luminol.utils.RegionCreatorInfo(info, filePath, folder, sync));
++    }
++
++    public static String getExtensionName() {
++        return "." + net.edenor.foldenor.config.FoldenorConfig.regionFormat.getArgument();
++    }
++    // Luminol end
  
+     private boolean doesRegionFilePossiblyExist(final long position) {
+         synchronized (this.nonExistingRegionFiles) {
 @@ -94,15 +_,15 @@
      }
  
      @Override
 -    public synchronized final RegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) {
-+    public synchronized final com.triassic.linearpaper.region.AbstractRegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) { // LinearPaper
++    public synchronized final abomination.IRegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) { // Luminol - Configurable region file format
          return this.regionCache.getAndMoveToFirst(ChunkPos.asLong(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT));
      }
  
      @Override
 -    public synchronized final RegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException {
-+    public synchronized final com.triassic.linearpaper.region.AbstractRegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException { // LinearPaper
++    public synchronized final abomination.IRegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException {  // Luminol - Configurable region file format
          final long key = ChunkPos.asLong(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT);
  
 -        RegionFile ret = this.regionCache.getAndMoveToFirst(key);
-+        com.triassic.linearpaper.region.AbstractRegionFile ret = this.regionCache.getAndMoveToFirst(key); // LinearPaper
++        abomination.IRegionFile ret = this.regionCache.getAndMoveToFirst(key);  // Luminol - Configurable region file format
          if (ret != null) {
              return ret;
          }
@@ -58,7 +83,7 @@
          FileUtil.createDirectoriesSafe(this.folder);
  
 -        ret = new RegionFile(this.info, regionPath, this.folder, this.sync);
-+        ret = com.triassic.linearpaper.region.AbstractRegionFileFactory.getAbstractRegionFile(this.info, regionPath, this.folder, this.sync); // LinearPaper
++        ret = this.createNew(this.info, regionPath, this.folder, this.sync);  // Luminol - Configurable region file format
  
          this.regionCache.putAndMoveToFirst(key, ret);
  
@@ -67,7 +92,7 @@
  
          final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
 -        final RegionFile regionFile = this.getRegionFile(pos);
-+        final com.triassic.linearpaper.region.AbstractRegionFile regionFile = this.getRegionFile(pos); // LinearPaper
++        final abomination.IRegionFile regionFile = this.getRegionFile(pos);  // Luminol - Configurable region file format
  
          // note: not required to keep regionfile loaded after this call, as the write param takes a regionfile as input
          // (and, the regionfile parameter is unused for writing until the write call)
@@ -76,7 +101,7 @@
          final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
          if (writeData.result() == ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO.RegionDataController.WriteData.WriteResult.DELETE) {
 -            final RegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ);
-+            final com.triassic.linearpaper.region.AbstractRegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ); // LinearPaper
++            final abomination.IRegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ);  // Luminol - Configurable region file format
              if (regionFile != null) {
                  regionFile.clear(pos);
              } // else: didn't exist
@@ -85,7 +110,7 @@
          final int chunkX, final int chunkZ
      ) throws IOException {
 -        final RegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ);
-+        final com.triassic.linearpaper.region.AbstractRegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ); // LinearPaper
++        final abomination.IRegionFile regionFile = this.moonrise$getRegionFileIfExists(chunkX, chunkZ);  // Luminol - Configurable region file format
  
          final DataInputStream input = regionFile == null ? null : regionFile.getChunkDataInputStream(new ChunkPos(chunkX, chunkZ));
  
@@ -94,7 +119,7 @@
              final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
              final ChunkPos headerChunkPos = SerializableChunkData.getChunkCoordinate(ret);
 -            final RegionFile regionFile = this.getRegionFile(pos);
-+            final AbstractRegionFile regionFile = this.getRegionFile(pos);
++            final abomination.IRegionFile regionFile = this.getRegionFile(pos);  // Luminol - Configurable region file format
  
              if (regionFile.getRecalculateCount() != readData.recalculateCount()) {
                  return null;
@@ -103,17 +128,16 @@
      // Paper end - rewrite chunk system
      // Paper start - rewrite chunk system
 -    public RegionFile getRegionFile(ChunkPos chunkcoordintpair) throws IOException {
-+    public com.triassic.linearpaper.region.AbstractRegionFile getRegionFile(ChunkPos chunkcoordintpair) throws IOException { // LinearPaper
++    public abomination.IRegionFile getRegionFile(ChunkPos chunkcoordintpair) throws IOException {  // Luminol - Configurable region file format
          return this.getRegionFile(chunkcoordintpair, false);
      }
      // Paper end - rewrite chunk system
-@@ -275,7 +_,8 @@
+@@ -275,7 +_,7 @@
          this.isChunkData = isChunkDataFolder(this.folder); // Paper - recalculate region file headers
      }
  
 -    @org.jetbrains.annotations.Contract("_, false -> !null") @Nullable private RegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit
-+    @org.jetbrains.annotations.Contract("_, false -> !null")
-+    public com.triassic.linearpaper.region.AbstractRegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit // Paper - public // LinearPaper
++    @org.jetbrains.annotations.Contract("_, false -> !null") private abomination.@Nullable IRegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit
          // Paper start - rewrite chunk system
          if (existingOnly) {
              return this.moonrise$getRegionFileIfExists(chunkPos.x, chunkPos.z);
@@ -122,7 +146,7 @@
              final long key = ChunkPos.asLong(chunkPos.x >> REGION_SHIFT, chunkPos.z >> REGION_SHIFT);
  
 -            RegionFile ret = this.regionCache.getAndMoveToFirst(key);
-+            com.triassic.linearpaper.region.AbstractRegionFile ret = this.regionCache.getAndMoveToFirst(key); // LinearPaper
++            abomination.IRegionFile ret = this.regionCache.getAndMoveToFirst(key);  // Luminol - Configurable region file format
              if (ret != null) {
                  return ret;
              }
@@ -131,7 +155,7 @@
              FileUtil.createDirectoriesSafe(this.folder);
  
 -            ret = new RegionFile(this.info, regionPath, this.folder, this.sync);
-+            ret = com.triassic.linearpaper.region.AbstractRegionFileFactory.getAbstractRegionFile(this.info, regionPath, this.folder, this.sync); // LinearPaper
++            ret = this.createNew(this.info, regionPath, this.folder, this.sync); // Luminol - Configurable region file format
  
              this.regionCache.putAndMoveToFirst(key, ret);
  
@@ -140,7 +164,7 @@
      }
  
 -    private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {
-+    private static CompoundTag readOversizedChunk(com.triassic.linearpaper.region.AbstractRegionFile regionfile, ChunkPos chunkCoordinate) throws IOException { // LinearPaper
++    private static CompoundTag readOversizedChunk(abomination.IRegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {  // Luminol - Configurable region file format
          synchronized (regionfile) {
              try (DataInputStream datainputstream = regionfile.getChunkDataInputStream(chunkCoordinate)) {
                  CompoundTag oversizedData = regionfile.getOversizedData(chunkCoordinate.x, chunkCoordinate.z);
@@ -149,7 +173,7 @@
      public @Nullable CompoundTag read(ChunkPos chunkPos) throws IOException {
          // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
 -        RegionFile regionFile = this.getRegionFile(chunkPos, true);
-+        com.triassic.linearpaper.region.AbstractRegionFile regionFile = this.getRegionFile(chunkPos, true); // LinearPaper
++        abomination.IRegionFile regionFile = this.getRegionFile(chunkPos, true); // Luminol - Configurable region file format
          if (regionFile == null) {
              return null;
          }
@@ -158,7 +182,7 @@
      public void scanChunk(ChunkPos chunkPos, StreamTagVisitor visitor) throws IOException {
          // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
 -        RegionFile regionFile = this.getRegionFile(chunkPos, true);
-+        com.triassic.linearpaper.region.AbstractRegionFile regionFile = this.getRegionFile(chunkPos, true); // LinearPaper
++        abomination.IRegionFile regionFile = this.getRegionFile(chunkPos, true); // Luminol - Configurable region file format
          if (regionFile == null) {
              return;
          }
@@ -167,7 +191,7 @@
      public void write(ChunkPos chunkPos, @Nullable CompoundTag chunkData) throws IOException { // Paper - rewrite chunk system - public
          if (!SharedConstants.DEBUG_DONT_SAVE_WORLD) {
 -            RegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system
-+            com.triassic.linearpaper.region.AbstractRegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system // LinearPaper
++            abomination.IRegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system // Luminol - Configurable region file format
              // Paper start - rewrite chunk system
              if (regionFile == null) {
                  // if the RegionFile doesn't exist, no point in deleting from it
@@ -176,7 +200,7 @@
          synchronized (this) {
              final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();
 -            for (final RegionFile regionFile : this.regionCache.values()) {
-+            for (final com.triassic.linearpaper.region.AbstractRegionFile regionFile : this.regionCache.values()) { // LinearPaper
++            for (final abomination.IRegionFile regionFile : this.regionCache.values()) { // Luminol - Configurable region file format
                  try {
                      regionFile.close();
                  } catch (final IOException ex) {
@@ -185,7 +209,7 @@
          synchronized (this) {
              final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();
 -            for (final RegionFile regionFile : this.regionCache.values()) {
-+            for (final com.triassic.linearpaper.region.AbstractRegionFile regionFile : this.regionCache.values()) { // LinearPaper
++            for (final abomination.IRegionFile regionFile : this.regionCache.values()) { // Luminol - Configurable region file format
                  try {
                      regionFile.flush();
                  } catch (final IOException ex) {

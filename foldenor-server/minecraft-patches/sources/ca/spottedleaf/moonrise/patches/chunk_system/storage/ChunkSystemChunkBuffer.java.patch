@@ -5,5 +5,5 @@
      public void moonrise$setWriteOnClose(final boolean value);
  
 -    public void moonrise$write(final RegionFile regionFile) throws IOException;
-+    public void moonrise$write(final com.triassic.linearpaper.region.AbstractRegionFile regionFile) throws IOException; // LinearPaper
++    public void moonrise$write(final abomination.IRegionFile regionFile) throws IOException; // Luminol - Configurable region file format
  }

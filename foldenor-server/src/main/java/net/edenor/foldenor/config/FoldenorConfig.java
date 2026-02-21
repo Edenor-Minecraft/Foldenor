@@ -1,10 +1,12 @@
 package net.edenor.foldenor.config;
 
+import abomination.LinearRegionFile;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-import com.triassic.linearpaper.region.RegionFileFormat;
 import dev.kaiijumc.kaiiju.KaiijuEntityLimits;
 import io.canvasmc.canvas.simd.SIMDDetection;
+import me.earthme.luminol.enums.EnumRegionFormat;
+import me.earthme.luminol.utils.BufferedLinearRegionFileFlusher;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +35,6 @@ public class FoldenorConfig {
     public static boolean useVirtualThreadForAsyncScheduler = false;
     public static boolean skipMapItemUpdatesIfNoBukkitRender = true;
     public static int entityActivationCheckFrequency = 20;
-    public static int linearFlushFrequency = 10;
-    public static int linearFlushThreads = 1;
-    public static RegionFileFormat regionFormat = RegionFileFormat.ANVIL;
-    public static int linearCompressionLevel = 1;
     public static boolean dearEnabled;
     public static int startDistance;
     public static int startDistanceSquared;
@@ -78,6 +77,7 @@ public class FoldenorConfig {
     public static boolean forceCleanupEntityBrainMemoryForPositionTracker = false;
     public static boolean preventIncorrectTeleportAsync = false;
     public static boolean preventIncorrectTeleportAsyncThrow = false;
+
     protected static File CONFIG_FILE;
     static boolean verbose;
 
@@ -154,20 +154,46 @@ public class FoldenorConfig {
         }
     }
 
+    public static int linearFlushFrequency = 100;
+    public static int linearFlushThreads = 6;
+    public static EnumRegionFormat regionFormat = EnumRegionFormat.MCA;
+    public static int linearCompressionLevel = 1;
+    public static int blinearIoFlushDelayMs = 3000;
+    public static int blinearIoThreadCount = 6;
+    public static boolean linearUseVirtualThread = true;
+    public static BufferedLinearRegionFileFlusher blinearFlusher;
+
     private static void readLinearRegion() {
         linearFlushFrequency = getInt("region-format.linear.flush-frequency", linearFlushFrequency);
         linearFlushThreads = getInt("region-format.linear.flush-max-threads", linearFlushThreads);
+
+        blinearIoThreadCount = getInt("region-format.linear.blinear.flush-max-threads", blinearIoThreadCount);
+        blinearIoFlushDelayMs = getInt("region-format.linear.blinear.flush-frequency", blinearIoFlushDelayMs);
+
+        linearUseVirtualThread = getBoolean("region-format.linear.use-virtual-threads", linearUseVirtualThread);
 
         if (linearFlushThreads < 0)
             linearFlushThreads = Math.max(Runtime.getRuntime().availableProcessors() + linearFlushThreads, 1);
         else
             linearFlushThreads = Math.max(linearFlushThreads, 1);
 
-        regionFormat = RegionFileFormat.fromString(getString("region-format.type", regionFormat.name()));
-        if (regionFormat.equals(RegionFileFormat.INVALID)) {
-            LOGGER.error("Unknown region format in linear.yml: {}", regionFormat);
-            LOGGER.error("Falling back to ANVIL region file format.");
-            regionFormat = RegionFileFormat.ANVIL;
+        regionFormat = EnumRegionFormat.fromString(getString("region-format.type", regionFormat.name()));
+        switch (regionFormat) {
+            case MCA -> {}
+            case B_LINEAR -> {
+                blinearFlusher = new BufferedLinearRegionFileFlusher(blinearIoThreadCount, 20, blinearIoFlushDelayMs);
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> blinearFlusher.shutdown()));
+            }
+            case LINEAR_V2 -> {
+                LinearRegionFile.SAVE_DELAY_MS = linearFlushFrequency;
+                LinearRegionFile.SAVE_THREAD_MAX_COUNT = linearFlushThreads;
+                LinearRegionFile.USE_VIRTUAL_THREAD = linearUseVirtualThread;
+            }
+            case null, default -> {
+                LOGGER.error("Unknown region format in linear.yml: {}", regionFormat);
+                LOGGER.error("Falling back to ANVIL region file format.");
+                regionFormat = EnumRegionFormat.MCA;
+            }
         }
 
         linearCompressionLevel = getInt("region-format.linear.compression-level", linearCompressionLevel);

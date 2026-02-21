@@ -1,8 +1,9 @@
 --- a/net/minecraft/world/level/chunk/storage/RegionStorageInfo.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionStorageInfo.java
-@@ -1,5 +_,6 @@
+@@ -1,5 +_,7 @@
  package net.minecraft.world.level.chunk.storage;
  
++import me.earthme.luminol.enums.EnumRegionFormat;
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.resources.ResourceKey;
  import net.minecraft.world.level.Level;
@@ -13,7 +14,7 @@
      }
 +
 +    // LinearPaper start
-+    public com.triassic.linearpaper.region.RegionFileFormat regionFormat() {
++    public EnumRegionFormat regionFormat() {
 +        return FoldenorConfig.regionFormat;
 +    }
 +

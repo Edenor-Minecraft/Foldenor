@@ -1,11 +1,10 @@
 --- a/net/minecraft/world/level/chunk/storage/RegionFile.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFile.java
-@@ -15,6 +_,8 @@
+@@ -15,6 +_,7 @@
  import java.nio.file.Path;
  import java.nio.file.StandardCopyOption;
  import java.nio.file.StandardOpenOption;
 +
-+import com.triassic.linearpaper.region.AbstractRegionFile;
  import net.minecraft.resources.Identifier;
  import net.minecraft.util.Util;
  import net.minecraft.util.profiling.jfr.JvmProfiler;
@@ -14,7 +13,7 @@
  import org.slf4j.Logger;
  
 -public class RegionFile implements AutoCloseable, ca.spottedleaf.moonrise.patches.chunk_system.storage.ChunkSystemRegionFile { // Paper - rewrite chunk system
-+public class RegionFile implements AutoCloseable, ca.spottedleaf.moonrise.patches.chunk_system.storage.ChunkSystemRegionFile, AbstractRegionFile { // Paper - rewrite chunk system
++public class RegionFile implements AutoCloseable, ca.spottedleaf.moonrise.patches.chunk_system.storage.ChunkSystemRegionFile , abomination.IRegionFile{ // Paper - rewrite chunk system // Luminol - Configurable region file format
      private static final Logger LOGGER = LogUtils.getLogger();
      public static final int MAX_CHUNK_SIZE = 500 * 1024 * 1024; // Paper - don't write garbage data to disk if writing serialization fails
      private static final int SECTOR_BYTES = 4096;
@@ -23,7 +22,7 @@
      }
  
 -    boolean recalculateHeader() throws IOException {
-+    public boolean recalculateHeader() throws IOException { // LinearPaper - make public
++    public boolean recalculateHeader() throws IOException { // Luminol - Configurable region file format // Luminol - Configurable region file format
          if (!this.canRecalcHeader) {
              return false;
          }
@@ -32,7 +31,7 @@
      }
  
 -    protected synchronized void write(ChunkPos chunkPos, ByteBuffer chunkData) throws IOException {
-+    public synchronized void write(ChunkPos chunkPos, ByteBuffer chunkData) throws IOException {
++    public synchronized void write(ChunkPos chunkPos, ByteBuffer chunkData) throws IOException { // Luminol - Configurable region file format
          int offsetIndex = getOffsetIndex(chunkPos);
          int i = this.offsets.get(offsetIndex);
          int sectorNumber = getSectorNumber(i);
@@ -41,7 +40,7 @@
  
          @Override
 -        public final void moonrise$write(final RegionFile regionFile) throws IOException {
-+        public final void moonrise$write(final AbstractRegionFile regionFile) throws IOException {
++        public final void moonrise$write(final abomination.IRegionFile regionFile) throws IOException { // Luminol - Configurable region file format
              regionFile.write(this.pos, ByteBuffer.wrap(this.buf, 0, this.count));
          }
          // Paper end - rewrite chunk system
@@ -50,12 +49,12 @@
      }
  
 -    synchronized boolean isOversized(int x, int z) {
-+    public synchronized boolean isOversized(int x, int z) {
++    public synchronized boolean isOversized(int x, int z) { // Luminol - Configurable region file format
          return this.oversized[getChunkIndex(x, z)] == 1;
      }
  
 -    synchronized void setOversized(int x, int z, boolean oversized) throws IOException {
-+    public synchronized void setOversized(int x, int z, boolean oversized) throws IOException {
++    public synchronized void setOversized(int x, int z, boolean oversized) throws IOException { // Luminol - Configurable region file format
          final int offset = getChunkIndex(x, z);
          boolean previous = this.oversized[offset] == 1;
          this.oversized[offset] = (byte) (oversized ? 1 : 0);
@@ -64,7 +63,7 @@
      }
  
 -    synchronized net.minecraft.nbt.CompoundTag getOversizedData(int x, int z) throws IOException {
-+    public synchronized net.minecraft.nbt.CompoundTag getOversizedData(int x, int z) throws IOException {
++    public synchronized net.minecraft.nbt.CompoundTag getOversizedData(int x, int z) throws IOException { // Luminol - Configurable region file format
          Path file = getOversizedFile(x, z);
          try (DataInputStream out = new DataInputStream(new java.io.BufferedInputStream(new java.util.zip.InflaterInputStream(Files.newInputStream(file))))) {
              return net.minecraft.nbt.NbtIo.read((java.io.DataInput) out);

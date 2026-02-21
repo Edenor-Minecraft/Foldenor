@@ -9,43 +9,11 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
  import net.minecraft.core.NonNullList;
-@@ -29,6 +_,18 @@
- import org.jspecify.annotations.Nullable;
- 
- public class HopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
-+    // Pufferfish start - Improve container checking with a bitset
-+    private gg.airplane.structs.ItemListWithBitset optimizedItems;
-+    @Override
-+    public Container.OptionalState hasEmptySlot() {
-+        return this.optimizedItems.isSlotFilled() ? OptionalState.TRUE : OptionalState.FALSE;
-+    }
-+
-+    @Override
-+    public Container.OptionalState isCompletelyEmpty() {
-+        return this.optimizedItems.isCompletelyEmpty() ? OptionalState.TRUE : OptionalState.FALSE;
-+    }
-+    // Pufferfish end - Improve container checking with a bitset
-     public static final int MOVE_ITEM_SPEED = 8;
-     public static final int HOPPER_CONTAINER_SIZE = 5;
-     private static final int[][] CACHED_SLOTS = new int[54][];
-@@ -86,15 +_,23 @@
-     public HopperBlockEntity(BlockPos pos, BlockState blockState) {
-         super(BlockEntityType.HOPPER, pos, blockState);
-         this.facing = blockState.getValue(HopperBlock.FACING);
-+        // Pufferfish start - Improve container checking with a bitset
-+        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(HOPPER_CONTAINER_SIZE);
-+        this.items = this.optimizedItems.nonNullList;
-+        // Pufferfish end - Improve container checking with a bitset
-     }
- 
+@@ -91,10 +_,10 @@
      @Override
      protected void loadAdditional(ValueInput input) {
          super.loadAdditional(input);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-+        // Pufferfish start - Improve container checking with a bitset
-+        this.optimizedItems = new gg.airplane.structs.ItemListWithBitset(this.getContainerSize());
-+        this.items = this.optimizedItems.nonNullList;
-+        // Pufferfish end - Improve container checking with a bitset
          if (!this.tryLoadLootTable(input)) {
              ContainerHelper.loadAllItems(input, this.items);
          }
@@ -53,6 +21,34 @@
  
          this.cooldownTime = input.getIntOr("TransferCooldown", -1);
      }
+@@ -117,7 +_,11 @@
+     @Override
+     public ItemStack removeItem(int index, int count) {
+         this.unpackLootTable(null);
+-        return ContainerHelper.removeItem(this.getItems(), index, count);
++        // Canvas start - optimize hoppers
++        ItemStack retVal = ContainerHelper.removeItem(this.getItems(), index, count);
++        recomputeFullState(this);
++        return retVal;
++        // Canvas end - optimize hoppers
+     }
+ 
+     @Override
+@@ -125,12 +_,14 @@
+         this.unpackLootTable(null);
+         this.getItems().set(index, stack);
+         stack.limitSize(this.getMaxStackSize(stack));
++        recomputeFullState(this); // Canvas - optimize hoppers
+     }
+ 
+     @Override
+     public void setBlockState(BlockState blockState) {
+         super.setBlockState(blockState);
+         this.facing = blockState.getValue(HopperBlock.FACING);
++        recomputeFullState(this); // Canvas - optimize hoppers
+     }
+ 
+     @Override
 @@ -144,9 +_,7 @@
          if (!blockEntity.isOnCooldown()) {
              blockEntity.setCooldown(0);
@@ -64,7 +60,7 @@
              if (!result && blockEntity.level.spigotConfig.hopperCheck > 1) {
                  blockEntity.setCooldown(blockEntity.level.spigotConfig.hopperCheck);
              }
-@@ -159,9 +_,29 @@
+@@ -159,7 +_,17 @@
      private static final int HOPPER_HAS_ITEMS = 1;
      private static final int HOPPER_IS_FULL = 2;
  
@@ -82,19 +78,7 @@
 +        // Canvas end - optimize hoppers
          hopper.unpackLootTable(null);
  
-+        // Puffrefish start - Improve container checking with a bitset; use bitsets
-+        if (hopper.optimizedItems.isCompletelyEmpty()) {
-+            hopper.fullState = HOPPER_EMPTY;
-+            return;
-+        } else if (!hopper.optimizedItems.isSlotFilled()) {
-+            hopper.fullState = HOPPER_HAS_ITEMS;
-+            return;
-+        }
-+        // Pufferfish end - Improve container checking with a bitset
-+
          final List<ItemStack> hopperItems = hopper.items;
- 
-         boolean empty = true;
 @@ -176,18 +_,20 @@
  
              if (!full) {
@@ -141,14 +125,6 @@
                  return false;
              } else {
                  // Paper start - Perf: Optimize Hoppers
-@@ -528,6 +_,7 @@
-     }
- 
-     private static boolean isFullContainer(Container container, Direction direction) {
-+        if (container.hasEmptySlot() == Container.OptionalState.TRUE) return false; // Pufferfish - Improve container checking with a bitset
-         int[] slots = getSlots(container, direction);
- 
-         for (int i : slots) {
 @@ -558,7 +_,7 @@
              return false;
          } else {
@@ -211,16 +187,11 @@
      @Override
      public double getLevelX() {
          return this.worldPosition.getX() + 0.5;
-@@ -867,7 +_,11 @@
- 
+@@ -868,6 +_,7 @@
      @Override
      protected void setItems(NonNullList<ItemStack> items) {
--        this.items = items;
-+        // Pufferfish start - Improve container checking with a bitset
-+        this.optimizedItems = gg.airplane.structs.ItemListWithBitset.fromList(items);
-+        this.items = this.optimizedItems.nonNullList;
+         this.items = items;
 +        recomputeFullState(this); // Canvas - optimize hoppers
-+        // Pufferfish end - Improve container checking with a bitset
      }
  
      public static void entityInside(Level level, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {

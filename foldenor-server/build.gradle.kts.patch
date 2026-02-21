@@ -57,13 +57,14 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.8")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -208,6 +_,18 @@
+@@ -208,6 +_,19 @@
      // Spark
      implementation("me.lucko:spark-api:0.1-20240720.200737-2")
      implementation("me.lucko:spark-paper:1.10.152")
 +
 +    // LinearPaper start
 +    implementation("com.github.luben:zstd-jni:1.5.6-6")
++    implementation("net.openhft:zero-allocation-hashing:0.16")
 +    // LinearPaper end
 +
 +    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
