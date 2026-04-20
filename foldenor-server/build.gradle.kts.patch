@@ -1,15 +1,6 @@
 --- a/folia-server/build.gradle.kts
 +++ b/folia-server/build.gradle.kts
-@@ -21,7 +_,7 @@
- paperweight {
-     minecraftVersion = providers.gradleProperty("mcVersion")
-     gitFilePatches = false
--    
-+
-     val fork = forks.register("folia") {
-         upstream.patchDir("paperServer") {
-             upstreamPath = "paper-server"
-@@ -31,7 +_,22 @@
+@@ -32,7 +_,22 @@
          }
      }
  
@@ -33,7 +24,7 @@
  
  
      spigot {
-@@ -120,10 +_,14 @@
+@@ -121,10 +_,14 @@
      main {
          java { srcDir("../paper-server/src/main/java"); srcDir("../paper-server/src/generated/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -48,7 +39,7 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -151,7 +_,7 @@
+@@ -152,7 +_,7 @@
  }
  
  dependencies {
@@ -57,7 +48,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.8")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -208,6 +_,19 @@
+@@ -209,6 +_,19 @@
      // Spark
      implementation("me.lucko:spark-api:0.1-20240720.200737-2")
      implementation("me.lucko:spark-paper:1.10.152")
@@ -77,7 +68,7 @@
  }
  
  tasks.jar {
-@@ -222,14 +_,14 @@
+@@ -223,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
@@ -97,7 +88,7 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
-@@ -317,6 +_,7 @@
+@@ -318,6 +_,7 @@
          vendor.set(JvmVendorSpec.JETBRAINS)
      })
      jvmArgs("-XX:+AllowEnhancedClassRedefinition")
