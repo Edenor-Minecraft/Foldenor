@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/state/BlockBehaviour.java
 +++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
-@@ -615,6 +_,13 @@
+@@ -633,6 +_,13 @@
                  this.emptyConstantCollisionShape = this.constantCollisionShape != null && this.constantCollisionShape.isEmpty();
                  // init caches
                  initCaches(collisionShape, true);
@@ -14,7 +14,7 @@
                  if (this.constantCollisionShape != null) {
                      initCaches(this.constantCollisionShape, true);
                  }
-@@ -1048,7 +_,7 @@
+@@ -1051,7 +_,7 @@
              private static final Direction[] DIRECTIONS = Direction.values();
              private static final int SUPPORT_TYPE_COUNT = SupportType.values().length;
              protected final VoxelShape collisionShape;
@@ -23,12 +23,12 @@
              private final boolean[] faceSturdy;
              protected final boolean isCollisionShapeFullBlock;
  
-@@ -1064,8 +_,14 @@
+@@ -1067,8 +_,14 @@
                          )
                      );
                  } else {
 -                    this.largeCollisionShape = Arrays.stream(Direction.Axis.values())
--                        .anyMatch(dir -> this.collisionShape.min(dir) < 0.0 || this.collisionShape.max(dir) > 1.0);
+-                        .anyMatch(axis -> this.collisionShape.min(axis) < 0.0 || this.collisionShape.max(axis) > 1.0);
 +                    // Leaf start - Remove stream in BlockBehaviour cache blockstate
 +                    for (Direction.Axis axis : Direction.Axis.values()) {
 +                        if (this.collisionShape.min(axis) < 0.0 || this.collisionShape.max(axis) > 1.0) {

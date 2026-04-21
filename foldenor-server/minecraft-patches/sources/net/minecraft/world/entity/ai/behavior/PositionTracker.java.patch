@@ -3,7 +3,7 @@
 @@ -10,4 +_,6 @@
      BlockPos currentBlockPosition();
  
-     boolean isVisibleBy(LivingEntity entity);
+     boolean isVisibleBy(final LivingEntity body);
 +
 +    boolean checkThread(net.minecraft.world.level.Level currOwnedByLevel); // Luminol - Fix a series issue around entity memory typed GlobalPos and WalkTarget
  }

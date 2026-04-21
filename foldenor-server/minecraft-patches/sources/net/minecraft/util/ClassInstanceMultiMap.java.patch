@@ -21,13 +21,12 @@
 -    private final List<T> allInstances = Lists.newArrayList();
 +    private final List<T> allInstances = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(); // Vine - vmp
  
-     public ClassInstanceMultiMap(Class<T> baseClass) {
+     public ClassInstanceMultiMap(final Class<T> baseClass) {
          this.baseClass = baseClass;
-@@ -54,19 +_,45 @@
-         return this.find(key.getClass()).contains(key);
+@@ -54,19 +_,43 @@
+         return this.find(o.getClass()).contains(o);
      }
  
-+
 +    // Vine start - vmp
 +    @Override
 +    public Object[] getBackingArray() {
@@ -38,18 +37,17 @@
 +     * @author ishland
 +     * @reason use fastutil array list for faster iteration & use array for filtering iteration
 +     */
-     public <S> Collection<S> find(Class<S> type) {
+     public <S> Collection<S> find(final Class<S> index) {
 +        // Canvas start - optimize
-+        List<T> cached = this.byClass.get(type);
++        List<T> cached = this.byClass.get(index);
 +        if (cached != null) return (Collection<S>) cached;
-+
-         if (!this.baseClass.isAssignableFrom(type)) {
-             throw new IllegalArgumentException("Don't know how to search for " + type);
+         if (!this.baseClass.isAssignableFrom(index)) {
+             throw new IllegalArgumentException("Don't know how to search for " + index);
          } else {
--            List<? extends T> list = this.byClass
--                .computeIfAbsent(type, clazz -> this.allInstances.stream().filter(clazz::isInstance).collect(Util.toMutableList()));
--            return (Collection<S>)Collections.unmodifiableCollection(list);
-+            List<? extends T> list = this.byClass.computeIfAbsent(type,
+-            List<? extends T> instances = this.byClass
+-                .computeIfAbsent(index, k -> this.allInstances.stream().filter(k::isInstance).collect(Util.toMutableList()));
+-            return (Collection<S>)Collections.unmodifiableCollection(instances);
++            List<? extends T> list = this.byClass.computeIfAbsent(index,
 +                    typeClass -> {
 +                it.unimi.dsi.fastutil.objects.ObjectArrayList<T> ts = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(this.allInstances.size());
 +                for (Object _allElement : ((it.unimi.dsi.fastutil.objects.ObjectArrayList<T>) this.allInstances).elements()) {

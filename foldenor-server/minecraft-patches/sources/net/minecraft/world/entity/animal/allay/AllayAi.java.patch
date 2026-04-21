@@ -1,12 +1,12 @@
 --- a/net/minecraft/world/entity/animal/allay/AllayAi.java
 +++ b/net/minecraft/world/entity/animal/allay/AllayAi.java
-@@ -114,6 +_,17 @@
-         Optional<GlobalPos> memory = brain.getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
-         if (memory.isPresent()) {
-             GlobalPos globalPos = memory.get();
+@@ -112,6 +_,16 @@
+         Optional<GlobalPos> likedNoteblockPos = brain.getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
+         if (likedNoteblockPos.isPresent()) {
+             GlobalPos position = likedNoteblockPos.get();
 +            // Luminol start - Do not like item if they were out of current tickregion
-+            final Level targetLevel = entity.level().getServer().getLevel(globalPos.dimension());
-+            final BlockPos targetPos = globalPos.pos();
++            final Level targetLevel = allay.level().getServer().getLevel(position.dimension());
++            final BlockPos targetPos = position.pos();
 +
 +            // thread checks
 +            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(targetLevel, targetPos)) {
@@ -14,7 +14,6 @@
 +                return Optional.empty();
 +            }
 +            // Luminol end
-+
-             if (shouldDepositItemsAtLikedNoteblock(entity, brain, globalPos)) {
-                 return Optional.of(new BlockPosTracker(globalPos.pos().above()));
+             if (shouldDepositItemsAtLikedNoteblock(allay, brain, position)) {
+                 return Optional.of(new BlockPosTracker(position.pos().above()));
              }

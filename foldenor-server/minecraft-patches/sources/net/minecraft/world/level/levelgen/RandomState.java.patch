@@ -1,0 +1,55 @@
+--- a/net/minecraft/world/level/levelgen/RandomState.java
++++ b/net/minecraft/world/level/levelgen/RandomState.java
+@@ -4,6 +_,10 @@
+ import java.util.Map;
+ import java.util.Objects;
+ import java.util.concurrent.ConcurrentHashMap;
++
++import net.edenor.foldenor.secureseed.Globals;
++import net.edenor.foldenor.secureseed.Hashing;
++import net.edenor.foldenor.secureseed.WorldgenCryptoRandom;
+ import net.minecraft.core.Holder;
+ import net.minecraft.core.HolderGetter;
+ import net.minecraft.core.registries.Registries;
+@@ -34,10 +_,18 @@
+     }
+ 
+     private RandomState(final NoiseGeneratorSettings settings, final HolderGetter<NormalNoise.NoiseParameters> noises, final long seed) {
+-        this.random = settings.getRandomSource().newInstance(seed).forkPositional();
++        // Expand 48-bit levelSeed to cryptographically secure 1024-bit seed
++        final long[] secureWorldSeed = Hashing.expandLevelSeedTo1024Bits(seed);
++
++        // Extract secure seeds for different terrain systems
++        long terrainSeed = Hashing.getTerrainSeed(secureWorldSeed, Hashing.TerrainType.BASE_TERRAIN);
++        long aquiferSeed = Hashing.getTerrainSeed(secureWorldSeed, Hashing.TerrainType.AQUIFER);
++        long oreSeed = Hashing.getTerrainSeed(secureWorldSeed, Hashing.TerrainType.ORE);
++
++        this.random = settings.getRandomSource().newInstance(terrainSeed).forkPositional();
+         this.noises = noises;
+-        this.aquiferRandom = this.random.fromHashOf(Identifier.withDefaultNamespace("aquifer")).forkPositional();
+-        this.oreRandom = this.random.fromHashOf(Identifier.withDefaultNamespace("ore")).forkPositional();
++        this.aquiferRandom = settings.getRandomSource().newInstance(aquiferSeed).forkPositional();
++        this.oreRandom = settings.getRandomSource().newInstance(oreSeed).forkPositional();
+         this.noiseIntances = new ConcurrentHashMap<>();
+         this.positionalRandoms = new ConcurrentHashMap<>();
+         this.surfaceSystem = new SurfaceSystem(this, settings.defaultBlock(), settings.seaLevel(), this.random);
+@@ -53,7 +_,9 @@
+             }
+ 
+             private RandomSource newLegacyInstance(final long seedOffset) {
+-                return new LegacyRandomSource(seed + seedOffset);
++                // Use secure climate seed instead of raw levelSeed
++                long climateSeed = Hashing.getTerrainSeed(secureWorldSeed, Hashing.TerrainType.CLIMATE);
++                return new WorldgenCryptoRandom(0, 0, Globals.Salt.UNDEFINED, climateSeed + seed);
+             }
+ 
+             @Override
+@@ -79,7 +_,7 @@
+                     return noise.withNewRandom(terrainRandom);
+                 } else {
+                     return (DensityFunction)(function instanceof DensityFunctions.EndIslandDensityFunction
+-                        ? new DensityFunctions.EndIslandDensityFunction(seed)
++                            ? new DensityFunctions.EndIslandDensityFunction(Hashing.getTerrainSeed(secureWorldSeed, Hashing.TerrainType.SURFACE))
+                         : function);
+                 }
+             }

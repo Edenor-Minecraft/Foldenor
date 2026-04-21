@@ -13,20 +13,17 @@
      private final Sensing sensing;
      private DropChances dropChances = DropChances.DEFAULT;
      private boolean canPickUpLoot = false;
--    private boolean persistenceRequired = false;
+-    public boolean persistenceRequired = false;
 +    public boolean persistenceRequired = false; // Let Me Despawn - make public
      private final Map<PathType, Float> pathfindingMalus = Maps.newEnumMap(PathType.class);
      public Optional<ResourceKey<LootTable>> lootTable = Optional.empty();
      public long lootTableSeed;
-@@ -221,10 +_,15 @@
-     @Override
+@@ -216,10 +_,12 @@
      public void inactiveTick() {
          super.inactiveTick();
+         if (!this.aware) return; // Paper - Do not tick AI for inactive unaware mobs
 -        if (this.goalSelector.inactiveTick()) {
 +        // Paper start - Skip AI during inactive ticks for non-aware mobs
-+        if (FoldenorConfig.skipAIForNonAwareMob && !(this.isEffectiveAi() && this.aware)) {
-+            return;
-+        }
 +        // Paper end - Skip AI during inactive ticks for non-aware mobs
 +        if (this.goalSelector.inactiveTick(this.activatedPriority, true)) { // Pufferfish - pass activated priroity
              this.goalSelector.tick();
@@ -36,28 +33,16 @@
              this.targetSelector.tick();
          }
      }
-@@ -282,6 +_,11 @@
-         if (this.getTargetRaw() == target) { // Folia - region threading
-             return false;
-         }
-+        // Luminol start - Fix off-region targeting
-+        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(target)) {
-+            return false;
-+        }
-+        // Luminol end
-         if (reason != null) {
-             if (reason == EntityTargetEvent.TargetReason.UNKNOWN && this.getTarget() != null && target == null) {
-                 reason = this.getTarget().isAlive() ? EntityTargetEvent.TargetReason.FORGOT_TARGET : EntityTargetEvent.TargetReason.TARGET_DIED;
-@@ -364,7 +_,7 @@
+@@ -381,7 +_,7 @@
          if (this.xpReward > 0) {
-             int i = this.xpReward;
+             int result = this.xpReward;
  
--            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-                 if (equipmentSlot.canIncreaseExperience()) {
-                     ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-                     if (!itemBySlot.isEmpty() && this.dropChances.byEquipment(equipmentSlot) <= 1.0F) {
-@@ -587,17 +_,28 @@
+-            for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++            for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 if (slot.canIncreaseExperience()) {
+                     ItemStack item = this.getItemBySlot(slot);
+                     if (!item.isEmpty() && this.dropChances.byEquipment(slot) <= 1.0F) {
+@@ -601,14 +_,28 @@
          }
      }
  
@@ -68,8 +53,8 @@
 +
      public boolean isSunBurnTick() {
          if (!this.level().isClientSide() && this.level().environmentAttributes().getValue(EnvironmentAttributes.MONSTERS_BURN, this.position())) {
--            float lightLevelDependentMagicValue = this.getLightLevelDependentMagicValue();
--            BlockPos blockPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
+-            float br = this.getLightLevelDependentMagicValue();
+-            BlockPos roundedPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
 +            // Gale start - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
 +            int positionHashCode = this.position.hashCode();
 +            if (this.cached_position_hashcode != positionHashCode) {
@@ -83,26 +68,23 @@
 +            if (lightLevelDependentMagicValue <= 0.5F) return false;
 +            if (this.random.nextFloat() * 30.0F >= (lightLevelDependentMagicValue - 0.4F) * 2.0F) return false;
 +            // Gale end - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
-             boolean flag = this.isInWaterOrRain() || this.isInPowderSnow || this.wasInPowderSnow;
--            if (lightLevelDependentMagicValue > 0.5F
--                && this.random.nextFloat() * 30.0F < (lightLevelDependentMagicValue - 0.4F) * 2.0F
--                && !flag
--                && this.level().canSeeSky(blockPos)) {
+             boolean isInNonBurnableBlock = this.isInWaterOrRain() || this.isInPowderSnow || this.wasInPowderSnow;
+-            if (br > 0.5F && this.random.nextFloat() * 30.0F < (br - 0.4F) * 2.0F && !isInNonBurnableBlock && this.level().canSeeSky(roundedPos)) {
 -                return true;
 -            }
-+            return !flag && this.level().canSeeSky(this.cached_eye_blockpos); // Gale - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
++            return !isInNonBurnableBlock && this.level().canSeeSky(this.cached_eye_blockpos); // Gale - JettPack - optimize sun burn tick - optimizations and cache eye blockpos
          }
  
          return false;
-@@ -666,6 +_,7 @@
-         this.setItemSlot(slot, stack);
+@@ -677,6 +_,7 @@
+         this.setItemSlot(slot, itemStack);
          this.setGuaranteedDrop(slot);
          this.persistenceRequired = true;
 +        FoldenorUtils.setPersistence(this, slot);
      }
  
-     protected boolean canShearEquipment(Player player) {
-@@ -772,9 +_,13 @@
+     protected boolean canShearEquipment(final Player player) {
+@@ -779,9 +_,13 @@
      @Override
      public void checkDespawn() {
          if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) { // Paper - allow changing despawnInPeaceful
@@ -112,12 +94,12 @@
 +            // Let Me Despawn end
              this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
          } else if (!this.isPersistenceRequired() && !this.requiresCustomPersistence()) {
--            Entity nearestPlayer = this.level().findNearbyPlayer(this, -1.0, EntitySelector.PLAYER_AFFECTS_SPAWNING); // Paper - Affects Spawning API
-+            Entity nearestPlayer = this.canvas$optimizeNearbyPlayerLookups(this.level(), this, -1.0); // Paper - Affects Spawning API // Canvas - faster player lookups
-             if (nearestPlayer != null) {
+-            Entity player = this.level().findNearbyPlayer(this, -1.0, EntitySelector.PLAYER_AFFECTS_SPAWNING); // Paper - Affects Spawning API
++            Entity player = this.canvas$optimizeNearbyPlayerLookups(this.level(), this, -1.0); // Paper - Affects Spawning API // Canvas - faster player lookupsI
+             if (player != null) {
                  // Paper start - Configurable despawn distances
                  final io.papermc.paper.configuration.WorldConfiguration.Entities.Spawning.DespawnRangePair despawnRangePair = this.level().paperConfig().entities.spawning.despawnRanges.get(this.getType().getCategory());
-@@ -786,11 +_,19 @@
+@@ -793,11 +_,19 @@
                  final double distanceSquared = dxSqr + dzSqr + dySqr;
                  // Despawn if hard/soft limit is exceeded
                  if (despawnRangePair.hard().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy) && this.removeWhenFarAway(distanceSquared)) {
@@ -126,7 +108,7 @@
 +                        FoldenorUtils.dropEquipmentOnDiscard(this);
 +                    // Let Me Despawn end
                      this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
-                  }
+                 }
  
                  if (despawnRangePair.soft().shouldDespawn(shape, dxSqr, dySqr, dzSqr, dy)) {
                      if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && this.removeWhenFarAway(distanceSquared)) {
@@ -137,7 +119,7 @@
                          this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
                      }
                  } else {
-@@ -803,6 +_,19 @@
+@@ -810,6 +_,19 @@
          }
      }
  
@@ -157,69 +139,60 @@
      @Override
      protected final void serverAiStep() {
          this.noActionTime++;
-@@ -822,16 +_,20 @@
-         int i = this.tickCount + this.getId();
-         if (i % 2 != 0 && this.tickCount > 1) {
-             profilerFiller.push("targetSelector");
+@@ -829,16 +_,20 @@
+         int idBasedTickCount = this.tickCount + this.getId();
+         if (idBasedTickCount % 2 != 0 && this.tickCount > 1) {
+             profiler.push("targetSelector");
 +            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
              this.targetSelector.tickRunningGoals(false);
-             profilerFiller.pop();
-             profilerFiller.push("goalSelector");
+             profiler.pop();
+             profiler.push("goalSelector");
 +            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
              this.goalSelector.tickRunningGoals(false);
-             profilerFiller.pop();
+             profiler.pop();
          } else {
-             profilerFiller.push("targetSelector");
+             profiler.push("targetSelector");
 +            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
              this.targetSelector.tick();
-             profilerFiller.pop();
-             profilerFiller.push("goalSelector");
+             profiler.pop();
+             profiler.push("goalSelector");
 +            if (this.targetSelector.inactiveTick(this.activatedPriority, false)) // Pufferfish - use this to alternate ticking
              this.goalSelector.tick();
-             profilerFiller.pop();
+             profiler.pop();
          }
-@@ -1050,7 +_,7 @@
-     protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
-         super.dropCustomDeathLoot(level, damageSource, recentlyHit);
+@@ -1061,7 +_,7 @@
+     protected void dropCustomDeathLoot(final ServerLevel level, final DamageSource source, final boolean killedByPlayer) {
+         super.dropCustomDeathLoot(level, source, killedByPlayer);
  
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             if (this.shouldSkipLoot(equipmentSlot)) continue; // Paper
-             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-             float f = this.dropChances.byEquipment(equipmentSlot);
-@@ -1094,7 +_,7 @@
-     public Set<EquipmentSlot> dropPreservedEquipment(ServerLevel level, Predicate<ItemStack> filter) {
-         Set<EquipmentSlot> set = new HashSet<>();
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (this.shouldSkipLoot(slot)) continue; // Paper
+             ItemStack itemStack = this.getItemBySlot(slot);
+             float dropChance = this.dropChances.byEquipment(slot);
+@@ -1105,7 +_,7 @@
+     public Set<EquipmentSlot> dropPreservedEquipment(final ServerLevel level, final Predicate<ItemStack> shouldDrop) {
+         Set<EquipmentSlot> slotsPreventedFromDropping = new HashSet<>();
  
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-             if (!itemBySlot.isEmpty()) {
-                 if (!filter.test(itemBySlot)) {
-@@ -1224,7 +_,7 @@
-     protected void populateDefaultEquipmentEnchantments(ServerLevelAccessor level, RandomSource random, DifficultyInstance difficulty) {
-         this.enchantSpawnedWeapon(level, random, difficulty);
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemStack = this.getItemBySlot(slot);
+             if (!itemStack.isEmpty()) {
+                 if (!shouldDrop.test(itemStack)) {
+@@ -1235,7 +_,7 @@
+     protected void populateDefaultEquipmentEnchantments(final ServerLevelAccessor level, final RandomSource random, final DifficultyInstance localDifficulty) {
+         this.enchantSpawnedWeapon(level, random, localDifficulty);
  
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                 this.enchantSpawnedArmor(level, random, equipmentSlot, difficulty);
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                 this.enchantSpawnedArmor(level, random, slot, localDifficulty);
              }
-@@ -1635,7 +_,7 @@
-     @Override
+@@ -1647,7 +_,7 @@
      protected void postRemoveAfterChangingDimensions() {
          super.postRemoveAfterChangingDimensions();
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-             if (!itemBySlot.isEmpty()) {
-                 itemBySlot.setCount(0);
-@@ -1648,7 +_,7 @@
-     protected void removeAfterChangingDimensions() {
-         super.removeAfterChangingDimensions();
-         // Folia start - region threading - move inventory clearing until after the dimension change - move into postRemoveAfterChangingDimensions
--//        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+//        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
- //            ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
- //            if (!itemBySlot.isEmpty()) {
- //                itemBySlot.setCount(0);
+ 
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemStack = this.getItemBySlot(slot);
+             if (!itemStack.isEmpty()) {
+                 itemStack.setCount(0);

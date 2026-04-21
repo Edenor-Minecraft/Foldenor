@@ -9,7 +9,7 @@
 +    private static int size = 0;
 +    // Leaf end - optimize attribute
  
-     protected Attribute(String descriptionId, double defaultValue) {
+     protected Attribute(final String descriptionId, final double defaultValue) {
          this.defaultValue = defaultValue;
          this.descriptionId = descriptionId;
 +        this.id = size++; // Leaf - optimize attribute

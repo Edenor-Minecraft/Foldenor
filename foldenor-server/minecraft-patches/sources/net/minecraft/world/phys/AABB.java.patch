@@ -13,13 +13,13 @@
 +    }
 +    // Leaf end - Lithium - fast util
 +
-     public AABB(double x1, double y1, double z1, double x2, double y2, double z2) {
-         this.minX = Math.min(x1, x2);
-         this.minY = Math.min(y1, y2);
+     public AABB(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ) {
+         this.minX = Math.min(minX, maxX);
+         this.minY = Math.min(minY, maxY);
 @@ -80,11 +_,33 @@
      }
  
-     public double min(Direction.Axis axis) {
+     public double min(final Direction.Axis axis) {
 -        return axis.choose(this.minX, this.minY, this.minZ);
 +        // Leaf start - Lithium - fast util
 +        switch (axis.ordinal()) {
@@ -35,7 +35,7 @@
 +        // Leaf end - Lithium - fast util
      }
  
-     public double max(Direction.Axis axis) {
+     public double max(final Direction.Axis axis) {
 -        return axis.choose(this.maxX, this.maxY, this.maxZ);
 +        // Leaf start - Lithium - fast util
 +        switch (axis.ordinal()) {

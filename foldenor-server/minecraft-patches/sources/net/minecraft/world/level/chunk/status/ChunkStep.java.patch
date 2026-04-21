@@ -3,8 +3,8 @@
 @@ -60,6 +_,7 @@
      }
  
-     public CompletableFuture<ChunkAccess> apply(WorldGenContext worldGenContext, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk) {
-+        net.edenor.foldenor.secureseed.Globals.setupGlobals(worldGenContext.level());
+     public CompletableFuture<ChunkAccess> apply(final WorldGenContext context, final StaticCache2D<GenerationChunkHolder> cache, final ChunkAccess chunk) {
++        net.edenor.foldenor.secureseed.Globals.setupGlobals(context.level());
          if (chunk.getPersistedStatus().isBefore(this.targetStatus)) {
-             ProfiledDuration profiledDuration = JvmProfiler.INSTANCE
-                 .onChunkGenerate(chunk.getPos(), worldGenContext.level().dimension(), this.targetStatus.getName());
+             ProfiledDuration profiledDuration = JvmProfiler.INSTANCE.onChunkGenerate(chunk.getPos(), context.level().dimension(), this.targetStatus.getName());
+             return this.task.doWork(context, this, cache, chunk).thenApply(newCenterChunk -> this.completeChunkGeneration(newCenterChunk, profiledDuration));

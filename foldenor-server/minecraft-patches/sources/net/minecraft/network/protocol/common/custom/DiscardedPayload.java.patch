@@ -1,11 +1,11 @@
 --- a/net/minecraft/network/protocol/common/custom/DiscardedPayload.java
 +++ b/net/minecraft/network/protocol/common/custom/DiscardedPayload.java
 @@ -9,7 +_,7 @@
-         return CustomPacketPayload.codec((value, output) -> {
+         return CustomPacketPayload.codec((payload, buf) -> {
              // Paper start
              // Always write data
--            output.writeBytes(value.data);
-+            if (value.data != null) output.writeBytes(value.data); // Leaves - nullable
-         }, buffer -> {
-             int i = buffer.readableBytes();
-             if (i >= 0 && i <= maxSize) {
+-            buf.writeBytes(payload.data);
++            if (payload.data != null) buf.writeBytes(payload.data); // Leaves - nullable
+         }, buf -> {
+             int length = buf.readableBytes();
+             if (length >= 0 && length <= maxPayloadSize) {

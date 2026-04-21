@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/level/levelgen/feature/treedecorators/CreakingHeartDecorator.java
 +++ b/net/minecraft/world/level/levelgen/feature/treedecorators/CreakingHeartDecorator.java
 @@ -38,7 +_,7 @@
-                 List<BlockPos> list1 = new ArrayList<>(list);
-                 Util.shuffle(list1, randomSource);
-                 Optional<BlockPos> optional = list1.stream().filter(pos -> {
--                    for (Direction direction : Direction.values()) {
-+                    for (Direction direction : Direction.VALUES) {
-                         if (!context.checkBlock(pos.relative(direction), blockState -> blockState.is(BlockTags.LOGS))) {
+                 List<BlockPos> heartPlacements = new ArrayList<>(logs);
+                 Util.shuffle(heartPlacements, random);
+                 Optional<BlockPos> targetPos = heartPlacements.stream().filter(pos -> {
+-                    for (Direction dir : Direction.values()) {
++                    for (Direction dir : Direction.VALUES) {
+                         if (!context.checkBlock(pos.relative(dir), state -> state.is(BlockTags.LOGS))) {
                              return false;
                          }

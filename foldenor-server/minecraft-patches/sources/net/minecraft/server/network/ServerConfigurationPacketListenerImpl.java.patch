@@ -1,17 +1,17 @@
 --- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
-@@ -190,8 +_,9 @@
-     public void handleConfigurationFinished(ServerboundFinishConfigurationPacket packet) {
+@@ -188,8 +_,9 @@
+     public void handleConfigurationFinished(final ServerboundFinishConfigurationPacket packet) {
          PacketUtils.ensureRunningOnSameThread(packet, this, this.server.packetProcessor());
          this.finishCurrentTask(JoinWorldTask.TYPE);
 -        this.connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess())));
-+        // this.connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()))); // Luminol - Async protocol switch - move down
++        //this.connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()))); // Luminol - Async protocol switch - move down
  
 +        Runnable afterSwitch = () -> { // Luminol - Async protocol switch
          try {
              PlayerList playerList = this.server.getPlayerList();
              if (playerList.getPlayer(this.gameProfile.id()) != null) {
-@@ -237,6 +_,18 @@
+@@ -235,6 +_,18 @@
              LOGGER.error("Couldn't place player in world", (Throwable)var4);
              this.disconnect(DISCONNECT_REASON_INVALID_DATA);
          }
@@ -30,7 +30,7 @@
      }
  
      @Override
-@@ -290,13 +_,14 @@
+@@ -288,13 +_,14 @@
      // Paper start
      @Override
      public void disconnectAsync(final net.minecraft.network.DisconnectionDetails disconnectionInfo) {

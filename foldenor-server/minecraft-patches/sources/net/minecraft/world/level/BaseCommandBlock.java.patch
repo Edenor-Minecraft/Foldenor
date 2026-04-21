@@ -3,7 +3,7 @@
 @@ -91,7 +_,7 @@
      }
  
-     public boolean performCommand(ServerLevel level) {
+     public boolean performCommand(final ServerLevel level) {
 -        if (true) return false; // Folia - region threading
 +        //if (true) return false; // Folia - region threading
          if (level.getGameTime() == this.lastExecution) {

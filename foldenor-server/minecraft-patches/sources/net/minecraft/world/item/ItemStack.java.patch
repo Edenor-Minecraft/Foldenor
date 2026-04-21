@@ -1,47 +1,47 @@
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -102,7 +_,7 @@
+@@ -100,7 +_,7 @@
  import org.jspecify.annotations.Nullable;
  import org.slf4j.Logger;
  
--public final class ItemStack implements DataComponentHolder {
-+public final class ItemStack implements DataComponentHolder, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangePublisher<ItemStack>, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> { // Leaf - Lithium - equipment tracking
+-public final class ItemStack implements DataComponentHolder, ItemInstance {
++public final class ItemStack implements DataComponentHolder, ItemInstance, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangePublisher<ItemStack>, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> { // Leaf - Lithium - equipment tracking
      private static final List<Component> OP_NBT_WARNING = List.of(
          Component.translatable("item.op_warning.line1").withStyle(ChatFormatting.RED, ChatFormatting.BOLD),
          Component.translatable("item.op_warning.line2").withStyle(ChatFormatting.RED),
-@@ -172,6 +_,10 @@
-     private @Nullable Item item;
-     PatchedDataComponentMap components;
-     private @Nullable Entity entityRepresentation;
+@@ -157,6 +_,10 @@
+     @Deprecated
+     private @Nullable Holder<Item> item;
+     private PatchedDataComponentMap components;
 +    // Leaf start - Lithium - equipment tracking
 +    private net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<ItemStack> subscriber;
 +    private int subscriberData;
 +    // Leaf end - Lithium - equipment tracking
  
-     public static DataResult<ItemStack> validateStrict(ItemStack stack) {
-         DataResult<Unit> dataResult = validateComponents(stack.getComponents());
-@@ -871,7 +_,7 @@
+     public static DataResult<ItemStack> validateStrict(final ItemStack itemStack) {
+         DataResult<?> result = validateComponents(itemStack.getComponents());
+@@ -865,7 +_,7 @@
      }
  
-     public static boolean isSameItem(ItemStack stack, ItemStack other) {
--        return stack.is(other.getItem());
-+        return stack == other || stack.is(other.getItem()); // Gale - optimize identical item checks
+     public static boolean isSameItem(final ItemStack a, final ItemStack b) {
+-        return a.is(b.getItem());
++        return a == b || a.is(b.getItem()); // Gale - optimize identical item checks
      }
  
-     public static boolean isSameItemSameComponents(ItemStack stack, ItemStack other) {
-@@ -1192,7 +_,7 @@
+     public static boolean isSameItemSameComponents(final ItemStack a, final ItemStack b) {
+@@ -1196,7 +_,7 @@
  
-     private void addAttributeTooltips(Consumer<Component> tooltipAdder, TooltipDisplay tooltipDisplay, @Nullable Player player) {
-         if (tooltipDisplay.shows(DataComponents.ATTRIBUTE_MODIFIERS)) {
--            for (EquipmentSlotGroup equipmentSlotGroup : EquipmentSlotGroup.values()) {
-+            for (EquipmentSlotGroup equipmentSlotGroup : EquipmentSlotGroup.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-                 MutableBoolean mutableBoolean = new MutableBoolean(true);
-                 this.forEachModifier(
-                     equipmentSlotGroup,
-@@ -1339,6 +_,21 @@
+     private void addAttributeTooltips(final Consumer<Component> consumer, final TooltipDisplay display, final @Nullable Player player) {
+         if (display.shows(DataComponents.ATTRIBUTE_MODIFIERS)) {
+-            for (EquipmentSlotGroup slot : EquipmentSlotGroup.values()) {
++            for (EquipmentSlotGroup slot : EquipmentSlotGroup.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 MutableBoolean first = new MutableBoolean(true);
+                 this.forEachModifier(slot, (attribute, modifier, tooltip) -> {
+                     if (tooltip != ItemAttributeModifiers.Display.hidden()) {
+@@ -1323,6 +_,21 @@
      }
  
-     public void setCount(int count) {
+     public void setCount(final int count) {
 +        // Leaf start - Lithium - equipment tracking
 +        if (count != this.count) {
 +            if (this.subscriber instanceof net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.CountChangeSubscriber<ItemStack> countChangeSubscriber) {
@@ -60,9 +60,9 @@
          this.count = count;
      }
  
-@@ -1407,4 +_,87 @@
+@@ -1390,4 +_,87 @@
              .or(() -> Optional.ofNullable(this.getItem().getItemDamageSource(attacker)))
-             .orElseGet(fallback);
+             .orElseGet(defaultSource);
      }
 +
 +    // Leaf start - Lithium - equipment tracking

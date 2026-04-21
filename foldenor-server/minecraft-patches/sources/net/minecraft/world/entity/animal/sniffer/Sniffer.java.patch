@@ -1,10 +1,10 @@
 --- a/net/minecraft/world/entity/animal/sniffer/Sniffer.java
 +++ b/net/minecraft/world/entity/animal/sniffer/Sniffer.java
-@@ -268,7 +_,17 @@
+@@ -278,7 +_,17 @@
  
-     private boolean canDig(BlockPos pos) {
-         return this.level().getBlockState(pos).is(BlockTags.SNIFFER_DIGGABLE_BLOCK)
--            && this.getExploredPositions().noneMatch(globalPos -> GlobalPos.of(this.level().dimension(), pos).equals(globalPos))
+     private boolean canDig(final BlockPos position) {
+         return this.level().getBlockState(position).is(BlockTags.SNIFFER_DIGGABLE_BLOCK)
+-            && this.getExploredPositions().noneMatch(explored -> GlobalPos.of(this.level().dimension(), position).equals(explored))
 +                && this.getExploredPositions().noneMatch(globalPos -> { // Luminol start - Do not pathfind out of tickregion
 +                    // thread checks
 +            final Level targetLevel = net.minecraft.server.MinecraftServer.getServer().getLevel(globalPos.dimension());
@@ -14,8 +14,8 @@
 +                return false;
 +            }
 +
-+            return GlobalPos.of(this.level().dimension(), pos).equals(globalPos); // Original logic
++            return GlobalPos.of(this.level().dimension(), position).equals(globalPos); // Original logic
 +                }) // Luminol end
-             && Optional.ofNullable(this.getNavigation().createPath(pos, 1)).map(Path::canReach).orElse(false);
+             && Optional.ofNullable(this.getNavigation().createPath(position, 1)).map(Path::canReach).orElse(false);
      }
  

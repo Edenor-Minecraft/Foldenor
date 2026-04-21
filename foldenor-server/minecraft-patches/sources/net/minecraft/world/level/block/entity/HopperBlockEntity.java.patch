@@ -11,7 +11,7 @@
  import net.minecraft.core.NonNullList;
 @@ -91,10 +_,10 @@
      @Override
-     protected void loadAdditional(ValueInput input) {
+     protected void loadAdditional(final ValueInput input) {
          super.loadAdditional(input);
 -        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
          if (!this.tryLoadLootTable(input)) {
@@ -23,11 +23,11 @@
      }
 @@ -117,7 +_,11 @@
      @Override
-     public ItemStack removeItem(int index, int count) {
+     public ItemStack removeItem(final int slot, final int count) {
          this.unpackLootTable(null);
--        return ContainerHelper.removeItem(this.getItems(), index, count);
+-        return ContainerHelper.removeItem(this.getItems(), slot, count);
 +        // Canvas start - optimize hoppers
-+        ItemStack retVal = ContainerHelper.removeItem(this.getItems(), index, count);
++        ItemStack retVal = ContainerHelper.removeItem(this.getItems(), slot, count);
 +        recomputeFullState(this);
 +        return retVal;
 +        // Canvas end - optimize hoppers
@@ -36,31 +36,20 @@
      @Override
 @@ -125,12 +_,14 @@
          this.unpackLootTable(null);
-         this.getItems().set(index, stack);
-         stack.limitSize(this.getMaxStackSize(stack));
+         this.getItems().set(slot, itemStack);
+         itemStack.limitSize(this.getMaxStackSize(itemStack));
 +        recomputeFullState(this); // Canvas - optimize hoppers
      }
  
      @Override
-     public void setBlockState(BlockState blockState) {
+     public void setBlockState(final BlockState blockState) {
          super.setBlockState(blockState);
          this.facing = blockState.getValue(HopperBlock.FACING);
 +        recomputeFullState(this); // Canvas - optimize hoppers
      }
  
      @Override
-@@ -144,9 +_,7 @@
-         if (!blockEntity.isOnCooldown()) {
-             blockEntity.setCooldown(0);
-             // Spigot start
--            boolean result = tryMoveItems(level, pos, state, blockEntity, () -> {
--                return suckInItems(level, blockEntity);
--            });
-+            boolean result = tryMoveItems(level, pos, state, blockEntity, () -> suckInItems(level, blockEntity));
-             if (!result && blockEntity.level.spigotConfig.hopperCheck > 1) {
-                 blockEntity.setCooldown(blockEntity.level.spigotConfig.hopperCheck);
-             }
-@@ -159,7 +_,17 @@
+@@ -157,7 +_,17 @@
      private static final int HOPPER_HAS_ITEMS = 1;
      private static final int HOPPER_IS_FULL = 2;
  
@@ -79,7 +68,7 @@
          hopper.unpackLootTable(null);
  
          final List<ItemStack> hopperItems = hopper.items;
-@@ -176,18 +_,20 @@
+@@ -174,18 +_,20 @@
  
              if (!full) {
                  // can't be full
@@ -105,45 +94,45 @@
  
 @@ -197,7 +_,8 @@
          } else {
-             if (!blockEntity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
-                 boolean flag = false;
--                final int fullState = getFullState(blockEntity); // Paper - Perf: Optimize Hoppers
-+                if (blockEntity.fullState == -1) recomputeFullState(blockEntity); // Canvas - optimize hoppers
-+                final int fullState = blockEntity.fullState; // Paper - Perf: Optimize Hoppers // Canvas - optimize hoppers
+             if (!entity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
+                 boolean changed = false;
+-                final int fullState = getFullState(entity); // Paper - Perf: Optimize Hoppers
++                if (entity.fullState == -1) recomputeFullState(entity); // Canvas - optimize hoppers
++                final int fullState = entity.fullState; // Paper - Perf: Optimize Hoppers // Canvas - optimize hoppers
                  if (fullState != HOPPER_EMPTY) { // Paper - Perf: Optimize Hoppers
-                     flag = ejectItems(level, pos, blockEntity);
+                     changed = ejectItems(level, pos, entity);
                  }
 @@ -436,6 +_,11 @@
          } else {
-             Direction opposite = blockEntity.facing.getOpposite();
-             if (isFullContainer(attachedContainer, opposite)) {
+             Direction direction = self.facing.getOpposite();
+             if (isFullContainer(container, direction)) {
 +                // Leaf start - Throttle hopper when full
 +                if (FoldenorConfig.throttleHopperWhenFullEnabled && FoldenorConfig.throttleHopperWhenFullSkipTicks > 0) {
-+                    blockEntity.setCooldown(FoldenorConfig.throttleHopperWhenFullSkipTicks);
++                    self.setCooldown(FoldenorConfig.throttleHopperWhenFullSkipTicks);
 +                }
 +                // Leaf end - Throttle hopper when full
                  return false;
              } else {
-                 // Paper start - Perf: Optimize Hoppers
-@@ -558,7 +_,7 @@
-             return false;
-         } else {
-             boolean flag = hopper.isGridAligned() && blockState.isCollisionShapeFullBlock(level, blockPos) && !blockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
--            if (!flag) {
-+            if (!flag && shouldSuckIn(level, hopper)) { // Gale - EMC - reduce hopper item checks
-                 for (ItemEntity itemEntity : getItemsAtAndAbove(level, hopper)) {
-                     if (addItem(hopper, itemEntity)) {
+                 return hopperPush(level, container, direction, self); // Paper - Perf: Optimize Hoppers
+@@ -507,7 +_,7 @@
+             boolean isBlocked = hopper.isGridAligned()
+                 && blockState.isCollisionShapeFullBlock(level, blockPos)
+                 && !blockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
+-            if (!isBlocked) {
++            if (!isBlocked && shouldSuckIn(level, hopper)) { // Gale - EMC - reduce hopper item checks
+                 for (ItemEntity entity : getItemsAtAndAbove(level, hopper)) {
+                     if (addItem(hopper, entity)) {
                          return true;
-@@ -793,7 +_,7 @@
-     }
-     private static @Nullable Container getContainerAt(Level level, BlockPos pos, BlockState state, double x, double y, double z, final boolean optimizeEntities) {
+@@ -700,7 +_,7 @@
+         final boolean optimizeEntities
+     ) {
          // Paper end - Perf: Optimize Hoppers
--        Container blockContainer = getBlockContainer(level, pos, state);
-+        Container blockContainer = state.hasBlockEntity() || state.getBlock() instanceof WorldlyContainerHolder ? getBlockContainer(level, pos, state) : null; // Canvas - optimize hoppers - if the block has no block entity, why check it
-         if (blockContainer == null && (!optimizeEntities || !level.paperConfig().hopper.ignoreOccludingBlocks || !state.getBukkitMaterial().isOccluding())) { // Paper - Perf: Optimize Hoppers
-             blockContainer = getEntityContainer(level, x, y, z);
+-        Container result = getBlockContainer(level, pos, state);
++        Container result = state.hasBlockEntity() || state.getBlock() instanceof WorldlyContainerHolder ? getBlockContainer(level, pos, state) : null; // Canvas - optimize hoppers - if the block has no block entity, why check it
+         if (result == null && (!optimizeEntities || !level.paperConfig().hopper.ignoreOccludingBlocks || !state.getBukkitMaterial().isOccluding())) { // Paper - Perf: Optimize Hoppers
+             result = getEntityContainer(level, x, y, z);
          }
-@@ -808,7 +_,7 @@
+@@ -715,7 +_,7 @@
              return ((WorldlyContainerHolder)block).getContainer(state, level, pos);
          } else if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof Container container) {
              if (container instanceof ChestBlockEntity && block instanceof ChestBlock) {
@@ -152,16 +141,18 @@
              }
  
              return container;
-@@ -828,6 +_,34 @@
-         return stack1.getCount() < stack1.getMaxStackSize() && ItemStack.isSameItemSameComponents(stack1, stack2); // Paper - Perf: Optimize Hoppers; used to return true for full itemstacks?!
+@@ -734,6 +_,35 @@
+     private static boolean canMergeItems(final ItemStack a, final ItemStack b) {
+         return a.getCount() < a.getMaxStackSize() && ItemStack.isSameItemSameComponents(a, b); // Paper - Perf: Optimize Hoppers; used to return true for full itemstacks?!
      }
- 
++
 +    // Gale start - EMC - reduce hopper item checks
 +    private long tickAttempts = 0;
 +    @Override
 +    public long getAndIncrementAttemptCounter() {
 +        return tickAttempts++;
 +    }
++
 +    private static boolean shouldSuckIn(Level level, Hopper hopper) {
 +        int suckInterval;
 +        if (hopper instanceof net.minecraft.world.entity.vehicle.minecart.MinecartHopper minecartHopper) {
@@ -183,15 +174,6 @@
 +        return (hopper.getAndIncrementAttemptCounter() + hopperId) % suckInterval == 0;
 +    }
 +    // Gale end - EMC - reduce hopper item checks
-+
+ 
      @Override
      public double getLevelX() {
-         return this.worldPosition.getX() + 0.5;
-@@ -868,6 +_,7 @@
-     @Override
-     protected void setItems(NonNullList<ItemStack> items) {
-         this.items = items;
-+        recomputeFullState(this); // Canvas - optimize hoppers
-     }
- 
-     public static void entityInside(Level level, BlockPos pos, BlockState state, Entity entity, HopperBlockEntity blockEntity) {

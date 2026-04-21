@@ -12,16 +12,16 @@
 @@ -22,6 +_,15 @@
  
      @Override
-     protected void doTick(ServerLevel level, Villager entity) {
+     protected void doTick(final ServerLevel level, final Villager body) {
 +        // Leaves start - skip secondary POI sensor if absent
 +        if (FoldenorConfig.skipSecondaryPOISensorIfAbsent) {
-+            var secondaryPoi = entity.getVillagerData().profession().value().secondaryPoi();
++            var secondaryPoi = body.getVillagerData().profession().value().secondaryPoi();
 +            if (secondaryPoi.isEmpty()) {
-+                entity.getBrain().eraseMemory(MemoryModuleType.SECONDARY_JOB_SITE);
++                body.getBrain().eraseMemory(MemoryModuleType.SECONDARY_JOB_SITE);
 +                return;
 +            }
 +        }
 +        // Leaves end - skip secondary POI sensor if absent
-         ResourceKey<Level> resourceKey = level.dimension();
-         BlockPos blockPos = entity.blockPosition();
-         List<GlobalPos> list = Lists.newArrayList();
+         ResourceKey<Level> dimensionType = level.dimension();
+         BlockPos center = body.blockPosition();
+         List<GlobalPos> jobSites = Lists.newArrayList();

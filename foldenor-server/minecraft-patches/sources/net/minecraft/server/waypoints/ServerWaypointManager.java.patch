@@ -1,24 +1,24 @@
 --- a/net/minecraft/server/waypoints/ServerWaypointManager.java
 +++ b/net/minecraft/server/waypoints/ServerWaypointManager.java
-@@ -27,6 +_,8 @@
+@@ -34,6 +_,8 @@
  
      @Override
-     public void updateWaypoint(WaypointTransmitter waypoint) {
+     public void updateWaypoint(final WaypointTransmitter waypoint) {
 +        if (true)
 +            throw new UnsupportedOperationException("Unsupported in region threading");
+         if (!this.locatorBarEnabled) return; // Paper - optimize ServerWaypointManager with locator bar disabled
          if (this.waypoints.contains(waypoint)) {
-             Map<ServerPlayer, WaypointTransmitter.Connection> map = Tables.transpose(this.connections).row(waypoint);
-             SetView<ServerPlayer> set = Sets.difference(this.players, map.keySet());
-@@ -43,6 +_,8 @@
+             Map<ServerPlayer, WaypointTransmitter.Connection> playerConnection = Tables.transpose(this.connections).row(waypoint);
+@@ -51,6 +_,8 @@
  
      @Override
-     public void untrackWaypoint(WaypointTransmitter waypoint) {
+     public void untrackWaypoint(final WaypointTransmitter waypoint) {
 +        if (true)
 +            throw new UnsupportedOperationException("Unsupported in region threading");
-         this.connections.column(waypoint).forEach((serverPlayer, connection) -> connection.disconnect());
+         this.connections.column(waypoint).forEach((player, connection) -> connection.disconnect());
          Tables.transpose(this.connections).row(waypoint).clear();
          this.waypoints.remove(waypoint);
-@@ -61,17 +_,23 @@
+@@ -69,11 +_,15 @@
      }
  
      public void breakAllConnections() {
@@ -28,12 +28,13 @@
          this.connections.clear();
      }
  
-     public void remakeConnections(WaypointTransmitter waypoint) {
+     public void remakeConnections(final WaypointTransmitter waypoint) {
 +        if (true)
 +            throw new UnsupportedOperationException("Unsupported in region threading");
-         for (ServerPlayer serverPlayer : this.players) {
-             this.createConnection(serverPlayer, waypoint);
-         }
+         if (!this.locatorBarEnabled) return; // Paper - optimize ServerWaypointManager with locator bar disabled
+         for (ServerPlayer player : this.players) {
+             this.createConnection(player, waypoint);
+@@ -81,6 +_,8 @@
      }
  
      public Set<WaypointTransmitter> transmitters() {
@@ -42,19 +43,19 @@
          return this.waypoints;
      }
  
-@@ -80,6 +_,8 @@
+@@ -92,6 +_,8 @@
      }
  
-     private void createConnection(ServerPlayer player, WaypointTransmitter waypoint) {
+     private void createConnection(final ServerPlayer player, final WaypointTransmitter waypoint) {
 +        if (true)
 +            throw new UnsupportedOperationException("Unsupported in region threading");
          if (player != waypoint) {
              if (isLocatorBarEnabledFor(player)) {
                  waypoint.makeWaypointConnectionWith(player).ifPresentOrElse(connection -> {
-@@ -96,6 +_,8 @@
+@@ -108,6 +_,8 @@
      }
  
-     private void updateConnection(ServerPlayer player, WaypointTransmitter waypoint, WaypointTransmitter.Connection connection) {
+     private void updateConnection(final ServerPlayer player, final WaypointTransmitter waypoint, final WaypointTransmitter.Connection connection) {
 +        if (true)
 +            throw new UnsupportedOperationException("Unsupported in region threading");
          if (player != waypoint) {

@@ -9,13 +9,13 @@
  import net.minecraft.core.BlockPos;
 @@ -117,7 +_,10 @@
  
-     private boolean tryComputePath(Mob mob, WalkTarget target, long time) {
-         BlockPos blockPos = target.getTarget().currentBlockPosition();
--        this.path = mob.getNavigation().createPath(blockPos, 0);
-+        if (TickThread.isTickThreadFor((ServerLevel) mob.level(), blockPos))
-+            this.path = mob.getNavigation().createPath(blockPos, 0);
+     private boolean tryComputePath(final Mob body, final WalkTarget walkTarget, final long timestamp) {
+         BlockPos targetPos = walkTarget.getTarget().currentBlockPosition();
+-        this.path = body.getNavigation().createPath(targetPos, 0);
++        if (TickThread.isTickThreadFor((ServerLevel) body.level(), targetPos))
++            this.path = body.getNavigation().createPath(targetPos, 0);
 +        else
 +            this.path = null;
-         this.speedModifier = target.getSpeedModifier();
-         Brain<?> brain = mob.getBrain();
-         if (this.reachedTarget(mob, target)) {
+         this.speedModifier = walkTarget.getSpeedModifier();
+         Brain<?> brain = body.getBrain();
+         if (this.reachedTarget(body, walkTarget)) {

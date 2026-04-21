@@ -6,7 +6,7 @@
      private final int hashCode;
 +    public final int id; // Leaf
  
--    private Activity(String name) {
+-    private Activity(final String name) {
 +    private Activity(String name, int id) { // Leaf
          this.name = name;
          this.hashCode = name.hashCode();
@@ -17,9 +17,9 @@
 @@ -43,7 +_,7 @@
      }
  
-     private static Activity register(String key) {
--        return Registry.register(BuiltInRegistries.ACTIVITY, key, new Activity(key));
-+        return Registry.register(BuiltInRegistries.ACTIVITY, key, new Activity(key, BuiltInRegistries.ACTIVITY.size())); // Leaf
+     private static Activity register(final String name) {
+-        return Registry.register(BuiltInRegistries.ACTIVITY, name, new Activity(name));
++        return Registry.register(BuiltInRegistries.ACTIVITY, name, new Activity(name, BuiltInRegistries.ACTIVITY.size())); // Leaf
      }
  
      @Override

@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/entity/animal/frog/Frog.java
 +++ b/net/minecraft/world/entity/animal/frog/Frog.java
-@@ -200,10 +_,12 @@
+@@ -172,10 +_,12 @@
          VariantUtils.readVariant(input, Registries.FROG_VARIANT).ifPresent(this::setVariant);
      }
  
 +    private int behaviorTick = 0; // Pufferfish
      @Override
-     protected void customServerAiStep(ServerLevel level) {
-         ProfilerFiller profilerFiller = Profiler.get();
-         profilerFiller.push("frogBrain");
+     protected void customServerAiStep(final ServerLevel level) {
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("frogBrain");
 +        if (this.behaviorTick++ % this.activatedPriority == 0) // Pufferfish
          this.getBrain().tick(level, this);
-         profilerFiller.pop();
-         profilerFiller.push("frogActivityUpdate");
+         profiler.pop();
+         profiler.push("frogActivityUpdate");

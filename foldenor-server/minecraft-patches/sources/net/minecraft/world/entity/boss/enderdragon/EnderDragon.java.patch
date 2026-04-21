@@ -1,7 +1,7 @@
 --- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 +++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
-@@ -999,4 +_,12 @@
-         return flag ? i : 0;
+@@ -1001,4 +_,12 @@
+         return shouldDrop ? xpCount : 0;
      }
      // CraftBukkit end
 +

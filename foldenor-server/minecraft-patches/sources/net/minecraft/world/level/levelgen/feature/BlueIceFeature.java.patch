@@ -2,19 +2,19 @@
 +++ b/net/minecraft/world/level/levelgen/feature/BlueIceFeature.java
 @@ -27,7 +_,7 @@
          } else {
-             boolean flag = false;
+             boolean foundPackedIce = false;
  
 -            for (Direction direction : Direction.values()) {
 +            for (Direction direction : Direction.VALUES) {
-                 if (direction != Direction.DOWN && worldGenLevel.getBlockState(blockPos.relative(direction)).is(Blocks.PACKED_ICE)) {
-                     flag = true;
+                 if (direction != Direction.DOWN && level.getBlockState(origin.relative(direction)).is(Blocks.PACKED_ICE)) {
+                     foundPackedIce = true;
                      break;
 @@ -52,7 +_,7 @@
                          );
-                         BlockState blockState = worldGenLevel.getBlockState(blockPos1);
-                         if (blockState.isAir() || blockState.is(Blocks.WATER) || blockState.is(Blocks.PACKED_ICE) || blockState.is(Blocks.ICE)) {
--                            for (Direction direction1 : Direction.values()) {
-+                            for (Direction direction1 : Direction.VALUES) {
-                                 BlockState blockState1 = worldGenLevel.getBlockState(blockPos1.relative(direction1));
-                                 if (blockState1.is(Blocks.BLUE_ICE)) {
-                                     worldGenLevel.setBlock(blockPos1, Blocks.BLUE_ICE.defaultBlockState(), Block.UPDATE_CLIENTS);
+                         BlockState placeState = level.getBlockState(placePos);
+                         if (placeState.isAir() || placeState.is(Blocks.WATER) || placeState.is(Blocks.PACKED_ICE) || placeState.is(Blocks.ICE)) {
+-                            for (Direction directionx : Direction.values()) {
++                            for (Direction directionx : Direction.VALUES) {
+                                 BlockState relativeBlockState = level.getBlockState(placePos.relative(directionx));
+                                 if (relativeBlockState.is(Blocks.BLUE_ICE)) {
+                                     level.setBlock(placePos, Blocks.BLUE_ICE.defaultBlockState(), Block.UPDATE_CLIENTS);

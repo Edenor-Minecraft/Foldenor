@@ -12,47 +12,47 @@
 @@ -119,34 +_,32 @@
      public abstract StructurePlacementType<?> type();
  
-     private static boolean probabilityReducer(long levelSeed, int regionX, int regionZ, int salt, float frequency, @javax.annotation.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs; ignore here
--        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--        worldgenRandom.setLargeFeatureWithSalt(levelSeed, regionX, regionZ, salt);
-+        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(
-+                regionX, regionZ, Globals.Salt.UNDEFINED, salt
+     private static boolean probabilityReducer(final long seed, final int salt, final int sourceX, final int sourceZ, final float probability, final @org.jspecify.annotations.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs; ignore here
+-        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+-        random.setLargeFeatureWithSalt(seed, salt, sourceX, sourceZ);
++        WorldgenRandom random = new WorldgenCryptoRandom(
++                sourceX, sourceZ, Globals.Salt.UNDEFINED, salt
 +        );
-         return worldgenRandom.nextFloat() < frequency;
+         return random.nextFloat() < probability;
      }
  
-     private static boolean legacyProbabilityReducerWithDouble(long baseSeed, int salt, int chunkX, int chunkZ, float frequency, @javax.annotation.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs
--        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
+     private static boolean legacyProbabilityReducerWithDouble(final long seed, final int salt, final int sourceX, final int sourceZ, final float probability, final @org.jspecify.annotations.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs
+-        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
 -        if (saltOverride == null) { // Paper - Add missing structure set seed configs
--        worldgenRandom.setLargeFeatureSeed(baseSeed, chunkX, chunkZ);
+-        random.setLargeFeatureSeed(seed, sourceX, sourceZ);
 -            // Paper start - Add missing structure set seed configs
 -        } else {
--            worldgenRandom.setLargeFeatureWithSalt(baseSeed, chunkX, chunkZ, saltOverride);
+-            random.setLargeFeatureWithSalt(seed, sourceX, sourceZ, saltOverride);
 -        }
 -        // Paper end - Add missing structure set seed configs
-+        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(
-+                chunkX, chunkZ, Globals.Salt.MINESHAFT_FEATURE, 0
++        WorldgenRandom random = new WorldgenCryptoRandom(
++                sourceX, sourceZ, Globals.Salt.MINESHAFT_FEATURE, 0
 +        );
-         return worldgenRandom.nextDouble() < frequency;
+         return random.nextDouble() < probability;
      }
  
-     private static boolean legacyArbitrarySaltProbabilityReducer(long levelSeed, int salt, int regionX, int regionZ, float frequency, @javax.annotation.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs
--        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--        worldgenRandom.setLargeFeatureWithSalt(levelSeed, regionX, regionZ, saltOverride != null ? saltOverride : HIGHLY_ARBITRARY_RANDOM_SALT); // Paper - Add missing structure set seed configs
-+        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(
-+                regionX, regionZ, Globals.Salt.BURIED_TREASURE_FEATURE, 0
+     private static boolean legacyArbitrarySaltProbabilityReducer(final long seed, final int salt, final int sourceX, final int sourceZ, final float probability, final @org.jspecify.annotations.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs
+-        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+-        random.setLargeFeatureWithSalt(seed, sourceX, sourceZ, saltOverride != null ? saltOverride : HIGHLY_ARBITRARY_RANDOM_SALT); // Paper - Add missing structure set seed configs
++        WorldgenRandom random = new WorldgenCryptoRandom(
++                sourceX, sourceZ, Globals.Salt.BURIED_TREASURE_FEATURE, 0
 +        );
-         return worldgenRandom.nextFloat() < frequency;
+         return random.nextFloat() < probability;
      }
  
-     private static boolean legacyPillagerOutpostReducer(long levelSeed, int salt, int regionX, int regionZ, float frequency, @javax.annotation.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs; ignore here
-         int i = regionX >> 4;
-         int i1 = regionZ >> 4;
--        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--        worldgenRandom.setSeed(i ^ i1 << 4 ^ levelSeed);
-+        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(
-+                i, i1, Globals.Salt.PILLAGER_OUTPOST_FEATURE, 0
+     private static boolean legacyPillagerOutpostReducer(final long seed, final int salt, final int sourceX, final int sourceZ, final float probability, final @org.jspecify.annotations.Nullable Integer saltOverride) { // Paper - Add missing structure set seed configs; ignore here
+         int cx = sourceX >> 4;
+         int cz = sourceZ >> 4;
+-        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+-        random.setSeed(cx ^ cz << 4 ^ seed);
++        WorldgenRandom random = new WorldgenCryptoRandom(
++                cx, cz, Globals.Salt.PILLAGER_OUTPOST_FEATURE, 0
 +        );
-         worldgenRandom.nextInt();
-         return worldgenRandom.nextInt((int)(1.0F / frequency)) == 0;
+         random.nextInt();
+         return random.nextInt((int)(1.0F / probability)) == 0;
      }

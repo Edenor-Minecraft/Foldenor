@@ -1,24 +1,24 @@
 --- a/net/minecraft/world/level/storage/LevelStorageSource.java
 +++ b/net/minecraft/world/level/storage/LevelStorageSource.java
-@@ -510,7 +_,10 @@
-             CompoundTag compoundTag = serverConfiguration.createTag(registries, singlePlayerTag);
-             CompoundTag compoundTag1 = new CompoundTag();
-             compoundTag1.put("Data", compoundTag);
--            this.saveLevelData(compoundTag1);
+@@ -592,7 +_,10 @@
+             CompoundTag dataTag = levelData.createTag(singleplayerUUID);
+             CompoundTag root = new CompoundTag();
+             root.put("Data", dataTag);
+-            this.saveLevelData(root);
 +            // Leaf start - Nitori - Async playerdata save
-+            Runnable runnable = () -> this.saveLevelData(compoundTag1);
++            Runnable runnable = () -> this.saveLevelData(root);
 +            org.dreeam.leaf.async.AsyncPlayerDataSaving.saveAsync(runnable);
 +            // Leaf end - Nitori - Async playerdata save
          }
  
-         private void saveLevelData(CompoundTag tag) {
-@@ -597,7 +_,10 @@
+         public void saveLevelData(final Dynamic<?> tag) {
+@@ -690,7 +_,10 @@
              this.checkLock();
-             CompoundTag levelDataTagRaw = LevelStorageSource.readLevelDataTagRaw(this.levelDirectory.dataFile());
-             modifier.accept(levelDataTagRaw.getCompoundOrEmpty("Data"));
--            this.saveLevelData(levelDataTagRaw);
+             CompoundTag root = LevelStorageSource.readLevelDataTagRaw(this.levelDirectory.dataFile());
+             updater.accept(root.getCompoundOrEmpty("Data"));
+-            this.saveLevelData(root);
 +            // Leaf start - Nitori - Async playerdata save
-+            Runnable runnable = () -> this.saveLevelData(levelDataTagRaw);
++            Runnable runnable = () -> this.saveLevelData(root);
 +            org.dreeam.leaf.async.AsyncPlayerDataSaving.saveAsync(runnable);
 +            // Leaf end - Nitori - Async playerdata save
          }

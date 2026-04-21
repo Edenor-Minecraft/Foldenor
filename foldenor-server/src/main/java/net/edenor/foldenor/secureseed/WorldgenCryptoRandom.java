@@ -9,12 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 
 public class WorldgenCryptoRandom extends WorldgenRandom {
-    // hash the world seed to guard against badly chosen world seeds
     private static final long[] HASHED_ZERO_SEED = Hashing.hashWorldSeed(new long[Globals.WORLD_SEED_LONGS]);
     private static final ThreadLocal<long[]> LAST_SEEN_WORLD_SEED = ThreadLocal.withInitial(() -> new long[Globals.WORLD_SEED_LONGS]);
     private static final ThreadLocal<long[]> HASHED_WORLD_SEED = ThreadLocal.withInitial(() -> HASHED_ZERO_SEED);
+
     private static final int MAX_RANDOM_BIT_INDEX = 64 * 8;
     private static final int LOG2_MAX_RANDOM_BIT_INDEX = 9;
+
     private final long[] worldSeed = new long[Globals.WORLD_SEED_LONGS];
     private final long[] randomBits = new long[8];
     private final long[] message = new long[16];
@@ -24,8 +25,15 @@ public class WorldgenCryptoRandom extends WorldgenRandom {
 
     public WorldgenCryptoRandom(int x, int z, Globals.Salt typeSalt, long salt) {
         super(new LegacyRandomSource(0L));
-        if (typeSalt != null) {
+
+        if (typeSalt == null) {
+            return;
+        }
+
+        if (Globals.isSecureSeedEnabled()) {
             this.setSecureSeed(x, z, typeSalt, salt);
+        } else {
+            super.setSeed(((long) x << 32) | ((long) z & 0xffffffffL) ^ salt);
         }
     }
 
@@ -34,6 +42,11 @@ public class WorldgenCryptoRandom extends WorldgenRandom {
     }
 
     public void setSecureSeed(int x, int z, Globals.Salt typeSalt, long salt) {
+        if (!Globals.isSecureSeedEnabled()) {
+            super.setSeed(((long) x << 32) | ((long) z & 0xffffffffL) ^ salt);
+            return;
+        }
+
         System.arraycopy(Globals.worldSeed, 0, this.worldSeed, 0, Globals.WORLD_SEED_LONGS);
         message[0] = ((long) x << 32) | ((long) z & 0xffffffffL);
         message[1] = ((long) Globals.dimension.get() << 32) | ((long) salt & 0xffffffffL);
@@ -84,6 +97,10 @@ public class WorldgenCryptoRandom extends WorldgenRandom {
 
     @Override
     public @NotNull RandomSource fork() {
+        if (!Globals.isSecureSeedEnabled()) {
+            return super.fork();
+        }
+
         WorldgenCryptoRandom fork = new WorldgenCryptoRandom(0, 0, null, 0);
 
         System.arraycopy(Globals.worldSeed, 0, fork.worldSeed, 0, Globals.WORLD_SEED_LONGS);
@@ -93,18 +110,21 @@ public class WorldgenCryptoRandom extends WorldgenRandom {
         fork.message[3] = this.message[3];
         fork.randomBitIndex = this.randomBitIndex;
         fork.counter = this.counter;
-        fork.nextLong();
 
         return fork;
     }
 
     @Override
     public int next(int bits) {
-        return (int) getBits(bits);
+        return Globals.isSecureSeedEnabled() ? (int) getBits(bits) : super.next(bits);
     }
 
     @Override
     public void consumeCount(int count) {
+        if (!Globals.isSecureSeedEnabled()) {
+            return;
+        }
+
         randomBitIndex += count;
         if (randomBitIndex >= MAX_RANDOM_BIT_INDEX * 2) {
             randomBitIndex -= MAX_RANDOM_BIT_INDEX;
@@ -116,6 +136,9 @@ public class WorldgenCryptoRandom extends WorldgenRandom {
 
     @Override
     public int nextInt(int bound) {
+        if (!Globals.isSecureSeedEnabled()) {
+            return super.nextInt(bound);
+        }
         int bits = Mth.ceillog2(bound);
         int result;
         do {
@@ -127,22 +150,29 @@ public class WorldgenCryptoRandom extends WorldgenRandom {
 
     @Override
     public long nextLong() {
-        return getBits(64);
+        return Globals.isSecureSeedEnabled() ? getBits(64) : super.nextLong();
     }
 
     @Override
     public double nextDouble() {
-        return getBits(53) * 0x1.0p-53;
+        return Globals.isSecureSeedEnabled() ? (getBits(53) * 0x1.0p-53) : super.nextDouble();
     }
 
     @Override
     public long setDecorationSeed(long worldSeed, int blockX, int blockZ) {
+        if (!Globals.isSecureSeedEnabled()) {
+            return super.setDecorationSeed(worldSeed, blockX, blockZ);
+        }
         setSecureSeed(blockX, blockZ, Globals.Salt.POPULATION, 0);
         return ((long) blockX << 32) | ((long) blockZ & 0xffffffffL);
     }
 
     @Override
     public void setFeatureSeed(long populationSeed, int index, int step) {
+        if (!Globals.isSecureSeedEnabled()) {
+            super.setFeatureSeed(populationSeed, index, step);
+            return;
+        }
         setSecureSeed((int) (populationSeed >> 32), (int) populationSeed, Globals.Salt.DECORATION, index + 10000L * step);
     }
 

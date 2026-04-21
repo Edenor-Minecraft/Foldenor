@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -101,6 +_,17 @@
+@@ -102,6 +_,17 @@
      private final LevelChunkTicks<Block> blockTicks;
      private final LevelChunkTicks<Fluid> fluidTicks;
      private LevelChunk.UnsavedListener unsavedListener = chunkPos -> {};
@@ -18,29 +18,29 @@
      // CraftBukkit start
      public boolean mustNotSave;
      public boolean needsDecoration;
-@@ -179,6 +_,7 @@
+@@ -180,6 +_,7 @@
          this.debug = !empty && this.level.isDebug();
          this.defaultBlockState = empty ? VOID_AIR_BLOCKSTATE : AIR_BLOCKSTATE;
          // Paper end - get block chunk optimisation
 +        this.lightningTick = new java.util.Random().nextInt(100000) << 1; // Pufferfish - initialize lightning tick
      }
  
-     public LevelChunk(ServerLevel level, ProtoChunk chunk, LevelChunk.@Nullable PostLoadProcessor postLoad) {
-@@ -383,10 +_,13 @@
+     public LevelChunk(final ServerLevel level, final ProtoChunk protoChunk, final LevelChunk.@Nullable PostLoadProcessor postLoad) {
+@@ -384,10 +_,13 @@
                  return null;
              } else {
-                 Block block = state.getBlock();
--                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(i, y, i2, state);
--                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES).update(i, y, i2, state);
--                this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR).update(i, y, i2, state);
--                this.heightmaps.get(Heightmap.Types.WORLD_SURFACE).update(i, y, i2, state);
+                 Block newBlock = state.getBlock();
+-                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(localX, y, localZ, state);
+-                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES).update(localX, y, localZ, state);
+-                this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR).update(localX, y, localZ, state);
+-                this.heightmaps.get(Heightmap.Types.WORLD_SURFACE).update(localX, y, localZ, state);
 +                // Leaf start - Lithium - combined heightmap update
 +                Heightmap heightmap0 = this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING);
 +                Heightmap heightmap1 = this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
 +                Heightmap heightmap2 = this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR);
 +                Heightmap heightmap3 = this.heightmaps.get(Heightmap.Types.WORLD_SURFACE);
-+                net.caffeinemc.mods.lithium.common.world.chunk.heightmap.CombinedHeightmapUpdate.updateHeightmaps(heightmap0, heightmap1, heightmap2, heightmap3, this, i, y, i2, state);
++                net.caffeinemc.mods.lithium.common.world.chunk.heightmap.CombinedHeightmapUpdate.updateHeightmaps(heightmap0, heightmap1, heightmap2, heightmap3, this, localX, y, localZ, state);
 +                // Leaf end - Lithium - combined heightmap update
-                 boolean hasOnlyAir1 = section.hasOnlyAir();
-                 if (hasOnlyAir != hasOnlyAir1) {
-                     this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, hasOnlyAir1);
+                 boolean isEmpty = section.hasOnlyAir();
+                 if (wasEmpty != isEmpty) {
+                     this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, isEmpty);

@@ -2,13 +2,13 @@
 +++ b/net/minecraft/nbt/CompoundTag.java
 @@ -54,7 +_,7 @@
  
-         private static CompoundTag loadCompound(DataInput input, NbtAccounter nbtAccounter) throws IOException {
-             nbtAccounter.accountBytes(48L);
--            it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<String, Tag> map = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<>(8, 0.8f); // Paper - Reduce memory footprint of CompoundTag
-+            it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<String, Tag> map = new org.dreeam.leaf.util.map.StringCanonizingOpenHashMap<>(8, 0.8f); // Paper - Reduce memory footprint of CompoundTag // Leaf - Further reduce memory footprint of CompoundTag
+         private static CompoundTag loadCompound(final DataInput input, final NbtAccounter accounter) throws IOException {
+             accounter.accountBytes(48L);
+-            it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<String, Tag> values = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<>(8, 0.8f); // Paper - Reduce memory footprint of CompoundTag
++            it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<String, Tag> values = new org.dreeam.leaf.util.map.StringCanonizingOpenHashMap<>(8, 0.8f); // Paper - Reduce memory footprint of CompoundTag // Leaf - Further reduce memory footprint of CompoundTag
  
-             byte b;
-             while ((b = input.readByte()) != 0) {
+             byte tagType;
+             while ((tagType = input.readByte()) != 0) {
 @@ -171,7 +_,7 @@
      }
  

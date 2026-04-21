@@ -1,14 +1,14 @@
 --- a/net/minecraft/world/level/levelgen/structure/Structure.java
 +++ b/net/minecraft/world/level/levelgen/structure/Structure.java
-@@ -249,9 +_,9 @@
+@@ -248,9 +_,9 @@
          }
  
-         private static WorldgenRandom makeRandom(long seed, ChunkPos chunkPos) {
--            WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--            worldgenRandom.setLargeFeatureSeed(seed, chunkPos.x, chunkPos.z);
--            return worldgenRandom;
+         private static WorldgenRandom makeRandom(final long seed, final ChunkPos chunkPos) {
+-            WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+-            random.setLargeFeatureSeed(seed, chunkPos.x(), chunkPos.z());
+-            return random;
 +            return new net.edenor.foldenor.secureseed.WorldgenCryptoRandom(
-+                chunkPos.x, chunkPos.z, net.edenor.foldenor.secureseed.Globals.Salt.GENERATE_FEATURE, seed
++                    chunkPos.x(), chunkPos.z(), net.edenor.foldenor.secureseed.Globals.Salt.GENERATE_FEATURE, seed
 +            );
          }
      }

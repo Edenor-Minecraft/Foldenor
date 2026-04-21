@@ -8,8 +8,8 @@
  import net.minecraft.resources.ResourceKey;
  import net.minecraft.world.level.Level;
  
-@@ -7,4 +_,14 @@
-     public RegionStorageInfo withTypeSuffix(String suffix) {
+@@ -12,4 +_,14 @@
+     public RegionStorageInfo withTypeSuffix(final String suffix) {
          return new RegionStorageInfo(this.level, this.dimension, this.type + suffix);
      }
 +

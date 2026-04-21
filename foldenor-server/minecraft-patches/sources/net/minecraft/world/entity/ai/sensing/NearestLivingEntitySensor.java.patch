@@ -24,17 +24,17 @@
  import net.minecraft.world.phys.AABB;
  
  public class NearestLivingEntitySensor<T extends LivingEntity> extends Sensor<T> {
-@@ -20,10 +_,42 @@
-         List<LivingEntity> entitiesOfClass = level.getEntitiesOfClass(
-             LivingEntity.class, aabb, matchableEntity -> matchableEntity != entity && matchableEntity.isAlive()
-         );
--        entitiesOfClass.sort(Comparator.comparingDouble(entity::distanceToSqr));
+@@ -18,10 +_,41 @@
+         double followRange = body.getAttributeValue(Attributes.FOLLOW_RANGE);
+         AABB boundingBox = body.getBoundingBox().inflate(followRange, followRange, followRange);
+         List<LivingEntity> livingEntities = level.getEntitiesOfClass(LivingEntity.class, boundingBox, mob -> mob != body && mob.isAlive());
+-        livingEntities.sort(Comparator.comparingDouble(body::distanceToSqr));
 +        boolean useQuickSort = FoldenorConfig.enableSepalsLivingTargetCacheQuickSort;
 +        NearestVisibleLivingEntities cache;
-+        Comparator<LivingEntity> comparator = Comparator.comparingDouble(entity::distanceToSqr);
++        Comparator<LivingEntity> comparator = Comparator.comparingDouble(body::distanceToSqr);
 +
 +        if (FoldenorConfig.enableSepalsLivingTargetCache) {
-+            Catheter<LivingEntity> entityCatheter = Catheter.of(entitiesOfClass, LivingEntity[]::new);
++            Catheter<LivingEntity> entityCatheter = Catheter.of(livingEntities, LivingEntity[]::new);
 +
 +            if (useQuickSort) {
 +                it.unimi.dsi.fastutil.objects.ObjectArrays.quickSort(entityCatheter.dArray(), comparator);
@@ -43,28 +43,27 @@
 +            }
 +
 +            LivingEntity[] sources = entityCatheter.array();
-+            entitiesOfClass = List.of(sources);
++            livingEntities = List.of(sources);
 +
 +            Player[] players = entityCatheter.filter(e -> e instanceof Player)
 +                    .varyTo(Player.class::cast)
 +                    .arrayGenerator(Player[]::new)
 +                    .safeArray();
 +
-+            cache = new SepalsLivingTargetCache(level, entity, sources, players);
++            cache = new SepalsLivingTargetCache(level, body, sources, players);
 +        } else {
 +            if (useQuickSort) {
-+                LivingEntity[] entitiesArray = entitiesOfClass.toArray(LivingEntity[]::new);
++                LivingEntity[] entitiesArray = livingEntities.toArray(LivingEntity[]::new);
 +                it.unimi.dsi.fastutil.objects.ObjectArrays.quickSort(entitiesArray, comparator);
-+                entitiesOfClass = Arrays.asList(entitiesArray);
++                livingEntities = Arrays.asList(entitiesArray);
 +            } else {
-+                entitiesOfClass.sort(comparator);
++                livingEntities.sort(comparator);
 +            }
-+            cache = new NearestVisibleLivingEntities(level, entity, entitiesOfClass);
++            cache = new NearestVisibleLivingEntities(level, body, livingEntities);
 +        }
-+
-         Brain<?> brain = entity.getBrain();
-         brain.setMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES, entitiesOfClass);
--        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, new NearestVisibleLivingEntities(level, entity, entitiesOfClass));
+         Brain<?> brain = body.getBrain();
+         brain.setMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES, livingEntities);
+-        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, new NearestVisibleLivingEntities(level, body, livingEntities));
 +        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, cache);
      }
  

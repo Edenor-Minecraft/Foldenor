@@ -23,8 +23,8 @@
 +    activeFork = foldenor
  
  
-     spigot {
-@@ -121,10 +_,14 @@
+     updatingMinecraft {
+@@ -103,10 +_,14 @@
      main {
          java { srcDir("../paper-server/src/main/java"); srcDir("../paper-server/src/generated/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -39,16 +39,16 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -152,7 +_,7 @@
+@@ -134,7 +_,7 @@
  }
  
  dependencies {
 -    implementation(project(":folia-api"))
 +    implementation(project(":foldenor-api"))
-     implementation("ca.spottedleaf:concurrentutil:0.0.8")
+     implementation("ca.spottedleaf:concurrentutil:0.0.10")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -209,6 +_,19 @@
+@@ -182,6 +_,19 @@
      // Spark
      implementation("me.lucko:spark-api:0.1-20240720.200737-2")
      implementation("me.lucko:spark-paper:1.10.152")
@@ -68,7 +68,7 @@
  }
  
  tasks.jar {
-@@ -223,14 +_,14 @@
+@@ -196,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
@@ -88,10 +88,10 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
-@@ -318,6 +_,7 @@
-         vendor.set(JvmVendorSpec.JETBRAINS)
+@@ -292,6 +_,7 @@
+         // vendor.set(JvmVendorSpec.JETBRAINS)
      })
-     jvmArgs("-XX:+AllowEnhancedClassRedefinition")
+     //jvmArgs("-XX:+AllowEnhancedClassRedefinition")
 +    jvmArgs("--add-modules=jdk.incubator.vector")
  
      if (rootProject.childProjects["test-plugin"] != null) {

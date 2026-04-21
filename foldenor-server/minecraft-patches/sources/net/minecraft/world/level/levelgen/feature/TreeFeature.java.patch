@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/level/levelgen/feature/TreeFeature.java
 +++ b/net/minecraft/world/level/levelgen/feature/TreeFeature.java
-@@ -205,7 +_,7 @@
+@@ -211,7 +_,7 @@
  
-                     discreteVoxelShape.fill(blockPos1.getX() - box.minX(), blockPos1.getY() - box.minY(), blockPos1.getZ() - box.minZ());
+                     shape.fill(posx.getX() - bounds.minX(), posx.getY() - bounds.minY(), posx.getZ() - bounds.minZ());
  
 -                    for (Direction direction : Direction.values()) {
 +                    for (Direction direction : Direction.VALUES) {
-                         mutableBlockPos.setWithOffset(blockPos1, direction);
-                         if (box.isInside(mutableBlockPos)) {
-                             int i3 = mutableBlockPos.getX() - box.minX();
+                         neighborPos.setWithOffset(posx, direction);
+                         if (bounds.isInside(neighborPos)) {
+                             int xInShape = neighborPos.getX() - bounds.minX();

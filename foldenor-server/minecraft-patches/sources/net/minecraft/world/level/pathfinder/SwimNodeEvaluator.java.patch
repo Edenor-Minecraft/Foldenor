@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/level/pathfinder/SwimNodeEvaluator.java
 +++ b/net/minecraft/world/level/pathfinder/SwimNodeEvaluator.java
 @@ -51,7 +_,7 @@
-         int i = 0;
-         Map<Direction, Node> map = Maps.newEnumMap(Direction.class);
+         int count = 0;
+         Map<Direction, Node> nodes = Maps.newEnumMap(Direction.class);
  
 -        for (Direction direction : Direction.values()) {
 +        for (Direction direction : Direction.VALUES) {
-             Node node1 = this.findAcceptedNode(node.x + direction.getStepX(), node.y + direction.getStepY(), node.z + direction.getStepZ());
-             map.put(direction, node1);
-             if (this.isNodeValid(node1)) {
+             Node node = this.findAcceptedNode(pos.x + direction.getStepX(), pos.y + direction.getStepY(), pos.z + direction.getStepZ());
+             nodes.put(direction, node);
+             if (this.isNodeValid(node)) {

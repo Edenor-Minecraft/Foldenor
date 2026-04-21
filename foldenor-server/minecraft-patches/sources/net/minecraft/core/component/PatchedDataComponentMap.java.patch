@@ -11,9 +11,9 @@
      private boolean copyOnWrite;
 +    private net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber<PatchedDataComponentMap> subscriber; // Leaf - Lithium - equipment tracking
  
-     public PatchedDataComponentMap(DataComponentMap prototype) {
+     public PatchedDataComponentMap(final DataComponentMap prototype) {
          this(prototype, Reference2ObjectMaps.emptyMap(), true);
-@@ -136,6 +_,11 @@
+@@ -137,6 +_,11 @@
      }
  
      private void ensureMapOwnership() {
@@ -25,9 +25,9 @@
          if (this.copyOnWrite) {
              this.patch = new Reference2ObjectArrayMap<>(this.patch);
              this.copyOnWrite = false;
-@@ -221,6 +_,22 @@
-     public DataComponentMap toImmutableMap() {
-         return (DataComponentMap)(this.patch.isEmpty() ? this.prototype : this.copy());
+@@ -218,6 +_,22 @@
+         this.copyOnWrite = true;
+         return new PatchedDataComponentMap(this.prototype, this.patch, true);
      }
 +
 +    // Leaf start - Lithium - equipment tracking
@@ -46,5 +46,5 @@
 +    }
 +    // Leaf end - Lithium - equipment tracking
  
-     @Override
-     public boolean equals(Object other) {
+     public DataComponentMap toImmutableMap() {
+         return (DataComponentMap)(this.patch.isEmpty() ? this.prototype : this.copy());

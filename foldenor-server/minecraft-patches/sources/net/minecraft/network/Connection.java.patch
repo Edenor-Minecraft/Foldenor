@@ -114,20 +114,24 @@
 +    }
 +    // Luminol end
 +
-     public <T extends PacketListener> void setupInboundProtocol(ProtocolInfo<T> protocolInfo, T packetInfo) {
-         this.validateListener(protocolInfo, packetInfo);
-         if (protocolInfo.flow() != this.getReceiving()) {
-@@ -632,13 +_,7 @@
-         if (this.packetListener instanceof TickablePacketListener tickablePacketListener) {
+     public <T extends PacketListener> void setupInboundProtocol(final ProtocolInfo<T> protocol, final T packetListener) {
+         this.validateListener(protocol, packetListener);
+         if (protocol.flow() != this.getReceiving()) {
+@@ -638,12 +_,12 @@
              // Paper start - Buffer joins to world
              if (true) { // Folia - region threading
--            // Paper start - detailed watchdog information
+             // Paper start - detailed watchdog information
 -            net.minecraft.network.PacketProcessor.packetProcessing.push(this.packetListener);
 -            try {
-             tickablePacketListener.tick();
++            //net.minecraft.network.PacketProcessor.packetProcessing.push(this.packetListener);
++            //try {
+             tickable.tick();
 -            } finally {
 -                net.minecraft.network.PacketProcessor.packetProcessing.pop();
 -            } // Paper end - detailed watchdog information
++            //} finally {
++                //net.minecraft.network.PacketProcessor.packetProcessing.pop();
++            //} // Paper end - detailed watchdog information
              } // Paper end - Buffer joins to world
          }
  

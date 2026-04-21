@@ -1,46 +1,48 @@
 --- a/net/minecraft/world/waypoints/WaypointTransmitter.java
 +++ b/net/minecraft/world/waypoints/WaypointTransmitter.java
-@@ -20,19 +_,36 @@
+@@ -20,21 +_,36 @@
      Waypoint.Icon waypointIcon();
  
-     static boolean doesSourceIgnoreReceiver(LivingEntity entity, ServerPlayer player) {
--        if (!player.getBukkitEntity().canSee(entity.getBukkitEntity())) return true; // Paper - ignore if entity is hidden from player
+     static boolean doesSourceIgnoreReceiver(final LivingEntity source, final ServerPlayer receiver) {
+-        if (!receiver.getBukkitEntity().canSee(source.getBukkitEntity())) return true; // Paper - ignore if entity is hidden from player
 +        // Canvas start - region threading
-         if (player.isSpectator()) {
+         if (receiver.isSpectator()) {
              return false;
--        } else if (!entity.isSpectator() && !entity.hasIndirectPassenger(player)) {
--            double min = Math.min(entity.getAttributeValue(Attributes.WAYPOINT_TRANSMIT_RANGE), player.getAttributeValue(Attributes.WAYPOINT_RECEIVE_RANGE));
--            return entity.distanceTo(player) >= min;
+-        } else if (!source.isSpectator() && !source.hasIndirectPassenger(receiver)) {
+-            double broadcastRange = Math.min(
+-                source.getAttributeValue(Attributes.WAYPOINT_TRANSMIT_RANGE), receiver.getAttributeValue(Attributes.WAYPOINT_RECEIVE_RANGE)
+-            );
+-            return source.distanceTo(receiver) >= broadcastRange;
 -        } else {
 -            return true;
 -        }
 +        }
 +
-+        if (!entity.isSpectator()) {
-+            double dx = entity.getX() - player.getX();
-+            double dz = entity.getZ() - player.getZ();
++        if (!source.isSpectator()) {
++            double dx = source.getX() - receiver.getX();
++            double dz = source.getZ() - receiver.getZ();
 +            double horizontalDistSq = dx * dx + dz * dz;
 +
 +            if (horizontalDistSq < 4.0) {
-+                if (entity.hasIndirectPassenger(player)) {
++                if (source.hasIndirectPassenger(receiver)) {
 +                    return true;
 +                }
 +            }
 +
-+            double transmitRange = entity.getAttributeValue(Attributes.WAYPOINT_TRANSMIT_RANGE);
-+            double receiveRange = player.getAttributeValue(Attributes.WAYPOINT_RECEIVE_RANGE);
++            double transmitRange = source.getAttributeValue(Attributes.WAYPOINT_TRANSMIT_RANGE);
++            double receiveRange = receiver.getAttributeValue(Attributes.WAYPOINT_RECEIVE_RANGE);
 +            double minRange = Math.min(transmitRange, receiveRange);
 +
-+            return entity.distanceTo(player) >= minRange;
++            return source.distanceTo(receiver) >= minRange;
 +        }
 +
 +        return true;
 +        // Canvas end - region threading
      }
  
-     static boolean isChunkVisible(ChunkPos pos, ServerPlayer player) {
+     static boolean isChunkVisible(final ChunkPos chunkPos, final ServerPlayer receiver) {
          // Paper start - rewrite chunk system
-+        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(player)) return false; // Canvas - region threading - if isn't curr tick thread, not visible
-         final ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.PlayerChunkLoaderData playerChunkLoader = ((ca.spottedleaf.moonrise.patches.chunk_system.player.ChunkSystemServerPlayer)player).moonrise$getChunkLoader();
-         return playerChunkLoader != null && playerChunkLoader.getSentChunksRaw().contains(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getChunkKey(pos));
++        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(receiver)) return false; // Canvas - region threading - if isn't curr tick thread, not visible
+         final ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader.PlayerChunkLoaderData playerChunkLoader = ((ca.spottedleaf.moonrise.patches.chunk_system.player.ChunkSystemServerPlayer)receiver).moonrise$getChunkLoader();
+         return playerChunkLoader != null && playerChunkLoader.getSentChunksRaw().contains(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getChunkKey(chunkPos));
          // Paper end - rewrite chunk system

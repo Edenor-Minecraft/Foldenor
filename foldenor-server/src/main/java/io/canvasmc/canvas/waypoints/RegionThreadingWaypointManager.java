@@ -50,6 +50,7 @@ public class RegionThreadingWaypointManager extends ServerWaypointManager {
     private final ServerLevel world;
 
     public RegionThreadingWaypointManager(ServerLevel world) {
+        super(world);
         this.world = world;
     }
 

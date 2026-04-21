@@ -8,17 +8,17 @@
  import net.minecraft.util.Mth;
  import net.minecraft.world.entity.Entity;
  import net.minecraft.world.entity.LivingEntity;
-@@ -153,7 +_,19 @@
+@@ -149,7 +_,19 @@
      }
  
-     private static int teleportToEntity(CommandSourceStack source, Collection<? extends Entity> targets, Entity destination) throws CommandSyntaxException {
+     private static int teleportToEntity(final CommandSourceStack source, final Collection<? extends Entity> entities, final Entity destination) throws CommandSyntaxException {
 +        if (source.getPlayer() != null){
 +            ServerPlayer sender = source.getPlayer();
 +            if (sender.isSpectator() && sender.getCamera() != sender){
 +                sender.setCamera(sender);
 +            }
 +        }
-         for (Entity entity : targets) {
+         for (Entity entity : entities) {
 +            if (entity.isSpectator()){
 +                ServerPlayer sender = (ServerPlayer) entity;
 +                if (sender.getCamera() != sender){
@@ -28,9 +28,9 @@
              io.papermc.paper.threadedregions.TeleportUtils.teleport(entity, false, destination, Float.valueOf(destination.getYRot()), Float.valueOf(destination.getXRot()), Entity.TELEPORT_FLAG_LOAD_CHUNK, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND, null); // Folia - region threading
          }
  
-@@ -179,11 +_,23 @@
-         @Nullable Coordinates rotation,
-         @Nullable LookAt lookAt
+@@ -175,11 +_,23 @@
+         final @Nullable Coordinates rotation,
+         final @Nullable LookAt lookAt
      ) throws CommandSyntaxException {
 +        if (source.getPlayer() != null){
 +            ServerPlayer sender = source.getPlayer();
@@ -38,27 +38,27 @@
 +                sender.setCamera(sender);
 +            }
 +        }
-         Vec3 position1 = position.getPosition(source);
-         Vec2 vec2 = rotation == null ? null : rotation.getRotation(source);
+         Vec3 pos = destination.getPosition(source);
+         Vec2 rot = rotation == null ? null : rotation.getRotation(source);
  
-         for (Entity entity : targets) {
-             Set<Relative> relatives = getRelatives(position, rotation, entity.level().dimension() == level.dimension());
+         for (Entity entity : entities) {
+             Set<Relative> relatives = getRelatives(destination, rotation, entity.level().dimension() == level.dimension());
 +            if (entity.isSpectator()){
 +                ServerPlayer sender = (ServerPlayer) entity;
 +                if (sender.isSpectator() && sender.getCamera() != sender){
 +                    sender.setCamera(sender);
 +                }
 +            }
-             if (vec2 == null) {
-                 performTeleport(source, entity, level, position1.x, position1.y, position1.z, relatives, entity.getYRot(), entity.getXRot(), lookAt);
+             if (rot == null) {
+                 performTeleport(source, entity, level, pos.x, pos.y, pos.z, relatives, entity.getYRot(), entity.getXRot(), lookAt);
              } else {
-@@ -259,6 +_,9 @@
-                 Float yawFinal = Float.valueOf(f2);
-                 Float pitchFinal = Float.valueOf(f3);
-                 target.getBukkitEntity().taskScheduler.schedule((Entity nmsEntity) -> {
+@@ -250,6 +_,9 @@
+                 Float yawFinal = Float.valueOf(newYRot);
+                 Float pitchFinal = Float.valueOf(newXRot);
+                 victim.getBukkitEntity().taskScheduler.schedule((Entity nmsEntity) -> {
 +                    if (nmsEntity instanceof ServerPlayer player && player.isSpectator() && player.getCamera() != player){
 +                        player.setCamera(player);
 +                    }
                      nmsEntity.stopRiding();
                      nmsEntity.teleportAsync(
-                             worldFinal, posFinal, yawFinal, pitchFinal, Vec3.ZERO,
+                             level, posFinal, yawFinal, pitchFinal, Vec3.ZERO,

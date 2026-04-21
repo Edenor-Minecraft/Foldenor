@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/net/minecraft/world/entity/decoration/ArmorStand.java
-@@ -90,7 +_,7 @@
+@@ -92,7 +_,7 @@
      // Paper start - Allow ArmorStands not to tick
      public boolean canTick = true;
      public boolean canTickSetByAPI = false;
@@ -8,26 +8,26 @@
 +    public boolean noTickEquipmentDirty = false;
      // Paper end - Allow ArmorStands not to tick
  
-     public ArmorStand(EntityType<? extends ArmorStand> type, Level level) {
-@@ -457,7 +_,7 @@
+     public ArmorStand(final EntityType<? extends ArmorStand> type, final Level level) {
+@@ -458,7 +_,7 @@
          this.playBrokenSound();
-         // this.dropAllDeathLoot(level, damageSource); // CraftBukkit - moved down
+         // this.dropAllDeathLoot(level, source); // CraftBukkit - moved down
  
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemStack = this.equipment.get(equipmentSlot); // Paper - move equipment removal past event call
-             if (!itemStack.isEmpty()) {
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemStack = this.equipment.get(slot); // Paper - move equipment removal past event call
+             if (!itemStack.isEmpty() && !EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
                  this.drops.add(new DefaultDrop(itemStack, stack -> Block.popResource(this.level(), this.blockPosition().above(), stack))); // CraftBukkit - add to drops // Paper - Restore vanilla drops behavior; mirror so we can destroy it later - though this call site was safe & spawn drops correctly}
-@@ -466,7 +_,7 @@
+@@ -467,7 +_,7 @@
          // Paper start - move equipment removal past event call
-         org.bukkit.event.entity.EntityDeathEvent event = this.dropAllDeathLoot(level, damageSource);
+         org.bukkit.event.entity.EntityDeathEvent event = this.dropAllDeathLoot(level, source);
          if (!event.isCancelled()) {
--            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-                 this.equipment.set(equipmentSlot, ItemStack.EMPTY);
+-            for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++            for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 this.equipment.set(slot, ItemStack.EMPTY);
              }
          }
-@@ -524,8 +_,9 @@
+@@ -525,8 +_,9 @@
      public void tick() {
          if (!this.canTick) {
              if (this.noTickEquipmentDirty) {

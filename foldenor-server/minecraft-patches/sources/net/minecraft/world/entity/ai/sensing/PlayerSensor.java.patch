@@ -3,48 +3,48 @@
 @@ -26,17 +_,39 @@
  
      @Override
-     protected void doTick(ServerLevel level, LivingEntity entity) {
--        List<Player> list = level.getLocalPlayers() // Folia - region threading
+     protected void doTick(final ServerLevel level, final LivingEntity body) {
+-        List<Player> players = level.getLocalPlayers() // Folia - region threading
 -            .stream()
 -            .filter(EntitySelector.NO_SPECTATORS)
--            .filter(serverPlayer -> entity.closerThan(serverPlayer, this.getFollowDistance(entity)))
--            .sorted(Comparator.comparingDouble(entity::distanceToSqr))
+-            .filter(player -> body.closerThan(player, this.getFollowDistance(body)))
+-            .sorted(Comparator.comparingDouble(body::distanceToSqr))
 -            .collect(Collectors.toList());
 +        // Leaf start - Remove stream in PlayerSensor
-+        List<Player> list = new java.util.ArrayList<>();
++        List<Player> players = new java.util.ArrayList<>();
 +        for (Player serverPlayer : level.players()) {
 +            if (!EntitySelector.NO_SPECTATORS.test(serverPlayer)) {
 +                continue;
 +            }
-+            if (!entity.closerThan(serverPlayer, this.getFollowDistance(entity))) {
++            if (!body.closerThan(serverPlayer, this.getFollowDistance(body))) {
 +                continue;
 +            }
 +
-+            list.add(serverPlayer);
++            players.add(serverPlayer);
 +        }
-+        list.sort(Comparator.comparingDouble(entity::distanceToSqr));
++        players.sort(Comparator.comparingDouble(body::distanceToSqr));
 +        // Leaf end - Remove stream in PlayerSensor
-         Brain<?> brain = entity.getBrain();
-         brain.setMemory(MemoryModuleType.NEAREST_PLAYERS, list);
--        List<Player> list1 = list.stream().filter(player -> isEntityTargetable(level, entity, player)).collect(Collectors.toList());
+         Brain<?> brain = body.getBrain();
+         brain.setMemory(MemoryModuleType.NEAREST_PLAYERS, players);
+-        List<Player> visiblePlayers = players.stream().filter(livingEntity -> isEntityTargetable(level, body, livingEntity)).collect(Collectors.toList());
 +        // Leaf start - Remove stream in PlayerSensor
-+        List<Player> list1 = new java.util.ArrayList<>(list.size());
-+        for (Player player : list) {
-+            if (isEntityTargetable(level, entity, player)) {
-+                list1.add(player);
++        List<Player> visiblePlayers = new java.util.ArrayList<>(players.size());
++        for (Player player : players) {
++            if (isEntityTargetable(level, body, player)) {
++                visiblePlayers.add(player);
 +            }
 +        }
 +        // Leaf end - Remove stream in PlayerSensor
-         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER, list1.isEmpty() ? null : list1.get(0));
--        List<Player> list2 = list1.stream().filter(player -> isEntityAttackable(level, entity, player)).toList();
+         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER, visiblePlayers.isEmpty() ? null : visiblePlayers.get(0));
+-        List<Player> visibleAttackablePlayers = visiblePlayers.stream().filter(livingEntity -> isEntityAttackable(level, body, livingEntity)).toList();
 +        // Leaf start - Remove stream in PlayerSensor
-+        List<Player> list2 = new java.util.ArrayList<>(list1.size());
-+        for (Player player : list1) {
-+            if (isEntityAttackable(level, entity, player)) {
-+                list2.add(player);
++        List<Player> visibleAttackablePlayers = new java.util.ArrayList<>(visiblePlayers.size());
++        for (Player player : visiblePlayers) {
++            if (isEntityAttackable(level, body, player)) {
++                visibleAttackablePlayers.add(player);
 +            }
 +        }
 +        // Leaf end - Remove stream in PlayerSensor
-         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYERS, list2);
-         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, list2.isEmpty() ? null : list2.get(0));
+         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYERS, visibleAttackablePlayers);
+         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, visibleAttackablePlayers.isEmpty() ? null : visibleAttackablePlayers.get(0));
      }

@@ -1,23 +1,22 @@
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -235,10 +_,12 @@
+@@ -238,9 +_,12 @@
          // only after setting the connection listener to game type, add the connection to this regions list
-         serverLevel.getCurrentWorldData().connections.add(connection);
+         level.getCurrentWorldData().connections.add(connection);
          // Folia end - rewrite login process
 -        connection.setupInboundProtocol(
--            GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
--            serverGamePacketListenerImpl
+-            GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), playerConnection), playerConnection
 -        );
 +        if (!net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) { // Luminol - Async protocol switch // we will run async switch once these main thread logics became done
 +            connection.setupInboundProtocol(
-+                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
-+                    serverGamePacketListenerImpl
++                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), playerConnection),
++                    playerConnection
 +            );
 +        } // Luminol - Async protocol switch
-         serverGamePacketListenerImpl.suspendFlushing();
-         GameRules gameRules = serverLevel.getGameRules();
-         boolean flag = gameRules.get(GameRules.IMMEDIATE_RESPAWN);
-@@ -313,6 +_,9 @@
+         playerConnection.suspendFlushing();
+         GameRules gameRules = level.getGameRules();
+         boolean immediateRespawn = gameRules.get(GameRules.IMMEDIATE_RESPAWN);
+@@ -315,6 +_,9 @@
              //return; // Folia - region threading - must still allow the player to connect, as we must add to chunk map before handling disconnect
          }
  
@@ -27,7 +26,7 @@
          final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
  
          if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
-@@ -401,6 +_,17 @@
+@@ -403,6 +_,17 @@
              );
          }
          // Paper end - Send empty chunk
@@ -35,8 +34,8 @@
 +        if (net.edenor.foldenor.config.FoldenorConfig.asyncProtocolChange) {
 +            // auto read will be enabled once the async switch is done
 +            connection.setupInboundProtocolAsync(
-+                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), serverGamePacketListenerImpl),
-+                    serverGamePacketListenerImpl,
++                    GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()), playerConnection),
++                    playerConnection,
 +                    null, // we don't need do anything more
 +                    true // start auto read which we have disabled in configuration handler
 +            );
@@ -44,18 +43,18 @@
 +        // Luminol end
      }
  
-     public void updateEntireScoreboard(ServerScoreboard scoreboard, ServerPlayer player) {
-@@ -498,6 +_,7 @@
+     public void updateEntireScoreboard(final ServerScoreboard scoreboard, final ServerPlayer player) {
+@@ -504,6 +_,7 @@
          return this.remove(player, net.kyori.adventure.text.Component.translatable("multiplayer.player.left", net.kyori.adventure.text.format.NamedTextColor.YELLOW, io.papermc.paper.configuration.GlobalConfiguration.get().messages.useDisplayNameInQuitMessage ? player.getBukkitEntity().displayName() : io.papermc.paper.adventure.PaperAdventure.asAdventure(player.getDisplayName())));
      }
-     public net.kyori.adventure.text.@Nullable Component remove(ServerPlayer player, net.kyori.adventure.text.Component leaveMessage) {
+     public net.kyori.adventure.text.@Nullable Component remove(final ServerPlayer player, final net.kyori.adventure.text.Component leaveMessage) {
 +        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePlayerLeave(player); // Leaves - protocol
          // Paper end - Fix kick event leave message not being sent
-         ServerLevel serverLevel = player.level();
+         ServerLevel level = player.level();
          player.awardStat(Stats.LEAVE_GAME);
-@@ -1384,6 +_,7 @@
-             serverPlayer.connection.send(clientboundUpdateRecipesPacket);
-             serverPlayer.getRecipeBook().sendInitialRecipeBook(serverPlayer);
+@@ -1391,6 +_,7 @@
+             player.connection.send(recipes);
+             player.getRecipeBook().sendInitialRecipeBook(player);
          }
 +        org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleDataPackReload(); // Leaves - protocol core
      }

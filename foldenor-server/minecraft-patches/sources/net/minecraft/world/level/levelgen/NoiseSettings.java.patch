@@ -7,15 +7,15 @@
 -public record NoiseSettings(int minY, int height, int noiseSizeHorizontal, int noiseSizeVertical) {
 +public record NoiseSettings(int minY, int height, int noiseSizeHorizontal, int noiseSizeVertical, int horizontalCellBlockCount, int verticalCellBlockCount) { // Canvas
      public static final Codec<NoiseSettings> CODEC = RecordCodecBuilder.<NoiseSettings>create(
-             instance -> instance.group(
+             i -> i.group(
                      Codec.intRange(DimensionType.MIN_Y, DimensionType.MAX_Y).fieldOf("min_y").forGetter(NoiseSettings::minY),
 @@ -16,7 +_,10 @@
                      Codec.intRange(1, 4).fieldOf("size_horizontal").forGetter(NoiseSettings::noiseSizeHorizontal),
                      Codec.intRange(1, 4).fieldOf("size_vertical").forGetter(NoiseSettings::noiseSizeVertical)
                  )
--                .apply(instance, NoiseSettings::new)
+-                .apply(i, NoiseSettings::new)
 +                    // Canvas start - noise gen optimizations
-+                    .apply(instance, (Integer minY1, Integer height1, Integer noiseSizeHorizontal1, Integer noiseSizeVertical1) -> new NoiseSettings(minY1, height1, noiseSizeHorizontal1, noiseSizeVertical1,
++                    .apply(i, (Integer minY1, Integer height1, Integer noiseSizeHorizontal1, Integer noiseSizeVertical1) -> new NoiseSettings(minY1, height1, noiseSizeHorizontal1, noiseSizeVertical1,
 +                            QuartPos.toBlock(noiseSizeHorizontal1), QuartPos.toBlock(noiseSizeVertical1)))
 +                    // Canvas end
          )
@@ -24,7 +24,7 @@
 @@ -36,7 +_,7 @@
      }
  
-     public static NoiseSettings create(int minY, int height, int noiseSizeHorizontal, int noiseSizeVertical) {
+     public static NoiseSettings create(final int minY, final int height, final int noiseSizeHorizontal, final int noiseSizeVertical) {
 -        NoiseSettings noiseSettings = new NoiseSettings(minY, height, noiseSizeHorizontal, noiseSizeVertical);
 +        NoiseSettings noiseSettings = new NoiseSettings(minY, height, noiseSizeHorizontal, noiseSizeVertical, QuartPos.toBlock(noiseSizeHorizontal), QuartPos.toBlock(noiseSizeVertical)); // Canvas - noise gen optimizations
          guardY(noiseSettings).error().ifPresent(error -> {
@@ -43,10 +43,10 @@
 +        return horizontalCellBlockCount(); // Canvas - noise gen optimizations
      }
  
-     public NoiseSettings clampToHeightAccessor(LevelHeightAccessor heightAccessor) {
-         int max = Math.max(this.minY, heightAccessor.getMinY());
-         int i = Math.min(this.minY + this.height, heightAccessor.getMaxY() + 1) - max;
--        return new NoiseSettings(max, i, this.noiseSizeHorizontal, this.noiseSizeVertical);
-+        return new NoiseSettings(max, i, this.noiseSizeHorizontal, this.noiseSizeVertical, QuartPos.toBlock(this.noiseSizeHorizontal), QuartPos.toBlock(this.noiseSizeVertical)); // Canvas - noise gen optimizations
+     public NoiseSettings clampToHeightAccessor(final LevelHeightAccessor heightAccessor) {
+         int newMinY = Math.max(this.minY, heightAccessor.getMinY());
+         int newHeight = Math.min(this.minY + this.height, heightAccessor.getMaxY() + 1) - newMinY;
+-        return new NoiseSettings(newMinY, newHeight, this.noiseSizeHorizontal, this.noiseSizeVertical);
++        return new NoiseSettings(newMinY, newHeight, this.noiseSizeHorizontal, this.noiseSizeVertical, QuartPos.toBlock(this.noiseSizeHorizontal), QuartPos.toBlock(this.noiseSizeVertical)); // Canvas - noise gen optimizations
      }
  }

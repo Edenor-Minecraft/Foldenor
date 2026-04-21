@@ -2,10 +2,10 @@
 +++ b/net/minecraft/advancements/criterion/LocationPredicate.java
 @@ -49,7 +_,7 @@
          } else {
-             BlockPos blockPos = BlockPos.containing(x, y, z);
-             boolean isLoaded = level.isLoaded(blockPos);
--            return (!this.biomes.isPresent() || isLoaded && this.biomes.get().contains(level.getBiome(blockPos)))
-+            return (!this.biomes.isPresent() || isLoaded && this.biomes.get().contains(net.edenor.foldenor.config.FoldenorConfig.cacheBiomeAdvancement ? level.getBiomeCached(null, blockPos) : level.getBiome(blockPos))) // Leaf - cache getBiome
-                 && (!this.structures.isPresent() || isLoaded && level.structureManager().getStructureWithPieceAt(blockPos, this.structures.get()).isValid())
-                 && (!this.smokey.isPresent() || isLoaded && this.smokey.get() == CampfireBlock.isSmokeyPos(level, blockPos))
-                 && (!this.light.isPresent() || this.light.get().matches(level, blockPos))
+             BlockPos pos = BlockPos.containing(x, y, z);
+             boolean loaded = level.isLoaded(pos);
+-            return (!this.biomes.isPresent() || loaded && this.biomes.get().contains(level.getBiome(pos)))
++            return (!this.biomes.isPresent() || loaded && this.biomes.get().contains(net.edenor.foldenor.config.FoldenorConfig.cacheBiomeAdvancement ? level.getBiomeCached(null, pos) : level.getBiome(pos))) // Leaf - cache getBiome
+                 && (!this.structures.isPresent() || loaded && level.structureManager().getStructureWithPieceAt(pos, this.structures.get()).isValid())
+                 && (!this.smokey.isPresent() || loaded && this.smokey.get() == CampfireBlock.isSmokeyPos(level, pos))
+                 && (!this.light.isPresent() || this.light.get().matches(level, pos))

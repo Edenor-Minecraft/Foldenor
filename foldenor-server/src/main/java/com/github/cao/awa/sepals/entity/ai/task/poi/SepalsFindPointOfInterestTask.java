@@ -53,7 +53,7 @@ public class SepalsFindPointOfInterestTask {
                                     if (onlyRunIfChild && entity.isBaby()) {
                                         return false;
                                     } else if (mutableLong.getValue() == 0L) {
-                                        mutableLong.setValue(world.getRedstoneGameTime() + (long) world.random.nextInt(20));
+                                        mutableLong.setValue(world.getRedstoneGameTime() + (long) world.getRandom().nextInt(20));
                                         return false;
                                     } else if (world.getRedstoneGameTime() < mutableLong.getValue()) {
                                         return false;
@@ -85,7 +85,7 @@ public class SepalsFindPointOfInterestTask {
                                             for (Pair<Holder<PoiType>, BlockPos> pair : poiPoses) {
                                                 retryMarkers.computeIfAbsent(
                                                         pair.getSecond().asLong(),
-                                                        x -> new RetryMarker(world.random, time)
+                                                        x -> new RetryMarker(world.getRandom(), time)
                                                 );
                                             }
                                         } else {

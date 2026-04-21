@@ -9,10 +9,10 @@
  import net.minecraft.core.HolderLookup;
  import net.minecraft.core.RegistryAccess;
 @@ -137,7 +_,17 @@
-         String string = this.get("level-seed", "");
-         boolean flag = this.get("generate-structures", true);
-         long l = WorldOptions.parseSeed(string).orElse(WorldOptions.randomSeed());
--        this.worldOptions = new WorldOptions(l, flag, false);
+         String levelSeed = this.get("level-seed", "");
+         boolean generateStructures = this.get("generate-structures", true);
+         long seed = WorldOptions.parseSeed(levelSeed).orElse(WorldOptions.randomSeed());
+-        this.worldOptions = new WorldOptions(seed, generateStructures, false);
 +        // Foldenor start - Feature secure seed
 +        String featureSeedString = this.get("feature-level-seed", "");
 +        long[] featureSeed;
@@ -22,8 +22,8 @@
 +            featureSeed = Globals.parseSeed(featureSeedString).orElseGet(Globals::createRandomWorldSeed);
 +        }
 +
-+        this.worldOptions = new WorldOptions(l, featureSeed, flag, false);
++        this.worldOptions = new WorldOptions(seed, featureSeed, generateStructures, false);
 +        // Foldenor end - Feature secure seed
          this.worldDimensionData = new DedicatedServerProperties.WorldDimensionData(
-             this.get("generator-settings", property -> GsonHelper.parse(!property.isEmpty() ? property : "{}"), new JsonObject()),
-             this.get("level-type", property -> property.toLowerCase(Locale.ROOT), WorldPresets.NORMAL.identifier().toString())
+             this.get("generator-settings", s -> GsonHelper.parse(!s.isEmpty() ? s : "{}"), new JsonObject()),
+             this.get("level-type", v -> v.toLowerCase(Locale.ROOT), WorldPresets.NORMAL.identifier().toString())

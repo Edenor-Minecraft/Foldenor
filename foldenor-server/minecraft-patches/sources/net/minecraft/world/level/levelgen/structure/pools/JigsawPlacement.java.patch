@@ -13,9 +13,9 @@
 @@ -64,7 +_,7 @@
          ChunkGenerator chunkGenerator = context.chunkGenerator();
          StructureTemplateManager structureTemplateManager = context.structureTemplateManager();
-         LevelHeightAccessor levelHeightAccessor = context.heightAccessor();
--        WorldgenRandom worldgenRandom = context.random();
-+        WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(context.chunkPos().x, context.chunkPos().z, Globals.Salt.JIGSAW_PLACEMENT, 0);
-         Registry<StructureTemplatePool> registry = registryAccess.lookupOrThrow(Registries.TEMPLATE_POOL);
-         Rotation random = Rotation.getRandom(worldgenRandom);
-         StructureTemplatePool structureTemplatePool = startPool.unwrapKey()
+         LevelHeightAccessor heightAccessor = context.heightAccessor();
+-        WorldgenRandom random = context.random();
++        WorldgenRandom random = new WorldgenCryptoRandom(context.chunkPos().x(), context.chunkPos().z(), Globals.Salt.JIGSAW_PLACEMENT, 0);
+         Registry<StructureTemplatePool> pools = registryAccess.lookupOrThrow(Registries.TEMPLATE_POOL);
+         Rotation centerRotation = Rotation.getRandom(random);
+         StructureTemplatePool centerPool = startPool.unwrapKey()

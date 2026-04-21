@@ -4,8 +4,8 @@
              }
          }
  
--        ObjectArrayList<BlockPos> list = new ObjectArrayList<>(set.stream().toList());
-+        ObjectArrayList<BlockPos> list = new ObjectArrayList<>(set); // Leaf - paw optimization - TODO: use array
-         RandomSource randomSource = RandomSource.create(level.getSeed()).forkPositional().at(pieces.calculateBoundingBox().getCenter());
-         Util.shuffle(list, randomSource);
-         int min = Math.min(set.size(), randomSource.nextInt(5, 8));
+-        ObjectArrayList<BlockPos> shuffledSandPlacements = new ObjectArrayList<>(uniqueSandPlacements.stream().toList());
++        ObjectArrayList<BlockPos> shuffledSandPlacements = new ObjectArrayList<>(uniqueSandPlacements); // Leaf - paw optimization - TODO: use array
+         RandomSource positionalRandom = RandomSource.createThreadLocalInstance(level.getSeed()).forkPositional().at(pieces.calculateBoundingBox().getCenter());
+         Util.shuffle(shuffledSandPlacements, positionalRandom);
+         int suspiciousSandToPlace = Math.min(uniqueSandPlacements.size(), positionalRandom.nextInt(5, 8));

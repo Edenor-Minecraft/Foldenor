@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/ChestBlock.java
 +++ b/net/minecraft/world/level/block/ChestBlock.java
-@@ -92,6 +_,28 @@
+@@ -93,6 +_,28 @@
              return Optional.empty();
          }
      };
@@ -29,7 +29,7 @@
      public static DoubleBlockCombiner.Combiner<ChestBlockEntity, Optional<MenuProvider>> MENU_PROVIDER_COMBINER = new DoubleBlockCombiner.Combiner<ChestBlockEntity, Optional<MenuProvider>>() {
          @Override
          public Optional<MenuProvider> acceptDouble(final ChestBlockEntity first, final ChestBlockEntity second) {
-@@ -305,6 +_,26 @@
+@@ -284,6 +_,26 @@
      public BlockEntityType<? extends ChestBlockEntity> blockEntityType() {
          return this.blockEntityType.get();
      }
@@ -54,5 +54,5 @@
 +    }
 +    // Canvas end
  
-     public static @Nullable Container getContainer(ChestBlock chest, BlockState state, Level level, BlockPos pos, boolean override) {
-         return chest.combine(state, level, pos, override).apply(CHEST_COMBINER).orElse(null);
+     public static @Nullable Container getContainer(
+         final ChestBlock block, final BlockState state, final Level level, final BlockPos pos, final boolean ignoreBeingBlocked

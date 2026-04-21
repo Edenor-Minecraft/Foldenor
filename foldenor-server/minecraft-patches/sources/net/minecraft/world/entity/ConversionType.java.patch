@@ -3,9 +3,9 @@
 @@ -37,7 +_,7 @@
              }
  
-             if (conversionParams.keepEquipment()) {
--                for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+                for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-                     ItemStack itemBySlot = oldMob.getItemBySlot(equipmentSlot);
-                     if (!itemBySlot.isEmpty()) {
-                         newMob.setItemSlot(equipmentSlot, itemBySlot.copyAndClear());
+             if (params.keepEquipment()) {
+-                for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++                for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                     ItemStack itemStack = from.getItemBySlot(slot);
+                     if (!itemStack.isEmpty()) {
+                         to.setItemSlot(slot, itemStack.copyAndClear());

@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/level/block/LeavesBlock.java
 +++ b/net/minecraft/world/level/block/LeavesBlock.java
 @@ -120,7 +_,7 @@
-         int i = 7;
-         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+         int newDistance = 7;
+         BlockPos.MutableBlockPos neighborPos = new BlockPos.MutableBlockPos();
  
 -        for (Direction direction : Direction.values()) {
 +        for (Direction direction : Direction.VALUES) {
-             mutableBlockPos.setWithOffset(pos, direction);
-             i = Math.min(i, getDistanceAt(level.getBlockState(mutableBlockPos)) + 1);
-             if (i == 1) {
+             neighborPos.setWithOffset(pos, direction);
+             newDistance = Math.min(newDistance, getDistanceAt(level.getBlockState(neighborPos)) + 1);
+             if (newDistance == 1) {

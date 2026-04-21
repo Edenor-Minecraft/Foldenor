@@ -25,7 +25,7 @@
  import net.minecraft.world.level.chunk.status.ChunkStatus;
  import net.minecraft.world.level.dimension.DimensionType;
  import net.minecraft.world.level.levelgen.Heightmap;
-@@ -55,6 +_,12 @@
+@@ -56,6 +_,12 @@
          return this.getBiomeManager().getBiome(pos);
      }
  
@@ -35,41 +35,22 @@
 +    }
 +    // Leaf end - cache getBiome
 +
-     default Stream<BlockState> getBlockStatesIfLoaded(AABB aabb) {
-         int floor = Mth.floor(aabb.minX);
-         int floor1 = Mth.floor(aabb.maxX);
-@@ -65,6 +_,18 @@
-         return this.hasChunksAt(floor, floor2, floor4, floor1, floor3, floor5) ? this.getBlockStates(aabb) : Stream.empty();
-     }
- 
-+    // Leaf start - Optimize check nearby fire or lava on entity move
-+    default java.util.List<BlockState> getBlockStatesListIfLoaded(AABB box, java.util.List<BlockState> into) {
-+        int i = Mth.floor(box.minX);
-+        int j = Mth.floor(box.maxX);
-+        int k = Mth.floor(box.minY);
-+        int l = Mth.floor(box.maxY);
-+        int m = Mth.floor(box.minZ);
-+        int n = Mth.floor(box.maxZ);
-+        return this.hasChunksAt(i, k, m, j, l, n) ? this.getBlockStatesList(i, k, m, j, l, n , into) : into;
-+    }
-+    // Leaf end - Optimize check nearby fire or lava on entity move
-+
-     @Override
-     default int getBlockTint(BlockPos pos, ColorResolver colorResolver) {
-         return colorResolver.getColor(this.getBiome(pos).value(), pos.getX(), pos.getZ());
-@@ -72,9 +_,26 @@
+     default Stream<BlockState> getBlockStatesIfLoaded(final AABB box) {
+         int x0 = Mth.floor(box.minX);
+         int x1 = Mth.floor(box.maxX);
+@@ -68,9 +_,26 @@
  
      @Override
-     default Holder<Biome> getNoiseBiome(int x, int y, int z) {
--        ChunkAccess chunk = this.getChunk(QuartPos.toSection(x), QuartPos.toSection(z), ChunkStatus.BIOMES, false);
-+        ChunkAccess chunk = this.canvas$fasterChunkAccess(this, QuartPos.toSection(x), QuartPos.toSection(z), ChunkStatus.BIOMES, false); // Canvas
-         return chunk != null ? chunk.getNoiseBiome(x, y, z) : this.getUncachedNoiseBiome(x, y, z);
+     default Holder<Biome> getNoiseBiome(final int quartX, final int quartY, final int quartZ) {
+-        ChunkAccess chunk = this.getChunk(QuartPos.toSection(quartX), QuartPos.toSection(quartZ), ChunkStatus.BIOMES, false);
++        ChunkAccess chunk = this.canvas$fasterChunkAccess(this, QuartPos.toSection(quartX), QuartPos.toSection(quartZ), ChunkStatus.BIOMES, false); // Canvas
+         return chunk != null ? chunk.getNoiseBiome(quartX, quartY, quartZ) : this.getUncachedNoiseBiome(quartX, quartY, quartZ);
      }
 +
 +    // Canvas start
 +    private @Nullable ChunkAccess canvas$fasterChunkAccess(LevelReader instance, int x, int z, ChunkStatus chunkStatus, boolean create) {
 +        if (!create && instance instanceof ServerLevel world) {
-+            final ChunkHolder holder = (world.getChunkSource().chunkMap).getVisibleChunkIfPresent(ChunkPos.asLong(x, z));
++            final ChunkHolder holder = (world.getChunkSource().chunkMap).getVisibleChunkIfPresent(ChunkPos.pack(x, z));
 +            if (holder != null) {
 +                final CompletableFuture<ChunkResult<LevelChunk>> future = holder.getFullChunkFuture();
 +                final ChunkResult<LevelChunk> either = future.getNow(null);
@@ -83,5 +64,5 @@
 +    }
 +    // Canvas end
  
-     Holder<Biome> getUncachedNoiseBiome(int x, int y, int z);
+     Holder<Biome> getUncachedNoiseBiome(int quartX, int quartY, int quartZ);
  

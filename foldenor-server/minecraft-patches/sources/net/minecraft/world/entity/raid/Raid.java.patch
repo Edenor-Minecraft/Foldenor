@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/raid/Raid.java
 +++ b/net/minecraft/world/entity/raid/Raid.java
-@@ -127,6 +_,7 @@
+@@ -131,6 +_,7 @@
      private Raid.RaidStatus status;
      private int celebrationTicks;
      private Optional<BlockPos> waveSpawnPos = Optional.empty();
@@ -8,9 +8,9 @@
  
      // Folia start - make raids thread-safe
      public boolean ownsRaid(ServerLevel world) {
-@@ -287,6 +_,12 @@
+@@ -291,6 +_,12 @@
  
-     public void tick(ServerLevel level) {
+     public void tick(final ServerLevel level) {
          if (!this.isStopped()) {
 +            // DivineMC start - lithium: ai.raid
 +            if (this.isBarDirty) {
@@ -19,9 +19,9 @@
 +            }
 +            // DivineMC end
              if (this.status == Raid.RaidStatus.ONGOING) {
-                 boolean flag = this.active;
+                 boolean oldActive = this.active;
                  this.active = level.hasChunkAt(this.center);
-@@ -624,9 +_,15 @@
+@@ -630,9 +_,15 @@
          }
      }
  
@@ -36,4 +36,4 @@
 +    // DivineMC end
  
      public float getHealthOfLivingRaiders() {
-         float f = 0.0F;
+         float health = 0.0F;

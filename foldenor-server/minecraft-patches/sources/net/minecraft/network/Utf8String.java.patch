@@ -1,36 +1,36 @@
 --- a/net/minecraft/network/Utf8String.java
 +++ b/net/minecraft/network/Utf8String.java
-@@ -31,24 +_,19 @@
+@@ -33,24 +_,19 @@
      }
  
-     public static void write(ByteBuf buffer, CharSequence string, int maxLength) {
+     public static void write(final ByteBuf output, final CharSequence value, final int maxLength) {
 +        // Paper start - optimize string encoding (from krypton)
 +        // Mojang _almost_ gets it right, but stumbles at the finish line...
-         if (string.length() > maxLength) {
-             throw new EncoderException("String too big (was " + string.length() + " characters, max " + maxLength + ")");
+         if (value.length() > maxLength) {
+             throw new EncoderException("String too big (was " + value.length() + " characters, max " + maxLength + ")");
 +        }
-+        int utf8Bytes = ByteBufUtil.utf8Bytes(string);
-+        int maxBytesPermitted = ByteBufUtil.utf8MaxBytes(string);
++        int utf8Bytes = ByteBufUtil.utf8Bytes(value);
++        int maxBytesPermitted = ByteBufUtil.utf8MaxBytes(value);
 +        if (utf8Bytes > maxBytesPermitted) {
 +            throw new EncoderException("String too big (was " + utf8Bytes + " bytes encoded, max " + maxBytesPermitted + ")");
          } else {
--            int i = ByteBufUtil.utf8MaxBytes(string);
--            ByteBuf byteBuf = buffer.alloc().buffer(i);
+-            int maxEncodedValueLength = ByteBufUtil.utf8MaxBytes(value);
+-            ByteBuf tmp = output.alloc().buffer(maxEncodedValueLength);
 -
 -            try {
--                int i1 = ByteBufUtil.writeUtf8(byteBuf, string);
--                int i2 = ByteBufUtil.utf8MaxBytes(maxLength);
--                if (i1 > i2) {
--                    throw new EncoderException("String too big (was " + i1 + " bytes encoded, max " + i2 + ")");
+-                int bytesWritten = ByteBufUtil.writeUtf8(tmp, value);
+-                int maxAllowedEncodedLength = ByteBufUtil.utf8MaxBytes(maxLength);
+-                if (bytesWritten > maxAllowedEncodedLength) {
+-                    throw new EncoderException("String too big (was " + bytesWritten + " bytes encoded, max " + maxAllowedEncodedLength + ")");
 -                }
 -
--                VarInt.write(buffer, i1);
--                buffer.writeBytes(byteBuf);
+-                VarInt.write(output, bytesWritten);
+-                output.writeBytes(tmp);
 -            } finally {
--                byteBuf.release();
+-                tmp.release();
 -            }
-+            VarInt.write(buffer, utf8Bytes);
-+            buffer.writeCharSequence(string, StandardCharsets.UTF_8);
++            VarInt.write(output, utf8Bytes);
++            output.writeCharSequence(value, StandardCharsets.UTF_8);
          }
 +        // Paper end
      }

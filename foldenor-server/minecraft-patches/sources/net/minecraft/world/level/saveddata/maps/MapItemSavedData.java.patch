@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 +++ b/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-@@ -261,7 +_,7 @@
+@@ -270,7 +_,7 @@
      }
  
-     private static boolean hasMapInvisibilityItemEquipped(Player player) {
+     private static boolean hasMapInvisibilityItemEquipped(final Player player) {
 -        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
 +        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
              if (equipmentSlot != EquipmentSlot.MAINHAND

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/ai/behavior/GateBehavior.java
 +++ b/net/minecraft/world/entity/ai/behavior/GateBehavior.java
-@@ -73,9 +_,19 @@
+@@ -85,9 +_,19 @@
              }
          }
          // Paper end - Perf: Remove streams from hot code
@@ -15,7 +15,7 @@
 +        }
 +
 +        if (!hasRunningTask) {
-             this.doStop(level, entity, gameTime);
+             this.doStop(level, body, timestamp);
          }
 +        // Leaf end - Remove more streams in GateBehavior
      }

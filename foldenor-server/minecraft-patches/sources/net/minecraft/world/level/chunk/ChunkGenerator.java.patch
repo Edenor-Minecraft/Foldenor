@@ -10,18 +10,18 @@
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
  import net.minecraft.ReportedException;
-@@ -342,7 +_,7 @@
-             Registry<Structure> registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
-             Map<Integer, List<Structure>> map = registry.stream().collect(Collectors.groupingBy(structure1 -> structure1.step().ordinal()));
-             List<FeatureSorter.StepFeatureData> list = this.featuresPerStep.get();
--            WorldgenRandom worldgenRandom = new WorldgenRandom(new XoroshiroRandomSource(RandomSupport.generateUniqueSeed()));
-+            WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(blockPos.getX(), blockPos.getZ(), Globals.Salt.UNDEFINED, 0);
-             long l = worldgenRandom.setDecorationSeed(level.getSeed(), blockPos.getX(), blockPos.getZ());
-             Set<Holder<Biome>> set = new ObjectArraySet<>();
+@@ -345,7 +_,7 @@
+             Map<Integer, List<Structure>> structuresByStep = structuresRegistry.stream()
+                 .collect(Collectors.groupingBy(structure -> structure.step().ordinal()));
+             List<FeatureSorter.StepFeatureData> featureList = this.featuresPerStep.get();
+-            WorldgenRandom random = new WorldgenRandom(new XoroshiroRandomSource(RandomSupport.generateUniqueSeed()));
++            WorldgenRandom random = new WorldgenCryptoRandom(origin.getX(), origin.getZ(), Globals.Salt.UNDEFINED, 0);
+             long decorationSeed = random.setDecorationSeed(level.getSeed(), origin.getX(), origin.getZ());
+             Set<Holder<Biome>> possibleBiomes = new ObjectArraySet<>();
              ChunkPos.rangeClosed(sectionPos.chunk(), 1).forEach(chunkPos -> {
-@@ -454,8 +_,9 @@
-             int x = chunk.getPos().x;
-             int z = chunk.getPos().z;
+@@ -464,8 +_,9 @@
+             int x = chunk.getPos().x();
+             int z = chunk.getPos().z();
              for (org.bukkit.generator.BlockPopulator populator : world.getPopulators()) {
 -                WorldgenRandom seededrandom = new WorldgenRandom(new net.minecraft.world.level.levelgen.LegacyRandomSource(level.getSeed()));
 -                seededrandom.setDecorationSeed(level.getSeed(), x, z);
@@ -31,13 +31,15 @@
                  populator.populate(world, new org.bukkit.craftbukkit.util.RandomSourceWrapper.RandomWrapper(seededrandom), x, z, limitedRegion);
              }
              limitedRegion.saveEntities();
-@@ -557,8 +_,7 @@
+@@ -569,8 +_,9 @@
                              } else {
-                                 ArrayList<StructureSet.StructureSelectionEntry> list1 = new ArrayList<>(list.size());
-                                 list1.addAll(list);
--                                WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--                                worldgenRandom.setLargeFeatureSeed(structureState.getLevelSeed(), pos.x, pos.z);
-+                                WorldgenRandom worldgenRandom = new WorldgenCryptoRandom(pos.x, pos.z, Globals.Salt.GENERATE_FEATURE, 0);
-                                 int i = 0;
+                                 ArrayList<StructureSet.StructureSelectionEntry> options = new ArrayList<>(structures.size());
+                                 options.addAll(structures);
+-                                WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+-                                random.setLargeFeatureSeed(state.getLevelSeed(), sourceChunkPos.x(), sourceChunkPos.z());
++                                //WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
++                                //random.setLargeFeatureSeed(state.getLevelSeed(), sourceChunkPos.x(), sourceChunkPos.z());
++                                WorldgenRandom random = new WorldgenCryptoRandom(sourceChunkPos.x(), sourceChunkPos.z(), Globals.Salt.GENERATE_FEATURE, 0);
+                                 int total = 0;
  
-                                 for (StructureSet.StructureSelectionEntry structureSelectionEntry1 : list1) {
+                                 for (StructureSet.StructureSelectionEntry option : options) {

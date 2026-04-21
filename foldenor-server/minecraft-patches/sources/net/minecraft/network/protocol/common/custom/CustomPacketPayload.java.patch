@@ -3,23 +3,23 @@
 @@ -40,13 +_,22 @@
  
              @Override
-             public void encode(B buffer, CustomPacketPayload value) {
+             public void encode(final B output, final CustomPacketPayload value) {
 +                // Leaves start - protocol core
 +                if (value instanceof org.leavesmc.leaves.protocol.core.LeavesCustomPayload payload) {
-+                    org.leavesmc.leaves.protocol.core.LeavesProtocolManager.encode(buffer, payload);
++                    org.leavesmc.leaves.protocol.core.LeavesProtocolManager.encode(output, payload);
 +                    return;
 +                }
 +                // Leaves end - protocol core
-                 this.writeCap(buffer, value.type(), value);
+                 this.writeCap(output, value.type(), value);
              }
  
              @Override
-             public CustomPacketPayload decode(B buffer) {
-                 Identifier identifier = buffer.readIdentifier();
--                return (CustomPacketPayload)this.findCodec(identifier).decode(buffer);
+             public CustomPacketPayload decode(final B input) {
+                 Identifier identifier = input.readIdentifier();
+-                return (CustomPacketPayload)this.findCodec(identifier).decode(input);
 +                // Leaves start - protocol core
-+                var payload = org.leavesmc.leaves.protocol.core.LeavesProtocolManager.decode(identifier, buffer);
-+                return java.util.Objects.requireNonNullElseGet(payload, () -> this.findCodec(identifier).decode(buffer));
++                var payload = org.leavesmc.leaves.protocol.core.LeavesProtocolManager.decode(identifier, input);
++                return java.util.Objects.requireNonNullElseGet(payload, () -> this.findCodec(identifier).decode(input));
 +                // Leaves end - protocol core
              }
          };

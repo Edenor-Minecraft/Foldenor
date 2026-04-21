@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/levelgen/WorldOptions.java
 +++ b/net/minecraft/world/level/levelgen/WorldOptions.java
-@@ -5,38 +_,56 @@
+@@ -5,38 +_,57 @@
  import com.mojang.serialization.codecs.RecordCodecBuilder;
  import java.util.Optional;
  import java.util.OptionalLong;
@@ -13,18 +13,14 @@
  public class WorldOptions {
 +    private static final com.google.gson.Gson gson = new com.google.gson.Gson();
      public static final MapCodec<WorldOptions> CODEC = RecordCodecBuilder.mapCodec(
--        instance -> instance.group(
--                Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed),
--                Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldOptions::generateStructures),
--                Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
--                Codec.STRING.lenientOptionalFieldOf("legacy_custom_options").stable().forGetter(worldOptions -> worldOptions.legacyCustomOptions)
-+            instance -> instance.group(Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed),
-+                 Codec.STRING.fieldOf("feature_seed").orElse(gson.toJson(Globals.createRandomWorldSeed())).stable().forGetter(WorldOptions::featureSeedSerialize),
-+                 Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldOptions::generateStructures),
-+                 Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
-+                 Codec.STRING.lenientOptionalFieldOf("legacy_custom_options").stable().forGetter(generatorOptions -> generatorOptions.legacyCustomOptions)
+         i -> i.group(
+                 Codec.LONG.fieldOf("seed").stable().forGetter(WorldOptions::seed),
++                Codec.STRING.fieldOf("feature_seed").orElse(gson.toJson(Globals.createRandomWorldSeed())).stable().forGetter(WorldOptions::featureSeedSerialize),
+                 Codec.BOOL.fieldOf("generate_structures").orElse(true).stable().forGetter(WorldOptions::generateStructures),
+                 Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldOptions::generateBonusChest),
+                 Codec.STRING.lenientOptionalFieldOf("legacy_custom_options").stable().forGetter(s -> s.legacyCustomOptions)
              )
-             .apply(instance, instance.stable(WorldOptions::new))
+             .apply(i, i.stable(WorldOptions::new))
      );
 -    public static final WorldOptions DEMO_OPTIONS = new WorldOptions("North Carolina".hashCode(), true, true);
 +    public static final WorldOptions DEMO_OPTIONS = new WorldOptions((long)"North Carolina".hashCode(), Globals.createRandomWorldSeed(), true, true);
@@ -34,7 +30,7 @@
      private final boolean generateBonusChest;
      private final Optional<String> legacyCustomOptions;
  
--    public WorldOptions(long seed, boolean generateStructures, boolean generateBonusChest) {
+-    public WorldOptions(final long seed, final boolean generateStructures, final boolean generateBonusChest) {
 -        this(seed, generateStructures, generateBonusChest, Optional.empty());
 +    public WorldOptions(long seed, boolean generateStructures, boolean bonusChest) {
 +        this(seed, Globals.worldSeed, generateStructures, bonusChest, Optional.empty());
@@ -59,10 +55,10 @@
  
      public static WorldOptions testWorldWithRandomSeed() {
 -        return new WorldOptions(randomSeed(), false, false);
-+        return new WorldOptions(randomSeed(),Globals.createRandomWorldSeed(), false, false);
++        return new WorldOptions(randomSeed(), Globals.createRandomWorldSeed(), false, false);
      }
  
--    private WorldOptions(long seed, boolean generateStructures, boolean generateBonusChest, Optional<String> legacyCustomOptions) {
+-    private WorldOptions(final long seed, final boolean generateStructures, final boolean generateBonusChest, final Optional<String> legacyCustomOptions) {
 +    private WorldOptions(long seed, long[] featureSeed, boolean generateStructures, boolean generateBonusChest, Optional<String> legacyCustomOptions) {
 +        this.featureSeed = featureSeed;
          this.seed = seed;
@@ -71,22 +67,22 @@
 @@ -60,15 +_,15 @@
      }
  
-     public WorldOptions withBonusChest(boolean generateBonusChest) {
+     public WorldOptions withBonusChest(final boolean generateBonusChest) {
 -        return new WorldOptions(this.seed, this.generateStructures, generateBonusChest, this.legacyCustomOptions);
 +        return new WorldOptions(this.seed, this.featureSeed, this.generateStructures, generateBonusChest, this.legacyCustomOptions);
      }
  
-     public WorldOptions withStructures(boolean generateStructures) {
+     public WorldOptions withStructures(final boolean generateStructures) {
 -        return new WorldOptions(this.seed, generateStructures, this.generateBonusChest, this.legacyCustomOptions);
 +        return new WorldOptions(this.seed, this.featureSeed, generateStructures, this.generateBonusChest, this.legacyCustomOptions);
      }
  
-     public WorldOptions withSeed(OptionalLong seed) {
+     public WorldOptions withSeed(final OptionalLong seed) {
 -        return new WorldOptions(seed.orElse(randomSeed()), this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
 +        return new WorldOptions(seed.orElse(randomSeed()), Globals.createRandomWorldSeed(), this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
      }
  
-     public static OptionalLong parseSeed(String seed) {
+     public static OptionalLong parseSeed(String seedString) {
 @@ -86,5 +_,13 @@
  
      public static long randomSeed() {

@@ -3,16 +3,16 @@
 @@ -42,14 +_,14 @@
      }
  
-     static class MobCounts {
+     private static class MobCounts {
 -        private final Object2IntMap<MobCategory> counts = new Object2IntOpenHashMap<>(MobCategory.values().length);
 +        private final int[] spawnGroupDensities = new int[MobCategory.values().length]; // Canvas
  
-         public void add(MobCategory category) {
--            this.counts.computeInt(category, (key, value) -> value == null ? 1 : value + 1);
+         public void add(final MobCategory category) {
+-            this.counts.computeInt(category, (k, count) -> count == null ? 1 : count + 1);
 +            this.spawnGroupDensities[category.ordinal()] ++; // Canvas
          }
  
-         public boolean canSpawn(MobCategory category) {
+         public boolean canSpawn(final MobCategory category) {
 -            return this.counts.getOrDefault(category, 0) < category.getMaxInstancesPerChunk();
 +            return this.spawnGroupDensities[category.ordinal()] < category.getMaxInstancesPerChunk(); // Canvas
          }

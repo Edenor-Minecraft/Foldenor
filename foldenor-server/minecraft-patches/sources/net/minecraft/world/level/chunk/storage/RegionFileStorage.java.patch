@@ -18,7 +18,7 @@
      private final RegionStorageInfo info;
      private final Path folder;
      private final boolean sync;
-@@ -34,7 +_,7 @@
+@@ -30,7 +_,7 @@
      @Nullable
      public static ChunkPos getRegionFileCoordinates(Path file) {
          String fileName = file.getFileName().toString();
@@ -27,7 +27,7 @@
              return null;
          }
  
-@@ -58,9 +_,29 @@
+@@ -54,9 +_,31 @@
      private static final int REGION_SHIFT = 5;
      private static final int MAX_NON_EXISTING_CACHE = 1024 * 4;
      private final it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet nonExistingRegionFiles = new it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet();
@@ -45,7 +45,9 @@
 +        final String extensionName = fullNameSplit[fullNameSplit.length - 1];
 +
 +        if (!regionFormat.getArgument().equalsIgnoreCase(extensionName)) {
-+            net.minecraft.server.MinecraftServer.setFatalException(new RuntimeException("Invalid region file format: " + extensionName + " expected " + regionFormat.getArgument()));
++            io.papermc.paper.threadedregions.RegionizedServer.getInstance().addTask(() -> {
++                new RuntimeException("Invalid region file format: " + extensionName + " expected " + regionFormat.getArgument());
++            });
 +            throw new IOException("Invalid region file format: " + extensionName + " expected " + regionFormat.getArgument());
 +        }
 +
@@ -59,26 +61,26 @@
  
      private boolean doesRegionFilePossiblyExist(final long position) {
          synchronized (this.nonExistingRegionFiles) {
-@@ -94,15 +_,15 @@
+@@ -90,15 +_,15 @@
      }
  
      @Override
 -    public synchronized final RegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) {
-+    public synchronized final abomination.IRegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) { // Luminol - Configurable region file format
-         return this.regionCache.getAndMoveToFirst(ChunkPos.asLong(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT));
++    public synchronized final abomination.IRegionFile moonrise$getRegionFileIfLoaded(final int chunkX, final int chunkZ) {
+         return this.regionCache.getAndMoveToFirst(ChunkPos.pack(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT));
      }
  
      @Override
 -    public synchronized final RegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException {
-+    public synchronized final abomination.IRegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException {  // Luminol - Configurable region file format
-         final long key = ChunkPos.asLong(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT);
++    public synchronized final abomination.IRegionFile moonrise$getRegionFileIfExists(final int chunkX, final int chunkZ) throws IOException {
+         final long key = ChunkPos.pack(chunkX >> REGION_SHIFT, chunkZ >> REGION_SHIFT);
  
 -        RegionFile ret = this.regionCache.getAndMoveToFirst(key);
-+        abomination.IRegionFile ret = this.regionCache.getAndMoveToFirst(key);  // Luminol - Configurable region file format
++        abomination.IRegionFile ret = this.regionCache.getAndMoveToFirst(key);
          if (ret != null) {
              return ret;
          }
-@@ -126,7 +_,7 @@
+@@ -124,7 +_,7 @@
  
          FileUtil.createDirectoriesSafe(this.folder);
  
@@ -87,7 +89,7 @@
  
          this.regionCache.putAndMoveToFirst(key, ret);
  
-@@ -145,7 +_,7 @@
+@@ -143,7 +_,7 @@
          }
  
          final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
@@ -96,7 +98,7 @@
  
          // note: not required to keep regionfile loaded after this call, as the write param takes a regionfile as input
          // (and, the regionfile parameter is unused for writing until the write call)
-@@ -179,7 +_,7 @@
+@@ -177,7 +_,7 @@
      ) throws IOException {
          final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
          if (writeData.result() == ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO.RegionDataController.WriteData.WriteResult.DELETE) {
@@ -105,7 +107,7 @@
              if (regionFile != null) {
                  regionFile.clear(pos);
              } // else: didn't exist
-@@ -194,7 +_,7 @@
+@@ -192,7 +_,7 @@
      public final ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO.RegionDataController.ReadData moonrise$readData(
          final int chunkX, final int chunkZ
      ) throws IOException {
@@ -114,7 +116,7 @@
  
          final DataInputStream input = regionFile == null ? null : regionFile.getChunkDataInputStream(new ChunkPos(chunkX, chunkZ));
  
-@@ -239,7 +_,7 @@
+@@ -237,7 +_,7 @@
  
              final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
              final ChunkPos headerChunkPos = SerializableChunkData.getChunkCoordinate(ret);
@@ -123,7 +125,7 @@
  
              if (regionFile.getRecalculateCount() != readData.recalculateCount()) {
                  return null;
-@@ -263,7 +_,7 @@
+@@ -261,7 +_,7 @@
      }
      // Paper end - rewrite chunk system
      // Paper start - rewrite chunk system
@@ -132,21 +134,21 @@
          return this.getRegionFile(chunkcoordintpair, false);
      }
      // Paper end - rewrite chunk system
-@@ -275,7 +_,7 @@
-         this.isChunkData = isChunkDataFolder(this.folder); // Paper - recalculate region file headers
+@@ -273,7 +_,7 @@
+         this.isChunkData = info.dfuType()[0] == net.minecraft.util.datafix.DataFixTypes.CHUNK; // Paper - recalculate region file headers
      }
  
--    @org.jetbrains.annotations.Contract("_, false -> !null") @Nullable private RegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit
-+    @org.jetbrains.annotations.Contract("_, false -> !null") private abomination.@Nullable IRegionFile getRegionFile(ChunkPos chunkPos, boolean existingOnly) throws IOException { // CraftBukkit
+-    @org.jetbrains.annotations.Contract("_, false -> !null") private @Nullable RegionFile getRegionFile(final ChunkPos pos, boolean existingOnly) throws IOException { // CraftBukkit
++    @org.jetbrains.annotations.Contract("_, false -> !null") private abomination.IRegionFile getRegionFile(final ChunkPos pos, boolean existingOnly) throws IOException { // CraftBukkit
          // Paper start - rewrite chunk system
          if (existingOnly) {
-             return this.moonrise$getRegionFileIfExists(chunkPos.x, chunkPos.z);
-@@ -283,7 +_,7 @@
+             return this.moonrise$getRegionFileIfExists(pos.x(), pos.z());
+@@ -281,7 +_,7 @@
          synchronized (this) {
-             final long key = ChunkPos.asLong(chunkPos.x >> REGION_SHIFT, chunkPos.z >> REGION_SHIFT);
+             final long key = ChunkPos.pack(pos.x() >> REGION_SHIFT, pos.z() >> REGION_SHIFT);
  
 -            RegionFile ret = this.regionCache.getAndMoveToFirst(key);
-+            abomination.IRegionFile ret = this.regionCache.getAndMoveToFirst(key);  // Luminol - Configurable region file format
++            abomination.IRegionFile ret = this.regionCache.getAndMoveToFirst(key);
              if (ret != null) {
                  return ret;
              }
@@ -164,38 +166,38 @@
      }
  
 -    private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {
-+    private static CompoundTag readOversizedChunk(abomination.IRegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {  // Luminol - Configurable region file format
++    private static CompoundTag readOversizedChunk(abomination.IRegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {
          synchronized (regionfile) {
              try (DataInputStream datainputstream = regionfile.getChunkDataInputStream(chunkCoordinate)) {
-                 CompoundTag oversizedData = regionfile.getOversizedData(chunkCoordinate.x, chunkCoordinate.z);
+                 CompoundTag oversizedData = regionfile.getOversizedData(chunkCoordinate.x(), chunkCoordinate.z());
 @@ -346,7 +_,7 @@
  
-     public @Nullable CompoundTag read(ChunkPos chunkPos) throws IOException {
+     public @Nullable CompoundTag read(final ChunkPos pos) throws IOException {
          // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
--        RegionFile regionFile = this.getRegionFile(chunkPos, true);
-+        abomination.IRegionFile regionFile = this.getRegionFile(chunkPos, true); // Luminol - Configurable region file format
-         if (regionFile == null) {
+-        RegionFile region = this.getRegionFile(pos, true);
++        abomination.IRegionFile region = this.getRegionFile(pos, true);
+         if (region == null) {
              return null;
          }
 @@ -385,7 +_,7 @@
  
-     public void scanChunk(ChunkPos chunkPos, StreamTagVisitor visitor) throws IOException {
+     public void scanChunk(final ChunkPos pos, final StreamTagVisitor scanner) throws IOException {
          // CraftBukkit start - SPIGOT-5680: There's no good reason to preemptively create files on read, save that for writing
--        RegionFile regionFile = this.getRegionFile(chunkPos, true);
-+        abomination.IRegionFile regionFile = this.getRegionFile(chunkPos, true); // Luminol - Configurable region file format
-         if (regionFile == null) {
+-        RegionFile region = this.getRegionFile(pos, true);
++        abomination.IRegionFile region = this.getRegionFile(pos, true);
+         if (region == null) {
              return;
          }
 @@ -400,7 +_,7 @@
  
-     public void write(ChunkPos chunkPos, @Nullable CompoundTag chunkData) throws IOException { // Paper - rewrite chunk system - public
+     public void write(final ChunkPos pos, final @Nullable CompoundTag value) throws IOException { // Paper - rewrite chunk system - public
          if (!SharedConstants.DEBUG_DONT_SAVE_WORLD) {
--            RegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system
-+            abomination.IRegionFile regionFile = this.getRegionFile(chunkPos, chunkData == null); // CraftBukkit // Paper - rewrite chunk system // Luminol - Configurable region file format
+-            RegionFile region = this.getRegionFile(pos, value == null); // CraftBukkit // Paper - rewrite chunk system
++            abomination.IRegionFile region = this.getRegionFile(pos, value == null); // CraftBukkit // Paper - rewrite chunk system
              // Paper start - rewrite chunk system
-             if (regionFile == null) {
+             if (region == null) {
                  // if the RegionFile doesn't exist, no point in deleting from it
-@@ -431,7 +_,7 @@
+@@ -432,7 +_,7 @@
          // Paper start - rewrite chunk system
          synchronized (this) {
              final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();
@@ -204,7 +206,7 @@
                  try {
                      regionFile.close();
                  } catch (final IOException ex) {
-@@ -447,7 +_,7 @@
+@@ -448,7 +_,7 @@
          // Paper start - rewrite chunk system
          synchronized (this) {
              final ExceptionCollector<IOException> exceptionCollector = new ExceptionCollector<>();

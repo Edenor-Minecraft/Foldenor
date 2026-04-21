@@ -58,6 +58,11 @@ public class SepalsCompositeTask<E extends LivingEntity> implements BehaviorCont
     }
 
     @Override
+    public Set<MemoryModuleType<?>> getRequiredMemories() {
+        return Set.of();
+    }
+
+    @Override
     public boolean tryStart(@NotNull ServerLevel world, E entity, long time) {
         if (this.shouldStart(entity)) {
             this.status = Behavior.Status.RUNNING;

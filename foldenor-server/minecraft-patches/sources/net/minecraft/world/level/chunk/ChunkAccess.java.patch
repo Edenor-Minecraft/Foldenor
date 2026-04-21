@@ -10,7 +10,7 @@
 +    public boolean isSlimeChunk() {
 +        if (!hasComputedSlimeChunk) {
 +            hasComputedSlimeChunk = true;
-+            slimeChunk = net.edenor.foldenor.secureseed.WorldgenCryptoRandom.seedSlimeChunk(chunkPos.x, chunkPos.z).nextInt(10) == 0;
++            slimeChunk = net.edenor.foldenor.secureseed.WorldgenCryptoRandom.seedSlimeChunk(chunkPos.x(), chunkPos.z()).nextInt(10) == 0;
 +        }
 +
 +        return slimeChunk;
@@ -18,4 +18,4 @@
 +
      public abstract BlockState getBlockState(final int x, final int y, final int z); // Paper
  
-     public @Nullable BlockState setBlockState(BlockPos pos, BlockState state) {
+     public @Nullable BlockState setBlockState(final BlockPos pos, final BlockState state) {

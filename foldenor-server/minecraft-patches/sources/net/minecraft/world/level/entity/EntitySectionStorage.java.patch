@@ -1,40 +1,40 @@
 --- a/net/minecraft/world/level/entity/EntitySectionStorage.java
 +++ b/net/minecraft/world/level/entity/EntitySectionStorage.java
-@@ -45,6 +_,8 @@
+@@ -46,6 +_,8 @@
      // Paper end - support retrieving all entities, regardless of whether they are accessible
  
-     public void forEachAccessibleNonEmptySection(AABB boundingBox, AbortableIterationConsumer<EntitySection<T>> consumer) {
+     public void forEachAccessibleNonEmptySection(final AABB bb, final AbortableIterationConsumer<EntitySection<T>> output) {
 +        // Mizi start - lithium fast entity retrieval
 +        /*
-         int sectionPosCoord = SectionPos.posToSectionCoord(boundingBox.minX - 2.0);
-         int sectionPosCoord1 = SectionPos.posToSectionCoord(boundingBox.minY - 4.0);
-         int sectionPosCoord2 = SectionPos.posToSectionCoord(boundingBox.minZ - 2.0);
-@@ -70,9 +_,55 @@
+         int xMin = SectionPos.posToSectionCoord(bb.minX - 2.0);
+         int yMin = SectionPos.posToSectionCoord(bb.minY - 4.0);
+         int zMin = SectionPos.posToSectionCoord(bb.minZ - 2.0);
+@@ -71,9 +_,55 @@
                          return;
                      }
                  }
 -            }
 -        }
 -    }
-+                */
-+        int minX = SectionPos.posToSectionCoord(boundingBox.minX - 2.0D);
-+        int minY = SectionPos.posToSectionCoord(boundingBox.minY - 4.0D);
-+        int minZ = SectionPos.posToSectionCoord(boundingBox.minZ - 2.0D);
-+        int maxX = SectionPos.posToSectionCoord(boundingBox.maxX + 2.0D);
-+        int maxY = SectionPos.posToSectionCoord(boundingBox.maxY + 0.0D);
-+        int maxZ = SectionPos.posToSectionCoord(boundingBox.maxZ + 2.0D);
++           */
++        int minX = SectionPos.posToSectionCoord(bb.minX - 2.0D);
++        int minY = SectionPos.posToSectionCoord(bb.minY - 4.0D);
++        int minZ = SectionPos.posToSectionCoord(bb.minZ - 2.0D);
++        int maxX = SectionPos.posToSectionCoord(bb.maxX + 2.0D);
++        int maxY = SectionPos.posToSectionCoord(bb.maxY + 0.0D);
++        int maxZ = SectionPos.posToSectionCoord(bb.maxZ + 2.0D);
 +        if (maxX >= minX + 4 || maxZ >= minZ + 4) {
 +            return;
 +        }
 +        for (int x = minX; x <= maxX; x++) {
 +            for (int z = Math.max(minZ, 0); z <= maxZ; z++) {
-+                if (this.forEachInColumn(x, minY, maxY, z, consumer).shouldAbort()) {
++                if (this.forEachInColumn(x, minY, maxY, z, output).shouldAbort()) {
 +                    return;
 +                }
 +            }
 +            int bound = Math.min(-1, maxZ);
 +            for (int z = minZ; z <= bound; z++) {
-+                if (this.forEachInColumn(x, minY, maxY, z, consumer).shouldAbort()) {
++                if (this.forEachInColumn(x, minY, maxY, z, output).shouldAbort()) {
 +                    return;
 +                }
 +            }
@@ -66,5 +66,5 @@
 +        return AbortableIterationConsumer.Continuation.CONTINUE;
 +    } // Mizi end
  
-     public LongStream getExistingSectionPositionsInChunk(long pos) {
-         int x = ChunkPos.getX(pos);
+     public LongStream getExistingSectionPositionsInChunk(final long chunkKey) {
+         int x = ChunkPos.getX(chunkKey);

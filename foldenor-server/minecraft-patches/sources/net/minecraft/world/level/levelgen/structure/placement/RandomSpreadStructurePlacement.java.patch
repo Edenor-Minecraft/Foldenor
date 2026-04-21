@@ -1,14 +1,14 @@
 --- a/net/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement.java
 +++ b/net/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement.java
 @@ -67,8 +_,9 @@
-     public ChunkPos getPotentialStructureChunk(long seed, int regionX, int regionZ) {
-         int i = Math.floorDiv(regionX, this.spacing);
-         int i1 = Math.floorDiv(regionZ, this.spacing);
--        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
--        worldgenRandom.setLargeFeatureWithSalt(seed, i, i1, this.salt());
-+        WorldgenRandom worldgenRandom = new net.edenor.foldenor.secureseed.WorldgenCryptoRandom(
-+                i, i1, net.edenor.foldenor.secureseed.Globals.Salt.POTENTIONAL_FEATURE, this.salt
+     public ChunkPos getPotentialStructureChunk(final long seed, final int sourceX, final int sourceZ) {
+         int spacedGridX = Math.floorDiv(sourceX, this.spacing);
+         int spacedGridZ = Math.floorDiv(sourceZ, this.spacing);
+-        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+-        random.setLargeFeatureWithSalt(seed, spacedGridX, spacedGridZ, this.salt());
++        WorldgenRandom random = new net.edenor.foldenor.secureseed.WorldgenCryptoRandom(
++                spacedGridX, spacedGridZ, net.edenor.foldenor.secureseed.Globals.Salt.POTENTIONAL_FEATURE, this.salt
 +        );
-         int i2 = this.spacing - this.separation;
-         int i3 = this.spreadType.evaluate(worldgenRandom, i2);
-         int i4 = this.spreadType.evaluate(worldgenRandom, i2);
+         int limit = this.spacing - this.separation;
+         int spreadX = this.spreadType.evaluate(random, limit);
+         int spreadZ = this.spreadType.evaluate(random, limit);

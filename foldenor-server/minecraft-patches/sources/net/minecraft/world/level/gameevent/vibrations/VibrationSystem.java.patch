@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/level/gameevent/vibrations/VibrationSystem.java
 +++ b/net/minecraft/world/level/gameevent/vibrations/VibrationSystem.java
-@@ -254,7 +_,7 @@
-             Vec3 vec3 = new Vec3(Mth.floor(eventPos.x) + 0.5, Mth.floor(eventPos.y) + 0.5, Mth.floor(eventPos.z) + 0.5);
-             Vec3 vec31 = new Vec3(Mth.floor(vibrationUserPos.x) + 0.5, Mth.floor(vibrationUserPos.y) + 0.5, Mth.floor(vibrationUserPos.z) + 0.5);
+@@ -265,7 +_,7 @@
+             Vec3 from = new Vec3(Mth.floor(origin.x) + 0.5, Mth.floor(origin.y) + 0.5, Mth.floor(origin.z) + 0.5);
+             Vec3 to = new Vec3(Mth.floor(dest.x) + 0.5, Mth.floor(dest.y) + 0.5, Mth.floor(dest.z) + 0.5);
  
 -            for (Direction direction : Direction.values()) {
 +            for (Direction direction : Direction.VALUES) {
-                 Vec3 vec32 = vec3.relative(direction, 1.0E-5F);
-                 if (level.isBlockInLine(new ClipBlockStateContext(vec32, vec31, state -> state.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS))).getType()
+                 Vec3 nudgedSource = from.relative(direction, 1.0E-5F);
+                 if (level.isBlockInLine(new ClipBlockStateContext(nudgedSource, to, state -> state.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS))).getType()
                      != HitResult.Type.BLOCK) {

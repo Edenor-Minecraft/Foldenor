@@ -50,7 +50,7 @@ public class SepalsPointOfInterestStorage {
             PoiManager.Occupancy occupationStatus
     ) {
         int i = Math.floorDiv(radius, 16) + 1;
-        return Catheter.of(ChunkPos.rangeClosed(new ChunkPos(pos), i).flatMap((chunkPos) -> getInChunk(storage, typePredicate, chunkPos, occupationStatus)).filter((poi) -> {
+        return Catheter.of(ChunkPos.rangeClosed(ChunkPos.containing(pos), i).flatMap((chunkPos) -> getInChunk(storage, typePredicate, chunkPos, occupationStatus)).filter((poi) -> {
             BlockPos blockPos2 = poi.getPos();
             return Math.abs(blockPos2.getX() - pos.getX()) <= radius && Math.abs(blockPos2.getZ() - pos.getZ()) <= radius;
         }).collect(Collectors.toSet()));
@@ -237,7 +237,7 @@ public class SepalsPointOfInterestStorage {
      */
     public static void preloadChunks(PoiManager storage, LevelReader world, BlockPos pos, int radius) {
         Catheter.of(SectionPos.aroundChunk(
-                                new ChunkPos(pos),
+                                ChunkPos.containing(pos),
                                 Math.floorDiv(radius, 16),
                                 storage.levelHeightAccessor.getMinSectionY(),
                                 storage.levelHeightAccessor.getMaxSectionY()
@@ -246,7 +246,7 @@ public class SepalsPointOfInterestStorage {
                 .varyTo(sectionPos -> Pair.of(sectionPos, storage.get(sectionPos.asLong())))
                 .discard(pair -> pair.getSecond().map(PoiSection::isValid).orElse(false))
                 .varyTo(pair -> pair.getFirst().chunk())
-                .filter(chunkPos -> storage.loadedChunks.add(chunkPos.toLong()))
-                .each(chunkPos -> world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.EMPTY));
+                .filter(chunkPos -> storage.loadedChunks.add(chunkPos.pack()))
+                .each(chunkPos -> world.getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.EMPTY));
     }
 }

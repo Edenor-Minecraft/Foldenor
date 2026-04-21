@@ -3,13 +3,13 @@
 @@ -36,7 +_,11 @@
  
      @Override
-     protected void tick(ServerLevel level, Villager owner, long gameTime) {
--        if (gameTime % 100L == 0L) {
+     protected void tick(final ServerLevel level, final Villager body, final long timestamp) {
+-        if (timestamp % 100L == 0L) {
 +        // Pufferfish start
-+        if (owner.nextGolemPanic < 0) owner.nextGolemPanic = gameTime + 100;
-+        if (--owner.nextGolemPanic < gameTime) {
-+            owner.nextGolemPanic = -1;
++        if (body.nextGolemPanic < 0) body.nextGolemPanic = timestamp + 100;
++        if (--body.nextGolemPanic < timestamp) {
++            body.nextGolemPanic = -1;
 +            // Pufferfish end
-             owner.spawnGolemIfNeeded(level, gameTime, 3);
+             body.spawnGolemIfNeeded(level, timestamp, 3);
          }
      }

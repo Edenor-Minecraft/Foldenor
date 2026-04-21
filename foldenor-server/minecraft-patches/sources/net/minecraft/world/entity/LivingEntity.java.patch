@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -30,6 +_,7 @@
+@@ -26,6 +_,7 @@
  import java.util.function.Consumer;
  import java.util.function.Function;
  import java.util.function.Predicate;
@@ -8,7 +8,7 @@
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.commands.arguments.EntityAnchorArgument;
  import net.minecraft.core.BlockPos;
-@@ -451,7 +_,7 @@
+@@ -445,7 +_,7 @@
              this.getSleepingPos().ifPresent(this::setPosToBed);
          }
  
@@ -17,28 +17,28 @@
              EnchantmentHelper.tickEffects(serverLevel, this);
          }
  
-@@ -1037,12 +_,14 @@
+@@ -1035,12 +_,14 @@
      }
  
      private void updateSynchronizedMobEffectParticles() {
--        List<ParticleOptions> list = this.activeEffects
+-        List<ParticleOptions> visibleEffectParticles = this.activeEffects
 -            .values()
 -            .stream()
 -            .filter(MobEffectInstance::isVisible)
 -            .map(MobEffectInstance::getParticleOptions)
 -            .toList();
 +        // Leaf start - Remove stream in entity visible effects filter
-+        List<ParticleOptions> list = new java.util.ArrayList<>();
++        List<ParticleOptions> visibleEffectParticles = new java.util.ArrayList<>();
 +        for (MobEffectInstance effect : this.activeEffects.values()) {
 +            if (effect.isVisible()) {
-+                list.add(effect.getParticleOptions());
++                visibleEffectParticles.add(effect.getParticleOptions());
 +            }
 +        }
 +        // Leaf end - Remove stream in entity visible effects filter
-         this.entityData.set(DATA_EFFECT_PARTICLES, list);
+         this.entityData.set(DATA_EFFECT_PARTICLES, visibleEffectParticles);
          this.entityData.set(DATA_EFFECT_AMBIENCE_ID, areAllEffectsAmbient(this.activeEffects.values()));
      }
-@@ -1435,7 +_,8 @@
+@@ -1431,7 +_,8 @@
                  player.setRealHealth(health);
              }
  
@@ -48,7 +48,7 @@
              return;
          }
          // CraftBukkit end
-@@ -2196,6 +_,17 @@
+@@ -2193,6 +_,17 @@
          return this.lastClimbablePos;
      }
  
@@ -66,7 +66,7 @@
      public boolean onClimbable() {
          if (this.isSpectator()) {
              return false;
-@@ -2227,7 +_,7 @@
+@@ -2224,7 +_,7 @@
  
      @Override
      public boolean isAlive() {
@@ -74,8 +74,8 @@
 +        return !this.dead && !this.isRemoved() && this.getHealth() > 0.0F; // Paper - Check this.dead // Leaf - Optimise getEntities - check the cheapest first
      }
  
-     public boolean isLookingAtMe(LivingEntity entity, double tolerance, boolean scaleByDistance, boolean visual, double... yValues) {
-@@ -2796,6 +_,7 @@
+     public boolean isLookingAtMe(
+@@ -2844,6 +_,7 @@
      }
  
      protected void updateSwingTime() {
@@ -83,15 +83,15 @@
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
-@@ -3513,6 +_,7 @@
+@@ -3578,6 +_,7 @@
      public void detectEquipmentUpdates() {
-         Map<EquipmentSlot, ItemStack> map = this.collectEquipmentChanges();
-         if (map != null) {
+         Map<EquipmentSlot, ItemStack> changedItems = this.collectEquipmentChanges();
+         if (changedItems != null) {
 +            if (!(this instanceof net.minecraft.world.entity.player.Player)) this.equipment.lithium$onEquipmentChangesSent(); // Leaf - Lithium - equipment tracking
-             this.handleHandSwap(map);
-             if (!map.isEmpty()) {
-                 this.handleEquipmentChanges(map);
-@@ -3521,6 +_,10 @@
+             this.handleHandSwap(changedItems);
+             if (!changedItems.isEmpty()) {
+                 this.handleEquipmentChanges(changedItems);
+@@ -3586,6 +_,10 @@
      }
  
      private @Nullable Map<EquipmentSlot, ItemStack> collectEquipmentChanges() {
@@ -99,19 +99,19 @@
 +        final boolean isArmorStandUpdateNoTick = this instanceof net.minecraft.world.entity.decoration.ArmorStand stand && !stand.canTick && stand.noTickEquipmentDirty;
 +        if (!isArmorStandUpdateNoTick && !this.equipment.lithium$hasUnsentEquipmentChanges()) return null;
 +        // Leaf end - Lithium - equipment tracking
-         Map<EquipmentSlot, ItemStack> map = null;
+         Map<EquipmentSlot, ItemStack> changedItems = null;
          // Paper start - EntityEquipmentChangedEvent
          record EquipmentChangeImpl(org.bukkit.inventory.ItemStack oldItem, org.bukkit.inventory.ItemStack newItem) implements io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange {
-@@ -3537,7 +_,7 @@
+@@ -3602,7 +_,7 @@
          Map<org.bukkit.inventory.EquipmentSlot, io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange> equipmentChanges = null;
          // Paper end - EntityEquipmentChangedEvent
  
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemStack = this.lastEquipmentItems.get(equipmentSlot);
-             ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
-             if (this.equipmentHasChanged(itemStack, itemBySlot)) {
-@@ -3798,6 +_,7 @@
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack previous = this.lastEquipmentItems.get(slot);
+             ItemStack current = this.getItemBySlot(slot);
+             if (this.equipmentHasChanged(previous, current)) {
+@@ -3863,6 +_,7 @@
      protected void updateFallFlying() {
          this.checkFallDistanceAccumulation();
          if (!this.level().isClientSide()) {
@@ -119,12 +119,12 @@
              if (!this.canGlide()) {
                  if (this.getSharedFlag(Entity.FLAG_FALL_FLYING) && !CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) // CraftBukkit
                  this.setSharedFlag(Entity.FLAG_FALL_FLYING, false);
-@@ -3823,7 +_,7 @@
+@@ -3885,7 +_,7 @@
  
      protected boolean canGlide() {
          if (!this.onGround() && !this.isPassenger() && !this.hasEffect(MobEffects.LEVITATION)) {
--            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+            for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-                 if (canGlideUsing(this.getItemBySlot(equipmentSlot), equipmentSlot)) {
+-            for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++            for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+                 if (canGlideUsing(this.getItemBySlot(slot), slot)) {
                      return true;
                  }

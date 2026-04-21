@@ -1,24 +1,11 @@
 --- a/net/minecraft/world/entity/Leashable.java
 +++ b/net/minecraft/world/entity/Leashable.java
-@@ -94,10 +_,28 @@
-             if (optional.isPresent()) {
-                 Entity entity1 = serverLevel.getEntity(optional.get());
-                 if (entity1 != null) {
-+                    // Luminol start - Fix off region leashing
-+                    if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity1)) {
-+                        entity.forceDrops = true;
-+                        entity.spawnAtLocation(serverLevel, Items.LEAD);
-+                        entity.forceDrops = false;
-+                        entity.setLeashData(null);
-+                        return;
-+                    }
-+                    // Luminol end
-                     setLeashedTo(entity, entity1, true);
-                     return;
-                 }
-             } else if (optional1.isPresent()) {
+@@ -94,11 +_,29 @@
+             Optional<BlockPos> pos = leashData.delayedLeashInfo.right();
+             if (leashUuid.isPresent()) {
+                 Entity leasher = serverLevel.getEntity(leashUuid.get());
 +                // Luminol start - Fix off region leashing
-+                if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(serverLevel, optional1.get())) {
++                if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(leasher)) {
 +                    entity.forceDrops = true;
 +                    entity.spawnAtLocation(serverLevel, Items.LEAD);
 +                    entity.forceDrops = false;
@@ -26,6 +13,20 @@
 +                    return;
 +                }
 +                // Luminol end
-                 setLeashedTo(entity, LeashFenceKnotEntity.getOrCreateKnot(serverLevel, optional1.get()), true);
+                 if (leasher != null) {
+                     setLeashedTo(entity, leasher, true);
+                     return;
+                 }
+             } else if (pos.isPresent()) {
++                // Luminol start - Fix off region leashing
++                if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(serverLevel, pos.get())) {
++                    entity.forceDrops = true;
++                    entity.spawnAtLocation(serverLevel, Items.LEAD);
++                    entity.forceDrops = false;
++                    entity.setLeashData(null);
++                    return;
++                }
++                // Luminol end
+                 setLeashedTo(entity, LeashFenceKnotEntity.getOrCreateKnot(serverLevel, pos.get()), true);
                  return;
              }

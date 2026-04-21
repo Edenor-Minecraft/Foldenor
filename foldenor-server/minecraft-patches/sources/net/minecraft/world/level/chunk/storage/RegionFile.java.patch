@@ -1,14 +1,6 @@
 --- a/net/minecraft/world/level/chunk/storage/RegionFile.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFile.java
-@@ -15,6 +_,7 @@
- import java.nio.file.Path;
- import java.nio.file.StandardCopyOption;
- import java.nio.file.StandardOpenOption;
-+
- import net.minecraft.resources.Identifier;
- import net.minecraft.util.Util;
- import net.minecraft.util.profiling.jfr.JvmProfiler;
-@@ -22,7 +_,7 @@
+@@ -23,7 +_,7 @@
  import org.jspecify.annotations.Nullable;
  import org.slf4j.Logger;
  
@@ -17,7 +9,7 @@
      private static final Logger LOGGER = LogUtils.getLogger();
      public static final int MAX_CHUNK_SIZE = 500 * 1024 * 1024; // Paper - don't write garbage data to disk if writing serialization fails
      private static final int SECTOR_BYTES = 4096;
-@@ -130,7 +_,7 @@
+@@ -131,7 +_,7 @@
          return this.recalculateCount.get();
      }
  
@@ -26,16 +18,16 @@
          if (!this.canRecalcHeader) {
              return false;
          }
-@@ -791,7 +_,7 @@
+@@ -790,7 +_,7 @@
          }
      }
  
--    protected synchronized void write(ChunkPos chunkPos, ByteBuffer chunkData) throws IOException {
-+    public synchronized void write(ChunkPos chunkPos, ByteBuffer chunkData) throws IOException { // Luminol - Configurable region file format
-         int offsetIndex = getOffsetIndex(chunkPos);
-         int i = this.offsets.get(offsetIndex);
-         int sectorNumber = getSectorNumber(i);
-@@ -909,7 +_,7 @@
+-    protected synchronized void write(final ChunkPos pos, final ByteBuffer data) throws IOException {
++    public synchronized void write(final ChunkPos pos, final ByteBuffer data) throws IOException {
+         int offsetIndex = getOffsetIndex(pos);
+         int offset = this.offsets.get(offsetIndex);
+         int sectorNumber = getSectorNumber(offset);
+@@ -908,7 +_,7 @@
          }
  
          @Override

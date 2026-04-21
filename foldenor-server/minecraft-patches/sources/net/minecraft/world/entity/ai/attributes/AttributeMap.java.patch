@@ -1,19 +1,6 @@
 --- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
 +++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
-@@ -3,24 +_,25 @@
- import com.google.common.collect.Multimap;
- import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
- import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
--import java.util.ArrayList;
--import java.util.Collection;
--import java.util.List;
--import java.util.Map;
--import java.util.Set;
-+
-+import java.util.*;
- import java.util.stream.Collectors;
- import net.minecraft.core.Holder;
- import net.minecraft.resources.Identifier;
+@@ -14,13 +_,17 @@
  import org.jspecify.annotations.Nullable;
  
  public class AttributeMap {
@@ -28,18 +15,18 @@
      private final AttributeSupplier supplier;
 +    private final java.util.function.Function<Holder<Attribute>, AttributeInstance> createInstance; // Pufferfish
  
-     public AttributeMap(AttributeSupplier supplier) {
+     public AttributeMap(final AttributeSupplier supplier) {
          this.supplier = supplier;
 +        this.createInstance = attributex -> this.supplier.createInstance(this::onAttributeModified, attributex); // Pufferfish
      }
  
-     private void onAttributeModified(AttributeInstance instance) {
+     private void onAttributeModified(final AttributeInstance attributeInstance) {
 @@ -43,7 +_,7 @@
      }
  
-     public @Nullable AttributeInstance getInstance(Holder<Attribute> attribute) {
--        return this.attributes.computeIfAbsent(attribute, holder -> this.supplier.createInstance(this::onAttributeModified, (Holder<Attribute>)holder));
+     public @Nullable AttributeInstance getInstance(final Holder<Attribute> attribute) {
+-        return this.attributes.computeIfAbsent(attribute, key -> this.supplier.createInstance(this::onAttributeModified, (Holder<Attribute>)key));
 +        return this.attributes.computeIfAbsent(attribute, this.createInstance); // Pufferfish - cache lambda, as for some reason java allocates it anyways
      }
  
-     public boolean hasAttribute(Holder<Attribute> attribute) {
+     public boolean hasAttribute(final Holder<Attribute> attribute) {

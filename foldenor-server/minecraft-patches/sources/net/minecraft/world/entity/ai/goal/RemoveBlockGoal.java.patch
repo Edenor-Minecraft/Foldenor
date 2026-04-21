@@ -8,7 +8,7 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.SectionPos;
  import net.minecraft.core.particles.ItemParticleOption;
-@@ -15,6 +_,7 @@
+@@ -14,6 +_,7 @@
  import net.minecraft.world.level.LevelAccessor;
  import net.minecraft.world.level.LevelReader;
  import net.minecraft.world.level.block.Block;
@@ -16,7 +16,7 @@
  import net.minecraft.world.level.chunk.ChunkAccess;
  import net.minecraft.world.level.chunk.status.ChunkStatus;
  import net.minecraft.world.level.gamerules.GameRules;
-@@ -35,6 +_,7 @@
+@@ -34,6 +_,7 @@
  
      @Override
      public boolean canUse() {

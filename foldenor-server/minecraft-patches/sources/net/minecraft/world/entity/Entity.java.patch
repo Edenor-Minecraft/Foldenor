@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -28,6 +_,8 @@
+@@ -29,6 +_,8 @@
  import java.util.function.BiConsumer;
  import java.util.function.Predicate;
  import java.util.stream.Stream;
@@ -9,7 +9,7 @@
  import net.minecraft.CrashReport;
  import net.minecraft.CrashReportCategory;
  import net.minecraft.ReportedException;
-@@ -256,7 +_,7 @@
+@@ -271,7 +_,7 @@
      public double xo;
      public double yo;
      public double zo;
@@ -18,7 +18,7 @@
      private BlockPos blockPosition;
      private ChunkPos chunkPosition;
      private Vec3 deltaMovement = Vec3.ZERO;
-@@ -373,6 +_,10 @@
+@@ -387,6 +_,10 @@
      public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
@@ -29,7 +29,7 @@
  
      public void inactiveTick() {
      }
-@@ -916,7 +_,11 @@
+@@ -936,7 +_,11 @@
  
          this.checkBelowWorld();
          if (!this.level().isClientSide()) {
@@ -42,7 +42,7 @@
          }
  
          this.firstTick = false;
-@@ -1117,28 +_,15 @@
+@@ -1137,28 +_,15 @@
          return this.onGround;
      }
  
@@ -56,36 +56,36 @@
 -    private double moveStartZ;
 -    // Paper end - detailed watchdog information
 -
-     public void move(MoverType type, Vec3 movement) {
+     public void move(final MoverType moverType, Vec3 delta) {
 +        // Gale start - VMP - skip entity move if movement is zero
-+        if (!this.boundingBoxChanged && movement.equals(Vec3.ZERO)) {
++        if (!this.boundingBoxChanged && delta.equals(Vec3.ZERO)) {
 +            return;
 +        }
 +        // Gale end - VMP - skip entity move if movement is zero
-         final Vec3 originalMovement = movement; // Paper - Expose pre-collision velocity
+         final Vec3 originalMovement = delta; // Paper - Expose pre-collision velocity
 -        // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
 -        synchronized (this.posLock) {
 -            this.moveStartX = this.getX();
 -            this.moveStartY = this.getY();
 -            this.moveStartZ = this.getZ();
--            this.moveVector = movement;
+-            this.moveVector = delta;
 -        }
          try {
 -        // Paper end - detailed watchdog information
          if (this.noPhysics) {
-             this.setPos(this.getX() + movement.x, this.getY() + movement.y, this.getZ() + movement.z);
+             this.setPos(this.getX() + delta.x, this.getY() + delta.y, this.getZ() + delta.z);
              this.horizontalCollision = false;
-@@ -1175,7 +_,7 @@
+@@ -1195,7 +_,7 @@
              }
              // Paper end
  
--            movement = this.maybeBackOffFromEdge(movement, type);
-+            if (!FoldenorConfig.optimizePlayerMovementProcessing) movement = this.maybeBackOffFromEdge(movement, type); // Leaf - Optimise player movement checks
-             Vec3 vec3 = this.collide(movement);
-             double d = vec3.lengthSqr();
-             if (d > 1.0E-7 || movement.lengthSqr() - d < 1.0E-7) {
-@@ -1268,9 +_,6 @@
+-            delta = this.maybeBackOffFromEdge(delta, moverType);
++            if (!FoldenorConfig.optimizePlayerMovementProcessing) delta = this.maybeBackOffFromEdge(delta, moverType); // Leaf - Optimise player movement checks
+             Vec3 movement = this.collide(delta);
+             double movementLength = movement.lengthSqr();
+             if (movementLength > 1.0E-7 || delta.lengthSqr() - movementLength < 1.0E-7) {
+@@ -1288,9 +_,6 @@
          }
          // Paper start - detailed watchdog information
          } finally {
@@ -95,7 +95,7 @@
          }
          // Paper end - detailed watchdog information
      }
-@@ -2195,10 +_,18 @@
+@@ -2216,10 +_,18 @@
  
      @Deprecated
      public float getLightLevelDependentMagicValue() {
@@ -108,44 +108,83 @@
 +
 +    // Gale start - JettPack - optimize sun burn tick - allow passing BlockPos to getLightLevelDependentMagicValue
 +    /**
-+       * @deprecated
-+       */
++        * @deprecated
++        */
 +    @Deprecated
 +    public float getLightLevelDependentMagicValue(BlockPos pos) {
 +        return this.level().hasChunkAt(this.getBlockX(), this.getBlockZ()) ? this.level.getLightLevelDependentMagicValue(pos) : 0.0F;
 +    }
 +    // Gale end - JettPack - optimize sun burn tick - allow passing BlockPos to getLightLevelDependentMagicValue
  
-     public void absSnapTo(double x, double y, double z, float yRot, float xRot) {
+     public void absSnapTo(final double x, final double y, final double z, final float yRot, final float xRot) {
          this.absSnapTo(x, y, z);
-@@ -2310,8 +_,7 @@
+@@ -2331,32 +_,30 @@
      }
  
-     public void push(Entity entity) {
+     public void push(final Entity entity) {
 -        if (!this.isPassengerOfSameVehicle(entity)) {
 -            if (!entity.noPhysics && !this.noPhysics) {
+-                if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
+-                double xa = entity.getX() - this.getX();
+-                double za = entity.getZ() - this.getZ();
+-                double dd = Mth.absMax(xa, za);
+-                if (dd >= 0.01F) {
+-                    dd = Math.sqrt(dd);
+-                    xa /= dd;
+-                    za /= dd;
+-                    double pow = 1.0 / dd;
+-                    if (pow > 1.0) {
+-                        pow = 1.0;
+-                    }
+-
+-                    xa *= pow;
+-                    za *= pow;
+-                    xa *= 0.05F;
+-                    za *= 0.05F;
+-                    if (!this.isVehicle() && this.isPushable()) {
+-                        this.push(-xa, 0.0, -za);
+-                    }
+-
+-                    if (!entity.isVehicle() && entity.isPushable()) {
+-                        entity.push(xa, 0.0, za);
+-                    }
 +        if (!entity.noPhysics && !this.noPhysics && !this.isPassengerOfSameVehicle(entity)) { // Patina - (Akarin) Swaps the predicate order of collision
-                 if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
-                 double d = entity.getX() - this.getX();
-                 double d1 = entity.getZ() - this.getZ();
-@@ -2337,7 +_,6 @@
-                         entity.push(d, 0.0, d1);
-                     }
++            if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
++            double xa = entity.getX() - this.getX();
++            double za = entity.getZ() - this.getZ();
++            double dd = Mth.absMax(xa, za);
++            if (dd >= 0.01F) {
++                dd = Math.sqrt(dd);
++                xa /= dd;
++                za /= dd;
++                double pow = 1.0 / dd;
++                if (pow > 1.0) {
++                    pow = 1.0;
++                }
++
++                xa *= pow;
++                za *= pow;
++                xa *= 0.05F;
++                za *= 0.05F;
++                if (!this.isVehicle() && this.isPushable()) {
++                    this.push(-xa, 0.0, -za);
++                }
++
++                if (!entity.isVehicle() && entity.isPushable()) {
++                    entity.push(xa, 0.0, za);
                  }
--            }
+             }
          }
+@@ -3201,7 +_,7 @@
      }
  
-@@ -3172,7 +_,7 @@
-     }
- 
-     private boolean attemptToShearEquipment(Player player, InteractionHand hand, ItemStack stack, Mob mob) {
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemBySlot = mob.getItemBySlot(equipmentSlot);
-             Equippable equippable = itemBySlot.get(DataComponents.EQUIPPABLE);
+     private boolean attemptToShearEquipment(final Player player, final InteractionHand hand, final ItemStack heldItem, final Mob target) {
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack itemStack = target.getItemBySlot(slot);
+             Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
              if (equippable != null
-@@ -3503,6 +_,7 @@
+@@ -3530,6 +_,7 @@
          } else {
              if (this.portalProcess == null || !this.portalProcess.isSamePortal(portal)) {
                  this.portalProcess = new PortalProcessor(portal, pos.immutable());
@@ -153,7 +192,7 @@
              } else if (!this.portalProcess.isInsidePortalThisTick()) {
                  this.portalProcess.updateEntryPosition(pos.immutable());
                  this.portalProcess.setAsInsidePortalThisTick(true);
-@@ -4345,6 +_,7 @@
+@@ -4368,6 +_,7 @@
          Entity copy = this.getType().create(destination, EntitySpawnReason.DIMENSION_TRAVEL);
          copy.restoreFrom(this);
          copy.transform(pos, yaw, pitch, velocity);
@@ -161,7 +200,7 @@
          // vanilla code used to call remove _after_ copying, and some stuff is required to be after copy - so add hook here
          // for example, clearing of inventory after switching dimensions
          this.postRemoveAfterChangingDimensions();
-@@ -4352,6 +_,16 @@
+@@ -4375,6 +_,16 @@
          return copy;
      }
  
@@ -178,7 +217,7 @@
      public final boolean teleportAsync(TeleportTransition teleportTarget, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
          PositionMoveRotation move = PositionMoveRotation.calculateAbsolute(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
-@@ -4362,11 +_,26 @@
+@@ -4385,11 +_,26 @@
          );
      }
  
@@ -205,7 +244,7 @@
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockX(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockY(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
          }
-@@ -4414,7 +_,9 @@
+@@ -4437,7 +_,9 @@
              }
  
              for (EntityTreeNode entity : passengerTree.getFullTree()) {
@@ -215,35 +254,36 @@
              }
  
              if (hasPassengers) {
-@@ -4888,7 +_,7 @@
+@@ -4911,7 +_,8 @@
          return this;
      }
  
--    private @Nullable Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
-+    protected @Nullable Entity teleportCrossDimension(ServerLevel oldLevel, ServerLevel newLevel, TeleportTransition teleportTransition) {
-         List<Entity> passengers = this.getPassengers();
-         List<Entity> list = new ArrayList<>(passengers.size());
+-    private @Nullable Entity teleportCrossDimension(final ServerLevel oldLevel, final ServerLevel newLevel, final TeleportTransition transition) {
++    @Nullable
++    protected Entity teleportCrossDimension(final ServerLevel oldLevel, final ServerLevel newLevel, final TeleportTransition transition) {
+         List<Entity> oldPassengers = this.getPassengers();
+         List<Entity> newPassengers = new ArrayList<>(oldPassengers.size());
          this.ejectPassengers();
-@@ -4915,13 +_,13 @@
-             entityx.restoreFrom(this);
+@@ -4938,13 +_,13 @@
+             newEntity.restoreFrom(this);
              this.removeAfterChangingDimensions();
-             entityx.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTransition), teleportTransition.relatives());
--            if (this.inWorld) newLevel.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
-+            //if (this.inWorld) newLevel.addDuringTeleport(entityx); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
+             newEntity.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(transition), transition.relatives());
+-            if (this.inWorld) newLevel.addDuringTeleport(newEntity); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
++            //if (this.inWorld) newLevel.addDuringTeleport(newEntity); // CraftBukkit - Don't spawn the new entity if the current entity isn't spawned
  
-             for (Entity entity2 : list) {
-                 entity2.startRiding(entityx, true, false);
+             for (Entity newPassenger : newPassengers) {
+                 newPassenger.startRiding(newEntity, true, false);
              }
  
 -            newLevel.resetEmptyTime();
 +            //newLevel.resetEmptyTime();
-             teleportTransition.postTeleportTransition().onTransition(entityx);
-             this.teleportSpectators(teleportTransition, oldLevel);
-             profilerFiller.pop();
-@@ -5266,6 +_,11 @@
+             transition.postTeleportTransition().onTransition(newEntity);
+             this.teleportSpectators(transition, oldLevel);
+             profiler.pop();
+@@ -5321,6 +_,11 @@
      }
  
-     public final void setBoundingBox(AABB bb) {
+     public final void setBoundingBox(final AABB bb) {
 +        // Gale start - VMP - skip entity move if movement is zero
 +        if (!this.bb.equals(bb)) {
 +            this.boundingBoxChanged = true;
@@ -252,9 +292,9 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
-@@ -5755,9 +_,7 @@
+@@ -5685,9 +_,7 @@
  
-     public void setDeltaMovement(Vec3 deltaMovement) {
+     public void setDeltaMovement(final Vec3 deltaMovement) {
          if (deltaMovement.isFinite()) {
 -            synchronized (this.posLock) { // Paper - detailed watchdog information
              this.deltaMovement = deltaMovement;
@@ -262,13 +302,13 @@
          }
      }
  
-@@ -5859,9 +_,7 @@
+@@ -5793,9 +_,7 @@
          // Paper end - Block invalid positions and bounding box
          boolean posChanged = this.position.x != x || this.position.y != y || this.position.z != z;
          if (posChanged) { // Folia - region threading
 -            synchronized (this.posLock) { // Paper - detailed watchdog information
              this.position = new Vec3(x, y, z);
 -            } // Paper - detailed watchdog information
-             int floor = Mth.floor(x);
-             int floor1 = Mth.floor(y);
-             int floor2 = Mth.floor(z);
+             int fx = Mth.floor(x);
+             int fy = Mth.floor(y);
+             int fz = Mth.floor(z);

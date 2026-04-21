@@ -1,16 +1,16 @@
 --- a/net/minecraft/world/entity/animal/happyghast/HappyGhast.java
 +++ b/net/minecraft/world/entity/animal/happyghast/HappyGhast.java
-@@ -385,11 +_,13 @@
-         return HappyGhastAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+@@ -393,11 +_,13 @@
+         return (Brain<HappyGhast>) super.getBrain();
      }
  
 +    private int behaviorTick = 0; // Pufferfish
      @Override
-     protected void customServerAiStep(ServerLevel level) {
+     protected void customServerAiStep(final ServerLevel level) {
          if (this.isBaby()) {
-             ProfilerFiller profilerFiller = Profiler.get();
-             profilerFiller.push("happyGhastBrain");
+             ProfilerFiller profiler = Profiler.get();
+             profiler.push("happyGhastBrain");
 +            if (this.behaviorTick++ % this.activatedPriority == 0) // Pufferfish
-             ((Brain<HappyGhast>)this.brain).tick(level, this);
-             profilerFiller.pop();
-             profilerFiller.push("happyGhastActivityUpdate");
+             this.getBrain().tick(level, this);
+             profiler.pop();
+             profiler.push("happyGhastActivityUpdate");

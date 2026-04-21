@@ -5,6 +5,6 @@
      SADDLE(10, "saddle", EquipmentSlot.SADDLE);
  
 +    public static final EquipmentSlotGroup[] VALUES_ARRAY = EquipmentSlotGroup.values(); // Gale - JettPack - reduce array allocations
-     public static final IntFunction<EquipmentSlotGroup> BY_ID = ByIdMap.continuous(
-         equipmentSlotGroup -> equipmentSlotGroup.id, values(), ByIdMap.OutOfBoundsStrategy.ZERO
-     );
+     public static final IntFunction<EquipmentSlotGroup> BY_ID = ByIdMap.continuous(s -> s.id, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+     public static final Codec<EquipmentSlotGroup> CODEC = StringRepresentable.fromEnum(EquipmentSlotGroup::values);
+     public static final StreamCodec<ByteBuf, EquipmentSlotGroup> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, s -> s.id);

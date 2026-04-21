@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/entity/animal/armadillo/Armadillo.java
 +++ b/net/minecraft/world/entity/animal/armadillo/Armadillo.java
-@@ -127,10 +_,12 @@
-         return ArmadilloAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+@@ -135,10 +_,12 @@
+         return (Brain<Armadillo>) super.getBrain();
      }
  
 +    private int behaviorTick = 0; // Pufferfish
      @Override
-     protected void customServerAiStep(ServerLevel level) {
-         ProfilerFiller profilerFiller = Profiler.get();
-         profilerFiller.push("armadilloBrain");
+     protected void customServerAiStep(final ServerLevel level) {
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("armadilloBrain");
 +        if (this.behaviorTick++ % this.activatedPriority == 0) // Pufferfish
-         ((Brain<Armadillo>)this.brain).tick(level, this);
-         profilerFiller.pop();
-         profilerFiller.push("armadilloActivityUpdate");
+         this.getBrain().tick(level, this);
+         profiler.pop();
+         profiler.push("armadilloActivityUpdate");

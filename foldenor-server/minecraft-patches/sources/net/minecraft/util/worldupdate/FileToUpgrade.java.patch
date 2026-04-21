@@ -1,0 +1,9 @@
+--- a/net/minecraft/util/worldupdate/FileToUpgrade.java
++++ b/net/minecraft/util/worldupdate/FileToUpgrade.java
+@@ -4,5 +_,5 @@
+ import net.minecraft.world.level.ChunkPos;
+ import net.minecraft.world.level.chunk.storage.RegionFile;
+ 
+-public record FileToUpgrade(RegionFile file, List<ChunkPos> chunksToUpgrade) {
++public record FileToUpgrade(abomination.IRegionFile file, List<ChunkPos> chunksToUpgrade) {
+ }

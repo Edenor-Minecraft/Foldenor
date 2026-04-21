@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class SepalsLookAtPlayerTask extends SepalsSingleTickTask<LivingEntity> {
@@ -49,5 +50,10 @@ public class SepalsLookAtPlayerTask extends SepalsSingleTickTask<LivingEntity> {
     @Override
     public String information() {
         return "LookAtPlayerTask(distance=" + this.maxDistance + ")";
+    }
+
+    @Override
+    public Set<MemoryModuleType<?>> getRequiredMemories() {
+        return Set.of();
     }
 }

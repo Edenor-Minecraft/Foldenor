@@ -9,5 +9,5 @@
 +    private byte[] heapIn = me.titaniumtown.ArrayConstants.emptyByteArray; // Gale - JettPack - reduce array allocations
 +    private byte[] heapOut = me.titaniumtown.ArrayConstants.emptyByteArray; // Gale - JettPack - reduce array allocations
  
-     protected CipherBase(Cipher cipher) {
+     protected CipherBase(final Cipher cipher) {
          this.cipher = cipher;

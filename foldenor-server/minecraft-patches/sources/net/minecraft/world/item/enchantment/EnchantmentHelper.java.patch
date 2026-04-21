@@ -1,20 +1,20 @@
 --- a/net/minecraft/world/item/enchantment/EnchantmentHelper.java
 +++ b/net/minecraft/world/item/enchantment/EnchantmentHelper.java
-@@ -153,7 +_,7 @@
+@@ -157,7 +_,7 @@
      }
  
-     private static void runIterationOnEquipment(LivingEntity entity, EnchantmentHelper.EnchantmentInSlotVisitor visitor) {
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             runIterationOnItem(entity.getItemBySlot(equipmentSlot), equipmentSlot, entity, visitor);
+     private static void runIterationOnEquipment(final LivingEntity owner, final EnchantmentHelper.EnchantmentInSlotVisitor method) {
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             runIterationOnItem(owner.getItemBySlot(slot), slot, owner, method);
          }
      }
-@@ -477,7 +_,7 @@
-     public static Optional<EnchantedItemInUse> getRandomItemWith(DataComponentType<?> component, LivingEntity entity, Predicate<ItemStack> filter) {
-         List<EnchantedItemInUse> list = new ArrayList<>();
+@@ -495,7 +_,7 @@
+     ) {
+         List<EnchantedItemInUse> items = new ArrayList<>();
  
--        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
-+        for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
-             ItemStack itemBySlot = entity.getItemBySlot(equipmentSlot);
-             if (filter.test(itemBySlot)) {
-                 ItemEnchantments itemEnchantments = itemBySlot.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+-        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
++        for (EquipmentSlot slot : EquipmentSlot.VALUES_ARRAY) { // Gale - JettPack - reduce array allocations
+             ItemStack item = source.getItemBySlot(slot);
+             if (predicate.test(item)) {
+                 ItemEnchantments enchantments = item.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);

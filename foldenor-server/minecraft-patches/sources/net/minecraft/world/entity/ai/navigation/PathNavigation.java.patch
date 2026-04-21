@@ -14,13 +14,13 @@
  
      public void recomputePath() {
 +        if (!FoldenorConfig.mobRePathFinding) return;
-         if (this.tick - this.timeLastRecompute > 20L) { // Folia - region threading
-             if (this.targetPos != null) {
-                 this.path = null;
-@@ -448,6 +_,7 @@
+         if (this.tick - this.timeLastRecompute <= 20L || !this.canUpdatePath()) { // Folia - region threading
+             this.hasDelayedRecomputation = true;
+         } else if (this.targetPos != null) {
+@@ -447,6 +_,7 @@
      }
  
-     public boolean shouldRecomputePath(BlockPos pos) {
+     public boolean shouldRecomputePath(final BlockPos pos) {
 +        if (!FoldenorConfig.mobRePathFinding) return false;
          if (this.hasDelayedRecomputation) {
              return false;

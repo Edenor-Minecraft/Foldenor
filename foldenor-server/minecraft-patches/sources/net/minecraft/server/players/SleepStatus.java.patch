@@ -2,16 +2,16 @@
 +++ b/net/minecraft/server/players/SleepStatus.java
 @@ -15,9 +_,24 @@
  
-     public boolean areEnoughDeepSleeping(int requiredSleepPercentage, List<ServerPlayer> sleepingPlayers) {
+     public boolean areEnoughDeepSleeping(final int sleepPercentageNeeded, final List<ServerPlayer> players) {
          // CraftBukkit start
--        int i = (int) sleepingPlayers.stream().filter(player -> player.isSleepingLongEnough() || player.fauxSleeping).count();
--        boolean anyDeepSleep = sleepingPlayers.stream().anyMatch(Player::isSleepingLongEnough);
--        return anyDeepSleep && i >= this.sleepersNeeded(requiredSleepPercentage);
+-        int deepSleepers = (int)players.stream().filter(player -> player.isSleepingLongEnough() || player.fauxSleeping).count();
+-        boolean anyDeepSleep = players.stream().anyMatch(Player::isSleepingLongEnough);
+-        return anyDeepSleep && deepSleepers >= this.sleepersNeeded(sleepPercentageNeeded);
 +        // Leaf start - Remove stream and double iteration in enough deep sleeping player check
 +        int count = 0;
 +        boolean anyPlayerSleeping = false;
 +
-+        for (ServerPlayer player : sleepingPlayers) {
++        for (ServerPlayer player : players) {
 +            final boolean isSleepingLongEnough = player.isSleepingLongEnough();
 +
 +            if (isSleepingLongEnough) {
@@ -23,7 +23,7 @@
 +            }
 +        }
 +
-+        return anyPlayerSleeping && count >= this.sleepersNeeded(requiredSleepPercentage);
++        return anyPlayerSleeping && count >= this.sleepersNeeded(sleepPercentageNeeded);
 +        // Leaf end - Remove stream and double iteration in enough deep sleeping player check
          // CraftBukkit end
      }

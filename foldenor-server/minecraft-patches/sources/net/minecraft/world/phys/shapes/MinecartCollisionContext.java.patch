@@ -11,24 +11,24 @@
 @@ -18,22 +_,24 @@
      }
  
-     private void setupContext(AbstractMinecart minecart) {
--        BlockPos currentBlockPosOrRailBelow = minecart.getCurrentBlockPosOrRailBelow();
--        BlockState blockState = minecart.level().getBlockState(currentBlockPosOrRailBelow);
--        boolean isRail = BaseRailBlock.isRail(blockState);
--        if (isRail) {
--            this.ingoreBelow = currentBlockPosOrRailBelow.below();
--            RailShape railShape = blockState.getValue(((BaseRailBlock)blockState.getBlock()).getShapeProperty());
--            if (railShape.isSlope()) {
--                this.slopeIgnore = switch (railShape) {
--                    case ASCENDING_EAST -> currentBlockPosOrRailBelow.east();
--                    case ASCENDING_WEST -> currentBlockPosOrRailBelow.west();
--                    case ASCENDING_NORTH -> currentBlockPosOrRailBelow.north();
--                    case ASCENDING_SOUTH -> currentBlockPosOrRailBelow.south();
+     private void setupContext(final AbstractMinecart entity) {
+-        BlockPos currentRailPos = entity.getCurrentBlockPosOrRailBelow();
+-        BlockState currentState = entity.level().getBlockState(currentRailPos);
+-        boolean onRails = BaseRailBlock.isRail(currentState);
+-        if (onRails) {
+-            this.ingoreBelow = currentRailPos.below();
+-            RailShape shape = currentState.getValue(((BaseRailBlock)currentState.getBlock()).getShapeProperty());
+-            if (shape.isSlope()) {
+-                this.slopeIgnore = switch (shape) {
+-                    case ASCENDING_EAST -> currentRailPos.east();
+-                    case ASCENDING_WEST -> currentRailPos.west();
+-                    case ASCENDING_NORTH -> currentRailPos.north();
+-                    case ASCENDING_SOUTH -> currentRailPos.south();
 -                    default -> null;
 -                };
-+        Bukkit.getRegionScheduler().execute(null, minecart.getBukkitEntity().getLocation(), () -> {
-+            BlockPos currentBlockPosOrRailBelow = minecart.getCurrentBlockPosOrRailBelow();
-+            BlockState blockState = minecart.level().getBlockState(currentBlockPosOrRailBelow);
++        Bukkit.getRegionScheduler().execute(null, entity.getBukkitEntity().getLocation(), () -> {
++            BlockPos currentBlockPosOrRailBelow = entity.getCurrentBlockPosOrRailBelow();
++            BlockState blockState = entity.level().getBlockState(currentBlockPosOrRailBelow);
 +            boolean isRail = BaseRailBlock.isRail(blockState);
 +            if (isRail) {
 +                this.ingoreBelow = currentBlockPosOrRailBelow.below();

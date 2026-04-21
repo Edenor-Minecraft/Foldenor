@@ -2,7 +2,7 @@
 +++ b/net/minecraft/world/level/storage/PlayerDataStorage.java
 @@ -32,6 +_,13 @@
  
-     public void save(Player player) {
+     public void save(final Player player) {
          if (org.spigotmc.SpigotConfig.disablePlayerDataSaving) return; // Spigot
 +        // Leaf start - Nitori - Async playerdata save
 +        Runnable runnable = () -> save0(player);
@@ -11,6 +11,6 @@
 +
 +    private void save0(Player player) {
 +        // Leaf end - Nitori - Async playerdata save
-         try (ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
-             TagValueOutput tagValueOutput = TagValueOutput.createWithContext(scopedCollector, player.registryAccess());
-             player.saveWithoutId(tagValueOutput);
+         try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+             TagValueOutput output = TagValueOutput.createWithContext(reporter, player.registryAccess());
+             player.saveWithoutId(output);

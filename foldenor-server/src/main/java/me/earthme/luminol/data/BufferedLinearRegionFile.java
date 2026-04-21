@@ -585,7 +585,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
     @Override
     public DataInputStream getChunkDataInputStream(@NotNull ChunkPos pos) throws IOException {
-        final ByteBuffer data = this.readChunk(pos.x, pos.z);
+        final ByteBuffer data = this.readChunk(pos.x(), pos.z());
 
         if (data == null) {
             return null;
@@ -596,7 +596,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
     @Override
     public boolean doesChunkExist(@NotNull ChunkPos pos) {
-        return this.hasData(getChunkIndex(pos.x, pos.z));
+        return this.hasData(getChunkIndex(pos.x(), pos.z()));
     }
 
     @Override
@@ -606,17 +606,17 @@ public class BufferedLinearRegionFile implements IRegionFile {
 
     @Override
     public void clear(@NotNull ChunkPos pos) throws IOException {
-        this.clearChunkData(getChunkIndex(pos.x, pos.z));
+        this.clearChunkData(getChunkIndex(pos.x(), pos.z()));
     }
 
     @Override
     public boolean hasChunk(@NotNull ChunkPos pos) {
-        return this.hasData(getChunkIndex(pos.x, pos.z));
+        return this.hasData(getChunkIndex(pos.x(), pos.z()));
     }
 
     @Override
     public void write(@NotNull ChunkPos pos, ByteBuffer buf) throws IOException {
-        this.writeChunk(pos.x, pos.z, buf);
+        this.writeChunk(pos.x(), pos.z(), buf);
     }
 
     // MCC 的玩意,这东西也用不上给Linear了()
@@ -828,7 +828,7 @@ public class BufferedLinearRegionFile implements IRegionFile {
         public void close() throws IOException {
             ByteBuffer bytebuffer = ByteBuffer.wrap(this.buf, 0, this.count);
 
-            BufferedLinearRegionFile.this.writeChunk(this.pos.x, this.pos.z, bytebuffer);
+            BufferedLinearRegionFile.this.writeChunk(this.pos.x(), this.pos.z(), bytebuffer);
             BufferedLinearRegionFile.this.flushInternal();
         }
     }

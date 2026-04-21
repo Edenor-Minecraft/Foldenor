@@ -1,19 +1,19 @@
 --- a/net/minecraft/world/entity/ai/sensing/GolemSensor.java
 +++ b/net/minecraft/world/entity/ai/sensing/GolemSensor.java
-@@ -34,7 +_,15 @@
-     public static void checkForNearbyGolem(LivingEntity livingEntity) {
-         Optional<List<LivingEntity>> memory = livingEntity.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES);
-         if (!memory.isEmpty()) {
--            boolean flag = memory.get().stream().anyMatch(entity -> entity.getType().equals(EntityType.IRON_GOLEM));
+@@ -33,7 +_,15 @@
+     public static void checkForNearbyGolem(final LivingEntity body) {
+         Optional<List<LivingEntity>> livingEntitiesMemory = body.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES);
+         if (!livingEntitiesMemory.isEmpty()) {
+-            boolean golemPresent = livingEntitiesMemory.get().stream().anyMatch(entity -> entity.is(EntityType.IRON_GOLEM));
 +            // Leaf start - Remove stream in GolemSensor
-+            boolean flag = false;
-+            for (LivingEntity entity : memory.get()) {
++            boolean golemPresent = false;
++            for (LivingEntity entity : livingEntitiesMemory.get()) {
 +                if (entity.getType().equals(EntityType.IRON_GOLEM)) {
-+                    flag = true;
++                    golemPresent = true;
 +                    break;
 +                }
 +            }
 +            // Leaf end - Remove stream in GolemSensor
-             if (flag) {
-                 golemDetected(livingEntity);
+             if (golemPresent) {
+                 golemDetected(body);
              }

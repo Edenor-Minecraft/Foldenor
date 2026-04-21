@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/ai/village/poi/PoiManager.java
 +++ b/net/minecraft/world/entity/ai/village/poi/PoiManager.java
-@@ -16,6 +_,8 @@
+@@ -17,6 +_,8 @@
  import java.util.function.Predicate;
  import java.util.stream.IntStream;
  import java.util.stream.Stream;
@@ -9,7 +9,7 @@
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Holder;
  import net.minecraft.core.RegistryAccess;
-@@ -44,7 +_,7 @@
+@@ -45,7 +_,7 @@
      public static final int MAX_VILLAGE_DISTANCE = 6;
      public static final int VILLAGE_SECTION_SIZE = 1;
      private final PoiManager.DistanceTracker distanceTracker;
@@ -18,12 +18,3 @@
  
      // Paper start - rewrite chunk system
      private final net.minecraft.server.level.ServerLevel world;
-@@ -214,7 +_,7 @@
- 
-     public Stream<PoiRecord> getInSquare(Predicate<Holder<PoiType>> typePredicate, BlockPos pos, int distance, PoiManager.Occupancy status) {
-         int i = Math.floorDiv(distance, 16) + 1;
--        return ChunkPos.rangeClosed(new ChunkPos(pos), i).flatMap(chunkPos -> this.getInChunk(typePredicate, chunkPos, status)).filter(poiRecord -> {
-+        return ChunkPos.rangeClosed(new ChunkPos(pos), i).filter(cpos -> FoldenorConfig.foliaPOIAccessOffRegionFix ? ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this.world,cpos) : true).flatMap(chunkPos -> this.getInChunk(typePredicate, chunkPos, status)).filter(poiRecord -> { // Luminol - Fix off region POI access
-             BlockPos pos1 = poiRecord.getPos();
-             return Math.abs(pos1.getX() - pos.getX()) <= distance && Math.abs(pos1.getZ() - pos.getZ()) <= distance;
-         });

@@ -1,6 +1,7 @@
 package net.edenor.foldenor.secureseed;
 
 import com.google.common.collect.Iterables;
+import net.edenor.foldenor.config.FoldenorConfig;
 import net.minecraft.server.level.ServerLevel;
 
 import java.math.BigInteger;
@@ -15,11 +16,12 @@ public class Globals {
     public static final ThreadLocal<Integer> dimension = ThreadLocal.withInitial(() -> 0);
 
     public static void setupGlobals(ServerLevel world) {
-        long[] seed = world.getServer().getWorldData().worldGenOptions().featureSeed();
+        long[] seed = world.getServer().getWorldGenSettings().options().featureSeed();
         System.arraycopy(seed, 0, worldSeed, 0, WORLD_SEED_LONGS);
         int worldIndex = Iterables.indexOf(world.getServer().levelKeys(), it -> it == world.dimension());
+        // prevent race condition where world is not yet added to levelKeys
         if (worldIndex == -1)
-            worldIndex = world.getServer().levelKeys().size(); // if we are in world construction it may not have been added to the map yet
+            worldIndex = world.getServer().levelKeys().size();
         dimension.set(worldIndex);
     }
 
@@ -63,6 +65,15 @@ public class Globals {
         }
 
         return seedBigInt.toString();
+    }
+
+    public static boolean isSecureSeedEnabled() {
+        return FoldenorConfig.secureWorldSeedEnabled;
+    }
+
+
+    public static String getSecureSeedSalt() {
+        return FoldenorConfig.secureWorldSeedSalt;
     }
 
     public enum Salt {

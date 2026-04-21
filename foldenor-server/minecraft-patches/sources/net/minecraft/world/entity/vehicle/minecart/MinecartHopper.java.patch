@@ -6,7 +6,7 @@
      private boolean consumedItemThisFrame = false;
 +    public int pickupImmunity = 0; // Gale - EMC - reduce hopper item checks
  
-     public MinecartHopper(EntityType<? extends MinecartHopper> type, Level level) {
+     public MinecartHopper(final EntityType<? extends MinecartHopper> type, final Level level) {
          super(type, level);
 @@ -152,4 +_,11 @@
      }

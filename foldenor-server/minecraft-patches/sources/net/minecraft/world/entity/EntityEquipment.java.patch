@@ -6,11 +6,11 @@
  
 -public class EntityEquipment {
 +public class EntityEquipment implements net.caffeinemc.mods.lithium.common.entity.EquipmentInfo, net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber.CountChangeSubscriber<ItemStack> { // Leaf - Lithium - equipment tracking
-     public static final Codec<EntityEquipment> CODEC = Codec.unboundedMap(EquipmentSlot.CODEC, ItemStack.CODEC).xmap(map -> {
-         EnumMap<EquipmentSlot, ItemStack> map1 = new EnumMap<>(EquipmentSlot.class);
-         map1.putAll((Map<? extends EquipmentSlot, ? extends ItemStack>)map);
+     public static final Codec<EntityEquipment> CODEC = Codec.unboundedMap(EquipmentSlot.CODEC, ItemStack.CODEC).xmap(items -> {
+         EnumMap<EquipmentSlot, ItemStack> map = new EnumMap<>(EquipmentSlot.class);
+         map.putAll((Map<? extends EquipmentSlot, ? extends ItemStack>)items);
 @@ -18,6 +_,11 @@
-         return map;
+         return items;
      });
      private final EnumMap<EquipmentSlot, ItemStack> items;
 +    // Leaf start - Lithium - equipment tracking
@@ -19,25 +19,25 @@
 +    boolean hasUnsentEquipmentChanges = true;
 +    // Leaf end - Lithium - equipment tracking
  
-     private EntityEquipment(EnumMap<EquipmentSlot, ItemStack> items) {
+     private EntityEquipment(final EnumMap<EquipmentSlot, ItemStack> items) {
          this.items = items;
 @@ -28,7 +_,11 @@
      }
  
-     public ItemStack set(EquipmentSlot slot, ItemStack stack) {
--        return Objects.requireNonNullElse(this.items.put(slot, stack), ItemStack.EMPTY);
+     public ItemStack set(final EquipmentSlot slot, final ItemStack itemStack) {
+-        return Objects.requireNonNullElse(this.items.put(slot, itemStack), ItemStack.EMPTY);
 +        // Leaf start - Lithium - equipment tracking
-+        ItemStack oldStack = Objects.requireNonNullElse(this.items.put(slot, stack), ItemStack.EMPTY);
-+        this.onEquipmentReplaced(oldStack, stack);
++        ItemStack oldStack = Objects.requireNonNullElse(this.items.put(slot, itemStack), ItemStack.EMPTY);
++        this.onEquipmentReplaced(oldStack, itemStack);
 +        return oldStack;
 +        // Leaf end - Lithium - equipment tracking
      }
  
-     public ItemStack get(EquipmentSlot slot) {
+     public ItemStack get(final EquipmentSlot slot) {
 @@ -55,8 +_,21 @@
      }
  
-     public void setAll(EntityEquipment equipment) {
+     public void setAll(final EntityEquipment equipment) {
 +        this.onClear(); // Leaf - Lithium - equipment tracking
          this.items.clear();
          this.items.putAll(equipment.items);
@@ -55,11 +55,11 @@
 +        // Leaf end - Lithium - equipment tracking
      }
  
-     public void dropAll(LivingEntity entity) {
+     public void dropAll(final LivingEntity dropper) {
 @@ -69,6 +_,7 @@
  
      public void clear() {
-         this.items.replaceAll((equipmentSlot, itemStack) -> ItemStack.EMPTY);
+         this.items.replaceAll((s, v) -> ItemStack.EMPTY);
 +        this.onClear(); // Leaf - Lithium - equipment tracking
      }
  

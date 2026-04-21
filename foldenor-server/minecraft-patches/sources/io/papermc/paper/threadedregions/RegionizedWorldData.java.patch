@@ -1,6 +1,6 @@
 --- a/io/papermc/paper/threadedregions/RegionizedWorldData.java
 +++ b/io/papermc/paper/threadedregions/RegionizedWorldData.java
-@@ -66,8 +_,6 @@
+@@ -67,8 +_,6 @@
  
      private static final Logger LOGGER = LogUtils.getLogger();
  
@@ -9,7 +9,7 @@
      public static final RegionizedData.RegioniserCallback<RegionizedWorldData> REGION_CALLBACK = new RegionizedData.RegioniserCallback<>() {
          @Override
          public void merge(final RegionizedWorldData from, final RegionizedWorldData into, final long fromTickOffset) {
-@@ -352,12 +_,13 @@
+@@ -345,12 +_,13 @@
      private final CopyOnWriteArrayList<ServerPlayer> localPlayers = new CopyOnWriteArrayList<>();
      private final NearbyPlayers nearbyPlayers;
      public final io.papermc.paper.threadedregions.EntityScheduler.EntitySchedulerTickList entitySchedulerTickList = new io.papermc.paper.threadedregions.EntityScheduler.EntitySchedulerTickList();
@@ -27,7 +27,7 @@
  
      // block ticking
      private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet<>();
-@@ -365,8 +_,8 @@
+@@ -358,8 +_,8 @@
      private final LevelTicks<Fluid> fluidLevelTicks;
  
      // tile entity ticking

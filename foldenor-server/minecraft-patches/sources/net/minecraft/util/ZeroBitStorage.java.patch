@@ -8,4 +8,4 @@
 +    public static final long[] RAW = me.titaniumtown.ArrayConstants.emptyLongArray; // Gale - JettPack - reduce array allocations
      private final int size;
  
-     public ZeroBitStorage(int size) {
+     public ZeroBitStorage(final int size) {

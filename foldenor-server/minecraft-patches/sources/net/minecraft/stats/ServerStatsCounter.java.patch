@@ -7,25 +7,25 @@
 +    // SparklyPaper start - Skip dirty stats copy when requesting player stats
 +    /*
      private Set<Stat<?>> getDirty() {
-         Set<Stat<?>> set = Sets.newHashSet(this.dirty);
+         Set<Stat<?>> result = Sets.newHashSet(this.dirty);
          this.dirty.clear();
-         return set;
+         return result;
      }
 +    */
 +    // SparklyPaper end
  
-     public void parse(DataFixer fixerUpper, JsonElement json) {
-         Dynamic<JsonElement> dynamic = new Dynamic<>(JsonOps.INSTANCE, json);
+     public void parse(final DataFixer fixerUpper, final JsonElement element) {
+         Dynamic<JsonElement> data = new Dynamic<>(JsonOps.INSTANCE, element);
 @@ -140,9 +_,11 @@
-     public void sendStats(ServerPlayer player) {
-         Object2IntMap<Stat<?>> map = new Object2IntOpenHashMap<>();
+     public void sendStats(final ServerPlayer player) {
+         Object2IntMap<Stat<?>> statsToSend = new Object2IntOpenHashMap<>();
  
 -        for (Stat<?> stat : this.getDirty()) {
 +        for (Stat<?> stat : this.dirty) { // SparklyPaper - Skip dirty stats copy when requesting player stats
-             map.put(stat, this.getValue(stat));
+             statsToSend.put(stat, this.getValue(stat));
          }
 +
 +        this.dirty.clear(); // SparklyPaper - Skip dirty stats copy when requesting player stats
  
-         player.connection.send(new ClientboundAwardStatsPacket(map));
+         player.connection.send(new ClientboundAwardStatsPacket(statsToSend));
      }

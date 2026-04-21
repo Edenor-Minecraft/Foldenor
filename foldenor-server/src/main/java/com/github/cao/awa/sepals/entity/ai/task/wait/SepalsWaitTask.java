@@ -7,6 +7,9 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.VisibleForDebug;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+
+import java.util.Set;
 
 public class SepalsWaitTask implements BehaviorControl<LivingEntity>, DetailedDebuggableTask {
     private final int minRunTime;
@@ -24,6 +27,11 @@ public class SepalsWaitTask implements BehaviorControl<LivingEntity>, DetailedDe
     @Override
     public Behavior.Status getStatus() {
         return this.status;
+    }
+
+    @Override
+    public Set<MemoryModuleType<?>> getRequiredMemories() {
+        return Set.of();
     }
 
     @Override

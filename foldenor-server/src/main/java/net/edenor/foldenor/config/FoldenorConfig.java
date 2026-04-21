@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -41,7 +42,6 @@ public class FoldenorConfig {
     public static int maximumActivationPrio;
     public static int activationDistanceMod;
     public static boolean dontEnableIfInWater = false;
-    public static boolean skipAIForNonAwareMob = true;
     public static boolean throttleHopperWhenFullEnabled = false;
     public static int throttleHopperWhenFullSkipTicks = 0;
     public static boolean asyncPlayerDataSaveEnabled = false;
@@ -77,6 +77,8 @@ public class FoldenorConfig {
     public static boolean forceCleanupEntityBrainMemoryForPositionTracker = false;
     public static boolean preventIncorrectTeleportAsync = false;
     public static boolean preventIncorrectTeleportAsyncThrow = false;
+    public static boolean secureWorldSeedEnabled = true;
+    public static String secureWorldSeedSalt = "";
 
     protected static File CONFIG_FILE;
     static boolean verbose;
@@ -112,6 +114,8 @@ public class FoldenorConfig {
     }
 
     static void readConfig() {
+        readSecureSeedSettings();
+
         readNetworkSettings();
 
         readOptimizationSettings();
@@ -204,6 +208,42 @@ public class FoldenorConfig {
         }
     }
 
+    private static void readSecureSeedSettings() {
+        secureWorldSeedEnabled = getBoolean("secure-seed.enabled", secureWorldSeedEnabled,
+                "Enable or disable the secure world seed system. (Note if you enable this, you will have chunk borders / errors if you migrate from the old seed system)");
+
+        String configSalt = config.getString("secure-seed.salt", "");
+
+        if (configSalt.isEmpty() || configSalt.length() < 64) {
+            if (!configSalt.isEmpty()) {
+                LOGGER.warn("[!!!] Secure seed salt is shorter than the recommended 64 characters. Generating a new secure salt...");
+            } else {
+                LOGGER.info("No secure seed salt found. Generating a new cryptographically secure salt...");
+            }
+
+            secureWorldSeedSalt = generateSecureSalt(64);
+
+            set("secure-seed.salt", secureWorldSeedSalt);
+
+            LOGGER.info("A new secure salt has been generated and saved to foldenor.yml");
+            LOGGER.warn("[IMPORTANT] Keep this salt secret to prevent world copying! Back up your config file!");
+        } else {
+            secureWorldSeedSalt = configSalt;
+        }
+    }
+
+    private static String generateSecureSalt(int length) {
+        SecureRandom random = new SecureRandom();
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+        StringBuilder salt = new StringBuilder(length);
+
+        for (int i = 0; i < length; i++) {
+            salt.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return salt.toString();
+    }
+
     protected static void readNetworkSettings() {
         sendNullEntityPackets = getBoolean("network.send-null-entity-packets", sendNullEntityPackets);
         appleskinProtocol = getBoolean("network.appleskin-protocol", appleskinProtocol);
@@ -217,7 +257,6 @@ public class FoldenorConfig {
                 "Reduces piglin spawn in portal, by reducing change to spawn");
         skipMapItemUpdatesIfNoBukkitRender = getBoolean("optimizations.skip_map_item_updates_if_no_bukkit_render", skipMapItemUpdatesIfNoBukkitRender);
         entityActivationCheckFrequency = getInt("optimizations.entity-activation-check-frequency", 20);
-        skipAIForNonAwareMob = getBoolean("optimizations.skip-ai-for-non-aware-mob", skipAIForNonAwareMob);
         throttleHopperWhenFullEnabled = getBoolean("optimizations.throttle-hopper-when-full.enabled", throttleHopperWhenFullEnabled);
         throttleHopperWhenFullSkipTicks = getInt("optimizations.throttle-hopper-when-full.skip-ticks", throttleHopperWhenFullSkipTicks);
         villagersDontReleaseMemoryFix = getBoolean("optimizations.villagers-dont-release-memory-fix", villagersDontReleaseMemoryFix);

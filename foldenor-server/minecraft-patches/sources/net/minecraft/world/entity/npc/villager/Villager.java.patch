@@ -1,42 +1,32 @@
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
-@@ -12,6 +_,8 @@
+@@ -10,6 +_,8 @@
  import java.util.Map;
  import java.util.Optional;
  import java.util.function.BiPredicate;
 +
 +import net.edenor.foldenor.config.FoldenorConfig;
  import net.minecraft.SharedConstants;
- import net.minecraft.core.BlockPos;
  import net.minecraft.core.GlobalPos;
-@@ -87,6 +_,7 @@
- import net.minecraft.world.item.trading.MerchantOffers;
+ import net.minecraft.core.Holder;
+@@ -86,6 +_,7 @@
+ import net.minecraft.world.item.trading.TradeSet;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.ServerLevelAccessor;
 +import net.minecraft.world.level.portal.TeleportTransition;
  import net.minecraft.world.level.storage.ValueInput;
  import net.minecraft.world.level.storage.ValueOutput;
  import net.minecraft.world.phys.AABB;
-@@ -180,6 +_,8 @@
+@@ -182,6 +_,8 @@
          (villager, poiType) -> poiType.is(PoiTypes.MEETING)
      );
  
 +    public long nextGolemPanic = -1; // Pufferfish
 +
-     public Villager(EntityType<? extends Villager> type, Level level) {
+     public Villager(final EntityType<? extends Villager> type, final Level level) {
          this(type, level, VillagerType.PLAINS);
      }
-@@ -250,7 +_,8 @@
-         villagerBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
-         villagerBrain.setDefaultActivity(Activity.IDLE);
-         villagerBrain.setActiveActivityIfPossible(Activity.IDLE);
--        villagerBrain.updateActivityFromSchedule(this.level().environmentAttributes(), this.level().getLevelData().getGameTime(), this.position()); // Folia - region threading - not in the world yet
-+        if (ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(this))
-+            villagerBrain.updateActivityFromSchedule(this.level().environmentAttributes(), this.level().getLevelData().getGameTime(), this.position()); // Folia - region threading - not in the world yet
-     }
- 
-     @Override
-@@ -269,6 +_,21 @@
+@@ -244,6 +_,21 @@
          return this.assignProfessionWhenSpawned;
      }
  
@@ -58,34 +48,25 @@
      // Paper start - EAR 2
      @Override
      public void inactiveTick() {
-@@ -276,7 +_,7 @@
-         if (this.getUnhappyCounter() > 0) {
-             this.setUnhappyCounter(this.getUnhappyCounter() - 1);
-         }
--        if (this.isEffectiveAi()) {
-+        if (this.isEffectiveAi() && (!FoldenorConfig.skipAIForNonAwareMob || this.aware)) { // Paper - Skip AI during inactive ticks for non-aware mobs
-             if (this.level().spigotConfig.tickInactiveVillagers) {
-                 this.customServerAiStep(this.level().getMinecraftWorld());
-             } else {
-@@ -288,6 +_,8 @@
+@@ -263,6 +_,8 @@
      }
      // Paper end - EAR 2
  
 +    private int behaviorTick = 0; // Pufferfish
 +
      @Override
-     protected void customServerAiStep(ServerLevel level) {
+     protected void customServerAiStep(final ServerLevel level) {
          // Paper start - EAR 2
-@@ -297,7 +_,11 @@
+@@ -272,7 +_,11 @@
          // Paper end - EAR 2
-         ProfilerFiller profilerFiller = Profiler.get();
-         profilerFiller.push("villagerBrain");
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("villagerBrain");
 -        if (!inactive) this.getBrain().tick(level, this); // Paper - EAR 2
 +        // Pufferfish start
 +        if (!inactive && this.behaviorTick++ % this.activatedPriority == 0) {
 +            this.getBrain().tick((ServerLevel) this.level(), this); // Paper
 +        }
 +        // Pufferfish end
-         profilerFiller.pop();
+         profiler.pop();
          if (this.assignProfessionWhenSpawned) {
              this.assignProfessionWhenSpawned = false;

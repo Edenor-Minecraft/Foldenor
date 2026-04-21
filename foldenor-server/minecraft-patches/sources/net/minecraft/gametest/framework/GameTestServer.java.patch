@@ -1,6 +1,6 @@
 --- a/net/minecraft/gametest/framework/GameTestServer.java
 +++ b/net/minecraft/gametest/framework/GameTestServer.java
-@@ -18,6 +_,8 @@
+@@ -19,6 +_,8 @@
  import java.util.function.BooleanSupplier;
  import java.util.stream.Stream;
  import java.util.stream.Stream.Builder;
@@ -9,8 +9,8 @@
  import net.minecraft.CrashReport;
  import net.minecraft.ReportType;
  import net.minecraft.SystemReport;
-@@ -85,7 +_,7 @@
-     private final boolean verify;
+@@ -89,7 +_,7 @@
+     private final int repeatCount;
      private List<GameTestBatch> testBatches = new ArrayList<>();
      private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 -    private static final WorldOptions WORLD_OPTIONS = new WorldOptions(0L, false, false);

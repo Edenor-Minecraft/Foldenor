@@ -1,38 +1,38 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -599,6 +_,7 @@
-             chunkGenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkGenerator, gen);
+@@ -623,6 +_,7 @@
+             generator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, generator, gen);
          }
          // CraftBukkit end
 +        net.edenor.foldenor.secureseed.Globals.setupGlobals(this);
-         boolean flag = server.forceSynchronousWrites();
+         boolean syncWrites = server.forceSynchronousWrites();
          DataFixer fixerUpper = server.getFixerUpper();
          // Paper - rewrite chunk system
-@@ -649,7 +_,7 @@
+@@ -673,7 +_,7 @@
+ 
          this.sleepStatus = new SleepStatus();
          this.gameEventDispatcher = new GameEventDispatcher(this);
-         this.randomSequences = Objects.requireNonNullElseGet(randomSequences, () -> this.getDataStorage().computeIfAbsent(RandomSequences.TYPE));
--        this.waypointManager = new ServerWaypointManager();
+-        this.waypointManager = new ServerWaypointManager(this); // Paper - optimize ServerWaypointManager with locator bar disabled
 +        this.waypointManager = new io.canvasmc.canvas.waypoints.RegionThreadingWaypointManager(this); // Canvas - region threading
          this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
          //this.updateSkyBrightness(); // Folia - region threading - delay until first tick
          // Paper start - rewrite chunk system
-@@ -860,12 +_,14 @@
+@@ -914,12 +_,14 @@
              }
  
-             profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); try { // Folia - profiler
+             foliaProfiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); try { // Folia - profiler
 +            if (dev.kaiijumc.kaiiju.KaiijuEntityLimits.enabled) regionizedWorldData.entityThrottler.tickLimiterStart(); // Kaiiju
              io.papermc.paper.entity.activation.ActivationRange.activateEntities(this); // Paper - EAR
-             } finally { profiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); } // Folia - profiler
-             profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); try { // Folia - profiler
+             } finally { foliaProfiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ACTIVATE_ENTITIES); } // Folia - profiler
+             foliaProfiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); try { // Folia - profiler
              regionizedWorldData // Folia - regionised ticking
                  .forEachTickingEntity( // Folia - regionised ticking
                      entity -> {
 +                        entity.activatedPriorityReset = false; // Pufferfish - DAB
                          if (!entity.isRemoved()) {
                              if (!tickRateManager.isEntityFrozen(entity)) {
-                                 profilerFiller.push("checkDespawn");
-@@ -882,14 +_,37 @@
+                                 profiler.push("checkDespawn");
+@@ -936,14 +_,37 @@
                                          entity.stopRiding();
                                      }
  
@@ -44,44 +44,44 @@
 +                                    }
 +                                    // Kaiiju end
 +
-                                     profilerFiller.push("tick");
+                                     profiler.push("tick");
 -                                    this.guardEntityTick(this::tickNonPassenger, entity);
-+                                    // this.guardEntityTick(this::tickNonPassenger, entity);
++                                    //this.guardEntityTick(this::tickNonPassenger, entity);
 +                                    // Pufferfish start - copied from this.guardEntityTick
 +                                    try {
-+                                        this.tickNonPassenger(entity); // Pufferfish - changed
-+                                    } catch (Throwable throwable) {
-+                                        if (throwable instanceof ThreadDeath) throw throwable; // Paper
-+                                        // Paper start - Prevent tile entity and entity crashes
-+                                        final String msg = String.format("Entity threw exception at %s:%s,%s,%s", entity.level().getWorld().getName(), entity.getX(), entity.getY(), entity.getZ());
-+                                        MinecraftServer.LOGGER.error(msg, throwable);
-+                                        getCraftServer().getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new com.destroystokyo.paper.exception.ServerInternalException(msg, throwable)));
-+                                        entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD);
-+                                        // Paper end
++                                        this.tickNonPassenger(entity);
++                                    } catch (Throwable var6) {
++                                        // Paper start - Prevent block entity and entity crashes
++                                        final String msg = String.format("Entity threw exception at %s:%s,%s,%s", io.papermc.paper.util.MCUtil.getLevelName(entity.level()), entity.getX(), entity.getY(), entity.getZ());
++                                        MinecraftServer.LOGGER.error(msg, var6);
++                                        getCraftServer().getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new com.destroystokyo.paper.exception.ServerInternalException(msg, var6))); // Paper - ServerExceptionEvent
++                                        if (!(entity instanceof net.minecraft.server.level.ServerPlayer)) entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD); // Folia - properly disconnect players
++                                        if (entity instanceof net.minecraft.server.level.ServerPlayer player) player.connection.disconnect(net.minecraft.network.chat.Component.translatable("multiplayer.disconnect.generic"), org.bukkit.event.player.PlayerKickEvent.Cause.UNKNOWN); // Folia - properly disconnect players
++                                        // Paper end - Prevent block entity and entity crashes
 +                                    }
 +                                    this.moonrise$midTickTasks(); // Paper - rewrite chunk system
 +                                    // Pufferfish end
-                                     profilerFiller.pop();
+                                     profiler.pop();
                                  }
                              }
                          }
                      }
                  );
 +                if (dev.kaiijumc.kaiiju.KaiijuEntityLimits.enabled) regionizedWorldData.entityThrottler.tickLimiterFinish(regionizedWorldData); // Kaiiju
-             } finally { profiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); } // Folia - profiler
-             profilerFiller.popPush("blockEntities");
-             profiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.TILE_ENTITY); try { // Folia - profiler
-@@ -1082,7 +_,7 @@
-         int minBlockZ = pos.getMinBlockZ();
-         ProfilerFiller profilerFiller = Profiler.get();
-         profilerFiller.push("thunder");
--        if (!this.paperConfig().environment.disableThunder && isRaining && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0) { // Spigot // Paper - Option to disable thunder
-+        if (!this.paperConfig().environment.disableThunder && isRaining && this.isThundering() && this.spigotConfig.thunderChance > 0 && chunk.shouldDoLightning(this.simpleRandom)) { // Spigot // Paper - Option to disable thunder // Paper - optimise random ticking // Pufferfish // Mizi
-             BlockPos blockPos = this.findLightningTargetAround(this.getBlockRandomPos(minBlockX, 0, minBlockZ, 15));
-             if (this.isRainingAt(blockPos)) {
-                 DifficultyInstance currentDifficultyAt = this.getCurrentDifficultyAt(blockPos);
-@@ -1440,7 +_,27 @@
-         profiler.startTimer(timerId);
+             } finally { foliaProfiler.stopTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.ENTITY_TICK); } // Folia - profiler
+             profiler.popPush("blockEntities");
+             foliaProfiler.startTimer(ca.spottedleaf.leafprofiler.LProfilerRegistry.TILE_ENTITY); try { // Folia - profiler
+@@ -1125,7 +_,7 @@
+         int minZ = chunkPos.getMinBlockZ();
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("thunder");
+-        if (!this.paperConfig().environment.disableThunder && raining && this.isThundering() && this.spigotConfig.thunderChance > 0 && this.random.nextInt(this.spigotConfig.thunderChance) == 0) { // Spigot // Paper - Option to disable thunder
++        if (!this.paperConfig().environment.disableThunder && raining && this.isThundering() && this.spigotConfig.thunderChance > 0 && chunk.shouldDoLightning(this.simpleRandom)) { // Spigot // Paper - Option to disable thunder // Paper - optimise random ticking // Pufferfish // Mizi
+             BlockPos pos = this.findLightningTargetAround(this.getBlockRandomPos(minX, 0, minZ, 15));
+             if (this.isRainingAt(pos)) {
+                 DifficultyInstance difficulty = this.getCurrentDifficultyAt(pos);
+@@ -1493,7 +_,27 @@
+         foliaProfiler.startTimer(timerId);
          try {
          // Folia end - profiler
 +        // Luminol start - Entity portal-teleport speed fix
@@ -108,12 +108,13 @@
          entity.tick();
          // Folia start - region threading
          if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(entity)) {
-@@ -1451,6 +_,8 @@
+@@ -1503,7 +_,8 @@
+         if (entity.handlePortal()) {
              // portalled
              return;
-         }
-+        }
-+        // Luminol end - Entity portal-teleport speed fix
+-        }
++        }}
++            // Luminol end - Entity portal-teleport speed fix
          // Folia end - region threading
          } else {entity.inactiveTick();} // Paper - EAR 2
-         profilerFiller.pop();
+         profiler.pop();

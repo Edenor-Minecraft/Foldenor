@@ -2,7 +2,7 @@ name: Patch and Build
 
 on:
   push:
-    branches: [ "ver/1.21.11" ]
+    branches: [ "ver/26.1.x" ]
   workflow_dispatch:
 
 jobs:
@@ -17,10 +17,10 @@ jobs:
       - name: Checkout Git Repository
         uses: actions/checkout@v4
         
-      - name: Set up GraalVM JDK 21
+      - name: Set up GraalVM JDK 25
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'gradle'
@@ -47,8 +47,8 @@ jobs:
       - name: Make release
         uses: marvinpinto/action-automatic-releases@master
         with:
-          title: "Foldenor 1.21.11 release"
-          automatic_release_tag: "latest_1.21.11"
+          title: "Foldenor 26.1.2 release"
+          automatic_release_tag: "latest_26.1.2"
           files: foldenor-server/build/libs/*-paperclip-*-mojmap.jar
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false

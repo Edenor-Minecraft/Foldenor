@@ -1,11 +1,11 @@
 --- a/net/minecraft/world/entity/EquipmentTable.java
 +++ b/net/minecraft/world/entity/EquipmentTable.java
-@@ -30,7 +_,7 @@
+@@ -35,7 +_,7 @@
      }
  
-     private static Map<EquipmentSlot, Float> createForAllSlots(float dropChance) {
+     private static Map<EquipmentSlot, Float> createForAllSlots(final float dropChance) {
 -        return createForAllSlots(List.of(EquipmentSlot.values()), dropChance);
 +        return createForAllSlots(List.of(EquipmentSlot.VALUES_ARRAY), dropChance); // Gale - JettPack - reduce array allocations
      }
  
-     private static Map<EquipmentSlot, Float> createForAllSlots(List<EquipmentSlot> equipmentSlots, float dropChance) {
+     private static Map<EquipmentSlot, Float> createForAllSlots(final List<EquipmentSlot> slots, final float dropChance) {
