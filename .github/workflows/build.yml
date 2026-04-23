@@ -41,8 +41,8 @@ jobs:
       - name: Apply Patches
         run: ./gradlew applyAllPatches --no-daemon --parallel
 
-      - name: Build MojmapPaperclip
-        run: ./gradlew createMojmapPaperclipJar --no-daemon --parallel
+      - name: Build Paperclip
+        run: ./gradlew createPaperclipJar --no-daemon --parallel
            
       - name: Make release
         uses: marvinpinto/action-automatic-releases@master
