@@ -79,6 +79,7 @@ public class FoldenorConfig {
     public static boolean preventIncorrectTeleportAsyncThrow = false;
     public static boolean secureWorldSeedEnabled = true;
     public static String secureWorldSeedSalt = "";
+    public static boolean itemMultitask = false;
 
     protected static File CONFIG_FILE;
     static boolean verbose;
@@ -296,6 +297,7 @@ public class FoldenorConfig {
         waypointUpdateScale = getDouble("misc.waypointUpdateScale", waypointUpdateScale);
         preventIncorrectTeleportAsync = getBoolean("misc.prevent-incorrect-teleport-async.enable", preventIncorrectTeleportAsync);
         preventIncorrectTeleportAsyncThrow = getBoolean("misc.prevent-incorrect-teleport-async.throw-when-caught", preventIncorrectTeleportAsyncThrow);
+        itemMultitask = getBoolean("misc.item-multitask", itemMultitask);
     }
 
     private static void dynamicActivationOfBrains() throws IOException {

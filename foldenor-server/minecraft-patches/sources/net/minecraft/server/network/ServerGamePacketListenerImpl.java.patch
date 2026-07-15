@@ -20,6 +20,30 @@
  
                                          // If the event is cancelled we move the player back to their old location.
                                          if (event.isCancelled()) {
+@@ -2190,6 +_,7 @@
+                                 this.player.sendSpawnProtectionMessage(pos);
+                             } else if (this.awaitingPositionFromClient == null && (level.mayInteract(this.player, pos) || passthroughSignInteraction)) {
+                                 // Paper end - Allow using signs inside spawn protection
++                                if (!net.edenor.foldenor.config.FoldenorConfig.itemMultitask) // Foldenor - item multitask config
+                                 this.player.stopUsingItem(); // CraftBukkit - SPIGOT-4706
+                                 InteractionResult interactionResult = this.player.gameMode.useItemOn(this.player, level, itemStack, hand, blockHit);
+                                 if (interactionResult.consumesAction()) {
+@@ -2389,9 +_,13 @@
+                 return;
+             }
+             // CraftBukkit end
+-            if (this.player.getInventory().getSelectedSlot() != packet.getSlot() && this.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
+-                this.player.stopUsingItem();
++            // Foldenor start - item multitask config
++            if (!net.edenor.foldenor.config.FoldenorConfig.itemMultitask) {
++                if (this.player.getInventory().getSelectedSlot() != packet.getSlot() && this.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
++                    this.player.stopUsingItem();
++                }
+             }
++            // Foldenor end
+ 
+             this.player.getInventory().setSelectedSlot(packet.getSlot());
+             this.player.resetLastActionTime();
 @@ -2887,7 +_,7 @@
          // removed from the world
          // Folia end - rewrite login process - fix bad ordering of this field write - move after removed from world
