@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1008,10 +_,10 @@
+@@ -1018,10 +_,10 @@
          if (flush) {
              for (ServerLevel level : this.getAllLevels()) {
                  String storageName = level.getChunkSource().chunkMap.getStorageName();
@@ -13,7 +13,7 @@
          }
  
          return result;
-@@ -1975,6 +_,7 @@
+@@ -1986,6 +_,7 @@
          }
  
          profiler.popPush("server gui refresh");

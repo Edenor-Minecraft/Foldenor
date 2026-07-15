@@ -85,7 +85,7 @@
              Vec3 movement = this.collide(delta);
              double movementLength = movement.lengthSqr();
              if (movementLength > 1.0E-7 || delta.lengthSqr() - movementLength < 1.0E-7) {
-@@ -1288,9 +_,6 @@
+@@ -1288,11 +_,11 @@
          }
          // Paper start - detailed watchdog information
          } finally {
@@ -94,7 +94,12 @@
 -            } // Paper
          }
          // Paper end - detailed watchdog information
++        // Foldenor start - update root vehicle passengers on movement
++        if (this.vehicle == null && this.isVehicle() && moverType != MoverType.PLAYER) this.repositionAllPassengers(false);
++        // Foldenor end
      }
+ 
+     private void applyMovementEmissionAndPlaySound(
 @@ -2216,10 +_,18 @@
  
      @Deprecated
@@ -192,7 +197,7 @@
              } else if (!this.portalProcess.isInsidePortalThisTick()) {
                  this.portalProcess.updateEntryPosition(pos.immutable());
                  this.portalProcess.setAsInsidePortalThisTick(true);
-@@ -4368,6 +_,7 @@
+@@ -4367,6 +_,7 @@
          Entity copy = this.getType().create(destination, EntitySpawnReason.DIMENSION_TRAVEL);
          copy.restoreFrom(this);
          copy.transform(pos, yaw, pitch, velocity);
@@ -200,7 +205,7 @@
          // vanilla code used to call remove _after_ copying, and some stuff is required to be after copy - so add hook here
          // for example, clearing of inventory after switching dimensions
          this.postRemoveAfterChangingDimensions();
-@@ -4375,6 +_,16 @@
+@@ -4374,6 +_,16 @@
          return copy;
      }
  
@@ -217,7 +222,7 @@
      public final boolean teleportAsync(TeleportTransition teleportTarget, long teleportFlags,
                                         java.util.function.Consumer<Entity> teleportComplete) {
          PositionMoveRotation move = PositionMoveRotation.calculateAbsolute(PositionMoveRotation.of(this), PositionMoveRotation.of(teleportTarget), teleportTarget.relatives());
-@@ -4385,11 +_,26 @@
+@@ -4384,11 +_,26 @@
          );
      }
  
@@ -244,7 +249,7 @@
          if (!ServerLevel.isInSpawnableBounds(new BlockPos(ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockX(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockY(pos), ca.spottedleaf.moonrise.common.util.CoordinateUtils.getBlockZ(pos)))) {
              return false;
          }
-@@ -4437,7 +_,9 @@
+@@ -4436,7 +_,9 @@
              }
  
              for (EntityTreeNode entity : passengerTree.getFullTree()) {
@@ -254,7 +259,7 @@
              }
  
              if (hasPassengers) {
-@@ -4911,7 +_,8 @@
+@@ -4910,7 +_,8 @@
          return this;
      }
  
@@ -264,7 +269,7 @@
          List<Entity> oldPassengers = this.getPassengers();
          List<Entity> newPassengers = new ArrayList<>(oldPassengers.size());
          this.ejectPassengers();
-@@ -4938,13 +_,13 @@
+@@ -4937,13 +_,13 @@
              newEntity.restoreFrom(this);
              this.removeAfterChangingDimensions();
              newEntity.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(transition), transition.relatives());
@@ -280,7 +285,7 @@
              transition.postTeleportTransition().onTransition(newEntity);
              this.teleportSpectators(transition, oldLevel);
              profiler.pop();
-@@ -5321,6 +_,11 @@
+@@ -5320,6 +_,11 @@
      }
  
      public final void setBoundingBox(final AABB bb) {
@@ -292,7 +297,7 @@
          // CraftBukkit start - block invalid bounding boxes
          double minX = bb.minX,
                  minY = bb.minY,
-@@ -5685,9 +_,7 @@
+@@ -5684,9 +_,7 @@
  
      public void setDeltaMovement(final Vec3 deltaMovement) {
          if (deltaMovement.isFinite()) {
@@ -302,7 +307,7 @@
          }
      }
  
-@@ -5793,9 +_,7 @@
+@@ -5792,9 +_,7 @@
          // Paper end - Block invalid positions and bounding box
          boolean posChanged = this.position.x != x || this.position.y != y || this.position.z != z;
          if (posChanged) { // Folia - region threading

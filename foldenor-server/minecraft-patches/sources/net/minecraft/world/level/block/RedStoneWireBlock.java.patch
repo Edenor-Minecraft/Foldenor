@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
-@@ -354,7 +_,7 @@
+@@ -350,7 +_,7 @@
          if (level.getBlockState(pos).is(this)) {
              level.updateNeighborsAt(pos, this);
  
@@ -9,7 +9,7 @@
                  level.updateNeighborsAt(pos.relative(direction), this);
              }
          }
-@@ -382,7 +_,7 @@
+@@ -378,7 +_,7 @@
      @Override
      protected void affectNeighborsAfterRemoval(final BlockState state, final ServerLevel level, final BlockPos pos, final boolean movedByPiston) {
          if (!movedByPiston) {
