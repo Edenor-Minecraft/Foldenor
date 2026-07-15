@@ -54,11 +54,11 @@
          // Paper start - improve keepalives
 +        // Purpur start - Alternative Keepalive Handling
 +        if (FoldenorConfig.useAlternateKeepAlive) {
-+            if (this.checkIfClosed(now) && !this.processedDisconnect) {
++            if (this.checkIfClosed(now)) {
 +                long currTime = System.nanoTime();
 +                if ((currTime - this.keepAlive.lastKeepAliveTx) >= java.util.concurrent.TimeUnit.SECONDS.toNanos(1L)) { // 1 second
 +                    this.keepAlive.lastKeepAliveTx = currTime;
-+                    if (this.keepAlivePending && !this.processedDisconnect && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
++                    if (this.keepAlivePending && keepAlives.size() * 1000L >= KEEPALIVE_LIMIT) {
 +                        this.disconnect(TIMEOUT_DISCONNECTION_MESSAGE, io.papermc.paper.connection.DisconnectionReason.TIMEOUT);
 +                    } else if (this.checkIfClosed(now)) {
 +                        this.keepAlivePending = true;
@@ -69,6 +69,6 @@
 +            }
 +        } else
 +            // Purpur end - Alternative Keepalive Handling
-         if (this.checkIfClosed(now) && !this.processedDisconnect) {
+         if (this.checkIfClosed(now)) {
              long currTime = System.nanoTime();
  
