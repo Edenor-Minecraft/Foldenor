@@ -48,6 +48,6 @@ jobs:
         with:
           title: "Foldenor 26.1.2 release"
           automatic_release_tag: "latest_26.1.2"
-          files: foldenor-server/build/libs/*-paperclip-*-mojmap.jar
+          files: foldenor-server/build/libs/*-paperclip-*.jar
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
