@@ -43,6 +43,8 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
 
+    version = providers.gradleProperty("mcVersion").get().trim()
+
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(25)
