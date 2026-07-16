@@ -1,6 +1,6 @@
 --- a/io/papermc/paper/threadedregions/TickRegionScheduler.java
 +++ b/io/papermc/paper/threadedregions/TickRegionScheduler.java
-@@ -14,12 +14,16 @@
+@@ -14,12 +_,16 @@
  import com.mojang.logging.LogUtils;
  import io.papermc.paper.util.TraceUtil;
  import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
@@ -17,50 +17,59 @@
  import java.util.concurrent.ThreadFactory;
  import java.util.concurrent.TimeUnit;
  import java.util.concurrent.atomic.AtomicBoolean;
-@@ -252,9 +256,39 @@
- 
-     public void setHasTasks(final RegionScheduleHandle region) {
+@@ -254,6 +_,34 @@
          this.scheduler.notifyTasks(region);
-+    }
-+
+     }
+ 
 +    private void saveCrashReport(final Throwable throwable, final String title, final CrashReportCategoryFiller filler) {
-+        final MinecraftServer server = MinecraftServer.getServer();
-+        if (server == null) {
-+            return;
-+        }
++        try {
++            final MinecraftServer server = MinecraftServer.getServer();
++            if (server == null) {
++                return;
++            }
 +
-+        final CrashReport report = CrashReport.forThrowable(throwable, title);
-+        filler.fill(report);
-+        server.fillSystemReport(report.getSystemReport());
++            final CrashReport report = CrashReport.forThrowable(throwable, title);
++            filler.fill(report);
++            server.fillSystemReport(report.getSystemReport());
 +
-+        final Path path = server.getServerDirectory().resolve("crash-reports")
-+            .resolve("crash-" + net.minecraft.util.Util.getFilenameFormattedDateTime() + "-server.txt");
-+        if (report.saveToFile(path, ReportType.CRASH)) {
-+            LOGGER.error("Crash report saved to: {}", path.toAbsolutePath());
-+        } else {
-+            LOGGER.error("Unable to save crash report to disk");
++            final Path path = server.getServerDirectory().resolve("crash-reports")
++                .resolve("crash-" + net.minecraft.util.Util.getFilenameFormattedDateTime() + "-server.txt");
++            if (report.saveToFile(path, ReportType.CRASH)) {
++                LOGGER.error("Crash report saved to: {}", path.toAbsolutePath());
++            } else {
++                LOGGER.error("Unable to save crash report to disk");
++            }
++        } catch (final Throwable thr) {
++            LOGGER.error("Failed to generate crash report for: {}", title, thr);
 +        }
 +    }
 +
 +    @FunctionalInterface
 +    private interface CrashReportCategoryFiller {
 +        void fill(CrashReport report);
-     }
- 
++    }
++
      private void uncaughtException(final Thread thread, final Throwable thr) {
+         LOGGER.error("Uncaught exception in tick thread \"" + thread.getName() + "\"", thr);
+ 
+@@ -261,6 +_,13 @@
+         // we CANNOT sync, because WE ARE ON A SCHEDULER THREAD
+         this.scheduler.halt();
+ 
 +        this.saveCrashReport(thr, "Uncaught scheduler exception", report -> {
 +            final CrashReportCategory scheduler = report.addCategory("Region Scheduler");
 +            scheduler.setDetail("Thread", thread.getName());
 +            scheduler.setDetail("Scheduler", this.scheduler.getClass().getName());
 +            scheduler.setDetail("Active threads", this.scheduler.getAliveThreads().length);
 +        });
-         LOGGER.error("Uncaught exception in tick thread \"" + thread.getName() + "\"", thr);
++
+         MinecraftServer.getServer().stopServer();
+     }
  
-         // prevent further ticks from occurring
-@@ -266,6 +300,26 @@
+@@ -275,6 +_,25 @@
+         final ServerLevel world = handle.region == null ? null : handle.region.world;
  
-     private void regionFailed(final RegionScheduleHandle handle, final boolean executingTasks, final Throwable thr) {
-         // when a region fails, we need to shut down the server gracefully
+         LOGGER.error("Region #" + (handle.region == null ? -1L : handle.region.id) + " centered at chunk " + center + " in world '" + (world == null ? "null" : world.getWorld().getName()) + "' failed to " + (executingTasks ? "execute tasks" : "tick") + ":", thr);
 +
 +        this.saveCrashReport(thr, "Region failure", report -> {
 +            final CrashReportCategory scheduler = report.addCategory("Region Scheduler");
@@ -75,11 +84,11 @@
 +            if (handle.region != null) {
 +                region.setDetail("Region id", handle.region.id);
 +                region.setDetail("World", handle.region.world.getWorld().getName());
-+                region.setDetail("Center chunk", handle.region.region.getCenterChunk());
++                region.setDetail("Center chunk", center);
 +            } else {
 +                region.setDetail("Global region", true);
 +            }
 +        });
  
-         // prevent further ticks from occurring
-         // we CANNOT sync, because WE ARE ON A SCHEDULER THREAD
+         MinecraftServer.getServer().stopServer();
+     }
