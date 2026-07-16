@@ -70,7 +70,7 @@
              if (world.getUID().equals(uid)) {
                  return world;
 @@ -1441,6 +_,7 @@
-             System.out.println("World " + world.getKey() + " is a duplicate of another world and has been prevented from loading. Please remove or change the duplicated Paper world metadata before loading it again.");
+             System.out.println("World " + world.key().asString() + " is a duplicate of another world and has been prevented from loading. Please remove or change the duplicated Paper world metadata before loading it again.");
              return;
          }
 +        this.worldsByUUID.put(world.getUID(), world); // DivineMC - MultiPaper - optimize getWorld(UUID)

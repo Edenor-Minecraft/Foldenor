@@ -10,3 +10,11 @@
          }
          // CraftBukkit end
          this.updateFluidInteraction();
+@@ -403,6 +_,7 @@
+ 
+     protected void moveAlongTrack(final ServerLevel level) {
+         this.behavior.moveAlongTrack(level);
++        if (this.getVehicle() == null && this.isVehicle()) this.repositionAllPassengers(false); // Foldenor - update passengers after track movement
+     }
+ 
+     protected void comeOffTrack(final ServerLevel level) {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/network/Connection.java
 +++ b/net/minecraft/network/Connection.java
-@@ -349,6 +_,116 @@
+@@ -350,6 +_,116 @@
          }
      }
  
@@ -117,7 +117,7 @@
      public <T extends PacketListener> void setupInboundProtocol(final ProtocolInfo<T> protocol, final T packetListener) {
          this.validateListener(protocol, packetListener);
          if (protocol.flow() != this.getReceiving()) {
-@@ -638,12 +_,12 @@
+@@ -640,12 +_,12 @@
              // Paper start - Buffer joins to world
              if (true) { // Folia - region threading
              // Paper start - detailed watchdog information

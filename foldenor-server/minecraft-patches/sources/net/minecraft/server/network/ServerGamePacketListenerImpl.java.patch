@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -728,7 +_,9 @@
+@@ -727,7 +_,9 @@
  
                      Location oldTo = to.clone();
                      PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
@@ -10,7 +10,7 @@
  
                      // If the event is cancelled we move the player back to their old location.
                      if (event.isCancelled()) {
-@@ -1751,7 +_,9 @@
+@@ -1750,7 +_,9 @@
  
                                          Location oldTo = to.clone();
                                          PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
@@ -20,7 +20,31 @@
  
                                          // If the event is cancelled we move the player back to their old location.
                                          if (event.isCancelled()) {
-@@ -2895,7 +_,7 @@
+@@ -2190,6 +_,7 @@
+                                 this.player.sendSpawnProtectionMessage(pos);
+                             } else if (this.awaitingPositionFromClient == null && (level.mayInteract(this.player, pos) || passthroughSignInteraction)) {
+                                 // Paper end - Allow using signs inside spawn protection
++                                if (!net.edenor.foldenor.config.FoldenorConfig.itemMultitask) // Foldenor - item multitask config
+                                 this.player.stopUsingItem(); // CraftBukkit - SPIGOT-4706
+                                 InteractionResult interactionResult = this.player.gameMode.useItemOn(this.player, level, itemStack, hand, blockHit);
+                                 if (interactionResult.consumesAction()) {
+@@ -2389,9 +_,13 @@
+                 return;
+             }
+             // CraftBukkit end
+-            if (this.player.getInventory().getSelectedSlot() != packet.getSlot() && this.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
+-                this.player.stopUsingItem();
++            // Foldenor start - item multitask config
++            if (!net.edenor.foldenor.config.FoldenorConfig.itemMultitask) {
++                if (this.player.getInventory().getSelectedSlot() != packet.getSlot() && this.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
++                    this.player.stopUsingItem();
++                }
+             }
++            // Foldenor end
+ 
+             this.player.getInventory().setSelectedSlot(packet.getSlot());
+             this.player.resetLastActionTime();
+@@ -2887,7 +_,7 @@
          // removed from the world
          // Folia end - rewrite login process - fix bad ordering of this field write - move after removed from world
          try { // Folia - rewrite login process - move connection ownership to global region
@@ -29,7 +53,7 @@
          this.removePlayerFromWorld();
          } finally { // Folia start - rewrite login process - move connection ownership to global region
              io.papermc.paper.threadedregions.RegionizedWorldData worldData = this.player.level().getCurrentWorldData();
-@@ -2904,7 +_,13 @@
+@@ -2896,7 +_,13 @@
          } // Folia end - rewrite login process - move connection ownership to global region
          this.waitingForSwitchToConfig = true; // Folia - rewrite login process - fix bad ordering of this field write - moved down
          this.send(ClientboundStartConfigurationPacket.INSTANCE);
@@ -44,7 +68,7 @@
      }
  
      @Override
-@@ -3014,7 +_,7 @@
+@@ -3006,7 +_,7 @@
                              // SPIGOT-7136 - Allays
                              if (target instanceof net.minecraft.world.entity.animal.allay.Allay || target instanceof net.minecraft.world.entity.animal.equine.AbstractHorse) { // Paper - Fix horse armor desync
                                  ServerGamePacketListenerImpl.this.send(new net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket(
@@ -53,7 +77,7 @@
                                      .map((slot) -> com.mojang.datafixers.util.Pair.of(slot, ((LivingEntity) target).getItemBySlot(slot).copy()))
                                      .collect(Collectors.toList()), true)); // Paper - sanitize
                                  player.containerMenu.sendAllDataToRemote();
-@@ -3151,7 +_,7 @@
+@@ -3143,7 +_,7 @@
          if (this.player.isImmobile()) return; // CraftBukkit
          this.player.resetLastActionTime();
          if (this.player.containerMenu.containerId == packet.containerId() && this.player.containerMenu.stillValid(this.player)) { // CraftBukkit
@@ -62,7 +86,7 @@
              if (false/*this.player.isSpectator()*/) { // CraftBukkit
                  this.player.containerMenu.sendAllDataToRemote();
              } else if (!this.player.containerMenu.stillValid(this.player)) {
-@@ -3787,12 +_,25 @@
+@@ -3779,12 +_,25 @@
              throw new IllegalStateException("Client acknowledged config, but none was requested");
          } else {
              final ServerConfigurationPacketListenerImpl listener = new ServerConfigurationPacketListenerImpl(this.server, this.connection, this.createCookie(this.player.clientInformation())); // Paper
@@ -93,7 +117,7 @@
          }
      }
  
-@@ -3829,6 +_,17 @@
+@@ -3821,6 +_,17 @@
  
      @Override
      public void handleCustomPayload(final ServerboundCustomPayloadPacket packet) {

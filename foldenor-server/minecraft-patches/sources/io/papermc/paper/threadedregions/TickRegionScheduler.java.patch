@@ -1,0 +1,94 @@
+--- a/io/papermc/paper/threadedregions/TickRegionScheduler.java
++++ b/io/papermc/paper/threadedregions/TickRegionScheduler.java
+@@ -14,12 +_,16 @@
+ import com.mojang.logging.LogUtils;
+ import io.papermc.paper.util.TraceUtil;
+ import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
++import net.minecraft.CrashReport;
++import net.minecraft.CrashReportCategory;
++import net.minecraft.ReportType;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.world.level.ChunkPos;
+ import org.slf4j.Logger;
+ import java.lang.management.ManagementFactory;
+ import java.lang.management.ThreadMXBean;
++import java.nio.file.Path;
+ import java.util.concurrent.ThreadFactory;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicBoolean;
+@@ -254,6 +_,34 @@
+         this.scheduler.notifyTasks(region);
+     }
+ 
++    private void saveCrashReport(final Throwable throwable, final String title, final CrashReportCategoryFiller filler) {
++        try {
++            final MinecraftServer server = MinecraftServer.getServer();
++            if (server == null) {
++                return;
++            }
++
++            final CrashReport report = CrashReport.forThrowable(throwable, title);
++            filler.fill(report);
++            server.fillSystemReport(report.getSystemReport());
++
++            final Path path = server.getServerDirectory().resolve("crash-reports")
++                .resolve("crash-" + net.minecraft.util.Util.getFilenameFormattedDateTime() + "-server.txt");
++            if (report.saveToFile(path, ReportType.CRASH)) {
++                LOGGER.error("Crash report saved to: {}", path.toAbsolutePath());
++            } else {
++                LOGGER.error("Unable to save crash report to disk");
++            }
++        } catch (final Throwable thr) {
++            LOGGER.error("Failed to generate crash report for: {}", title, thr);
++        }
++    }
++
++    @FunctionalInterface
++    private interface CrashReportCategoryFiller {
++        void fill(CrashReport report);
++    }
++
+     private void uncaughtException(final Thread thread, final Throwable thr) {
+         LOGGER.error("Uncaught exception in tick thread \"" + thread.getName() + "\"", thr);
+ 
+@@ -261,6 +_,13 @@
+         // we CANNOT sync, because WE ARE ON A SCHEDULER THREAD
+         this.scheduler.halt();
+ 
++        this.saveCrashReport(thr, "Uncaught scheduler exception", report -> {
++            final CrashReportCategory scheduler = report.addCategory("Region Scheduler");
++            scheduler.setDetail("Thread", thread.getName());
++            scheduler.setDetail("Scheduler", this.scheduler.getClass().getName());
++            scheduler.setDetail("Active threads", this.scheduler.getAliveThreads().length);
++        });
++
+         MinecraftServer.getServer().stopServer();
+     }
+ 
+@@ -275,6 +_,25 @@
+         final ServerLevel world = handle.region == null ? null : handle.region.world;
+ 
+         LOGGER.error("Region #" + (handle.region == null ? -1L : handle.region.id) + " centered at chunk " + center + " in world '" + (world == null ? "null" : world.getWorld().getName()) + "' failed to " + (executingTasks ? "execute tasks" : "tick") + ":", thr);
++
++        this.saveCrashReport(thr, "Region failure", report -> {
++            final CrashReportCategory scheduler = report.addCategory("Region Scheduler");
++            scheduler.setDetail("Scheduler", this.scheduler.getClass().getName());
++            scheduler.setDetail("Active threads", this.scheduler.getAliveThreads().length);
++
++            final CrashReportCategory region = report.addCategory("Failed Region");
++            region.setDetail("Operation", executingTasks ? "execute tasks" : "tick");
++            region.setDetail("Tick", handle.currentTick);
++            region.setDetail("Non-schedulable", handle.isMarkedAsNonSchedulable());
++            region.setDetail("Has intermediate tasks", handle.hasTasks());
++            if (handle.region != null) {
++                region.setDetail("Region id", handle.region.id);
++                region.setDetail("World", handle.region.world.getWorld().getName());
++                region.setDetail("Center chunk", center);
++            } else {
++                region.setDetail("Global region", true);
++            }
++        });
+ 
+         MinecraftServer.getServer().stopServer();
+     }

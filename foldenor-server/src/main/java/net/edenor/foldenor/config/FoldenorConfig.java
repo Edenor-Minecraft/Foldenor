@@ -79,6 +79,7 @@ public class FoldenorConfig {
     public static boolean preventIncorrectTeleportAsyncThrow = false;
     public static boolean secureWorldSeedEnabled = true;
     public static String secureWorldSeedSalt = "";
+    public static boolean itemMultitask = false;
 
     protected static File CONFIG_FILE;
     static boolean verbose;
@@ -249,7 +250,7 @@ public class FoldenorConfig {
         appleskinProtocol = getBoolean("network.appleskin-protocol", appleskinProtocol);
         useAlternateKeepAlive = getBoolean("network.use-alternate-keepalive", useAlternateKeepAlive);
         appleskinSyncTickInterval = getInt("network.appleskin-sync-tick-interval", appleskinSyncTickInterval);
-        asyncProtocolChange = getBoolean("network.async-protocol-change", useAlternateKeepAlive);
+        asyncProtocolChange = getBoolean("network.async-protocol-change", asyncProtocolChange);
     }
 
     private static void readOptimizationSettings() {
@@ -296,6 +297,7 @@ public class FoldenorConfig {
         waypointUpdateScale = getDouble("misc.waypointUpdateScale", waypointUpdateScale);
         preventIncorrectTeleportAsync = getBoolean("misc.prevent-incorrect-teleport-async.enable", preventIncorrectTeleportAsync);
         preventIncorrectTeleportAsyncThrow = getBoolean("misc.prevent-incorrect-teleport-async.throw-when-caught", preventIncorrectTeleportAsyncThrow);
+        itemMultitask = getBoolean("misc.item-multitask", itemMultitask);
     }
 
     private static void dynamicActivationOfBrains() throws IOException {
