@@ -250,7 +250,7 @@ public class FoldenorConfig {
         appleskinProtocol = getBoolean("network.appleskin-protocol", appleskinProtocol);
         useAlternateKeepAlive = getBoolean("network.use-alternate-keepalive", useAlternateKeepAlive);
         appleskinSyncTickInterval = getInt("network.appleskin-sync-tick-interval", appleskinSyncTickInterval);
-        asyncProtocolChange = getBoolean("network.async-protocol-change", useAlternateKeepAlive);
+        asyncProtocolChange = getBoolean("network.async-protocol-change", asyncProtocolChange);
     }
 
     private static void readOptimizationSettings() {
