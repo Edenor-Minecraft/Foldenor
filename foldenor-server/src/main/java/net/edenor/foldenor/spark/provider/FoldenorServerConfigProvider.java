@@ -63,8 +63,7 @@ public class FoldenorServerConfigProvider extends ServerConfigProvider {
             .add("world-settings.*.seed-*")
             .add("feature-seeds")
             .add("seed-*")
-            // Foldenor - hide secure world seed configuration
-            .add("secure-world-seed.salt")
+            .add("secure-seed.salt")
             .addAll(getTimingsHiddenConfigs())
             .addAll(getSystemPropertyList("spark.serverconfigs.hiddenpaths"));
 
